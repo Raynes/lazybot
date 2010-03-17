@@ -6,7 +6,9 @@
 (def google-cmds {"google" :google})
 
 (defn google [term]
-  (json/decode-from-str (slurp* (str "http://ajax.googleapis.com/ajax/services/search/web?v=1.0&q=" (java.net.URLEncoder/encode term)))))
+  (json/decode-from-str 
+   (slurp* (str "http://ajax.googleapis.com/ajax/services/search/web?v=1.0&q=" 
+		(java.net.URLEncoder/encode term)))))
 
 (defn cull [result-set]
   [(:estimatedResultCount (:cursor (:responseData result-set)))
