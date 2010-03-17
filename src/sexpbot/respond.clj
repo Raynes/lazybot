@@ -1,5 +1,5 @@
 (ns sexpbot.respond
-  (:use [sexpbot.commands]))
+  (:use (sexpbot commands)))
 
 (defn find-command [cmds command]
     (if (cmds command) 

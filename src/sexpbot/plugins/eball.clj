@@ -1,6 +1,5 @@
-(ns sexpbot.plugins.8ball
-  (:use [sexpbot.respond]
-	[sexpbot.commands]))
+(ns sexpbot.plugins.eball
+  (:use (sexpbot respond commands)))
 
 (def eball-cmds {"8ball" :8ball})
 

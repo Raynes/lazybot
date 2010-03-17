@@ -1,6 +1,5 @@
 (ns sexpbot.plugins.utils
-  (:use [sexpbot.commands]
-	[sexpbot.respond]))
+  (:use (sexpbot commands respond)))
 
 (def known-prefixes
      [\& \+ \@ \% \! \~])
@@ -37,5 +36,6 @@
 
 (defmethod respond :what [{:keys [bot channel]}]
   (.sendMessage bot channel "It's AWWWW RIGHT!"))
+
 
 (defmodule util-cmds :utils)
