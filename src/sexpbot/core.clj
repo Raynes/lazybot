@@ -1,5 +1,5 @@
 (ns sexpbot.core
-  (:use (sexpbot.plugins utils eball google lmgtfy)
+  (:use (sexpbot.plugins utils eball google lmgtfy translate)
 	(sexpbot respond)
 	[clojure.contrib.str-utils :only [re-split]])
   (:import (org.jibble.pircbot PircBot)))
