@@ -11,19 +11,15 @@
 		 x)) users))
 
 (def util-cmds
-     {"time"   :time
-      "quit"   :quit
-      "rape"   :rape
-      "coin"   :coin
-      "help"   :help})
+     {"time" :time
+      "rape" :rape
+      "coin" :coin
+      "help" :help
+      "what" :what})
 
 (defmethod respond :time [{:keys [bot sender channel]}]
   (let [time (.toString (java.util.Date.))]
     (.sendMessage bot channel (str sender ": The time is now " time))))
-
-(defmethod respond :quit [{:keys [bot channel]}]
-  (.sendMessage bot channel "Okay, I'm fucking leaving. Fuck.")
-  (System/exit 0))
 
 (defmethod respond :rape [{:keys [args bot channel]}]
   (let [user-to-rape (if (= (first args) "*") 
@@ -39,11 +35,7 @@
 (defmethod respond :help [{:keys [bot sender channel]}]
   (.sendMessage bot channel (str sender ": Help yourself, perverted fuck.")))
 
-(dosync (alter commands merge {:utils util-cmds})
-	(alter modules merge 
-	       {:utils 
-		{:load #(dosync (alter commands assoc :utils util-cmds))
-		 :unload #(dosync (alter commands dissoc :utils)
-				  (println @commands)
-				  (println @modules))}}))
-			       
+(defmethod respond :what [{:keys [bot channel]}]
+  (.sendMessage bot channel "It's AWWWW RIGHT!"))
+
+(defmodule util-cmds :utils)

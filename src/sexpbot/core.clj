@@ -19,10 +19,6 @@
 		       {:command command
 			:args args}))
 
-(defn unload [{:keys [bot channel args]}]
-  (remove-ns (symbol (first args)))
-  (.sendMessage bot channel (str (first args) " unloaded.")))
-
 (defn make-bot [] 
   (let [bot (proxy [PircBot] []
 	      (onMessage 
