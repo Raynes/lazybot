@@ -1,6 +1,7 @@
 (ns sexpbot.core
   (:use [sexpbot.plugins.utils]
 	[sexpbot.plugins.8ball]
+	[sexpbot.plugins.google]
 	[sexpbot.respond]
 	[clojure.contrib.str-utils :only [re-split]])
   (:import (org.jibble.pircbot PircBot)))
