@@ -25,7 +25,7 @@
       "Outlook not so good."
       "Very doubtful."])
 
-(defmethod respond :8ball [{:keys [args bot sender channel]}]
+(defmethod respond :8ball [{:keys [bot sender channel]}]
   (let [answer (rand-int 20)]
     (.sendMessage bot channel (str sender ": " (nth responses answer)))))
 

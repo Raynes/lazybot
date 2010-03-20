@@ -1,13 +1,12 @@
 (ns sexpbot.core
-  (:use (sexpbot.plugins utils eball google lmgtfy translate)
-	(sexpbot respond)
+  (:use (sexpbot.plugins utils eball google lmgtfy translate eval)
+	sexpbot.respond
 	[clojure.contrib.str-utils :only [re-split]])
   (:import (org.jibble.pircbot PircBot)))
 
-(def botconfig 
-     (ref {:prepend \$
-	   :server "irc.freenode.net"
-	   :channel "#acidrayne"}))
+(def prepend \$)
+(def server "irc.freenode.net")
+(def channels ["#()" "#clojure-casual"])
 
 (defn wall-hack-method [class-name name- params obj & args]
   (-> class-name (.getDeclaredMethod (name name-) (into-array Class params))
@@ -22,7 +21,7 @@
   (let [bot (proxy [PircBot] []
 	      (onMessage 
 	       [chan send login host mess]
-	       (if (= (first mess) (@botconfig :prepend))
+	       (if (= (first mess) prepend)
 		 (respond (merge (split-args (apply str (rest mess)))
 				 {:bot this 
 				  :sender send 
@@ -32,8 +31,7 @@
     (wall-hack-method PircBot :setName [String] bot "sexpbot")
     (doto bot
       (.setVerbose true)
-      (.connect "irc.freenode.net")
-      (.joinChannel "#()"))
-    (dosync (alter botconfig merge {:bot bot}))))
+      (.connect server))
+    (doseq [chan channels] (.joinChannel bot chan))))
 
-(make-bot)
+(make-bot) 

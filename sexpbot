@@ -1,0 +1,1 @@
+java -cp src/:lib/* clojure.main src/sexpbot/core.clj

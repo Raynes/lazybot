@@ -1,5 +1,5 @@
 (ns sexpbot.respond
-  (:use (sexpbot commands)))
+  (:use sexpbot.commands))
 
 (defn find-command [cmds command]
     (if (cmds command) 
@@ -13,7 +13,7 @@
 (defmulti respond cmd-respond)
 
 (defmethod respond :quit [{:keys [bot channel]}]
-  (.sendMessage bot channel "Okay, I'm fucking leaving. Fuck.")
+  (.sendMessage bot channel "I bid thee adieu! Into the abyss I go!")
   (System/exit 0))
 
 (defmethod respond :load [{:keys [bot channel args]}]
@@ -34,7 +34,7 @@
   (.sendMessage bot channel (str (keys (into {} (filter (comp map? second) @commands))))))
 
 (defmethod respond :default [{:keys [bot channel]}]
-  (.sendMessage bot channel "Command not found. Stop fucking with me."))
+  (.sendMessage bot channel "Command not found. You can thank Rayne for this one."))
 
 (defn defmodule [cmd-map m-name]
   (dosync (alter commands merge {m-name cmd-map})
