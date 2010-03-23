@@ -5,7 +5,8 @@
 	   java.util.concurrent.TimeoutException))
 
 (def eval-cmds
-     {\( :eval})
+     {\(     :eval
+      "eval" :eval})
 
 (enable-security-manager)
 
