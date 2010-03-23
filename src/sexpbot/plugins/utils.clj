@@ -21,11 +21,20 @@
       "coin"     :coin
       "help"     :help
       "what"     :what
-      "pangram?" :pangram})
+      "pangram?" :pangram
+      "join"     :join
+      "part"     :part})
 
 (defmethod respond :time [{:keys [bot sender channel]}]
   (let [time (unparse (formatters :date-time-no-ms) (now))]
     (.sendMessage bot channel (str sender ": The time is now " time))))
+
+(defmethod respond :join [{:keys [bot args]}]
+  (.joinChannel bot (first args)))
+
+(defmethod respond :part [{:keys [bot args channel]}]
+  (.sendMessage bot channel "Bai!")
+  (.partChannel bot (first args)))
 
 (defmethod respond :rape [{:keys [args bot channel]}]
   (let [user-to-rape (if (= (first args) "*") 

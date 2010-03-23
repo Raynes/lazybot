@@ -1,14 +1,14 @@
 (ns sexpbot.respond
   (:use sexpbot.commands))
 
-(defn find-command [cmds command]
-    (if (cmds command) 
-      (cmds command) 
-      (if (some (comp map? val) cmds) 
-	(let [result (apply merge (remove keyword? (vals cmds)))]
-	  (result command)))))
+(defn find-command [cmds command first]
+  (let [res (apply merge (remove keyword? (vals cmds)))]
+    (cond
+     (res first) (res first)
+     (cmds command) (cmds command) 
+     (some (comp map? val) cmds) (res command))))
 
-(defn cmd-respond [{:keys [command]}] (find-command @commands command))
+(defn cmd-respond [{:keys [command first]}] (find-command @commands command first))
 
 (defmulti respond cmd-respond)
 

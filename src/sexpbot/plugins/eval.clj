@@ -5,7 +5,7 @@
 	   java.util.concurrent.TimeoutException))
 
 (def eval-cmds
-     {"eval" :eval})
+     {\( :eval})
 
 (enable-security-manager)
 
@@ -32,6 +32,6 @@
      (catch Exception e (.getMessage (.getCause e))))))
 
 (defmethod respond :eval [{:keys [bot channel command args]}]
-  (.sendMessage bot channel (->> args (interpose " ") (apply str) execute-text)))
+  (.sendMessage bot channel (->> (cons command args) (interpose " ") (apply str) execute-text)))
 
 (defmodule eval-cmds :eval)

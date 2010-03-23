@@ -15,6 +15,7 @@
 
 (defn split-args [s] (let [[command & args] (re-split #" " s)]
 		       {:command command
+			:first (first command)
 			:args args}))
 
 (defn make-bot [] 
