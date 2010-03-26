@@ -1,15 +1,13 @@
 # sexpbot
 
-FIXME: write description
+My answer to clojurebot. A likely horribly designed IRC bot written in Clojure. This is my biggest project at the moment, and it's been all sorts of fun to write. It uses the Pircbot Java framework for low-level IRC connection handling, and uses multimethods for dispatch for commands. It's most prominent feature is likely the sandboxed Clojure code evaluation.
 
 ## Usage
 
-FIXME: write
+Right now, there are no distributions, so the easiest way to run the bot is to clone the repository, do 'lein deps' to install the project's dependencies into the lib/ directory, and then edit src/sexpbot/core.clj to put whatever channels you want to join, the server, and the name of your bot in there, and then run the sexpbot startup script in the root of this directory.
 
-## Installation
-
-FIXME: write
+I'll be adding a list of commands soon, and I'll also be making it easier to set up the bot and such.
 
 ## License
 
-FIXME: write
+Licensed under the same thing Clojure is licensed under. The EPL, of which you can find a copy of here: http://www.eclipse.org/legal/epl-v10.html and at the root of this directory.
