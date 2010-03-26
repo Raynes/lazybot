@@ -36,7 +36,7 @@
 (defmethod respond :default [{:keys [bot channel]}]
   (.sendMessage bot channel "Command not found. You can thank Rayne for this one."))
 
-(defn defmodule [cmd-map m-name]
+(defn defmodule [m-name cmd-map]
   (dosync (alter commands merge {m-name cmd-map})
 	  (alter modules merge 
 		 {m-name 

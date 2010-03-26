@@ -1,8 +1,6 @@
 (ns sexpbot.plugins.lmgtfy
   (:use (sexpbot respond commands)))
 
-(def lmgtfy-cmds {"lmgtfy" :lmgtfy})
-
 (defn create-url [args]
   (str "http://www.lmgtfy.com/?q=" (apply str (interpose "+" args))))
 
@@ -14,4 +12,4 @@
 	(.sendMessage bot channel (str (last user-to) ": " (create-url url-from))))
       (.sendMessage bot channel (create-url args)))))
 
-(defmodule lmgtfy-cmds :lmgtfy)
+(defmodule :lmgtfy {"lmgtfy" :lmgtfy})

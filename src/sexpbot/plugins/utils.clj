@@ -15,16 +15,6 @@
 	text (->> s .toLowerCase (filter letters) (into #{}))]
     (= text letters)))
 
-(def util-cmds
-     {"time"     :time
-      "rape"     :rape
-      "coin"     :coin
-      "help"     :help
-      "what"     :what
-      "pangram?" :pangram
-      "join"     :join
-      "part"     :part})
-
 (defmethod respond :time [{:keys [bot sender channel]}]
   (let [time (unparse (formatters :date-time-no-ms) (now))]
     (.sendMessage bot channel (str sender ": The time is now " time))))
@@ -33,7 +23,7 @@
   (.joinChannel bot (first args)))
 
 (defmethod respond :part [{:keys [bot args channel]}]
-  (.sendMessage bot channel "Bai!")
+  (.sendMessage bot (first args) "Bai!")
   (.partChannel bot (first args)))
 
 (defmethod respond :rape [{:keys [args bot channel]}]
@@ -54,5 +44,25 @@
 (defmethod respond :pangram [{:keys [bot channel args]}]
   (.sendMessage bot channel (-> args stringify pangram? str)))
 
+(defmethod respond :fuck [{:keys [bot channel sender]}]
+  (.sendMessage bot channel (str sender ": no u")))
 
-(defmodule util-cmds :utils)
+(defmethod respond :setnick [{:keys [bot args]}]
+  (.changeNick bot (first args)))
+
+(defmethod respond :doesdirexist [{:keys [bot channel args]}]
+  (.sendMessage bot channel (str (.exists (java.io.File. (first args))))))
+
+
+(defmodule :utils      
+  {"time"     :time
+   "rape"     :rape
+   "coin"     :coin
+   "help"     :help
+   "what"     :what
+   "pangram?" :pangram
+   "join"     :join
+   "part"     :part
+   "setnick"  :setnick
+   "fuck"     :fuck
+   "doesdirexist?" :doesdirexist})

@@ -4,8 +4,6 @@
   (:require [org.danlarkin.json :as json])
   (:import (org.apache.commons.lang StringEscapeUtils)))
 
-(def translate-cmds {"translate" :translate})
-
 (defn translate [lang1 lang2 text]
   (json/decode-from-str 
    (slurp* (str 
@@ -24,4 +22,4 @@
 				    StringEscapeUtils/unescapeHtml))
       (.sendMessage bot channel "Languages not recognized."))))
 
-(defmodule translate-cmds :translate)
+(defmodule :translate {"translate" :translate})

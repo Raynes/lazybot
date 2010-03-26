@@ -2,11 +2,13 @@
   (:use (sexpbot.plugins utils eball google lmgtfy translate eval)
 	sexpbot.respond
 	[clojure.contrib.str-utils :only [re-split]])
-  (:import (org.jibble.pircbot PircBot)))
+  (:import (org.jibble.pircbot PircBot)
+	   java.io.File))
 
 (def prepend \$)
 (def server "irc.freenode.net")
 (def channels ["#()" "#clojure-casual"])
+(def sexpdir (File. (str (System/getProperty "user.home") "/.sexpbot" )))
 
 (defn wall-hack-method [class-name name- params obj & args]
   (-> class-name (.getDeclaredMethod (name name-) (into-array Class params))
@@ -17,6 +19,8 @@
 		       {:command command
 			:first (first command)
 			:args args}))
+
+(when (not (.exists sexpdir)) (.mkdir sexpdir))
 
 (defn make-bot [] 
   (let [bot (proxy [PircBot] []
