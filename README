@@ -8,6 +8,16 @@ Right now, there are no distributions, so the easiest way to run the bot is to c
 
 I'll be adding a list of commands soon, and I'll also be making it easier to set up the bot and such.
 
+## Thanks
+
+Thanks to Licenser from #clojure for writing such a wonderful sandbox library, which made my bot's Clojure code evaluation possible. Me and him have spent hours on end finding bugs and improving clj-sandbox's code. As my bot evolved, so has clj-sandbox.
+
+Thanks to psyckotic from #clojure and #clojure-casual for giving tons of ideas and feedback on the bot.
+
+Thanks to everybody in #() for feedback, ideas, and all around support.
+
+And last but not least, I'd like to thank the academy f... Oh, wait...
+
 ## License
 
 Licensed under the same thing Clojure is licensed under. The EPL, of which you can find a copy of here: http://www.eclipse.org/legal/epl-v10.html and at the root of this directory.
