@@ -11,14 +11,14 @@
 (def sandbox-tester
      (extend-tester secure-tester 
 		    (whitelist 
-		     (function-matcher 'println 'print 'doc 'char 'apply))
+		     (function-matcher 'println 'print 'doc 'char 'apply 'print-doc))
 		    (whitelist 
 		     (class-matcher String Byte Character Double Float Integer Long
 				    Math Number Short StrictMath StringBuffer))))
 
 (def sc (stringify-sandbox (new-sandbox-compiler :tester sandbox-tester :timeout 10000)))
 
-(def cap 100)
+(def cap 300)
 
 (defn trim [s]
   (let [res (.replaceAll (apply str (take cap s)) "\n" " ")]
@@ -37,6 +37,9 @@
 				 (interpose " ") 
 				 (apply str) 
 				 execute-text)))
+
+;;(defmethod respond :doc [{:keys [bot channel args]}]
+  ;;(.sendMessage bot channel (my-doc (first args))))
 
 (defmodule :eval
   {\(     :eval
