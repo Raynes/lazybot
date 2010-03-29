@@ -53,6 +53,9 @@
 (defmethod respond :exists [{:keys [bot channel args]}]
   (.sendMessage bot channel (str (.exists (java.io.File. (first args))))))
 
+(defmethod respond :botsnack [{:keys [sender bot channel args]}]
+  (.sendMessage bot channel (str sender ": Thanks! Om nom nom!!")))
+
 
 (defmodule :utils      
   {"time"     :time
@@ -65,4 +68,5 @@
    "part"     :part
    "setnick"  :setnick
    "fuck"     :fuck
-   "exists?"  :exists})
+   "exists?"  :exists
+   "botsnack" :botsnack})

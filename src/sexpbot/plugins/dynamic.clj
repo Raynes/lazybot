@@ -1,26 +1,32 @@
-(ns sexpbot.plugins.dynamic)
+(ns sexpbot.plugins.dynamic
+  (:use (sexpbot respond commands)))
 
 (def char-map 
      (apply hash-map 
-	    (interleave (range 1 27) "abcdefghijklmnopqrstuvwxyz")))
+	    (interleave (range 1 28) "abcdefghijklmnopqrstuvwxyz ")))
 
 (defn s-to-n [point]
   (condp = point
     \< -1
     \^ 5
     \> 1
+    \& 27
     0))
 
 (defn symset-to-chars [point-set]
   (apply + (map s-to-n point-set)))
 
 (defn dynamic-to-str [dystr]
-  (->> dystr 
-       (remove #(= \& %))
-       (apply str)
+  (->> dystr
+       (#(.replaceAll % "&" ".&."))
        (#(.split % "\\.")) 
        (filter seq)
        (map symset-to-chars)
        (map char-map)
-       (interpose " ")
        (apply str)))
+
+(defmethod respond :dytostr [{:keys [bot channel args]}]
+  (.sendMessage bot channel (dynamic-to-str (first args))))
+
+(defmodule :dynamic
+  {"dytostr" :dytostr})

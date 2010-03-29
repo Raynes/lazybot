@@ -43,3 +43,7 @@ load loads a module.
 eval or $( executes the clojure code following. Paren is inclusive.
 
 8ball is a normal magic eightball.
+
+botsnack gives the bot a tasty bot treat!
+
+dytostr converts a string of Dynamic to plaintext.
