@@ -34,7 +34,7 @@
   (.sendMessage bot channel (str (keys (into {} (filter (comp map? second) @commands))))))
 
 (defmethod respond :default [{:keys [bot channel]}]
-  (.sendMessage bot channel "Command not found. You can thank Rayne for this one."))
+  (.sendMessage bot channel "Command not found. No entiendo lo que estás diciendo."))
 
 (defn defmodule [m-name cmd-map]
   (dosync (alter commands merge {m-name cmd-map})

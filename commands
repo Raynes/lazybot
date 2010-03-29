@@ -1,0 +1,45 @@
+Prepend is $
+
+google takes a phrase and then googles for it.
+
+lmgtfy takes a phrase, and optionally a user's nick after a @ sign at the end and gives you a lmgtfy URL, optionally directed to the nick after the @.
+
+time gives you the current time and date in UTC format.
+
+rape rapes the nick supplied.
+
+what throws away it's arguments and prints out "It's AWWWWWW right!".
+
+pangram? checks to see if it's input is a pangram.
+
+join takes a channel and joins it.
+
+part takes a channel and leaves it.
+
+coin tosses a coin.
+
+help prints out a help message.
+
+fuck throws away it's arguments and prints out "no u".
+
+setnick takes a nick and changes to it.
+
+exists? checks to see if the supplied directory or file exists on the system the bot is running on. Invasion of privaceh!
+
+learn assigns it's first argument to a string of the last arguments and stores them in a json file.
+
+whatis recalls it's first argument from the json file.
+
+forget deletes the entry from the json file.
+
+quit forces the bot to quit.
+
+loaded? prints a list of loaded messages.
+
+unload unloads a module.
+
+load loads a module.
+
+eval or $( executes the clojure code following. Paren is inclusive.
+
+8ball is a normal magic eightball.

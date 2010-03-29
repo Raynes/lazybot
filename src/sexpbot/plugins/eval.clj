@@ -11,7 +11,8 @@
 (def sandbox-tester
      (extend-tester secure-tester 
 		    (whitelist 
-		     (function-matcher 'println 'print 'doc 'char 'apply 'print-doc))
+		     (function-matcher 'println 'print 'doc 'char 'apply 'print-doc
+				       ))
 		    (whitelist 
 		     (class-matcher String Byte Character Double Float Integer Long
 				    Math Number Short StrictMath StringBuffer))))

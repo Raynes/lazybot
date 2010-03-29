@@ -22,4 +22,6 @@
 				    StringEscapeUtils/unescapeHtml))
       (.sendMessage bot channel "Languages not recognized."))))
 
-(defmodule :translate {"translate" :translate})
+(defmodule :translate 
+  {"translate" :translate
+   "trans"     :translate})
