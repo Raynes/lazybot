@@ -36,6 +36,6 @@
       (.sendMessage bot channel (str subject " is not in my database.")))))
 
 (defmodule :whatis
-  {"learn"  :remember
+  {"learn"  :learn
    "whatis" :whatis
    "forget" :forget})
