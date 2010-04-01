@@ -1,7 +1,8 @@
 (ns sexpbot.core
   (:use (sexpbot.plugins utils eball google lmgtfy translate 
-			 eval whatis dynamic leet shorturl)
-	sexpbot.respond
+			 eval whatis dynamic leet shorturl
+			 dictionary)
+	(sexpbot respond info)
 	[clojure.contrib.str-utils :only [re-split]])
   (:require [org.danlarkin.json :as json])
   (:import (org.jibble.pircbot PircBot)
@@ -52,4 +53,5 @@
       (.connect server))
     (doseq [chan channels] (.joinChannel bot chan))))
 
+(setup-info)
 (make-bot)

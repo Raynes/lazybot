@@ -5,8 +5,8 @@
 (defn stringify [coll]
   (apply str (interpose " " coll)))
 
-(defn if-exists-decode [file]
+(defn if-exists-read [file]
   (into {} 
 	(if (.exists (File. file))
-	  (json/decode-from-reader (FileReader. file))
+	  (-> file slurp read-string)
 	  nil)))

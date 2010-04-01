@@ -1,13 +1,13 @@
 (ns sexpbot.plugins.shorturl
-  (:use (sexpbot commands respond)
+  (:use (sexpbot commands respond info)
 	[clojure.contrib.duck-streams :only [slurp*]])
   (:require [org.danlarkin.json :as json]
 	    [com.twinql.clojure.http :as http])
   (:import (java.net URI)))
 
 
-(def bitkey "R_4e19aa9812e390a8d4079f03bdf255f5")
-(def login "raynes")
+(def bitkey (-> :bitly-key get-key))
+(def login (-> :bitly-login get-key))
 
 (defn grab-url [js]
   (-> js :results vals first :shortUrl))

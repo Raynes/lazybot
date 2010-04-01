@@ -1,37 +1,28 @@
 (ns sexpbot.plugins.whatis
-  (:use [sexpbot respond commands])
-  (:require [org.danlarkin.json :as json])
-  (:import (java.io FileWriter FileReader File)))
+  (:use [sexpbot respond commands info]
+	[clojure.contrib.duck-streams :only [spit]])
+  (:import (java.io File)))
 
-(def whatis (str (System/getProperty "user.home") "/.sexpbot/whatis.json"))
-
-(defn if-exists-decode [file]
-  (into {} 
-	(if (.exists (File. file))
-	  (json/decode-from-reader (FileReader. file))
-	  nil)))
+(def whatis (str (System/getProperty "user.home") "/.sexpbot/whatis.clj"))
 
 (defmethod respond :learn [{:keys [bot channel args]}]
   (let [[subject & is] args
-	current (if-exists-decode whatis)]
-    (.flush (json/encode-to-writer 
-	     (merge current 
-		    {subject (apply str (interpose " " is))}) 
-	     (FileWriter. whatis) :indent 2))
+	current (with-info whatis (read-config))]
+    (with-info whatis (write-config {subject (apply str (interpose " " is))}))
     (.sendMessage bot channel "Never shall I forget it.")))
 
 (defmethod respond :whatis [{:keys [bot channel args]}]
-  (let [whatmap (if-exists-decode whatis)
-	result (->> (first args) keyword whatmap)]
+  (let [whatmap (with-info whatis (read-config))
+	result (-> args first whatmap)]
     (if result
       (.sendMessage bot channel (str (first args) " = " result))
       (.sendMessage bot channel (str (first args) " does not exist in my database.")))))
 
 (defmethod respond :forget [{:keys [bot channel args]}]
-  (let [whatmap (if-exists-decode whatis)
-	subject (keyword (first args))]
+  (let [whatmap (with-info whatis (read-config))
+	subject (first args)]
     (if (whatmap subject) 
-      (do (json/encode-to-writer (dissoc whatmap subject) (FileWriter. whatis) :indent 2)
+      (do (with-info whatis (remove-key subject))
 	  (.sendMessage bot channel (str subject " is removed. RIP.")))
       (.sendMessage bot channel (str subject " is not in my database.")))))
 
