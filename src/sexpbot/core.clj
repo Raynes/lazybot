@@ -1,7 +1,7 @@
 (ns sexpbot.core
   (:use (sexpbot.plugins utils eball google lmgtfy translate 
 			 eval whatis dynamic leet shorturl
-			 dictionary)
+			 dictionary brainfuck)
 	(sexpbot respond info)
 	[clojure.contrib.str-utils :only [re-split]])
   (:require [org.danlarkin.json :as json])
