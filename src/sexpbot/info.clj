@@ -1,8 +1,14 @@
 (ns sexpbot.info
   (:use [clojure.contrib.duck-streams :only [spit]])
-  (:import (java.io File)))
+  (:import java.io.File
+	   org.apache.commons.io.FileUtils))
 
-(def *info-file* (str (System/getProperty "user.home") "/.sexpbot/info.clj"))
+(def sexpdir (File. (str (System/getProperty "user.home") "/.sexpbot" )))
+
+(when-not (.exists sexpdir) 
+  (FileUtils/copyDirectory (File. (str (System/getProperty "user.dir") "/.sexpbot")) sexpdir))
+
+(def *info-file* (str sexpdir "/info.clj"))
 
 (defn setup-info []
   (let [ifile (File. *info-file*)]

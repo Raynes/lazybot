@@ -6,12 +6,12 @@
 	[clojure.contrib.str-utils :only [re-split]])
   (:require [org.danlarkin.json :as json])
   (:import (org.jibble.pircbot PircBot)
-	   (java.io File FileReader)))
+	   (java.io File FileReader)
+	   (org.apache.commons.io FileUtils)))
 
 (def prepend \$)
 (def server "irc.freenode.net")
 (def channels ["#()" "#clojure-casual"])
-(def sexpdir (File. (str (System/getProperty "user.home") "/.sexpbot" )))
 
 (defn wall-hack-method [class-name name- params obj & args]
   (-> class-name (.getDeclaredMethod (name name-) (into-array Class params))
@@ -22,9 +22,6 @@
 		       {:command command
 			:first (first command)
 			:args args}))
-
-(when (not (.exists sexpdir)) (.mkdir sexpdir))
-(.createNewFile (File. (str (str sexpdir) "/privileges.clj")))
 
 ;;; Possible future privilege system ;;;
 (defn get-priv [user]

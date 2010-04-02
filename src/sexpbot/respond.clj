@@ -37,7 +37,7 @@
   (.sendMessage bot channel "Command not found. No entiendo lo que estás diciendo."))
 
 (defn defmodule [m-name cmd-map]
-  (dosync (alter commands merge {m-name cmd-map})
+  (dosync (alter commands assoc m-name cmd-map)
 	  (alter modules merge 
 		 {m-name 
 		  {:load #(dosync (alter commands assoc m-name cmd-map))
