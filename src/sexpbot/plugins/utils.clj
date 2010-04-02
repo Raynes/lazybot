@@ -56,6 +56,9 @@
 (defmethod respond :botsnack [{:keys [sender bot channel args]}]
   (.sendMessage bot channel (str sender ": Thanks! Om nom nom!!")))
 
+(defmethod respond :your [{:keys [bot channel args]}]
+  (.sendMessage bot channel (str (first args) ": It's 'you're', you fucking illiterate bastard.")))
+
 
 (defmodule :utils      
   {"time"     :time
@@ -69,4 +72,5 @@
    "setnick"  :setnick
    "fuck"     :fuck
    "exists?"  :exists
-   "botsnack" :botsnack})
+   "botsnack" :botsnack
+   "your"     :your})
