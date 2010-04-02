@@ -47,3 +47,7 @@ eval or $( executes the clojure code following. Paren is inclusive.
 botsnack gives the bot a tasty bot treat!
 
 dytostr converts a string of Dynamic to plaintext.
+
+dict looks a word up in the wordnik database.
+
+bf executes a string of brainfuck
