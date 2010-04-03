@@ -1,5 +1,5 @@
 (ns sexpbot.plugins.whatis
-  (:use [sexpbot respond commands info]
+  (:use [sexpbot respond commands info gist]
 	[clojure.contrib.duck-streams :only [spit]])
   (:import (java.io File)))
 
@@ -26,7 +26,15 @@
 	  (.sendMessage bot channel (str subject " is removed. RIP.")))
       (.sendMessage bot channel (str subject " is not in my database.")))))
 
+(defmethod respond :dumpwdb [{:keys [bot channel sender]}]
+  (.sendMessage bot channel 
+		(str sender ": " (->> (read-config) 
+				      (with-info whatis) 
+				      format-config
+				      (post-gist "dump.clj")))))
+
 (defmodule :whatis
-  {"learn"  :learn
-   "whatis" :whatis
-   "forget" :forget})
+  {"learn"   :learn
+   "whatis"  :whatis
+   "forget"  :forget
+   "dumpwdb" :dumpwdb})

@@ -1,5 +1,5 @@
 (ns sexpbot.plugins.utils
-  (:use (sexpbot utilities commands respond)
+  (:use (sexpbot utilities commands respond gist)
 	(clj-time core format)))
 
 (def known-prefixes
@@ -59,6 +59,15 @@
 (defmethod respond :your [{:keys [bot channel args]}]
   (.sendMessage bot channel (str (first args) ": It's 'you're', you fucking illiterate bastard.")))
 
+(defmethod respond :kill [{:keys [bot channel]}]
+  (.sendMessage bot channel "IT WITH FIRE."))
+
+(defmethod respond :error [_] (throw (Exception. "Hai!")))
+
+(defmethod respond :gist [{:keys [bot channel sender args]}]
+  (.sendMessage bot channel (str sender ": " 
+				 (post-gist (first args) 
+					    (->> args rest (interpose " ") (apply str))))))
 
 (defmodule :utils      
   {"time"     :time
@@ -73,4 +82,8 @@
    "fuck"     :fuck
    "exists?"  :exists
    "botsnack" :botsnack
-   "your"     :your})
+   "your"     :your
+   "kill"     :kill
+   "say"      :say
+   "error"    :error
+   "gist"     :gist})

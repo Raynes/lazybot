@@ -10,6 +10,9 @@
 
 (def *info-file* (str sexpdir "/info.clj"))
 
+(defn format-config [s]
+  (->> s str (#(.replaceAll % "," "\n"))))
+
 (defn setup-info []
   (let [ifile (File. *info-file*)]
     (when-not (.exists ifile)
@@ -20,19 +23,16 @@
   (->> *info-file* slurp read-string))
 
 (defn write-config [new-info]
-  (spit *info-file* (-> (read-config) (merge new-info))))
+  (spit *info-file* (-> (read-config) (merge new-info) format-config)))
 
 (defn get-key [key]
   (-> key ((read-config))))
 
 (defn remove-key [key]
-  (spit *info-file* (-> (read-config) (dissoc key))))
+  (spit *info-file* (-> (read-config) (dissoc key) format-config)))
 
 (defn set-key [key nval]
   (-> (read-config) (assoc key nval) write-config))
-
-(defn format-config []
-  (->> (read-config) str (#(.replaceAll % "," "\n")) (spit *info-file*)))
 
 (defmacro with-info [file & body]
   `(binding [*info-file* ~file] ~@body))

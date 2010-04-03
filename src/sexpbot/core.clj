@@ -36,14 +36,20 @@
   (let [bot (proxy [PircBot] []
 	      (onMessage 
 	       [chan send login host mess]
-	       (let [bot-map
-		     {:bot this
-		      :sender send
-		      :channel chan
-		      :login login
-		      :host host}]
+	       (let [bot-map {:bot this
+			      :sender send
+			      :channel chan
+			      :login login
+			      :host host}]
+		 (when (.contains mess "o/")
+		   (.sendMessage this chan "\\o"))
+		 (when (.contains mess "\\o")
+		   (.sendMessage this chan "o/"))
 		 (if (= (first mess) prepend)
-		   (respond (merge (split-args (apply str (rest mess))) bot-map))))))]
+		   (try
+		    (-> bot-map (merge (split-args (apply str (rest mess)))) respond)
+		    (catch Exception e 
+		      (.sendMessage this chan (.getMessage (clojure.stacktrace/root-cause e)))))))))]
     (wall-hack-method PircBot :setName [String] bot "sexpbot")
     (doto bot
       (.setVerbose true)
