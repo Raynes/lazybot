@@ -2,7 +2,7 @@
   (:use net.licenser.sandbox
 	clojure.stacktrace
 	(net.licenser.sandbox tester matcher)
-	(sexpbot respond commands))
+	(sexpbot respond commands gist))
   (:import java.io.StringWriter
 	   java.util.concurrent.TimeoutException))
 
@@ -22,8 +22,11 @@
 (def cap 300)
 
 (defn trim [s]
-  (let [res (.replaceAll (apply str (take cap s)) "\n" " ")]
-    (if (= (count res) 100) (str res "...") res)))
+  (let [res (.replaceAll (apply str (take cap s)) "\n" " ")
+	rescount (count res)]
+    (if (= rescount cap) 
+      (str res "... " (when (> (count s) cap) (post-gist "output.clj" s))) 
+      res)))
 
 (defn execute-text [txt]
   (let [writer (StringWriter.)]
