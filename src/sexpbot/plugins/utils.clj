@@ -1,5 +1,6 @@
 (ns sexpbot.plugins.utils
   (:use (sexpbot utilities commands respond gist)
+	[sexpbot.info :only [format-config]]
 	(clj-time core format)))
 
 (def known-prefixes
@@ -72,6 +73,12 @@
 (defmethod respond :timeout [_]
   (Thread/sleep 15000))
 
+(defmethod respond :dumpcmds [{:keys [bot channel]}]
+  (println @commands)
+  (.sendMessage bot channel
+		(->> @commands vals (filter map?) (apply merge) keys 
+		     (interpose "\n") (apply str) (post-gist "dumpcmds.clj"))))
+
 (defmodule :utils      
   {"time"     :time
    "rape"     :rape
@@ -90,4 +97,5 @@
    "say"      :say
    "error"    :error
    "gist"     :gist
-   "timeout"  :timeout})
+   "timeout"   :timeout
+   "dumpcmds"  :dumpcmds})
