@@ -14,7 +14,7 @@
   (->> query (remove #(= \space %)) (apply str) (str forcasturl) xml/parse zip/xml-zip cull))
 
 (defmethod respond :fcst [{:keys [bot channel sender args]}]
-  (let [[date [today tonight]] (-> args first get-fcst)]
+  (let [[date [today tonight]] (->> args (remove #(= \space %)) get-fcst)]
     (if (seq date)
       (do
 	(.sendMessage bot channel (str sender ": " date))
