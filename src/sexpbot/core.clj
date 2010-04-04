@@ -1,5 +1,6 @@
 (ns sexpbot.core
   (:use (sexpbot respond info)
+	[clojure.stacktrace :only [root-cause]]
 	[clojure.contrib.str-utils :only [re-split]])
   (:require [org.danlarkin.json :as json]
 	    (sexpbot.plugins utils eball google lmgtfy translate 
@@ -7,7 +8,8 @@
 			     dictionary brainfuck spellcheck weather))
   (:import (org.jibble.pircbot PircBot)
 	   (java.io File FileReader)
-	   (org.apache.commons.io FileUtils)))
+	   (org.apache.commons.io FileUtils)
+	   (java.util.concurrent FutureTask TimeUnit TimeoutException)))
 
 (def prepend \$)
 (def server "irc.freenode.net")
@@ -32,25 +34,41 @@
 	(into {})) (keyword user)))
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
+;;;;;; From clojurebot's sandbox.clj, adapted for my code. ;;;;;;
+(defn thunk-timeout [thunk seconds]
+      (let [task (FutureTask. thunk)
+            thr (Thread. task)]
+        (try
+          (.start thr)
+          (.get task seconds TimeUnit/SECONDS)
+          (catch TimeoutException e
+                 (.cancel task true)
+                 (.stop thr (Exception. "Thread stopped!")) 
+		 (throw (TimeoutException. "Execution Timed Out"))))))
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(defn make-bot-obj []
+  (proxy [PircBot] []
+    (onMessage 
+     [chan send login host mess]
+     (let [bot-map {:bot this
+		    :sender send
+		    :channel chan
+		    :login login
+		    :host host}]
+       (if (= (first mess) prepend)
+	 (try
+	  (thunk-timeout 
+	   #(try
+	     (-> bot-map (merge (split-args (apply str (rest mess)))) respond)
+	     (catch Exception e 
+	       (.sendMessage this chan (.getMessage (root-cause e)))))
+	   11)
+	  (catch TimeoutException _
+	    (.sendMessage this chan "Execution Timed Out!"))))))))
+
 (defn make-bot [] 
-  (let [bot (proxy [PircBot] []
-	      (onMessage 
-	       [chan send login host mess]
-	       (let [bot-map {:bot this
-			      :sender send
-			      :channel chan
-			      :login login
-			      :host host}]
-		 (when (.contains mess "o/")
-		   (.sendMessage this chan "\\o"))
-		 (when (.contains mess "\\o")
-		   (.sendMessage this chan "o/"))
-		 (if (= (first mess) prepend)
-		   (.start (Thread. 
-			    ( try
-			      (-> bot-map (merge (split-args (apply str (rest mess)))) respond)
-			      (catch Exception e 
-				(.sendMessage this chan (.getMessage (clojure.stacktrace/root-cause e)))))))))))]
+  (let [bot (make-bot-obj)]
     (wall-hack-method PircBot :setName [String] bot "sexpbot")
     (doto bot
       (.setVerbose true)

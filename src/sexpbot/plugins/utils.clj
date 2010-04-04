@@ -69,6 +69,9 @@
 				 (post-gist (first args) 
 					    (->> args rest (interpose " ") (apply str))))))
 
+(defmethod respond :timeout [_]
+  (Thread/sleep 15000))
+
 (defmodule :utils      
   {"time"     :time
    "rape"     :rape
@@ -86,4 +89,5 @@
    "kill"     :kill
    "say"      :say
    "error"    :error
-   "gist"     :gist})
+   "gist"     :gist
+   "timeout"  :timeout})
