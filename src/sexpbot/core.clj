@@ -1,10 +1,10 @@
 (ns sexpbot.core
-  (:use (sexpbot.plugins utils eball google lmgtfy translate 
-			 eval whatis dynamic leet shorturl
-			 dictionary brainfuck spellcheck)
-	(sexpbot respond info)
+  (:use (sexpbot respond info)
 	[clojure.contrib.str-utils :only [re-split]])
-  (:require [org.danlarkin.json :as json])
+  (:require [org.danlarkin.json :as json]
+	    (sexpbot.plugins utils eball google lmgtfy translate 
+			     eval whatis dynamic leet shorturl
+			     dictionary brainfuck spellcheck weather))
   (:import (org.jibble.pircbot PircBot)
 	   (java.io File FileReader)
 	   (org.apache.commons.io FileUtils)))
@@ -46,10 +46,11 @@
 		 (when (.contains mess "\\o")
 		   (.sendMessage this chan "o/"))
 		 (if (= (first mess) prepend)
-		   (try
-		    (-> bot-map (merge (split-args (apply str (rest mess)))) respond)
-		    (catch Exception e 
-		      (.sendMessage this chan (.getMessage (clojure.stacktrace/root-cause e)))))))))]
+		   (.start (Thread. 
+			    ( try
+			      (-> bot-map (merge (split-args (apply str (rest mess)))) respond)
+			      (catch Exception e 
+				(.sendMessage this chan (.getMessage (clojure.stacktrace/root-cause e)))))))))))]
     (wall-hack-method PircBot :setName [String] bot "sexpbot")
     (doto bot
       (.setVerbose true)
