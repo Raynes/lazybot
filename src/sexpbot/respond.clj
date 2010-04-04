@@ -1,5 +1,5 @@
 (ns sexpbot.respond
-  (:use sexpbot.commands))
+  (:use [sexpbot privileges commands]))
 
 (defn find-command [cmds command first]
   (let [res (apply merge (remove keyword? (vals cmds)))]
@@ -12,26 +12,31 @@
 
 (defmulti respond cmd-respond)
 
-(defmethod respond :quit [{:keys [bot channel]}]
-  (.sendMessage bot channel "I bid thee adieu! Into the abyss I go!")
-  (System/exit 0))
+(defmethod respond :quit [{:keys [bot sender channel privs]}]
+  (if-admin sender
+	    (.sendMessage bot channel "I bid thee adieu! Into the abyss I go!")
+	    (System/exit 0)))
 
-(defmethod respond :load [{:keys [bot channel args]}]
-  (if (modules (-> args first keyword))
-    (do 
-      (((modules (-> args first keyword)) :load))
-      (.sendMessage bot channel "Loaded."))
-    (.sendMessage bot channel (str "Module " (first args) " not found."))))
+(defmethod respond :load [{:keys [bot sender channel args]}]
+  (if-admin sender
+	    (if (modules (-> args first keyword))
+	      (do 
+		(((modules (-> args first keyword)) :load))
+		(.sendMessage bot channel "Loaded."))
+	      (.sendMessage bot channel (str "Module " (first args) " not found.")))))
 
-(defmethod respond :unload [{:keys [bot channel args]}]
-  (if (modules (-> args first keyword))
-    (do 
-      (((modules (-> args first keyword)) :unload))
-      (.sendMessage bot channel "Unloaded."))
-    (.sendMessage bot channel (str "Module " (first args) " not found."))))
+(defmethod respond :unload [{:keys [bot sender channel args]}]
+  (if-admin sender
+	    (if (modules (-> args first keyword))
+	      (do 
+		(((modules (-> args first keyword)) :unload))
+		(.sendMessage bot channel "Unloaded."))
+	      (.sendMessage bot channel (str "Module " (first args) " not found.")))))
 
-(defmethod respond :loaded [{:keys [bot channel args]}]
-  (.sendMessage bot channel (str (keys (into {} (filter (comp map? second) @commands))))))
+(defmethod respond :loaded [{:keys [bot sender channel args]}]
+  (if-admin sender
+	    (.sendMessage bot channel 
+			  (->> @commands (filter (comp map? second)) (into {}) keys str str))))
 
 (defmethod respond :default [{:keys [bot channel]}]
   (.sendMessage bot channel "Command not found. No entiendo lo que estás diciendo."))

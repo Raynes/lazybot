@@ -1,5 +1,5 @@
 (ns sexpbot.core
-  (:use (sexpbot respond info)
+  (:use (sexpbot respond info privileges)
 	[clojure.stacktrace :only [root-cause]]
 	[clojure.contrib.str-utils :only [re-split]])
   (:require [org.danlarkin.json :as json]
@@ -13,7 +13,7 @@
 
 (def prepend \$)
 (def server "irc.freenode.net")
-(def channels ["#()" "#clojure-casual"])
+(def channels ["#()"])
 
 (defn wall-hack-method [class-name name- params obj & args]
   (-> class-name (.getDeclaredMethod (name name-) (into-array Class params))
@@ -24,15 +24,6 @@
 		       {:command command
 			:first (first command)
 			:args args}))
-
-;;; Possible future privilege system ;;;
-(defn get-priv [user]
-  ((->> "/privileges.clj" 
-	(str sexpdir) 
-	FileReader. 
-	json/decode-from-reader 
-	(into {})) (keyword user)))
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;;;;;; From clojurebot's sandbox.clj, adapted for my code. ;;;;;;
 (defn thunk-timeout [thunk seconds]
@@ -47,33 +38,42 @@
 		 (throw (TimeoutException. "Execution Timed Out"))))))
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
+(defn handle-message [chan send login host mess this]
+  (let [bot-map {:bot this
+		 :sender send
+		 :channel chan
+		 :login login
+		 :host host
+		 :privs (get-priv send)}]
+    (if (= (first mess) prepend)
+      (try
+       (thunk-timeout 
+	#(try
+	  (-> bot-map (merge (->> mess rest (apply str) split-args)) respond)
+	  (catch Exception e 
+	    (.sendMessage this chan (.getMessage (root-cause e)))))
+	11)
+       (catch TimeoutException _
+	 (.sendMessage this chan "Execution Timed Out!"))))))
+
 (defn make-bot-obj []
   (proxy [PircBot] []
     (onMessage 
-     [chan send login host mess]
-     (let [bot-map {:bot this
-		    :sender send
-		    :channel chan
-		    :login login
-		    :host host}]
-       (if (= (first mess) prepend)
-	 (try
-	  (thunk-timeout 
-	   #(try
-	     (-> bot-map (merge (split-args (apply str (rest mess)))) respond)
-	     (catch Exception e 
-	       (.sendMessage this chan (.getMessage (root-cause e)))))
-	   11)
-	  (catch TimeoutException _
-	    (.sendMessage this chan "Execution Timed Out!"))))))))
+     [chan send login host mess] (handle-message chan send login host mess this))
+    (onPrivateMessage
+     [send login host message] (handle-message send send login host message this))))
 
 (defn make-bot [] 
-  (let [bot (make-bot-obj)]
+  (let [bot (make-bot-obj)
+	pass (-> :bot-password ((read-config)))]
     (wall-hack-method PircBot :setName [String] bot "sexpbot")
     (doto bot
       (.setVerbose true)
       (.connect server))
+    (when (seq pass) (.sendMessage bot "NickServ" pass))
     (doseq [chan channels] (.joinChannel bot chan))))
 
 (setup-info)
+(with-info "privs.clj" (setup-info))
+(with-info "whatis.clj" (setup-info))
 (make-bot)
