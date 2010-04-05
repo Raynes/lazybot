@@ -12,9 +12,10 @@
 	   (org.apache.commons.io FileUtils)
 	   (java.util.concurrent FutureTask TimeUnit TimeoutException)))
 
-(def prepend \$)
-(def server "irc.freenode.net")
-(def channels ["#()"])
+(let [info (read-config)]
+  (def prepend (:prepend info))
+  (def server (:server info))
+  (def channels (:channels info)))
 
 (defn wall-hack-method [class-name name- params obj & args]
   (-> class-name (.getDeclaredMethod (name name-) (into-array Class params))

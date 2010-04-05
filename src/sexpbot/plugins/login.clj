@@ -2,9 +2,9 @@
   (:use [sexpbot commands respond info privileges]))
 
 (defn check-pass [user pass]
-  (let [pass (((read-config) :admins) user)
-	privs (->> user ((read-config)) (with-info (str sexpdir "/privs.clj")))]
-    (when (seq pass) (dosync (alter logged-in assoc user privs)))))
+  (let [userconf (((read-config) :users) user)]
+    (when (= pass (userconf :pass)) 
+      (dosync (alter logged-in assoc user (userconf :privs))))))
 
 (defn logged-in? [user] (some #{user} (keys @logged-in)))
 
