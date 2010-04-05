@@ -6,4 +6,6 @@
 	   "quit" :quit
 	   "loaded?" :loaded}))
 
+(def logged-in (ref {}))
+
 (def modules (ref {}))

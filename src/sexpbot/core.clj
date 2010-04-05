@@ -5,7 +5,8 @@
   (:require [org.danlarkin.json :as json]
 	    (sexpbot.plugins utils eball google lmgtfy translate 
 			     eval whatis dynamic leet shorturl
-			     dictionary brainfuck spellcheck weather))
+			     dictionary brainfuck spellcheck weather
+			     login))
   (:import (org.jibble.pircbot PircBot)
 	   (java.io File FileReader)
 	   (org.apache.commons.io FileUtils)
@@ -61,7 +62,10 @@
     (onMessage 
      [chan send login host mess] (handle-message chan send login host mess this))
     (onPrivateMessage
-     [send login host message] (handle-message send send login host message this))))
+     [send login host message] (handle-message send send login host message this))
+    (onQuit
+     [send login host message] (when (find-ns 'sexpbot.plugins.login) 
+				 (handle-message send send login host "quit" this)))))
 
 (defn make-bot [] 
   (let [bot (make-bot-obj)
