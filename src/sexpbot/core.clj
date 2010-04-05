@@ -9,13 +9,13 @@
 			     login))
   (:import (org.jibble.pircbot PircBot)
 	   (java.io File FileReader)
-	   (org.apache.commons.io FileUtils)
 	   (java.util.concurrent FutureTask TimeUnit TimeoutException)))
 
 (let [info (read-config)]
   (def prepend (:prepend info))
   (def server (:server info))
-  (def channels (:channels info)))
+  (def channels (:channels info))
+  (def plugins (:plugins info)))
 
 (defn wall-hack-method [class-name name- params obj & args]
   (-> class-name (.getDeclaredMethod (name name-) (into-array Class params))
@@ -76,9 +76,7 @@
       (.setVerbose true)
       (.connect server))
     (when (seq pass) (.sendMessage bot "NickServ" pass))
-    (doseq [chan channels] (.joinChannel bot chan))))
+    (doseq [chan channels] (.joinChannel bot chan))
+    (doseq [plug plugins] (loadmod plug))))
 
-(setup-info)
-(with-info "privs.clj" (setup-info))
-(with-info "whatis.clj" (setup-info))
 (make-bot)
