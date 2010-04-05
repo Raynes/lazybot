@@ -1,5 +1,5 @@
 (ns sexpbot.plugins.google
-  (:use (sexpbot commands respond)
+  (:use [sexpbot commands respond]
 	[clojure.contrib.duck-streams :only [slurp*]])
   (:require [org.danlarkin.json :as json]
 	    [com.twinql.clojure.http :as http]))
@@ -12,7 +12,7 @@
   [(:estimatedResultCount (:cursor (:responseData result-set)))
    (first (:results (:responseData result-set)))])
 
-(defmethod respond :google [{:keys [bot channel args]}]
+(defn handle-search [{:keys [bot channel args]}]
   (let [[res-count res-map] (-> (apply str (interpose " " args)) google cull)
 	title (:titleNoFormatting res-map)
 	url (:url res-map)]
@@ -20,4 +20,13 @@
     (.sendMessage bot channel title)
     (.sendMessage bot channel url)))
 
-(defmodule :google {"google" :google})
+(defmethod respond :google [args]
+  (handle-search args))
+
+(defmethod respond :wiki [args]
+  (handle-search (assoc args :args (conj (:args args) "site:en.wikipedia.org"))))
+
+
+(defmodule :google 
+  {"google" :google
+   "wiki"   :wiki})

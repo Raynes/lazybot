@@ -6,7 +6,7 @@
 	    (sexpbot.plugins utils eball google lmgtfy translate 
 			     eval whatis dynamic leet shorturl
 			     dictionary brainfuck spellcheck weather
-			     login))
+			     login walton))
   (:import (org.jibble.pircbot PircBot)
 	   (java.io File FileReader)
 	   (java.util.concurrent FutureTask TimeUnit TimeoutException)))
@@ -75,7 +75,10 @@
     (doto bot
       (.setVerbose true)
       (.connect server))
-    (when (seq pass) (.sendMessage bot "NickServ" pass))
+    (when (seq pass) 
+      (.sendMessage bot "NickServ" (str "IDENTIFY " pass))
+      (println "Sleeping while identification takes effect.")
+      (Thread/sleep 2000))
     (doseq [chan channels] (.joinChannel bot chan))
     (doseq [plug plugins] (loadmod plug))))
 

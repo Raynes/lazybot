@@ -21,7 +21,8 @@
 	   "whatis"
 	   ;"shorturl"
 	   "spellcheck"
-	   "dynamic"]}
+	   "dynamic"
+	   "walton"]}
 
 ; users is a series of username to password and privileges.
 ; plugins is a list of plugins to load at startup.
