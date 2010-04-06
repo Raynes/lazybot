@@ -1,5 +1,5 @@
 (ns sexpbot.plugins.utils
-  (:use (sexpbot utilities commands respond gist)
+  (:use (sexpbot utilities commands respond gist privileges)
 	[sexpbot.info :only [format-config]]
 	(clj-time core format)))
 
@@ -20,12 +20,13 @@
   (let [time (unparse (formatters :date-time-no-ms) (now))]
     (.sendMessage bot channel (str sender ": The time is now " time))))
 
-(defmethod respond :join [{:keys [bot args]}]
-  (.joinChannel bot (first args)))
+(defmethod respond :join [{:keys [bot sender args]}]
+  (if-admin sender (.joinChannel bot (first args))))
 
-(defmethod respond :part [{:keys [bot args channel]}]
-  (.sendMessage bot (first args) "Bai!")
-  (.partChannel bot (first args)))
+(defmethod respond :part [{:keys [bot sender args channel]}]
+  (if-admin sender
+	    (.sendMessage bot (first args) "Bai!")
+	    (.partChannel bot (first args))))
 
 (defmethod respond :rape [{:keys [args bot channel]}]
   (let [user-to-rape (if (= (first args) "*") 

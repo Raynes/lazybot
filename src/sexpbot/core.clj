@@ -6,7 +6,7 @@
 	    (sexpbot.plugins utils eball google lmgtfy translate 
 			     eval whatis dynamic leet shorturl
 			     dictionary brainfuck spellcheck weather
-			     login walton))
+			     login walton haskell))
   (:import (org.jibble.pircbot PircBot)
 	   (java.io File FileReader)
 	   (java.util.concurrent FutureTask TimeUnit TimeoutException)))

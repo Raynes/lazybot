@@ -22,7 +22,8 @@
 	   ;"shorturl"
 	   "spellcheck"
 	   "dynamic"
-	   "walton"]}
+	   "walton"
+	   "haskell"]}
 
 ; users is a series of username to password and privileges.
 ; plugins is a list of plugins to load at startup.

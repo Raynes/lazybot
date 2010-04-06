@@ -26,7 +26,6 @@
 (defmethod respond :wiki [args]
   (handle-search (assoc args :args (conj (:args args) "site:en.wikipedia.org"))))
 
-
 (defmodule :google 
   {"google" :google
    "wiki"   :wiki})
