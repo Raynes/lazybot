@@ -47,7 +47,8 @@
   (.sendMessage bot channel (str sender ": no u")))
 
 (defmethod respond :setnick [{:keys [bot args]}]
-  (.changeNick bot (first args)))
+  (if-admin sender
+	    (.changeNick bot (first args))))
 
 (defmethod respond :exists [{:keys [bot channel args]}]
   (.sendMessage bot channel (str (.exists (java.io.File. (first args))))))
