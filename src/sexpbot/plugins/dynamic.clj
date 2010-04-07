@@ -1,9 +1,7 @@
 (ns sexpbot.plugins.dynamic
   (:use (sexpbot respond commands)))
 
-(def char-map 
-     (apply hash-map 
-	    (interleave (range 1 28) "abcdefghijklmnopqrstuvwxyz ")))
+(def char-map (apply hash-map (interleave (range 1 28) "abcdefghijklmnopqrstuvwxyz ")))
 
 (defn s-to-n [point]
   (condp = point

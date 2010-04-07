@@ -77,6 +77,11 @@
 		(->> @commands vals (filter map?) (apply merge) keys 
 		     (interpose "\n") (apply str) (post-gist "dumpcmds.clj"))))
 
+(defmethod respond :balance [{:keys [bot channel sender args]}]
+  (let [[fst & more] args]
+    (.sendMessage bot channel 
+		  (str sender ": " (apply str (concat fst (repeat (count fst) ")")))))))
+
 (defmodule :utils      
   {"time"     :time
    "rape"     :rape
@@ -95,5 +100,6 @@
    "say"      :say
    "error"    :error
    "gist"     :gist
-   "timeout"   :timeout
-   "dumpcmds"  :dumpcmds})
+   "timeout"  :timeout
+   "dumpcmds" :dumpcmds
+   "balance"  :balance})
