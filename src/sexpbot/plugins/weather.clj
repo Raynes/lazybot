@@ -1,5 +1,6 @@
 (ns sexpbot.plugins.weather
-  (:use (sexpbot commands respond))
+  (:use [sexpbot commands respond]
+	[clojure.contrib.str-utils :only [re-sub]])
   (:require [clojure.xml :as xml]
 	    [clojure.zip :as zip]
 	    [clojure.contrib.zip-filter.xml :as zf]))
@@ -17,11 +18,20 @@
       [date ftext]
       [pdate (str "High: " hi " Low: " low " Conditions: " condition)])))
 
+(defn strip-space [s]
+  (re-sub #", " "," (apply str (seq s))))
+
 (defn get-fcst [query]
-  (->> query (remove #(= \space %)) (apply str) (str forcasturl) xml/parse zip/xml-zip cull))
+  (->> query
+       strip-space
+       (#(.replace % " " "%20"))
+       (str forcasturl)
+       xml/parse 
+       zip/xml-zip 
+       cull))
 
 (defmethod respond :fcst [{:keys [bot channel sender args]}]
-  (let [[date [today tonight :as a]] (->> args (remove #(= \space %)) get-fcst)
+  (let [[date [today tonight :as a]] (->> args (interpose " ") get-fcst)
 	conditions (if (string? today) today a)]
     (if (seq date)
       (do

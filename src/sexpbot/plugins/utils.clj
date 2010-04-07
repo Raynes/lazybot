@@ -1,7 +1,8 @@
 (ns sexpbot.plugins.utils
-  (:use (sexpbot utilities commands respond gist privileges)
+  (:use [sexpbot utilities commands respond gist privileges]
 	[sexpbot.info :only [format-config]]
-	(clj-time core format)))
+	[clojure.contrib.seq-utils :only [shuffle]]
+	[clj-time core format]))
 
 (def known-prefixes
      [\& \+ \@ \% \! \~])
