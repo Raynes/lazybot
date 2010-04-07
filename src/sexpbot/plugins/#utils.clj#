@@ -10,9 +10,8 @@
   (map (fn [x] (if (some #(= (first x) %) known-prefixes) (apply str (rest x)) x)) users))
 
 (defn pangram? [s]
-  (let [letters (into #{} "abcdefghijklmnopqrstuvwxyz")
-	text (->> s .toLowerCase (filter letters) (into #{}))]
-    (= text letters)))
+  (let [letters (into #{} "abcdefghijklmnopqrstuvwxyz")]
+    (= (->> s .toLowerCase (filter letters) (into #{})) letters)))
 
 (defmethod respond :time [{:keys [bot sender channel]}]
   (let [time (unparse (formatters :date-time-no-ms) (now))]

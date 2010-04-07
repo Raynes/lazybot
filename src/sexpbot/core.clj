@@ -48,25 +48,28 @@
 		 :host host
 		 :privs (get-priv send)}]
     (if (= (first mess) prepend)
-      (try
-       (thunk-timeout 
-	#(try
-	  (-> bot-map (merge (->> mess rest (apply str) split-args)) respond)
-	  (catch Exception e 
-	    (.sendMessage this chan (.getMessage (root-cause e)))))
-	11)
-       (catch TimeoutException _
-	 (.sendMessage this chan "Execution Timed Out!"))))))
+      (-> bot-map (merge (->> mess rest (apply str) split-args)) respond))))
+
+(defn try-handle [chan send login host mess this]
+  (try
+   (thunk-timeout 
+    #(try
+      (handle-message chan send login host mess this)
+      (catch Exception e 
+	(println (str e))))
+    20)
+   (catch TimeoutException _
+     (.sendMessage this chan "Execution Timed Out!"))))
 
 (defn make-bot-obj []
   (proxy [PircBot] []
     (onMessage 
-     [chan send login host mess] (handle-message chan send login host mess this))
+     [chan send login host mess] (try-handle chan send login host mess this))
     (onPrivateMessage
-     [send login host message] (handle-message send send login host message this))
+     [send login host message] (try-handle send send login host message this))
     (onQuit
      [send login host message] (when (find-ns 'sexpbot.plugins.login) 
-				 (handle-message send send login host "quit" this)))))
+				 (try-handle send send login host "quit" this)))))
 
 (defn make-bot [] 
   (let [bot (make-bot-obj)
