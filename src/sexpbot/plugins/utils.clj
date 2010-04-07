@@ -46,7 +46,7 @@
 (defmethod respond :fuck [{:keys [bot channel sender]}]
   (.sendMessage bot channel (str sender ": no u")))
 
-(defmethod respond :setnick [{:keys [bot args]}]
+(defmethod respond :setnick [{:keys [bot sender args]}]
   (if-admin sender
 	    (.changeNick bot (first args))))
 
