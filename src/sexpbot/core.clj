@@ -13,8 +13,7 @@
 
 (let [info (read-config)]
   (def prepend (:prepend info))
-  (def server (:server info))
-  (def channels (:channels info))
+  (def servers (:servers info))
   (def plugins (:plugins info)))
 
 (defn wall-hack-method [class-name name- params obj & args]
@@ -71,18 +70,22 @@
      [send login host message] (when (find-ns 'sexpbot.plugins.login) 
 				 (try-handle send send login host "quit" this)))))
 
-(defn make-bot [] 
+(defn make-bot [server] 
   (let [bot (make-bot-obj)
-	pass (-> :bot-password ((read-config)))]
-    (wall-hack-method PircBot :setName [String] bot "sexpbot")
+	bot-config (read-config)
+	name ((bot-config :bot-name) server)
+	pass ((bot-config :bot-password) server)
+	channels ((bot-config :channels) server)]
+    (wall-hack-method PircBot :setName [String] bot name)
     (doto bot
       (.setVerbose true)
       (.connect server))
-    (when (seq pass) 
-      (.sendMessage bot "NickServ" (str "IDENTIFY " pass))
+    (when (seq pass)
+      (Thread/sleep 2000)
+      (.sendMessage bot "NickServ" (str "identify " pass))
       (println "Sleeping while identification takes effect.")
       (Thread/sleep 2000))
     (doseq [chan channels] (.joinChannel bot chan))
     (doseq [plug plugins] (loadmod plug))))
 
-(make-bot)
+(doseq [server servers] (make-bot server))

@@ -18,13 +18,14 @@
   (let [time (unparse (formatters :date-time-no-ms) (now))]
     (.sendMessage bot channel (str sender ": The time is now " time))))
 
-(defmethod respond :join [{:keys [bot sender args]}]
+(defmethod respond :join [{:keys [bot channel sender args]}]
   (if-admin sender (.joinChannel bot (first args))))
 
 (defmethod respond :part [{:keys [bot sender args channel]}]
   (if-admin sender
-	    (.sendMessage bot (first args) "Bai!")
-	    (.partChannel bot (first args))))
+	    (let [chan (if (seq args) (first args) channel)])
+	    (.sendMessage bot channel "Bai!")
+	    (.partChannel bot channel)))
 
 (defmethod respond :rape [{:keys [args bot channel]}]
   (let [user-to-rape (if (= (first args) "*") 
@@ -84,6 +85,10 @@
     (.sendMessage bot channel 
 		  (str sender ": " (apply str (concat fst (repeat (count fst) ")")))))))
 
+;;;; Too easy to abuse. ;;;
+(defmethod respond :say [{:keys [bot channel args]}]
+  (.sendMessage bot (first args) (->> args rest (interpose " ") (apply str))))
+
 (defmodule :utils      
   {"time"     :time
    "rape"     :rape
@@ -104,4 +109,6 @@
    "gist"     :gist
    "timeout"  :timeout
    "dumpcmds" :dumpcmds
-   "balance"  :balance})
+   "balance"  :balance
+   ;"say"      :say
+   })

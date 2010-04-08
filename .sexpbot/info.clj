@@ -1,10 +1,11 @@
-{:channels ["#()"] ; A list of channels to connect to.
+{:servers ["irc.freenode.net"]	    ; A list of servers.
+ :channels {"irc.freenode.net" ["#()"]} ; A map of server names to lists of channels to connect to.
  :prepend \$ ; The character you want for a prepend. Currently set to $
- :server "irc.freenode.net"
- :bitly-login "" ; Your bit.ly login.
- :bitly-key "" ; API key and login above needed for URL shortening.
- :wordnik-key "" ; API key needed for dictionary access.
- :bot-password ""
+ :bitly-login ""  ; Your bit.ly login.
+ :bitly-key ""	  ; API key and login above needed for URL shortening.
+ :wordnik-key ""  ; API key needed for dictionary access.
+ :bot-name {"irc.freenode.net" "sexpbot"} ; You get the point.
+ :bot-password {} ; A map of server to bot password
  :users {"JohnDoe" {:pass "iliekpie", :privs :admin}
 	 "JaneDoe" {:pass "ohai", :privs :admin}}
  :plugins [;"dictionary"
