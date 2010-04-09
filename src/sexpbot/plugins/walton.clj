@@ -8,5 +8,5 @@
 (defmethod respond :walton [{:keys [bot channel sender args]}]
   (.sendMessage bot channel (->> args first construct-url (str sender ": "))))
 
-(defmodule :walton
+(defplugin
   {"walton" :walton})

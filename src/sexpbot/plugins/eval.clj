@@ -41,6 +41,6 @@
 				 (apply str) 
 				 execute-text)))
 
-(defmodule :eval
+(defplugin
   {\(     :eval
    "eval" :eval})

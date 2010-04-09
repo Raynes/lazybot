@@ -36,5 +36,5 @@
 (defmethod respond :scheck [{:keys [bot channel args sender]}]
   (.sendMessage bot channel (str sender ": " (-> args first (correct *nwords*)))))
 
-(defmodule :spellcheck
+(defplugin
   {"scheck" :scheck})

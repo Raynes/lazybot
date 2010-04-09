@@ -24,6 +24,6 @@
 (defmethod respond :short [{:keys [bot channel sender args]}]
   (.sendMessage bot channel (->> args first shorten-url (str sender ": "))))
 
-(defmodule :shorturl
+(defplugin
   {"short"   :short
    "shorten" :short})

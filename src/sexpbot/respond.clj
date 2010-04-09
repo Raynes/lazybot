@@ -59,9 +59,10 @@
 (defmethod respond :default [{:keys [bot channel]}]
   (.sendMessage bot channel "Command not found. No entiendo lo que estás diciendo."))
 
-(defn defmodule [m-name cmd-map]
+(defn defplugin [cmd-map]
   (dosync
-   (alter modules merge 
-	  {m-name 
-	   {:load #(dosync (alter commands assoc m-name cmd-map))
-	    :unload #(dosync (alter commands dissoc m-name))}})))
+   (let [m-name (keyword (last (.split (str *ns*) "\\.")))]
+     (alter modules merge 
+	    {m-name 
+	     {:load #(dosync (alter commands assoc m-name cmd-map))
+	      :unload #(dosync (alter commands dissoc m-name))}}))))

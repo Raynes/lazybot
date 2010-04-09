@@ -15,5 +15,5 @@
   (.sendMessage bot channel 
 		(str sender ": " (eval-haskell (apply str (interpose " " args))))))
 
-(defmodule :haskell
+(defplugin
   {"heval" :heval})

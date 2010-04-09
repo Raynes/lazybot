@@ -25,5 +25,5 @@
 		     (let [[text part] (lookup-def (first args))]
 		       (if (seq text) (str part ": " text) "Word not found.")))))
 
-(defmodule :dictionary
+(defplugin
   {"dict" :dict})

@@ -33,7 +33,7 @@
 				      format-config
 				      (post-gist "dump.clj")))))
 
-(defmodule :whatis
+(defplugin
   {"learn"   :learn
    "whatis"  :whatis
    "forget"  :forget

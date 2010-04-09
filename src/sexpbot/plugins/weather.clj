@@ -41,5 +41,5 @@
 	  (.sendMessage bot channel (str sender ": TONIGHT: " tonight))))
       (.sendMessage bot channel (str sender ": Location not found!")))))
 
-(defmodule :weather
+(defplugin
   {"fcst" :fcst})

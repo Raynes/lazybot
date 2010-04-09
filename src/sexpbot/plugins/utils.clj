@@ -88,7 +88,7 @@
 (defmethod respond :say [{:keys [bot channel args]}]
   (.sendMessage bot (first args) (->> args rest (interpose " ") (apply str))))
 
-(defmodule :utils      
+(defplugin      
   {"time"     :time
    "rape"     :rape
    "coin"     :coin

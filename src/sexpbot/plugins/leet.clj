@@ -27,5 +27,5 @@
 		     (#(.toLowerCase %))
 		     leetspeek)))
 
-(defmodule :leet
+(defplugin
   {"elite" :elite})

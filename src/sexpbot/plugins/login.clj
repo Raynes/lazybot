@@ -20,7 +20,7 @@
 (defmethod respond :quit [{:keys [sender]}]
   (when (logged-in? sender) (dosync (alter logged-in dissoc sender))))
 
-(defmodule :login
+(defplugin
   {"login"  :login
    "logout" :logout
    "quit"   :quit})

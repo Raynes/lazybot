@@ -26,5 +26,5 @@
 (defmethod respond :dytostr [{:keys [bot channel args]}]
   (.sendMessage bot channel (dynamic-to-str (first args))))
 
-(defmodule :dynamic
+(defplugin
   {"dytostr" :dytostr})

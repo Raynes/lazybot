@@ -27,4 +27,4 @@
   (let [answer (rand-int 20)]
     (.sendMessage bot channel (str sender ": " (nth responses answer)))))
 
-(defmodule :eball {"8ball" :8ball})
+(defplugin {"8ball" :8ball})

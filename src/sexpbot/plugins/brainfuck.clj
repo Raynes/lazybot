@@ -89,5 +89,5 @@
 		  (#(.split % "\n")))]
       (.sendMessage bot channel x))))
 
-(defmodule :brainfuck
+(defplugin
   {"bf" :bf})

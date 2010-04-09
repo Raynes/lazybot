@@ -12,4 +12,4 @@
 	(.sendMessage bot channel (str (last user-to) ": " (create-url url-from))))
       (.sendMessage bot channel (create-url args)))))
 
-(defmodule :lmgtfy {"lmgtfy" :lmgtfy})
+(defplugin {"lmgtfy" :lmgtfy})
