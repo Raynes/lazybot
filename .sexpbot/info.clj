@@ -12,7 +12,7 @@
 	   "lmgtfy"
 	   "google"
 	   "translate"
-	   "8ball"
+	   "eball"
 	   "utils"
 	   "leet"
 	   "eval"

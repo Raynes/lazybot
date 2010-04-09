@@ -1,5 +1,5 @@
 (ns sexpbot.plugins.lmgtfy
-  (:use (sexpbot respond commands)))
+  (:use [sexpbot respond]))
 
 (defn create-url [args]
   (str "http://www.lmgtfy.com/?q=" (apply str (interpose "+" args))))

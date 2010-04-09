@@ -1,5 +1,5 @@
 (ns sexpbot.plugins.dictionary
-  (:use (sexpbot respond commands info))
+  (:use (sexpbot respond info))
   (:require [com.twinql.clojure.http :as http]
 	    [org.danlarkin.json :as json])
   (:import (java.net URI)

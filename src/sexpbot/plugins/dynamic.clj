@@ -1,5 +1,5 @@
 (ns sexpbot.plugins.dynamic
-  (:use (sexpbot respond commands)))
+  (:use [sexpbot respond]))
 
 (def char-map (apply hash-map (interleave (range 1 28) "abcdefghijklmnopqrstuvwxyz ")))
 

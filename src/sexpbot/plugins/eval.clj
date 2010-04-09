@@ -2,7 +2,7 @@
   (:use net.licenser.sandbox
 	clojure.stacktrace
 	(net.licenser.sandbox tester matcher)
-	(sexpbot respond commands gist))
+	(sexpbot respond gist))
   (:import java.io.StringWriter
 	   java.util.concurrent.TimeoutException))
 
@@ -11,8 +11,7 @@
 (def sandbox-tester
      (extend-tester secure-tester 
 		    (whitelist 
-		     (function-matcher 'println 'print 'doc 'char 'apply 'print-doc
-				       ))
+		     (function-matcher 'println 'print 'var 'print-doc 'doc))
 		    (whitelist 
 		     (class-matcher String Byte Character Double Float Integer Long
 				    Math Number Short StrictMath StringBuffer))))
@@ -41,9 +40,6 @@
 				 (interpose " ") 
 				 (apply str) 
 				 execute-text)))
-
-;;(defmethod respond :doc [{:keys [bot channel args]}]
-  ;;(.sendMessage bot channel (my-doc (first args))))
 
 (defmodule :eval
   {\(     :eval

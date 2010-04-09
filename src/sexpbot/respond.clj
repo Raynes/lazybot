@@ -1,5 +1,21 @@
 (ns sexpbot.respond
-  (:use [sexpbot privileges commands]))
+  (:use [sexpbot info]))
+
+(def commands 
+     (ref {"load" :load
+	   "unload" :unload
+	   "quit" :quit
+	   "loaded?" :loaded}))
+
+(def logged-in (ref {}))
+
+(def modules (ref {}))
+
+(defn get-priv [user]
+  (if (-> user logged-in (= :admin)) :admin :noadmin))
+
+(defmacro if-admin [user & body]
+  `(when (= :admin (get-priv ~user)) ~@body))
 
 (defn find-command [cmds command first]
   (let [res (apply merge (remove keyword? (vals cmds)))]

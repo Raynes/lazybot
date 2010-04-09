@@ -1,5 +1,5 @@
 (ns sexpbot.plugins.brainfuck
-  (:use (sexpbot respond commands)))
+  (:use (sexpbot respond)))
 
 ;;; From Rosettacode ;;;
 (def *input*)

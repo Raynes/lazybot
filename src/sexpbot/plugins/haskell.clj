@@ -1,5 +1,5 @@
 (ns sexpbot.plugins.haskell
-  (:use [sexpbot commands respond])
+  (:use [sexpbot respond])
   (:require [org.danlarkin.json :as json]
 	    [com.twinql.clojure.http :as http]))
 

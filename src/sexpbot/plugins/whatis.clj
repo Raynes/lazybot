@@ -1,5 +1,5 @@
 (ns sexpbot.plugins.whatis
-  (:use [sexpbot respond commands info gist]
+  (:use [sexpbot respond info gist]
 	[clojure.contrib.duck-streams :only [spit]])
   (:import (java.io File)))
 

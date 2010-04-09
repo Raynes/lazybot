@@ -1,5 +1,5 @@
 (ns sexpbot.plugins.leet
-  (:use (sexpbot commands respond)))
+  (:use (sexpbot respond)))
 
 (defn char-to-leet [c]
   (condp = c

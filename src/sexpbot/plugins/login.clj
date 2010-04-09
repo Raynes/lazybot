@@ -1,5 +1,5 @@
 (ns sexpbot.plugins.login
-  (:use [sexpbot commands respond info privileges]))
+  (:use [sexpbot respond info]))
 
 (defn check-pass [user pass]
   (let [userconf (((read-config) :users) user)]

@@ -1,5 +1,5 @@
 (ns sexpbot.plugins.google
-  (:use [sexpbot commands respond]
+  (:use [sexpbot respond]
 	[clojure.contrib.duck-streams :only [slurp*]])
   (:require [org.danlarkin.json :as json]
 	    [com.twinql.clojure.http :as http]))

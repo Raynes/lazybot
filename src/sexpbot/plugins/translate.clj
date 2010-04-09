@@ -1,5 +1,5 @@
 (ns sexpbot.plugins.translate
-  (:use (sexpbot respond commands utilities)
+  (:use [sexpbot respond utilities]
 	[clojure.contrib.duck-streams :only [slurp*]])
   (:require [org.danlarkin.json :as json]
 	    [com.twinql.clojure.http :as http])

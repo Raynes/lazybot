@@ -1,5 +1,5 @@
 (ns sexpbot.plugins.shorturl
-  (:use (sexpbot commands respond info)
+  (:use [sexpbot respond info]
 	[clojure.contrib.duck-streams :only [slurp*]])
   (:require [org.danlarkin.json :as json]
 	    [com.twinql.clojure.http :as http])
@@ -25,5 +25,5 @@
   (.sendMessage bot channel (->> args first shorten-url (str sender ": "))))
 
 (defmodule :shorturl
-  {"short" :short
+  {"short"   :short
    "shorten" :short})

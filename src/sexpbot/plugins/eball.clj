@@ -1,5 +1,5 @@
 (ns sexpbot.plugins.eball
-  (:use (sexpbot respond commands)))
+  (:use (sexpbot respond)))
 
 (def responses
      ["As I see it, yes."
@@ -27,4 +27,4 @@
   (let [answer (rand-int 20)]
     (.sendMessage bot channel (str sender ": " (nth responses answer)))))
 
-(defmodule :8ball {"8ball" :8ball})
+(defmodule :eball {"8ball" :8ball})

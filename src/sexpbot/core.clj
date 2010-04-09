@@ -1,12 +1,8 @@
 (ns sexpbot.core
-  (:use (sexpbot respond info privileges)
+  (:use (sexpbot respond info)
 	[clojure.stacktrace :only [root-cause]]
 	[clojure.contrib.str-utils :only [re-split]])
-  (:require [org.danlarkin.json :as json]
-	    (sexpbot.plugins utils eball google lmgtfy translate 
-			     eval whatis dynamic leet shorturl
-			     dictionary brainfuck spellcheck weather
-			     login walton haskell))
+  (:require [org.danlarkin.json :as json])
   (:import (org.jibble.pircbot PircBot)
 	   (java.io File FileReader)
 	   (java.util.concurrent FutureTask TimeUnit TimeoutException)))
@@ -15,6 +11,9 @@
   (def prepend (:prepend info))
   (def servers (:servers info))
   (def plugins (:plugins info)))
+
+; Require all plugin files listed in info.clj
+(doseq [plug plugins] (->> plug (str "sexpbot.plugins.") symbol require))
 
 (defn wall-hack-method [class-name name- params obj & args]
   (-> class-name (.getDeclaredMethod (name name-) (into-array Class params))

@@ -1,5 +1,5 @@
 (ns sexpbot.plugins.walton
-  (:use [sexpbot respond commands]))
+  (:use [sexpbot respond]))
 
 (def wurl "http://getclojure.org:8080/examples/")
 

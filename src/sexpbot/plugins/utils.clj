@@ -1,6 +1,5 @@
 (ns sexpbot.plugins.utils
-  (:use [sexpbot utilities commands respond gist privileges]
-	[sexpbot.info :only [format-config]]
+  (:use [sexpbot utilities [info :only [format-config]] respond gist]
 	[clojure.contrib.seq-utils :only [shuffle]]
 	[clj-time core format]))
 

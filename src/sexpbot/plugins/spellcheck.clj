@@ -1,5 +1,5 @@
 (ns sexpbot.plugins.spellcheck
-  (:use (sexpbot commands respond)))
+  (:use (sexpbot respond)))
 
 ;;;;; Thanks to Rich Hickey for this implementation of Norvig's Spelling Corrector 
 ;;;;; I've made a few modifications to improve formatting and such, but it's all him.
