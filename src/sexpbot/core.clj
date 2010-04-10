@@ -1,11 +1,11 @@
 (ns sexpbot.core
-  (:use (sexpbot respond info)
+  (:use [sexpbot respond info]
 	[clojure.stacktrace :only [root-cause]]
 	[clojure.contrib.str-utils :only [re-split]])
   (:require [org.danlarkin.json :as json])
-  (:import (org.jibble.pircbot PircBot)
-	   (java.io File FileReader)
-	   (java.util.concurrent FutureTask TimeUnit TimeoutException)))
+  (:import [org.jibble.pircbot PircBot]
+	   [java.io File FileReader]
+	   [java.util.concurrent FutureTask TimeUnit TimeoutException]))
 
 (let [info (read-config)]
   (def prepend (:prepend info))
@@ -66,8 +66,13 @@
     (onPrivateMessage
      [send login host message] (try-handle send send login host message this))
     (onQuit
-     [send login host message] (when (find-ns 'sexpbot.plugins.login) 
-				 (try-handle send send login host "quit" this)))))
+     [send login host message]
+     (when (find-ns 'sexpbot.plugins.login) 
+       (try-handle send send login host (str prepend "quit") this)))
+    (onJoin
+     [chan send login host]
+     (when (find-ns 'sexpbot.plugins.mail)
+       (try-handle chan send login host (str prepend "mailalert") this)))))
 
 (defn make-bot [server] 
   (let [bot (make-bot-obj)

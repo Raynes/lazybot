@@ -26,6 +26,10 @@
 (defmethod respond :wiki [args]
   (handle-search (assoc args :args (conj (:args args) "site:en.wikipedia.org"))))
 
+(defmethod respond :ed [args]
+  (handle-search (assoc args :args (conj (:args args) "site:encyclopediadramtica.com"))))
+
 (defplugin 
   {"google" :google
-   "wiki"   :wiki})
+   "wiki"   :wiki
+   "ed"     :ed})
