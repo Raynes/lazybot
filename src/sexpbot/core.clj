@@ -89,7 +89,7 @@
       (.sendMessage bot "NickServ" (str "identify " pass))
       (println "Sleeping while identification takes effect.")
       (Thread/sleep 2000))
-    (doseq [chan channels] (.joinChannel bot chan))
-    (doseq [plug plugins] (loadmod plug))))
+    (doseq [chan channels] (.start (Thread. (fn [] (.joinChannel bot chan)))))
+    (doseq [plug plugins] (.start (Thread. (fn [] (loadmod plug)))))))
 
-(doseq [server servers] (make-bot server))
+(doseq [server servers] (.start (Thread. (fn [] (make-bot server)))))
