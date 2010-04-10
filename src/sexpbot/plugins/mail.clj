@@ -44,13 +44,16 @@
       (doseq [message messages] (.sendMessage bot lower-sender message))
       (.sendMessage bot sender "You have no messages."))))
 
-(defmethod respond :mail [{:keys [bot channel sender args]}]
-  (if (and (.contains (.toLowerCase (first args)) "serv") seq args)
-    (do
-      (new-message sender (.toLowerCase (first args)) 
-		   (->> args rest (interpose " ") (apply str)))
-      (.sendMessage bot channel "Message saved."))
-    (.sendMessage bot channel "You can't message the unmessageable.")))
+(defmethod respond :mail [{:keys [bot channel sender args server]}]
+  (if (seq args)
+    (let [lower-user (.toLowerCase (first args))]
+      (if (and (not (.contains lower-user "serv"))
+	       (not= lower-user (.toLowerCase (((read-config) :bot-name) server))))
+	(do
+	  (new-message sender (lower-user) 
+		       (->> args rest (interpose " ") (apply str)))
+	  (.sendMessage bot channel "Message saved."))
+	(.sendMessage bot channel "You can't message the unmessageable.")))))
 
 (defplugin
   {"mailalert"   :mailalert
