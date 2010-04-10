@@ -88,6 +88,17 @@
 (defmethod respond :say [{:keys [bot channel args]}]
   (.sendMessage bot (first args) (->> args rest (interpose " ") (apply str))))
 
+(defmethod respond :timer [{:keys [bot channel args]}]
+  (.start 
+   (Thread. 
+    (fn []
+      (let [ctime (now)
+	    [hour minute second] (map #(Integer/parseInt %) (.split (first args) ":"))
+	    newt (plus ctime (hours hour) (minutes minute) (secs second))
+	    fint (in-secs (interval ctime newt))]
+	(Thread/sleep (* fint 1000))
+	(->> args rest (interpose " ") (apply str) (.sendMessage bot channel)))))))
+
 (defplugin      
   {"time"     :time
    "rape"     :rape
@@ -103,11 +114,10 @@
    "botsnack" :botsnack
    "your"     :your
    "kill"     :kill
-   "say"      :say
    "error"    :error
    "gist"     :gist
    "timeout"  :timeout
    "dumpcmds" :dumpcmds
    "balance"  :balance
-   ;"say"      :say
-   })
+   ;"say"     :say
+   "timer"    :timer})
