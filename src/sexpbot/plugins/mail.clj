@@ -50,7 +50,7 @@
       (if (and (not (.contains lower-user "serv"))
 	       (not= lower-user (.toLowerCase (((read-config) :bot-name) server))))
 	(do
-	  (new-message sender (lower-user) 
+	  (new-message sender lower-user 
 		       (->> args rest (interpose " ") (apply str)))
 	  (.sendMessage bot channel "Message saved."))
 	(.sendMessage bot channel "You can't message the unmessageable.")))))
