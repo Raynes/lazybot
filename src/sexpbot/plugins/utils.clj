@@ -85,8 +85,9 @@
 		  (str sender ": " (apply str (concat fst (repeat (count fst) ")")))))))
 
 ;;;; Too easy to abuse. ;;;
-(defmethod respond :say [{:keys [bot channel args]}]
-  (.sendMessage bot (first args) (->> args rest (interpose " ") (apply str))))
+(defmethod respond :say [{:keys [bot channel sender args]}]
+  (if-admin sender
+    (.sendMessage bot (first args) (->> args rest (interpose " ") (apply str)))))
 
 (defplugin      
   {"time"     :time
@@ -108,5 +109,5 @@
    "timeout"  :timeout
    "dumpcmds" :dumpcmds
    "balance"  :balance
-   ;"say"     :say
+   "say"     :say
 })
