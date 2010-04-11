@@ -1,5 +1,5 @@
 ; Written by Programble <programble@gmail.com>
-; Licensed under the GNU GPLv3
+; Licensed under the EPL
 (ns sexpbot.plugins.fortune
 	(:use [sexpbot respond info]))
 
