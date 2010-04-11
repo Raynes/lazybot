@@ -1,6 +1,6 @@
 (ns sexpbot.plugins.mail
   (:use [sexpbot respond info]
-	[clj-time.core]))
+	[clj-time core format]))
 
 (def mailfile (str sexpdir "/mail.clj"))
 
@@ -8,11 +8,14 @@
 
 (defn new-message [from to text]
   (with-info mailfile
-    (let [messages (read-config)] 
-      (write-config (assoc messages to (conj (messages to) {:from from :message text}))))))
+    (let [messages (read-config)
+	  time (unparse (formatters :date-time-no-ms) (now))] 
+      (write-config (assoc messages to (conj (messages to) {:from from 
+							    :message text
+							    :timestamp time}))))))
 
-(defn compose-message [{:keys [from message]}]
-  (str "From: " from " Text: " message))
+(defn compose-message [{:keys [from message timestamp]}]
+  (str "From: " from ", Time: " timestamp ", Text: " message))
 
 (defn get-messages [user]
   (with-info mailfile

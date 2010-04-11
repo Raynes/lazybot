@@ -27,7 +27,7 @@
   (handle-search (assoc args :args (conj (:args args) "site:en.wikipedia.org"))))
 
 (defmethod respond :ed [args]
-  (handle-search (assoc args :args (conj (:args args) "site:encyclopediadramtica.com"))))
+  (handle-search (assoc args :args (conj (:args args) "site:encyclopediadramatica.com"))))
 
 (defplugin 
   {"google" :google
