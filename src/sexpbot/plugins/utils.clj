@@ -61,7 +61,7 @@
   (.sendMessage bot channel (str (first args) ": It's 'you're', you fucking illiterate bastard.")))
 
 (defmethod respond :kill [{:keys [bot channel]}]
-  (.sendMessage bot channel "IT WITH FIRE."))
+  (.sendMessage bot channel "IT WITH FIRE. FOR GREAT JUSTICE!"))
 
 (defmethod respond :error [_] (throw (Exception. "Hai!")))
 
@@ -88,17 +88,6 @@
 (defmethod respond :say [{:keys [bot channel args]}]
   (.sendMessage bot (first args) (->> args rest (interpose " ") (apply str))))
 
-(defmethod respond :timer [{:keys [bot channel args]}]
-  (.start 
-   (Thread. 
-    (fn []
-      (let [ctime (now)
-	    [hour minute second] (map #(Integer/parseInt %) (.split (first args) ":"))
-	    newt (plus ctime (hours hour) (minutes minute) (secs second))
-	    fint (in-secs (interval ctime newt))]
-	(Thread/sleep (* fint 1000))
-	(->> args rest (interpose " ") (apply str) (.sendMessage bot channel)))))))
-
 (defplugin      
   {"time"     :time
    "rape"     :rape
@@ -120,4 +109,4 @@
    "dumpcmds" :dumpcmds
    "balance"  :balance
    ;"say"     :say
-   "timer"    :timer})
+})

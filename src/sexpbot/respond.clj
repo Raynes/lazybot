@@ -2,9 +2,9 @@
   (:use [sexpbot info]))
 
 (def commands 
-     (ref {"load" :load
-	   "unload" :unload
-	   "quit" :quit
+     (ref {"load"    :load
+	   "unload"  :unload
+	   "quit"    :quit
 	   "loaded?" :loaded}))
 
 (def logged-in (ref {}))
