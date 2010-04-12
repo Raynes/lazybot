@@ -11,12 +11,16 @@
 (def sandbox-tester
      (extend-tester secure-tester 
 		    (whitelist 
-		     (function-matcher 'println 'print 'var 'print-doc 'doc))
-		    (whitelist 
-		     (class-matcher String Byte Character Double Float Integer Long
-				    Math Number Short StrictMath StringBuffer))))
+		     (function-matcher 'println 'print 'var 'print-doc 'doc 'throw))))
 
-(def sc (stringify-sandbox (new-sandbox-compiler :tester sandbox-tester :timeout 10000)))
+(def my-obj-tester
+     (extend-tester default-obj-tester
+		    (whitelist
+		     (class-matcher String Byte Character StrictMath StringBuffer))))
+
+(def sc (stringify-sandbox (new-sandbox-compiler :tester sandbox-tester 
+						 :timeout 10000 
+						 :object-tester my-obj-tester)))
 
 (def cap 300)
 
