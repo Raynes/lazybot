@@ -1,7 +1,7 @@
 ; Written by Programble <programble@gmail.com>
 ; Licensed under the EPL
 (ns sexpbot.plugins.fortune
-	(:use [sexpbot respond info]))
+	(:use [sexpbot respond info gist]))
 
 ; Database file
 (def fortunefile (str sexpdir "/fortunes.clj"))
@@ -23,6 +23,13 @@
         (.sendMessage bot channel "Fortune cookie eaten.")))
     (.sendMessage bot channel "An invisible fortune cookie?")))
 
+(defmethod respond :dumpfortunes [{:keys [bot channel args]}]
+  (with-info fortunefile
+    (let [db (:fortunes (read-config))
+          dump (->> db (interpose "\n") (apply str))]
+      (.sendMessage bot channel (post-gist "Fortunes Dump" dump)))))
+
 (defplugin
-  {"fortune"    :fortune
-   "addfortune" :addfortune})
+  {"fortune"      :fortune
+   "addfortune"   :addfortune
+   "dumpfortunes" :dumpfortunes})
