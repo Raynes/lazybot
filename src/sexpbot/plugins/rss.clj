@@ -6,11 +6,16 @@
 
 (defn cull [zipper]
   (let [items (take 3 (zf/xml-> zipper :channel :item))
-	items2 (take 3 (zf/xml-> zipper :item))]
+	items2 (take 3 (zf/xml-> zipper :item))
+	items3 (take 3 (zf/xml-> zipper :entry))]
     (map (fn [item] 
 	   [(first (zf/xml-> item :title zf/text)) 
-	    (first (zf/xml-> item :link zf/text))]) 
-	 (if (seq items) items items2))))
+	    (first (if-let [atom-link (seq (zf/xml-> item :link (zf/attr :href)))]
+		     atom-link
+		     (zf/xml-> item :link zf/text)))]) 
+	 (cond (seq items)  items 
+	       (seq items2) items2
+	       (seq items3) items3))))
 
 (defn pull-feed [url]
   (-> url xml/parse zip/xml-zip cull))
