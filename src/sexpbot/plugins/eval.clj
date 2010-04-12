@@ -40,7 +40,9 @@
      (catch Exception e (.getMessage (root-cause e))))))
 
 (defmethod respond :eval [{:keys [bot channel command args]}]
-  (.sendMessage bot channel (->> (if (= command \() (cons command args) args) 
+  (.sendMessage bot channel (->> (if (= (first command) \() 
+				   (cons command args) 
+				   args)
 				 (interpose " ")
 				 (apply str) 
 				 execute-text)))
