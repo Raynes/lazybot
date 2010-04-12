@@ -1,7 +1,8 @@
 (ns sexpbot.plugins.utils
   (:use [sexpbot utilities [info :only [format-config]] respond gist]
 	[clojure.contrib.seq-utils :only [shuffle]]
-	[clj-time core format]))
+	[clj-time core format]
+	[clojure.contrib.duck-streams :only [slurp*]]))
 
 (def known-prefixes
      [\& \+ \@ \% \! \~])
@@ -89,6 +90,32 @@
   (if-admin sender
     (.sendMessage bot (first args) (->> args rest (interpose " ") (apply str)))))
 
+(def titlere #"(?i)<title>([^<]+)</title>")
+
+(defn collapse-whitespace [s]
+  (->> s (.split #"\s+") seq (interpose " ") (apply str)))
+
+(defn add-url-prefix [url]
+  (if-not (.startsWith url "http://")
+    (str "http://" url)
+    url))
+
+(defn slurp-or-default [url]
+  (try
+    (slurp* url)
+  (catch java.lang.Exception e
+    "<html><head><title>Cannot load page</title></head></html>")))
+
+(defmethod respond :title [{:keys [bot channel args]}]
+  (if (seq args)
+    (let [url (add-url-prefix (first args))
+          page (slurp-or-default url)
+          match (re-find titlere page)]
+      (if (seq match)
+        (.sendMessage bot channel (collapse-whitespace (second match)))
+        (.sendMessage bot channel "Page has not title")))
+    (.sendMessage bot channel "Which page?")))
+
 (defplugin      
   {"time"     :time
    "rape"     :rape
@@ -109,5 +136,6 @@
    "timeout"  :timeout
    "dumpcmds" :dumpcmds
    "balance"  :balance
-   "say"     :say
+   "say"      :say
+   "title"    :title
 })
