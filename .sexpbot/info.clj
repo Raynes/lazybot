@@ -27,7 +27,8 @@
 	   "haskell"
 	   "mail"
 	   "timer"
-	   "fortune"]}
+	   "fortune"
+	   "rss"]}
 
 ; users is a series of username to password and privileges.
 ; plugins is a list of plugins to load at startup.
