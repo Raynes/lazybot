@@ -5,11 +5,12 @@
 	    [clojure.contrib.zip-filter.xml :as zf]))
 
 (defn cull [zipper]
-  (let [items (take 3 (zf/xml-> zipper :channel :item))]
+  (let [items (take 3 (zf/xml-> zipper :channel :item))
+	items2 (take 3 (zf/xml-> zipper :item))]
     (map (fn [item] 
 	   [(first (zf/xml-> item :title zf/text)) 
 	    (first (zf/xml-> item :link zf/text))]) 
-	 items)))
+	 (if (seq items) items items2))))
 
 (defn pull-feed [url]
   (-> url xml/parse zip/xml-zip cull))
