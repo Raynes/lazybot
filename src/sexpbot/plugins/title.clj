@@ -1,5 +1,5 @@
 (ns sexpbot.plugins.title
-  (:use sexpbot.respond
+  (:use [sexpbot info respond]
 	[clojure.contrib.duck-streams :only [reader]]))
 
 (def titlere #"(?i)<title>([^<]+)</title>")
@@ -18,13 +18,21 @@
      (some #(re-find titlere %) (line-seq readerurl)))
    (catch java.lang.Exception e nil)))
 
-(def url-blacklist-words #{"paste" "gist"})
+(def url-blacklist-words ((read-config) :url-blacklist))
 
 (defn url-check [url]
   (some #(.contains url %) url-blacklist-words))
 
-(defmethod respond :title* [{:keys [bot channel args verbose?]}]
-  (if (seq args)
+(defn is-blacklisted? [[match-this not-this] s]
+  (let [lower-s (.toLowerCase s)] 
+    (re-find (re-pattern (format "(?=.*%s(?!%s))^(\\w+)" match-this not-this)) s)))
+
+(defn check-blacklist [& args]
+  (let [blacklist ((read-config) :user-ignore-url-blacklist)]
+    (some (comp not nil?) (for [x blacklist y args] (is-blacklisted? x y)))))
+
+(defmethod respond :title* [{:keys [bot sender channel login host args verbose?]}]
+  (if (and (seq args) (not (check-blacklist sender login host)))
     (doseq [link (take 1 args)]
       (let [url (add-url-prefix link)
 	    page (slurp-or-default url)

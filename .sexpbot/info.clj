@@ -9,6 +9,9 @@
  :users {"JohnDoe" {:pass "iliekpie", :privs :admin}
 	 "JaneDoe" {:pass "ohai", :privs :admin}}
  :check-links? true ; Should only be enabled if the title plugin is activated below.
+ :url-channel-blacklist #{} ; Channels in which URL title scraper is to be disabled.
+ :url-blacklist #{} ; URL title scraper will look for these words in URLs and not use them if they appear.
+ :user-ignore-url-blacklist [["bot" "ters"]] ; A series of "match this" but "not this" pairs.
  :plugins [;"dictionary"
 	   "lmgtfy"
 	   "google"
