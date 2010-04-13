@@ -8,6 +8,7 @@
  :bot-password {} ; A map of server to bot password
  :users {"JohnDoe" {:pass "iliekpie", :privs :admin}
 	 "JaneDoe" {:pass "ohai", :privs :admin}}
+ :user-blacklist {"irc.freenode.net" #{"Meowzorz"}} ; ignore these users on these servers.
  :check-links? true ; Should only be enabled if the title plugin is activated below.
  :url-channel-blacklist #{} ; Channels in which URL title scraper is to be disabled.
  :url-blacklist #{} ; URL title scraper will look for these words in URLs and not use them if they appear.

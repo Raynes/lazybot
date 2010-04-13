@@ -65,15 +65,16 @@
   (->> s (re-seq #"(http://|www\.)[^ ]+") (apply concat) (take-nth 2)))
 
 (defn on-message [chan send login host [begin & more :as mess] server this]
-  (let [links (get-links mess)
-	title-links? (and (not= prepend begin) 
-			  catch-links?
-			  (seq links)
-			  (find-ns 'sexpbot.plugins.title))
-	message (if title-links? 
-		  (str prepend "title2 " (apply str (interpose " " links)))
-		  mess)]
-    (try-handle chan send login host message server this)))
+  (when (not (((info :user-blacklist) server) send))
+    (let [links (get-links mess)
+	  title-links? (and (not= prepend begin) 
+			    catch-links?
+			    (seq links)
+			    (find-ns 'sexpbot.plugins.title))
+	  message (if title-links? 
+		    (str prepend "title2 " (apply str (interpose " " links)))
+		    mess)]
+      (try-handle chan send login host message server this))))
 
 (defn make-bot-obj [server]
   (proxy [PircBot] []
