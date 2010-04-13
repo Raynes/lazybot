@@ -8,6 +8,7 @@
  :bot-password {} ; A map of server to bot password
  :users {"JohnDoe" {:pass "iliekpie", :privs :admin}
 	 "JaneDoe" {:pass "ohai", :privs :admin}}
+ :check-links? true ; Should only be enabled if the title plugin is activated below.
  :plugins [;"dictionary"
 	   "lmgtfy"
 	   "google"
@@ -28,7 +29,8 @@
 	   "mail"
 	   "timer"
 	   "fortune"
-	   "rss"]}
+	   "rss"
+	   "title"]}
 
 ; users is a series of username to password and privileges.
 ; plugins is a list of plugins to load at startup.

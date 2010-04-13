@@ -7,10 +7,11 @@
 	   [java.io File FileReader]
 	   [java.util.concurrent FutureTask TimeUnit TimeoutException]))
 
-(let [info (read-config)]
-  (def prepend (:prepend info))
-  (def servers (:servers info))
-  (def plugins (:plugins info)))
+(def info (read-config))
+(def prepend (:prepend info))
+(def servers (:servers info))
+(def plugins (:plugins info))
+(def catch-links? (:catch-links? info))
 
 ; Require all plugin files listed in info.clj
 (doseq [plug plugins] (->> plug (str "sexpbot.plugins.") symbol require))
@@ -60,12 +61,26 @@
    (catch TimeoutException _
      (.sendMessage this chan "Execution Timed Out!"))))
 
+(defn get-links [s]
+  (->> s (re-seq #"(http://|www\.)[^ ]+") (apply concat) (take-nth 2)))
+
+(defn on-message [chan send login host [begin & more :as mess] server this]
+  (let [links (get-links mess)
+	title-links? (and (not= prepend begin) 
+			  catch-links?
+			  (seq links)
+			  (find-ns 'sexpbot.plugins.title))
+	message (if title-links? 
+		  (str prepend "title " (apply str (interpose " " links)))
+		  mess)]
+    (try-handle chan send login host message server this)))
+
 (defn make-bot-obj [server]
   (proxy [PircBot] []
     (onMessage 
-     [chan send login host mess] (try-handle chan send login host mess server this))
+     [chan send login host mess] (on-message chan send login host mess server this))
     (onPrivateMessage
-     [send login host message] (try-handle send send login host message server this))
+     [send login host message] (on-message send send login host message server this))
     (onQuit
      [send login host message]
      (when (find-ns 'sexpbot.plugins.login) 
