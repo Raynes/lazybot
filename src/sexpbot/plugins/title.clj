@@ -14,9 +14,8 @@
 
 (defn slurp-or-default [url]
   (try
-    (slurp* url)
-  (catch java.lang.Exception e
-    "<html><head><title>Cannot load page</title></head></html>")))
+   (slurp* url)
+   (catch java.lang.Exception e nil)))
 
 (defmethod respond :title* [{:keys [bot channel args verbose?]}]
   (if (seq args)
@@ -24,7 +23,7 @@
       (let [url (add-url-prefix (first args))
 	    page (slurp-or-default url)
 	    match (re-find titlere page)]
-	(if (seq match)
+	(if (and (seq page) (seq match))
 	  (.sendMessage bot channel (collapse-whitespace (second match)))
 	  (when verbose? (.sendMessage bot channel "Page has no title.")))))
     (when verbose? (.sendMessage bot channel "Which page?"))))

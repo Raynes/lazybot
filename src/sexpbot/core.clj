@@ -57,7 +57,7 @@
       (handle-message chan send login host mess server this)
       (catch Exception e 
 	(println (str e))))
-    20)
+    30)
    (catch TimeoutException _
      (.sendMessage this chan "Execution Timed Out!"))))
 
