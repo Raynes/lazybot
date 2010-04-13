@@ -1,8 +1,7 @@
 (ns sexpbot.plugins.utils
   (:use [sexpbot utilities [info :only [format-config]] respond gist]
-	[clojure.contrib.seq-utils :only [shuffle]]
-	[clj-time core format]
-	[clojure.contrib.duck-streams :only [slurp*]]))
+	[clojure.contrib [duck-streams :only [slurp*]] [seq-utils :only [shuffle]]]
+	[clj-time core format]))
 
 (def known-prefixes
      [\& \+ \@ \% \! \~])
@@ -90,10 +89,11 @@
   (if-admin sender
     (.sendMessage bot (first args) (->> args rest (interpose " ") (apply str)))))
 
+;;;; programble ;;;;
 (def titlere #"(?i)<title>([^<]+)</title>")
 
 (defn collapse-whitespace [s]
-  (->> s (.split #"\s+") seq (interpose " ") (apply str)))
+  (->> s (.split #"\s+") (interpose " ") (apply str)))
 
 (defn add-url-prefix [url]
   (if-not (.startsWith url "http://")
@@ -115,6 +115,7 @@
         (.sendMessage bot channel (collapse-whitespace (second match)))
         (.sendMessage bot channel "Page has not title")))
     (.sendMessage bot channel "Which page?")))
+;;;;;;;;;;;;;;;;;;;
 
 (defplugin      
   {"time"     :time
@@ -137,5 +138,4 @@
    "dumpcmds" :dumpcmds
    "balance"  :balance
    "say"      :say
-   "title"    :title
-})
+   "title"    :title})
