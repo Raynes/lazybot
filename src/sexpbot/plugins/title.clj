@@ -32,9 +32,10 @@
     (some (comp not nil?) (for [x blacklist y args] (is-blacklisted? x y)))))
 
 (defmethod respond :title* [{:keys [bot sender channel login host args verbose?]}]
-  (if (and (seq args) 
-	   (not (check-blacklist sender login host))
-	   (not (((read-config) :channel-catch-blacklist) channel)))
+  (if (or (and verbose? (seq args)) 
+	  (and (seq args) 
+	       (not (check-blacklist sender login host))
+	       (not (((read-config) :channel-catch-blacklist) channel))))
     (doseq [link (take 1 args)]
       (let [url (add-url-prefix link)
 	    page (slurp-or-default url)
