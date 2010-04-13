@@ -1,6 +1,6 @@
 (ns sexpbot.plugins.title
   (:use sexpbot.respond
-	[clojure.contrib.duck-streams :only [slurp*]]))
+	[clojure.contrib.duck-streams :only [reader]]))
 
 (def titlere #"(?i)<title>([^<]+)</title>")
 
@@ -14,17 +14,23 @@
 
 (defn slurp-or-default [url]
   (try
-   (slurp* url)
+   (with-open [readerurl (reader url)]
+     (some #(re-find titlere %) (line-seq readerurl)))
    (catch java.lang.Exception e nil)))
+
+(def url-blacklist-words #{"paste" "gist"})
+
+(defn url-check [url]
+  (some #(.contains url %) url-blacklist-words))
 
 (defmethod respond :title* [{:keys [bot channel args verbose?]}]
   (if (seq args)
-    (doseq [link (take 3 args)]
-      (let [url (add-url-prefix (first args))
+    (doseq [link (take 1 args)]
+      (let [url (add-url-prefix link)
 	    page (slurp-or-default url)
-	    match (re-find titlere page)]
-	(if (and (seq page) (seq match))
-	  (.sendMessage bot channel (collapse-whitespace (second match)))
+	    match (second page)]
+	(if (and (seq page) (seq match) (not (url-check url)))
+	  (.sendMessage bot channel (collapse-whitespace match))
 	  (when verbose? (.sendMessage bot channel "Page has no title.")))))
     (when verbose? (.sendMessage bot channel "Which page?"))))
 
