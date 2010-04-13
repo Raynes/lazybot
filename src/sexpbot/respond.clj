@@ -24,7 +24,7 @@
      (cmds command) (cmds command) 
      (some (comp map? val) cmds) (res command))))
 
-(defn cmd-respond [{:keys [command first]}] (find-command @commands command first))
+(defn cmd-respond [{:keys [command first]} & _] (find-command @commands command first))
 
 (defmulti respond cmd-respond)
 

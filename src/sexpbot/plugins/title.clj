@@ -2,7 +2,6 @@
   (:use sexpbot.respond
 	[clojure.contrib.duck-streams :only [slurp*]]))
 
-;;;; programble ;;;;
 (def titlere #"(?i)<title>([^<]+)</title>")
 
 (defn collapse-whitespace [s]
@@ -19,17 +18,21 @@
   (catch java.lang.Exception e
     "<html><head><title>Cannot load page</title></head></html>")))
 
-(defmethod respond :title [{:keys [bot channel args]}]
+(defmethod respond :title* [{:keys [bot channel args verbose?]}]
   (if (seq args)
     (doseq [link (take 3 args)]
-      (let [url (add-url-prefix link)
+      (let [url (add-url-prefix (first args))
 	    page (slurp-or-default url)
 	    match (re-find titlere page)]
 	(if (seq match)
 	  (.sendMessage bot channel (collapse-whitespace (second match)))
-	  (.sendMessage bot channel "Page has no title."))))
-    (.sendMessage bot channel "Which page?")))
-;;;;;;;;;;;;;;;;;;;
+	  (when verbose? (.sendMessage bot channel "Page has no title.")))))
+    (when verbose? (.sendMessage bot channel "Which page?"))))
+
+(defmethod respond :title2 [botmap] (respond (assoc botmap :command "title*")))
+(defmethod respond :title [botmap] (respond (assoc botmap :command "title*" :verbose? true)))
 
 (defplugin
-  {"title" :title})
+  {"title"  :title
+   "title2" :title2
+   "title*" :title*})

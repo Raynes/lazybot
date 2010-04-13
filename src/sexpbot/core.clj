@@ -71,7 +71,7 @@
 			  (seq links)
 			  (find-ns 'sexpbot.plugins.title))
 	message (if title-links? 
-		  (str prepend "title " (apply str (interpose " " links)))
+		  (str prepend "title2 " (apply str (interpose " " links)))
 		  mess)]
     (try-handle chan send login host message server this)))
 
