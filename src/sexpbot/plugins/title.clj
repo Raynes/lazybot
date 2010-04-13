@@ -24,8 +24,11 @@
   (some #(.contains url %) url-blacklist-words))
 
 (defn is-blacklisted? [[match-this not-this] s]
-  (let [lower-s (.toLowerCase s)] 
-    (re-find (re-pattern (format "(?=.*%s(?!%s))^(\\w+)" match-this not-this)) s)))
+  (let [lower-s (.toLowerCase s)
+	regex (if (seq not-this)
+		(re-pattern (format "(?=.*%s(?!%s))^(\\w+)" match-this not-this))
+		(re-pattern match-this))]
+    (re-find regex s)))
 
 (defn check-blacklist [server & args]
   (let [blacklist (((read-config) :user-ignore-url-blacklist) server)]
