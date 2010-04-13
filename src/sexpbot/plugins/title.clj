@@ -28,7 +28,7 @@
 	regex (if (seq not-this)
 		(re-pattern (format "(?=.*%s(?!%s))^(\\w+)" match-this not-this))
 		(re-pattern match-this))]
-    (re-find regex s)))
+    (re-find regex lower-s)))
 
 (defn check-blacklist [server & args]
   (let [blacklist (((read-config) :user-ignore-url-blacklist) server)]
