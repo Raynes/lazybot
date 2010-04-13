@@ -68,7 +68,7 @@
   (when (not (((info :user-blacklist) server) send))
     (let [links (get-links mess)
 	  title-links? (and (not= prepend begin) 
-			    catch-links?
+			    (catch-links? server)
 			    (seq links)
 			    (find-ns 'sexpbot.plugins.title))
 	  message (if title-links? 
