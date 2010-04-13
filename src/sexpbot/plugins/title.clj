@@ -32,7 +32,7 @@
 
 (defn check-blacklist [server & args]
   (let [blacklist (((read-config) :user-ignore-url-blacklist) server)]
-    (some (comp not nil?) (for [x blacklist y args] (is-blacklisted? x y)))))
+    (some (comp not nil?) (map #(is-blacklisted? % (apply str args)) blacklist))))
 
 (defmethod respond :title* [{:keys [bot sender server channel login host args verbose?]}]
   (if (or (and verbose? (seq args)) 

@@ -89,6 +89,9 @@
   (if-admin sender
     (.sendMessage bot (first args) (->> args rest (interpose " ") (apply str)))))
 
+(defmethod respond :loginandsuch [{:keys [bot channel login host]}]
+  (.sendMessage bot channel (str login "|" host)))
+
 (defplugin      
   {"time"     :time
    "rape"     :rape
@@ -109,4 +112,5 @@
    "timeout"  :timeout
    "dumpcmds" :dumpcmds
    "balance"  :balance
-   "say"      :say})
+   "say"      :say
+   "testing"  :loginandsuch})
