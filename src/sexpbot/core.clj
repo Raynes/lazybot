@@ -1,11 +1,11 @@
 (ns sexpbot.core
-  (:use [sexpbot respond info]
+  (:use [sexpbot respond info utilities]
 	[clojure.stacktrace :only [root-cause]]
 	[clojure.contrib.str-utils :only [re-split]])
   (:require [org.danlarkin.json :as json])
   (:import [org.jibble.pircbot PircBot]
 	   [java.io File FileReader]
-	   [java.util.concurrent FutureTask TimeUnit TimeoutException]))
+	   java.util.concurrent.TimeoutException))
 
 (def info (read-config))
 (def prepend (:prepend info))
@@ -26,18 +26,6 @@
 			:first (first command)
 			:args args}))
 
-;;;;;; From clojurebot's sandbox.clj, adapted for my code. ;;;;;;
-(defn thunk-timeout [thunk seconds]
-      (let [task (FutureTask. thunk)
-            thr (Thread. task)]
-        (try
-          (.start thr)
-          (.get task seconds TimeUnit/SECONDS)
-          (catch TimeoutException e
-                 (.cancel task true)
-                 (.stop thr (Exception. "Thread stopped!")) 
-		 (throw (TimeoutException. "Execution Timed Out"))))))
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (defn handle-message [chan send login host mess server this]
   (let [bot-map {:bot this

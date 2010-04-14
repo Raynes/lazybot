@@ -1,7 +1,8 @@
-;; Thanks to programble for providing the basis of this plugin.
+;; The result of a team effort between programble and Rayne.
 (ns sexpbot.plugins.title
-  (:use [sexpbot info respond]
-	[clojure.contrib.duck-streams :only [reader]]))
+  (:use [sexpbot info respond utilities]
+	[clojure.contrib.duck-streams :only [reader]])
+  (:import java.util.concurrent.TimeoutException))
 
 (def titlere #"(?i)<title>([^<]+)</title>")
 
@@ -16,7 +17,7 @@
 (defn slurp-or-default [url]
   (try
    (with-open [readerurl (reader url)]
-     (some #(re-find titlere %) (line-seq readerurl)))
+     (some #(re-find titlere %) (line-seq readerurl)))   
    (catch java.lang.Exception e nil)))
 
 (def url-blacklist-words ((read-config) :url-blacklist))
@@ -36,7 +37,7 @@
 (defn check-blacklist [server sender login host]
   (let [blacklist (((read-config) :user-ignore-url-blacklist) server)]
     (some (comp not nil?) (map 
-			   #(is-blacklisted? % (str sender "!" (filter-letters login) "@" host)) 
+			   #(is-blacklisted? % (str sender "!" (strip-tilde login) "@" host)) 
 			   blacklist))))
 
 (defmethod respond :title* [{:keys [bot sender server channel login host args verbose?]}]
@@ -45,12 +46,16 @@
 	       (not (check-blacklist server sender login host))
 	       (not ((((read-config) :channel-catch-blacklist) server) channel))))
     (doseq [link (take 1 args)]
-      (let [url (add-url-prefix link)
-	    page (slurp-or-default url)
-	    match (second page)]
-	(if (and (seq page) (seq match) (not (url-check url)))
-	  (.sendMessage bot channel (collapse-whitespace match))
-	  (when verbose? (.sendMessage bot channel "Page has no title.")))))
+      (try
+       (thunk-timeout #(let [url (add-url-prefix link)
+			     page (slurp-or-default url)
+			     match (second page)]
+			 (if (and (seq page) (seq match) (not (url-check url)))
+			   (.sendMessage bot channel (collapse-whitespace match))
+			   (when verbose? (.sendMessage bot channel "Page has no title."))))
+		      20)
+       (catch TimeoutException _ 
+	 (when verbose? (.sendMessage bot channel "It's taking too long to find the title. I'm giving up.")))))
     (when verbose? (.sendMessage bot channel "Which page?"))))
 
 (defmethod respond :title2 [botmap] (respond (assoc botmap :command "title*")))
