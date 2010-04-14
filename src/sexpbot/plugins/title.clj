@@ -1,3 +1,4 @@
+;; Thanks to programble for providing the basis of this plugin.
 (ns sexpbot.plugins.title
   (:use [sexpbot info respond]
 	[clojure.contrib.duck-streams :only [reader]]))
@@ -30,9 +31,13 @@
 		(re-pattern match-this))]
     (re-find regex lower-s)))
 
-(defn check-blacklist [server & args]
+(defn filter-letters [s] (filter #(Character/isLetter %) s))
+
+(defn check-blacklist [server & sender login host]
   (let [blacklist (((read-config) :user-ignore-url-blacklist) server)]
-    (some (comp not nil?) (map #(is-blacklisted? % (apply str args)) blacklist))))
+    (some (comp not nil?) (map #
+			   (is-blacklisted? % (str sender "!" (filter-letters login) "@" host)) 
+			   blacklist))))
 
 (defmethod respond :title* [{:keys [bot sender server channel login host args verbose?]}]
   (if (or (and verbose? (seq args)) 
