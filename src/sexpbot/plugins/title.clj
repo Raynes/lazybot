@@ -31,12 +31,12 @@
 		(re-pattern match-this))]
     (re-find regex lower-s)))
 
-(defn filter-letters [s] (filter #(Character/isLetter %) s))
+(defn strip-tilde [[target & more :as all]] (if (= target \~) (apply str more) all))
 
-(defn check-blacklist [server & sender login host]
+(defn check-blacklist [server sender login host]
   (let [blacklist (((read-config) :user-ignore-url-blacklist) server)]
-    (some (comp not nil?) (map #
-			   (is-blacklisted? % (str sender "!" (filter-letters login) "@" host)) 
+    (some (comp not nil?) (map 
+			   #(is-blacklisted? % (str sender "!" (filter-letters login) "@" host)) 
 			   blacklist))))
 
 (defmethod respond :title* [{:keys [bot sender server channel login host args verbose?]}]
