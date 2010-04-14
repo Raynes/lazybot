@@ -10,4 +10,5 @@
 		 [clj-sandbox "0.3.0-SNAPSHOT"]
 		 [com.twinql.clojure/clj-apache-http "2.0.0"]]
   :dev-dependencies [[swank-clojure "1.1.0"]
-		     [leiningen/lein-swank "1.1.0"]])
+		     [leiningen/lein-swank "1.1.0"]
+		     [lein-search "0.3.0-SNAPSHOT"]])
