@@ -37,7 +37,7 @@
   (let [lower-sender (.toLowerCase sender)
 	nmess (count-messages lower-sender)]
     (when (and (> nmess 0) (alert-time? lower-sender))
-      (.sendNotice sender channel (str sender ": You have " nmess 
+      (.sendNotice bot sender (str sender ": You have " nmess 
 				       " new message(s). Type $getmessages (in PM if you want) to see them."))
       (dosync (alter alerted assoc lower-sender (now))))))
 
