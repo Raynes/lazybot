@@ -27,6 +27,7 @@
   (some #(.contains url %) url-blacklist-words))
 
 (defn is-blacklisted? [[match-this not-this] s]
+  (println s)
   (let [lower-s (.toLowerCase s)
 	regex (if (seq not-this)
 		(re-pattern (format "(?=.*%s(?!%s))^(\\w+)" match-this not-this))
@@ -35,7 +36,8 @@
 
 (defn strip-tilde [s] (apply str (remove #(= \~ %) s)))
 
-(defn check-blacklist [server nick user]
+(defn check-blacklist [server user]
+  (println user)
   (let [blacklist (((read-config) :user-ignore-url-blacklist) server)]
     (some (comp not nil?) (map 
 			   #(is-blacklisted? % (strip-tilde user)) 
@@ -44,7 +46,7 @@
 (defmethod respond :title* [{:keys [irc nick user channel args verbose?]}]
   (if (or (and verbose? (seq args)) 
 	  (and (seq args) 
-	       (not (check-blacklist (:server irc) nick user))
+	       (not (check-blacklist (:server @irc) user))
 	       (not ((((read-config) :channel-catch-blacklist) (:server @irc)) channel))))
     (doseq [link (take 1 args)]
       (try
