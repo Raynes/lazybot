@@ -27,7 +27,6 @@
   (some #(.contains url %) url-blacklist-words))
 
 (defn is-blacklisted? [[match-this not-this] s]
-  (println s)
   (let [lower-s (.toLowerCase s)
 	regex (if (seq not-this)
 		(re-pattern (format "(?=.*%s(?!%s))^(\\w+)" match-this not-this))
@@ -37,7 +36,6 @@
 (defn strip-tilde [s] (apply str (remove #(= \~ %) s)))
 
 (defn check-blacklist [server user]
-  (println user)
   (let [blacklist (((read-config) :user-ignore-url-blacklist) server)]
     (some (comp not nil?) (map 
 			   #(is-blacklisted? % (strip-tilde user)) 
