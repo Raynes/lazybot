@@ -12,7 +12,7 @@
 (def sandbox-tester
      (extend-tester secure-tester 
 		    (whitelist 
-		     (function-matcher 'println 'print 'var 'print-doc 'doc 'throw))))
+		     (function-matcher 'println 'print 'var 'print-doc 'doc 'throw 'pr 'prn))))
 
 (def my-obj-tester
      (extend-tester default-obj-tester
