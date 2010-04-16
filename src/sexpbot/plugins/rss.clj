@@ -22,11 +22,11 @@
 (defn pull-feed [url]
   (-> url xml/parse zip/xml-zip cull))
 
-(defmethod respond :rss [{:keys [bot channel args]}]
+(defmethod respond :rss [{:keys [irc channel args]}]
   (try
    (doseq [[title link] (pull-feed (first args))]
-     (ircb/send-message bot channel (str title " -- " link)))
-   (catch Exception _ (ircb/send-message bot channel "Feed is unreadable."))))
+     (ircb/send-message irc channel (str title " -- " link)))
+   (catch Exception _ (ircb/send-message irc channel "Feed is unreadable."))))
 
 (defplugin
   {"rss" :rss})

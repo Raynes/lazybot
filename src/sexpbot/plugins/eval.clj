@@ -40,8 +40,8 @@
      (catch SecurityException _ "DENIED!")
      (catch Exception e (.getMessage (root-cause e))))))
 
-(defmethod respond :eval [{:keys [bot channel command args]}]
-  (ircb/send-message bot channel (->> (if (= (first command) \() 
+(defmethod respond :eval [{:keys [irc channel command args]}]
+  (ircb/send-message irc channel (->> (if (= (first command) \() 
 					(cons command args) 
 					args)
 				      (interpose " ")

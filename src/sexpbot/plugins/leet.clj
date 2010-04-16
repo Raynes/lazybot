@@ -20,8 +20,8 @@
 (defn leetspeek [s]
   (->> s (#(.toLowerCase %)) (map char-to-leet) (apply str)))
 
-(defmethod respond :elite [{:keys [bot channel args]}]
-  (ircb/send-message bot channel 
+(defmethod respond :elite [{:keys [irc channel args]}]
+  (ircb/send-message irc channel 
 		(->> args 
 		     (interpose " ")
 		     (apply str)

@@ -2,30 +2,30 @@
   (:use [sexpbot respond])
   (:require [irclj.irclj :as ircb]))
 
-(defmethod respond :op [{:keys [bot sender channel args]}]
-  (if-admin sender (ircb/set-mode bot channel "+o" (first args))))
+(defmethod respond :op [{:keys [irc nick channel args]}]
+  (if-admin nick (ircb/set-mode irc channel "+o" (first args))))
 
-(defmethod respond :deop [{:keys [bot sender channel args]}]
-  (if-admin sender (ircb/set-mode bot channel  "-o" (first args))))
+(defmethod respond :deop [{:keys [irc nick channel args]}]
+  (if-admin nick (ircb/set-mode irc channel  "-o" (first args))))
 
-(defmethod respond :kick [{:keys [bot sender channel args]}]
-  (if-admin sender (ircb/send-msg "KICK" bot channel (str (first args) ":" 
-							  (apply str (interpose " " (rest args)))))))
+(defmethod respond :kick [{:keys [irc nick channel args]}]
+  (if-admin nick (ircb/send-msg "KICK" irc channel (str (first args) ":" 
+							(apply str (interpose " " (rest args)))))))
 
-(defmethod respond :settopic [{:keys [bot sender channel args]}]
-  (if-admin sender (ircb/send-msg "TOPIC" bot channel (str ":" (apply str (interpose " " args))))))
+(defmethod respond :settopic [{:keys [irc nick channel args]}]
+  (if-admin nick (ircb/send-msg "TOPIC" irc channel (str ":" (apply str (interpose " " args))))))
 
-(defmethod respond :ban [{:keys [bot sender channel args]}]
-  (if-admin sender (ircb/set-mode bot channel "+b" (first args))))
+(defmethod respond :ban [{:keys [irc nick channel args]}]
+  (if-admin nick (ircb/set-mode irc channel "+b" (first args))))
 
-(defmethod respond :unban [{:keys [bot sender channel args]}]
-  (if-admin sender (ircb/set-mode bot channel "-b" (first args))))
+(defmethod respond :unban [{:keys [irc nick channel args]}]
+  (if-admin nick (ircb/set-mode irc channel "-b" (first args))))
 
-(defmethod respond :voice [{:keys [bot channel sender args]}]
-  (if-admin sender (ircb/set-mode bot channel "+v" (first args))))
+(defmethod respond :voice [{:keys [irc channel nick args]}]
+  (if-admin nick (ircb/set-mode irc channel "+v" (first args))))
 
-(defmethod respond :devoice [{:keys [bot channel sender args]}]
-  (if-admin sender (ircb/set-mode bot channel "-v" (first args))))
+(defmethod respond :devoice [{:keys [irc channel nick args]}]
+  (if-admin nick (ircb/set-mode irc channel "-v" (first args))))
 
 (defplugin
   {"op"       :op

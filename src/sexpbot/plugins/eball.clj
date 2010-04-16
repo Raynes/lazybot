@@ -24,8 +24,8 @@
       "Outlook not so good."
       "Very doubtful."])
 
-(defmethod respond :8ball [{:keys [bot sender channel]}]
+(defmethod respond :8ball [{:keys [irc nick channel]}]
   (let [answer (rand-int 20)]
-    (ircb/send-message bot channel (str sender ": " (nth responses answer)))))
+    (ircb/send-message irc channel (str nick ": " (nth responses answer)))))
 
 (defplugin {"8ball" :8ball})

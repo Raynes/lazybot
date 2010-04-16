@@ -6,33 +6,33 @@
 
 (def whatis (str (System/getProperty "user.home") "/.sexpbot/whatis.clj"))
 
-(defmethod respond :learn [{:keys [bot channel args]}]
+(defmethod respond :learn [{:keys [irc channel args]}]
   (let [[subject & is] args
 	current (with-info whatis (read-config))]
     (with-info whatis (write-config {subject (apply str (interpose " " is))}))
-    (ircb/send-message bot channel "Never shall I forget it.")))
+    (ircb/send-message irc channel "Never shall I forget it.")))
 
-(defmethod respond :whatis [{:keys [bot channel args]}]
+(defmethod respond :whatis [{:keys [irc channel args]}]
   (let [whatmap (with-info whatis (read-config))
 	result (-> args first whatmap)]
     (if result
-      (ircb/send-message bot channel (str (first args) " = " result))
-      (ircb/send-message bot channel (str (first args) " does not exist in my database.")))))
+      (ircb/send-message irc channel (str (first args) " = " result))
+      (ircb/send-message irc channel (str (first args) " does not exist in my database.")))))
 
-(defmethod respond :forget [{:keys [bot channel args]}]
+(defmethod respond :forget [{:keys [irc channel args]}]
   (let [whatmap (with-info whatis (read-config))
 	subject (first args)]
     (if (whatmap subject) 
       (do (with-info whatis (remove-key subject))
-	  (ircb/send-message bot channel (str subject " is removed. RIP.")))
-      (ircb/send-message bot channel (str subject " is not in my database.")))))
+	  (ircb/send-message irc channel (str subject " is removed. RIP.")))
+      (ircb/send-message irc channel (str subject " is not in my database.")))))
 
-(defmethod respond :dumpwdb [{:keys [bot channel sender]}]
-  (ircb/send-message bot channel 
-		     (str sender ": " (->> (read-config) 
-					   (with-info whatis) 
-					   format-config
-					   (post-gist "dump.clj")))))
+(defmethod respond :dumpwdb [{:keys [irc channel nick]}]
+  (ircb/send-message irc channel 
+		     (str nick ": " (->> (read-config) 
+					 (with-info whatis) 
+					 format-config
+					 (post-gist "dump.clj")))))
 
 (defplugin
   {"learn"   :learn

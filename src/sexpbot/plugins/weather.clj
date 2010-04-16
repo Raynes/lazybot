@@ -31,16 +31,16 @@
        zip/xml-zip 
        cull))
 
-(defmethod respond :fcst [{:keys [bot channel sender args]}]
+(defmethod respond :fcst [{:keys [irc channel nick args]}]
   (let [[date [today tonight :as a]] (->> args (interpose " ") get-fcst)
 	conditions (if (string? today) today a)]
     (if (seq date)
       (do
-	(ircb/send-message bot channel (str sender ": " date))
-	(ircb/send-message bot channel (str sender ": TODAY: " conditions))
+	(ircb/send-message irc channel (str nick ": " date))
+	(ircb/send-message irc channel (str nick ": TODAY: " conditions))
 	(when (string? today)
-	  (ircb/send-message bot channel (str sender ": TONIGHT: " tonight))))
-      (ircb/send-message bot channel (str sender ": Location not found!")))))
+	  (ircb/send-message irc channel (str nick ": TONIGHT: " tonight))))
+      (ircb/send-message irc channel (str nick ": Location not found!")))))
 
 (defplugin
   {"fcst" :fcst})

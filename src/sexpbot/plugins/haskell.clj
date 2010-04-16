@@ -12,9 +12,9 @@
       json/decode-from-str
       :result))
 
-(defmethod respond :heval [{:keys [bot channel sender args]}]
-  (ircb/send-message bot channel 
-		     (str sender ": " (eval-haskell (apply str (interpose " " args))))))
+(defmethod respond :heval [{:keys [irc channel nick args]}]
+  (ircb/send-message irc channel 
+		     (str nick ": " (eval-haskell (apply str (interpose " " args))))))
 
 (defplugin
   {"heval" :heval})

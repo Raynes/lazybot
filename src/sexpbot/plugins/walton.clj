@@ -6,8 +6,8 @@
 
 (defn construct-url [func] (str wurl func))
 
-(defmethod respond :walton [{:keys [bot channel sender args]}]
-  (ircb/send-message bot channel (->> args first construct-url (str sender ": "))))
+(defmethod respond :walton [{:keys [irc channel nick args]}]
+  (ircb/send-message irc channel (->> args first construct-url (str nick ": "))))
 
 (defplugin
   {"walton" :walton})

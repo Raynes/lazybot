@@ -12,21 +12,21 @@
 	end-in ((juxt hour minute sec) ftime) ]
     (str text " Ends in: " (apply str (interpose ":" end-in)))))
 
-(defmethod respond :timers [{:keys [bot sender channel args]}]
+(defmethod respond :timers [{:keys [irc nick channel args]}]
   (let [timers (map compose-timer (vals @running-timers))]
     (if (> (count timers) 0)
       (if-let [n-to-show (first args)]
-	(doseq [timer (take n-to-show timers)] (ircb/send-message bot channel timer))
+	(doseq [timer (take n-to-show timers)] (ircb/send-message irc channel timer))
 	(do
 	  (doseq [timer (take 3 timers)] 
-	    (ircb/send-message bot channel timer))
-	  (when (> (count timers) 3) (ircb/send-message bot channel "and more..."))))
-      (ircb/send-message bot channel "No timers are currently running."))))
+	    (ircb/send-message irc channel timer))
+	  (when (> (count timers) 3) (ircb/send-message irc channel "and more..."))))
+      (ircb/send-message irc channel "No timers are currently running."))))
 
 (defn cap-text [s n]
   (str (apply str (take n s)) (if (< 30 (count s)) "..." "")))
 
-(defmethod respond :timer [{:keys [bot channel args]}]
+(defmethod respond :timer [{:keys [irc channel args]}]
   (.start 
    (Thread. 
     (fn []
@@ -39,7 +39,7 @@
 	(dosync (alter running-timers assoc timer-name {:end-time newt 
 							:text (cap-text text 30)}))
 	(Thread/sleep (* fint 1000))
-	(->> text (ircb/send-message bot channel))
+	(->> text (ircb/send-message irc channel))
 	(dosync (alter running-timers dissoc timer-name)))))))
 
 (defplugin

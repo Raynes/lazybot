@@ -1,6 +1,6 @@
 (ns sexpbot.plugins.google
   (:use [sexpbot respond]
-	[clojure.contrib.duck-streams :only [slurp*]])
+	[clojure.contrib.io :only [slurp*]])
   (:require [org.danlarkin.json :as json]
 	    [com.twinql.clojure.http :as http]
 	    [irclj.irclj :as ircb]))
@@ -13,13 +13,13 @@
   [(:estimatedResultCount (:cursor (:responseData result-set)))
    (first (:results (:responseData result-set)))])
 
-(defn handle-search [{:keys [bot channel args]}]
+(defn handle-search [{:keys [irc channel args]}]
   (let [[res-count res-map] (-> (apply str (interpose " " args)) google cull)
 	title (:titleNoFormatting res-map)
 	url (:url res-map)]
-    (ircb/send-message bot channel (str "First out of " res-count " results is:"))
-    (ircb/send-message bot channel title)
-    (ircb/send-message bot channel url)))
+    (ircb/send-message irc channel (str "First out of " res-count " results is:"))
+    (ircb/send-message irc channel title)
+    (ircb/send-message irc channel url)))
 
 (defmethod respond :google [args]
   (handle-search args))

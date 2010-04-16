@@ -35,16 +35,16 @@
 
 (defn strip-tilde [s] (apply str (remove #(= \~ %) s)))
 
-(defn check-blacklist [server sender login fuser host]
+(defn check-blacklist [server nick user]
   (let [blacklist (((read-config) :user-ignore-url-blacklist) server)]
     (some (comp not nil?) (map 
-			   #(is-blacklisted? % (strip-tilde fuser)) 
+			   #(is-blacklisted? % (strip-tilde user)) 
 			   blacklist))))
 
-(defmethod respond :title* [{:keys [bot sender server channel login host args verbose?]}]
+(defmethod respond :title* [{:keys [irc nick server user channel args verbose?]}]
   (if (or (and verbose? (seq args)) 
 	  (and (seq args) 
-	       (not (check-blacklist server sender login host))
+	       (not (check-blacklist server nick user))
 	       (not ((((read-config) :channel-catch-blacklist) server) channel))))
     (doseq [link (take 1 args)]
       (try
@@ -52,16 +52,16 @@
 			     page (slurp-or-default url)
 			     match (second page)]
 			 (if (and (seq page) (seq match) (not (url-check url)))
-			   (ircb/send-message bot channel (collapse-whitespace match))
-			   (when verbose? (ircb/send-message bot channel "Page has no title."))))
+			   (ircb/send-message irc channel (collapse-whitespace match))
+			   (when verbose? (ircb/send-message irc channel "Page has no title."))))
 		      20)
        (catch TimeoutException _ 
 	 (when verbose? 
-	   (ircb/send-message bot channel "It's taking too long to find the title. I'm giving up.")))))
-    (when verbose? (ircb/send-message bot channel "Which page?"))))
+	   (ircb/send-message irc channel "It's taking too long to find the title. I'm giving up.")))))
+    (when verbose? (ircb/send-message irc channel "Which page?"))))
 
-(defmethod respond :title2 [botmap] (respond (assoc botmap :command "title*")))
-(defmethod respond :title [botmap] (respond (assoc botmap :command "title*" :verbose? true)))
+(defmethod respond :title2 [ircmap] (respond (assoc ircmap :command "title*")))
+(defmethod respond :title [ircmap] (respond (assoc ircmap :command "title*" :verbose? true)))
 
 (defplugin
   {"title"  :title

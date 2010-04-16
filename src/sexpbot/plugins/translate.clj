@@ -1,6 +1,6 @@
 (ns sexpbot.plugins.translate
   (:use [sexpbot respond utilities]
-	[clojure.contrib.duck-streams :only [slurp*]])
+	[clojure.contrib.io :only [slurp*]])
   (:require [org.danlarkin.json :as json]
 	    [com.twinql.clojure.http :as http]
 	    [irclj.irclj :as ircb])
@@ -13,15 +13,15 @@
 	       :q text
 	       :langpair (str lang1 "|" lang2)} :as :string) :content json/decode-from-str))
 
-(defmethod respond :translate [{:keys [bot channel args]}]
+(defmethod respond :translate [{:keys [irc channel args]}]
   (let [[lang-from lang-to & text] args
 	translation (translate lang-from lang-to (stringify text))]
     (if (:responseData translation)
-      (ircb/send-message bot channel (-> translation 
+      (ircb/send-message irc channel (-> translation 
 					 :responseData 
 					 :translatedText 
 					 StringEscapeUtils/unescapeHtml))
-      (ircb/send-message bot channel "Languages not recognized."))))
+      (ircb/send-message irc channel "Languages not recognized."))))
 
 (defplugin
   {"translate" :translate

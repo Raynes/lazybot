@@ -22,8 +22,8 @@
 				:longUrl url
 				:version "2.0.1"} :as :string)))))
 
-(defmethod respond :short [{:keys [bot channel sender args]}]
-  (ircb/send-message bot channel (->> args first shorten-url (str sender ": "))))
+(defmethod respond :short [{:keys [irc channel nick args]}]
+  (ircb/send-message irc channel (->> args first shorten-url (str nick ": "))))
 
 (defplugin
   {"short"   :short

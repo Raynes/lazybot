@@ -9,17 +9,17 @@
 
 (defn logged-in? [user] (some #{user} (keys @logged-in)))
 
-(defmethod respond :login [{:keys [bot sender channel args]}]
-  (if (check-pass sender (first args))
-    (ircb/send-message bot channel "You've been logged in.")
-    (ircb/send-message bot channel "Username and password combination do not match.")))
+(defmethod respond :login [{:keys [irc nick channel args]}]
+  (if (check-pass nick (first args))
+    (ircb/send-message irc channel "You've been logged in.")
+    (ircb/send-message irc channel "Username and password combination do not match.")))
 
-(defmethod respond :logout [{:keys [bot sender channel]}]
-  (dosync (alter logged-in dissoc sender)
-	  (ircb/send-message bot channel "You've been logged out.")))
+(defmethod respond :logout [{:keys [irc nick channel]}]
+  (dosync (alter logged-in dissoc nick)
+	  (ircb/send-message irc channel "You've been logged out.")))
 
-(defmethod respond :quit [{:keys [sender]}]
-  (when (logged-in? sender) (dosync (alter logged-in dissoc sender))))
+(defmethod respond :quit [{:keys [nick]}]
+  (when (logged-in? nick) (dosync (alter logged-in dissoc nick))))
 
 (defplugin
   {"login"  :login
