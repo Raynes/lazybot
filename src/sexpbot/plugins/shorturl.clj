@@ -2,8 +2,9 @@
   (:use [sexpbot respond info]
 	[clojure.contrib.duck-streams :only [slurp*]])
   (:require [org.danlarkin.json :as json]
-	    [com.twinql.clojure.http :as http])
-  (:import (java.net URI)))
+	    [com.twinql.clojure.http :as http]
+	    [irclj.irclj :as ircb])
+  (:import java.net.URI))
 
 
 (def bitkey (-> :bitly-key get-key))
@@ -22,7 +23,7 @@
 				:version "2.0.1"} :as :string)))))
 
 (defmethod respond :short [{:keys [bot channel sender args]}]
-  (.sendMessage bot channel (->> args first shorten-url (str sender ": "))))
+  (ircb/send-message bot channel (->> args first shorten-url (str sender ": "))))
 
 (defplugin
   {"short"   :short

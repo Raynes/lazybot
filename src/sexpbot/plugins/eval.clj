@@ -1,8 +1,9 @@
 (ns sexpbot.plugins.eval
   (:use net.licenser.sandbox
 	clojure.stacktrace
-	(net.licenser.sandbox tester matcher)
-	(sexpbot respond gist))
+	[net.licenser.sandbox tester matcher]
+	[sexpbot respond gist])
+  (:require [irclj.irclj :as ircb])
   (:import java.io.StringWriter
 	   java.util.concurrent.TimeoutException))
 
@@ -40,12 +41,12 @@
      (catch Exception e (.getMessage (root-cause e))))))
 
 (defmethod respond :eval [{:keys [bot channel command args]}]
-  (.sendMessage bot channel (->> (if (= (first command) \() 
-				   (cons command args) 
-				   args)
-				 (interpose " ")
-				 (apply str) 
-				 execute-text)))
+  (ircb/send-message bot channel (->> (if (= (first command) \() 
+					(cons command args) 
+					args)
+				      (interpose " ")
+				      (apply str) 
+				      execute-text)))
 
 (defplugin
   {\(     :eval

@@ -1,6 +1,7 @@
 (ns sexpbot.plugins.mail
   (:use [sexpbot respond info]
-	[clj-time core format]))
+	[clj-time core format])
+  (:require [irclj.irclj :as ircb]))
 
 (def mailfile (str sexpdir "/mail.clj"))
 
@@ -37,15 +38,15 @@
   (let [lower-sender (.toLowerCase sender)
 	nmess (count-messages lower-sender)]
     (when (and (> nmess 0) (alert-time? lower-sender))
-      (.sendNotice bot sender (str sender ": You have " nmess 
-				   " new message(s). Type $getmessages (in PM if you want) to see them."))
+      (ircb/send-notice bot sender (str sender ": You have " nmess 
+					" new message(s). Type $getmessages (in PM if you want) to see them."))
       (dosync (alter alerted assoc lower-sender (now))))))
 
 (defmethod respond :getmessages [{:keys [bot sender]}]
   (let [lower-sender (.toLowerCase sender)]
     (if-let [messages (seq (get-messages lower-sender))]
-      (doseq [message messages] (.sendMessage bot lower-sender message))
-      (.sendMessage bot sender "You have no messages."))))
+      (doseq [message messages] (ircb/send-message bot lower-sender message))
+      (ircb/send-message bot sender "You have no messages."))))
 
 (defmethod respond :mail [{:keys [bot channel sender args server]}]
   (if (seq args)
@@ -55,8 +56,8 @@
 	(do
 	  (new-message sender lower-user 
 		       (->> args rest (interpose " ") (apply str)))
-	  (.sendMessage bot channel "Message saved."))
-	(.sendMessage bot channel "You can't message the unmessageable.")))))
+	  (ircb/send-message bot channel "Message saved."))
+	(ircb/send-message bot channel "You can't message the unmessageable.")))))
 
 (defplugin
   {"mailalert"   :mailalert

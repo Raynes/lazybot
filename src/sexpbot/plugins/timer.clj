@@ -1,6 +1,7 @@
 (ns sexpbot.plugins.timer
   (:use sexpbot.respond
-	[clj-time core]))
+	clj-time.core)
+  (:require [irclj.irclj :as ircb]))
 
 (def running-timers (ref {}))
 
@@ -15,12 +16,12 @@
   (let [timers (map compose-timer (vals @running-timers))]
     (if (> (count timers) 0)
       (if-let [n-to-show (first args)]
-	(doseq [timer (take n-to-show timers)] (.sendMessage bot channel timer))
+	(doseq [timer (take n-to-show timers)] (ircb/send-message bot channel timer))
 	(do
 	  (doseq [timer (take 3 timers)] 
-	    (.sendMessage bot channel timer))
-	  (when (> (count timers) 3) (.sendMessage bot channel "and more..."))))
-      (.sendMessage bot channel "No timers are currently running."))))
+	    (ircb/send-message bot channel timer))
+	  (when (> (count timers) 3) (ircb/send-message bot channel "and more..."))))
+      (ircb/send-message bot channel "No timers are currently running."))))
 
 (defn cap-text [s n]
   (str (apply str (take n s)) (if (< 30 (count s)) "..." "")))
@@ -38,7 +39,7 @@
 	(dosync (alter running-timers assoc timer-name {:end-time newt 
 							:text (cap-text text 30)}))
 	(Thread/sleep (* fint 1000))
-	(->> text (.sendMessage bot channel))
+	(->> text (ircb/send-message bot channel))
 	(dosync (alter running-timers dissoc timer-name)))))))
 
 (defplugin

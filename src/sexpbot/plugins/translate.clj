@@ -2,8 +2,9 @@
   (:use [sexpbot respond utilities]
 	[clojure.contrib.duck-streams :only [slurp*]])
   (:require [org.danlarkin.json :as json]
-	    [com.twinql.clojure.http :as http])
-  (:import (org.apache.commons.lang StringEscapeUtils)))
+	    [com.twinql.clojure.http :as http]
+	    [irclj.irclj :as ircb])
+  (:import org.apache.commons.lang.StringEscapeUtils))
 
 (defn translate [lang1 lang2 text]
   (-> (http/get 
@@ -16,11 +17,11 @@
   (let [[lang-from lang-to & text] args
 	translation (translate lang-from lang-to (stringify text))]
     (if (:responseData translation)
-      (.sendMessage bot channel (-> translation 
-				    :responseData 
-				    :translatedText 
-				    StringEscapeUtils/unescapeHtml))
-      (.sendMessage bot channel "Languages not recognized."))))
+      (ircb/send-message bot channel (-> translation 
+					 :responseData 
+					 :translatedText 
+					 StringEscapeUtils/unescapeHtml))
+      (ircb/send-message bot channel "Languages not recognized."))))
 
 (defplugin
   {"translate" :translate

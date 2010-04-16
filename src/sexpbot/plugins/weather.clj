@@ -3,7 +3,8 @@
 	[clojure.contrib.str-utils :only [re-sub]])
   (:require [clojure.xml :as xml]
 	    [clojure.zip :as zip]
-	    [clojure.contrib.zip-filter.xml :as zf]))
+	    [clojure.contrib.zip-filter.xml :as zf]
+	    [irclj.irclj :as ircb]))
 
 (def forcasturl "http://api.wunderground.com/auto/wui/geo/ForecastXML/index.xml?query=")
 
@@ -35,11 +36,11 @@
 	conditions (if (string? today) today a)]
     (if (seq date)
       (do
-	(.sendMessage bot channel (str sender ": " date))
-	(.sendMessage bot channel (str sender ": TODAY: " conditions))
+	(ircb/send-message bot channel (str sender ": " date))
+	(ircb/send-message bot channel (str sender ": TODAY: " conditions))
 	(when (string? today)
-	  (.sendMessage bot channel (str sender ": TONIGHT: " tonight))))
-      (.sendMessage bot channel (str sender ": Location not found!")))))
+	  (ircb/send-message bot channel (str sender ": TONIGHT: " tonight))))
+      (ircb/send-message bot channel (str sender ": Location not found!")))))
 
 (defplugin
   {"fcst" :fcst})

@@ -22,53 +22,45 @@
 			:args args}))
 
 
-(defn handle-message [chan send login host mess server irc]
-  (let [bot-map {:bot irc
-		 :sender send
-		 :channel chan
-		 :login login
-		 :host host
-		 :server server
-		 :privs (get-priv send)}]
-    (if (= (first mess) prepend)
-      (-> bot-map (merge (->> mess rest (apply str) split-args)) respond))))
+(defn handle-message [{:keys [nick message] :as irc-map}]
+  (let [bot-map (assoc irc-map :privs (get-priv nick))]
+    (if (= (first message) prepend)
+      (-> bot-map (into (->> message rest (apply str) split-args)) respond))))
 
-(defn try-handle [chan send login host mess server irc]
+(defn try-handle [{:keys [nick channel irc] :as irc-map}]
   (try
    (thunk-timeout 
     #(try
-      (handle-message chan send login host mess server irc)
+      (handle-message irc-map)
       (catch Exception e 
 	(println (str e))))
     30)
    (catch TimeoutException _
-     (ircb/send-message irc chan "Execution Timed Out!"))))
+     (ircb/send-message irc channel "Execution Timed Out!"))))
 
 (defn get-links [s]
   (->> s (re-seq #"(http://|www\.)[^ ]+") (apply concat) (take-nth 2)))
 
-(defn on-message [chan send login host [begin & more :as mess] server irc]
-  (when (not (((info :user-blacklist) server) send))
-    (let [links (get-links mess)
-	  title-links? (and (not= prepend begin) 
-			    (catch-links? server)
+(defn on-message [{:keys [nick message irc] :as irc-map}]
+  (when (not (((info :user-blacklist) (:server @irc)) nick))
+    (let [links (get-links message)
+	  title-links? (and (not= prepend (first message)) 
+			    (catch-links? (:server @irc))
 			    (seq links)
 			    (find-ns 'sexpbot.plugins.title))
-	  message (if title-links? 
-		    (str prepend "title2 " (apply str (interpose " " links)))
-		    mess)]
-      (try-handle chan send login host message server irc))))
+	  mess (if title-links? 
+		 (str prepend "title2 " (apply str (interpose " " links)))
+		 message)]
+      (try-handle (assoc irc-map :message mess)))))
 
 (defn make-bot-run [name pass server]
-  (let [fnmap {:on-message (fn [{:keys [channel nick ident hmask message irc]}] 
-				    (on-message channel nick ident hmask message server irc))
-		      :on-quit (fn [{:keys [nick ident hmask message irc]}]
-				 (when (find-ns 'sexpbot.plugins.login) 
-				   (try-handle nick nick ident hmask (str prepend "quit") server irc)))
-		      :on-join (fn [{:keys [channel nick ident hmask irc]}]
-				    (when (find-ns 'sexpbot.plugins.mail)
-				      (try-handle channel nick ident hmask 
-						  (str prepend "mailalert") server irc)))}]
+  (let [fnmap {:on-message (fn [irc-map] (on-message irc-map))
+	       :on-quit (fn [irc-map]
+			  (when (find-ns 'sexpbot.plugins.login) 
+			    (try-handle (assoc irc-map :message (str prepend "quit")))))
+	       :on-join (fn [irc-map]
+			  (when (find-ns 'sexpbot.plugins.mail)
+			    (try-handle (assoc irc-map :message (str prepend "mailalert")))))}]
     (ircb/create-bot {:name name :password pass :server server :fnmap fnmap})))
 
 (defn make-bot [server] 

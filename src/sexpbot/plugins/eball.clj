@@ -1,5 +1,6 @@
 (ns sexpbot.plugins.eball
-  (:use (sexpbot respond)))
+  (:use [sexpbot respond])
+  (:require [irclj.irclj :as ircb]))
 
 (def responses
      ["As I see it, yes."
@@ -25,6 +26,6 @@
 
 (defmethod respond :8ball [{:keys [bot sender channel]}]
   (let [answer (rand-int 20)]
-    (.sendMessage bot channel (str sender ": " (nth responses answer)))))
+    (ircb/send-message bot channel (str sender ": " (nth responses answer)))))
 
 (defplugin {"8ball" :8ball})

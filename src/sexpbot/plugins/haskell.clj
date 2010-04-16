@@ -1,7 +1,8 @@
 (ns sexpbot.plugins.haskell
   (:use [sexpbot respond])
   (:require [org.danlarkin.json :as json]
-	    [com.twinql.clojure.http :as http]))
+	    [com.twinql.clojure.http :as http]
+	    [irclj.irclj :as ircb]))
 
 (def tryurl "http://tryhaskell.org/haskell.json?method=eval")
 
@@ -12,8 +13,8 @@
       :result))
 
 (defmethod respond :heval [{:keys [bot channel sender args]}]
-  (.sendMessage bot channel 
-		(str sender ": " (eval-haskell (apply str (interpose " " args))))))
+  (ircb/send-message bot channel 
+		     (str sender ": " (eval-haskell (apply str (interpose " " args))))))
 
 (defplugin
   {"heval" :heval})

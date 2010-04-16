@@ -3,7 +3,8 @@
 	[sexpbot.plugins.shorturl :only [shorten-url]])
   (:require [clojure.xml :as xml]
 	    [clojure.zip :as zip]
-	    [clojure.contrib.zip-filter.xml :as zf]))
+	    [clojure.contrib.zip-filter.xml :as zf]
+	    [irclj.irclj :as ircb]))
 
 (defn cull [zipper]
   (let [items (take 3 (zf/xml-> zipper :channel :item))
@@ -24,8 +25,8 @@
 (defmethod respond :rss [{:keys [bot channel args]}]
   (try
    (doseq [[title link] (pull-feed (first args))]
-     (.sendMessage bot channel (str title " -- " link)))
-   (catch Exception _ (.sendMessage bot channel "Feed is unreadable."))))
+     (ircb/send-message bot channel (str title " -- " link)))
+   (catch Exception _ (ircb/send-message bot channel "Feed is unreadable."))))
 
 (defplugin
   {"rss" :rss})

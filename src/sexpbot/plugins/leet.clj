@@ -1,5 +1,6 @@
 (ns sexpbot.plugins.leet
-  (:use (sexpbot respond)))
+  (:use [sexpbot respond])
+  (:require [irclj.irclj :as ircb]))
 
 (defn char-to-leet [c]
   (condp = c
@@ -20,7 +21,7 @@
   (->> s (#(.toLowerCase %)) (map char-to-leet) (apply str)))
 
 (defmethod respond :elite [{:keys [bot channel args]}]
-  (.sendMessage bot channel 
+  (ircb/send-message bot channel 
 		(->> args 
 		     (interpose " ")
 		     (apply str)

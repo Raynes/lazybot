@@ -29,36 +29,36 @@
 
 (defmulti respond cmd-respond)
 
-(defmethod respond :quit [{:keys [bot sender channel privs]}]
-  (if-admin sender
-	    (ircb/send-message bot channel "I bid thee adieu! Into the abyss I go!")
+(defmethod respond :quit [{:keys [irc nick channel privs]}]
+  (if-admin nick
+	    (ircb/send-message irc channel "I bid thee adieu! Into the abyss I go!")
 	    (System/exit 0)))
 
 (defn loadmod [modu]
   (when (modules (-> modu keyword))
     (((modules (-> modu keyword)) :load)) true))
 
-(defmethod respond :load [{:keys [bot sender channel args]}]
-  (if-admin sender 
+(defmethod respond :load [{:keys [irc nick channel args]}]
+  (if-admin nick 
 	    (if (true? (-> args first loadmod))
-	      (ircb/send-message bot channel "Loaded.")
-	      (ircb/send-message bot channel (str "Module " (first args) " not found.")))))
+	      (ircb/send-message irc channel "Loaded.")
+	      (ircb/send-message irc channel (str "Module " (first args) " not found.")))))
 
-(defmethod respond :unload [{:keys [bot sender channel args]}]
-  (if-admin sender
+(defmethod respond :unload [{:keys [irc nick channel args]}]
+  (if-admin nick
 	    (if (modules (-> args first keyword))
 	      (do 
 		(((modules (-> args first keyword)) :unload))
-		(ircb/send-message bot channel "Unloaded."))
-	      (ircb/send-message bot channel (str "Module " (first args) " not found.")))))
+		(ircb/send-message irc channel "Unloaded."))
+	      (ircb/send-message irc channel (str "Module " (first args) " not found.")))))
 
-(defmethod respond :loaded [{:keys [bot sender channel args]}]
-  (if-admin sender
-	    (ircb/send-message bot channel 
+(defmethod respond :loaded [{:keys [irc nick channel args]}]
+  (if-admin nick
+	    (ircb/send-message irc channel 
 			  (->> @commands (filter (comp map? second)) (into {}) keys str str))))
 
-(defmethod respond :default [{:keys [bot channel]}]
-  (ircb/send-message bot channel "Command not found. No entiendo lo que estás diciendo."))
+(defmethod respond :default [{:keys [irc channel]}]
+  (ircb/send-message irc channel "Command not found. No entiendo lo que estás diciendo."))
 
 (defn defplugin [cmd-map]
   (dosync

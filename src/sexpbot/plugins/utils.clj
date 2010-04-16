@@ -14,84 +14,80 @@
   (let [letters (into #{} "abcdefghijklmnopqrstuvwxyz")]
     (= (->> s .toLowerCase (filter letters) (into #{})) letters)))
 
-(defmethod respond :time [{:keys [bot sender channel]}]
+(defmethod respond :time [{:keys [irc nick channel]}]
   (let [time (unparse (formatters :date-time-no-ms) (now))]
-    (ircb/send-message bot channel (str sender ": The time is now " time))))
+    (ircb/send-message irc channel (str nick ": The time is now " time))))
 
-(defmethod respond :join [{:keys [bot channel sender args]}]
-  (if-admin sender (ircb/join-chan bot (first args))))
+(defmethod respond :join [{:keys [irc channel nick args]}]
+  (if-admin nick (ircb/join-chan irc (first args))))
 
-(defmethod respond :part [{:keys [bot sender args channel]}]
-  (if-admin sender
+(defmethod respond :part [{:keys [irc nick args channel]}]
+  (if-admin nick
 	    (let [chan (if (seq args) (first args) channel)]
-	      (ircb/send-message bot chan "Bai!")
-	      (ircb/part-chan bot chan))))
+	      (ircb/send-message irc chan "Bai!")
+	      (ircb/part-chan irc chan))))
 
-(defmethod respond :rape [{:keys [args bot channel]}]
+(defmethod respond :rape [{:keys [args irc channel]}]
   (let [user-to-rape (if (= (first args) "*") 
-		       (->> (ircb/get-names bot channel) drop-modes stringify)
+		       (->> (ircb/get-names irc channel) drop-modes stringify)
 		       (first args))]
-    (ircb/send-action bot channel (str "raepz " user-to-rape "."))))
+    (ircb/send-action irc channel (str "raepz " user-to-rape "."))))
 
-(defmethod respond :coin [{:keys [bot sender channel]}]
-  (ircb/send-message bot channel (str sender ": " (if (= 0 (rand-int 2)) "Heads." "Tails."))))
+(defmethod respond :coin [{:keys [irc nick channel]}]
+  (ircb/send-message irc channel (str nick ": " (if (= 0 (rand-int 2)) "Heads." "Tails."))))
 
-(defmethod respond :help [{:keys [bot sender channel]}]
-  (ircb/send-message bot channel (str sender ": I can't help you, I'm afraid. You can only help yourself.")))
+(defmethod respond :help [{:keys [irc nick channel]}]
+  (ircb/send-message irc channel (str nick ": I can't help you, I'm afraid. You can only help yourself.")))
 
-(defmethod respond :what [{:keys [bot channel]}]
-  (ircb/send-message bot channel "It's AWWWW RIGHT!"))
+(defmethod respond :what [{:keys [irc channel]}]
+  (ircb/send-message irc channel "It's AWWWW RIGHT!"))
 
-(defmethod respond :pangram [{:keys [bot channel args]}]
-  (ircb/send-message bot channel (-> args stringify pangram? str)))
+(defmethod respond :pangram [{:keys [irc channel args]}]
+  (ircb/send-message irc channel (-> args stringify pangram? str)))
 
-(defmethod respond :fuck [{:keys [bot channel sender]}]
-  (ircb/send-message bot channel (str sender ": no u")))
+(defmethod respond :fuck [{:keys [irc channel nick]}]
+  (ircb/send-message irc channel (str nick ": no u")))
 
-(defmethod respond :setnick [{:keys [bot sender args]}]
-  (if-admin sender
-	    (.changeNick bot (first args))))
+(defmethod respond :setnick [{:keys [irc nick args]}]
+  (if-admin nick (ircb/set-nick irc (first args))))
 
-(defmethod respond :exists [{:keys [bot channel args]}]
-  (ircb/send-message bot channel (str (.exists (java.io.File. (first args))))))
+(defmethod respond :exists [{:keys [irc channel args]}]
+  (ircb/send-message irc channel (str (.exists (java.io.File. (first args))))))
 
-(defmethod respond :botsnack [{:keys [sender bot channel args]}]
-  (ircb/send-message bot channel (str sender ": Thanks! Om nom nom!!")))
+(defmethod respond :botsnack [{:keys [nick irc channel args]}]
+  (ircb/send-message irc channel (str nick ": Thanks! Om nom nom!!")))
 
-(defmethod respond :your [{:keys [bot channel args]}]
-  (ircb/send-message bot channel (str (first args) ": It's 'you're', you fucking illiterate bastard.")))
+(defmethod respond :your [{:keys [irc channel args]}]
+  (ircb/send-message irc channel (str (first args) ": It's 'you're', you fucking illiterate bastard.")))
 
-(defmethod respond :kill [{:keys [bot channel]}]
-  (ircb/send-message bot channel "IT WITH FIRE. FOR GREAT JUSTICE!"))
+(defmethod respond :kill [{:keys [irc channel]}]
+  (ircb/send-message irc channel "IT WITH FIRE. FOR GREAT JUSTICE!"))
 
 (defmethod respond :error [_] (throw (Exception. "Hai!")))
 
-(defmethod respond :gist [{:keys [bot channel sender args]}]
-  (ircb/send-message bot channel (str sender ": " 
-				 (post-gist (first args) 
+(defmethod respond :gist [{:keys [irc channel nick args]}]
+  (ircb/send-message irc channel (str nick ": " 
+				      (post-gist (first args) 
 					    (->> args rest (interpose " ") (apply str))))))
 
 (defmethod respond :timeout [_]
   (Thread/sleep 15000))
 
-(defmethod respond :dumpcmds [{:keys [bot channel]}]
+(defmethod respond :dumpcmds [{:keys [irc channel]}]
   (println @commands)
-  (ircb/send-message bot channel
-		(->> @commands vals (filter map?) (apply merge) keys 
+  (ircb/send-message irc channel
+		     (->> @commands vals (filter map?) (apply merge) keys 
 		     (interpose "\n") (apply str) (post-gist "dumpcmds.clj"))))
 
-(defmethod respond :balance [{:keys [bot channel sender args]}]
+(defmethod respond :balance [{:keys [irc channel nick args]}]
   (let [[fst & more] args]
-    (ircb/send-message bot channel 
-		  (str sender ": " (apply str (concat fst (repeat (count fst) ")")))))))
+    (ircb/send-message irc channel 
+		       (str nick ": " (apply str (concat fst (repeat (count fst) ")")))))))
 
 ;;;; Too easy to abuse. ;;;
-(defmethod respond :say [{:keys [bot channel sender args]}]
-  (if-admin sender
-    (ircb/send-message bot (first args) (->> args rest (interpose " ") (apply str)))))
-
-(defmethod respond :loginandsuch [{:keys [bot channel login host]}]
-  (ircb/send-message bot channel (str login "|" host)))
+(defmethod respond :say [{:keys [irc channel nick args]}]
+  (if-admin nick
+	    (ircb/send-message irc (first args) (->> args rest (interpose " ") (apply str)))))
 
 (defplugin      
   {"time"     :time
@@ -113,5 +109,4 @@
    "timeout"  :timeout
    "dumpcmds" :dumpcmds
    "balance"  :balance
-   "say"      :say
-   "testing"  :loginandsuch})
+   "say"      :say})
