@@ -1,5 +1,6 @@
 (ns sexpbot.respond
-  (:use [sexpbot info]))
+  (:use [sexpbot info])
+  (:require [irclj.irclj :as ircb]))
 
 (def commands 
      (ref {"load"    :load
@@ -30,7 +31,7 @@
 
 (defmethod respond :quit [{:keys [bot sender channel privs]}]
   (if-admin sender
-	    (.sendMessage bot channel "I bid thee adieu! Into the abyss I go!")
+	    (ircb/send-message bot channel "I bid thee adieu! Into the abyss I go!")
 	    (System/exit 0)))
 
 (defn loadmod [modu]
@@ -40,24 +41,24 @@
 (defmethod respond :load [{:keys [bot sender channel args]}]
   (if-admin sender 
 	    (if (true? (-> args first loadmod))
-	      (.sendMessage bot channel "Loaded.")
-	      (.sendMessage bot channel (str "Module " (first args) " not found.")))))
+	      (ircb/send-message bot channel "Loaded.")
+	      (ircb/send-message bot channel (str "Module " (first args) " not found.")))))
 
 (defmethod respond :unload [{:keys [bot sender channel args]}]
   (if-admin sender
 	    (if (modules (-> args first keyword))
 	      (do 
 		(((modules (-> args first keyword)) :unload))
-		(.sendMessage bot channel "Unloaded."))
-	      (.sendMessage bot channel (str "Module " (first args) " not found.")))))
+		(ircb/send-message bot channel "Unloaded."))
+	      (ircb/send-message bot channel (str "Module " (first args) " not found.")))))
 
 (defmethod respond :loaded [{:keys [bot sender channel args]}]
   (if-admin sender
-	    (.sendMessage bot channel 
+	    (ircb/send-message bot channel 
 			  (->> @commands (filter (comp map? second)) (into {}) keys str str))))
 
 (defmethod respond :default [{:keys [bot channel]}]
-  (.sendMessage bot channel "Command not found. No entiendo lo que estás diciendo."))
+  (ircb/send-message bot channel "Command not found. No entiendo lo que estás diciendo."))
 
 (defn defplugin [cmd-map]
   (dosync

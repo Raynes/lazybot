@@ -1,5 +1,5 @@
 (ns sexpbot.info
-  (:use [clojure.contrib.duck-streams :only [spit]])
+  (:use [clojure.contrib.io :only [spit]])
   (:import [java.io File BufferedReader FileReader]
 	   org.apache.commons.io.FileUtils))
 
