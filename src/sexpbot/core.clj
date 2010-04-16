@@ -33,7 +33,7 @@
     #(try
       (handle-message irc-map)
       (catch Exception e 
-	(println (str e))))
+	(.printStackTrace e)))
     30)
    (catch TimeoutException _
      (ircb/send-message irc channel "Execution Timed Out!"))))

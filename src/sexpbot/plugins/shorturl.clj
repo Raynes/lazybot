@@ -1,6 +1,6 @@
 (ns sexpbot.plugins.shorturl
   (:use [sexpbot respond info]
-	[clojure.contrib.duck-streams :only [slurp*]])
+	[clojure.contrib.io :only [slurp*]])
   (:require [org.danlarkin.json :as json]
 	    [com.twinql.clojure.http :as http]
 	    [irclj.irclj :as ircb])

@@ -1,4 +1,5 @@
 (ns sexpbot.plugins.timer
+  (:refer-clojure :exclude [extend])
   (:use sexpbot.respond
 	clj-time.core)
   (:require [irclj.irclj :as ircb]))

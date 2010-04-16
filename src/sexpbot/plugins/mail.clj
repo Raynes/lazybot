@@ -1,4 +1,5 @@
 (ns sexpbot.plugins.mail
+  (:refer-clojure :exclude [extend])
   (:use [sexpbot respond info]
 	[clj-time core format])
   (:require [irclj.irclj :as ircb]))
@@ -48,11 +49,11 @@
       (doseq [message messages] (ircb/send-message irc lower-nick message))
       (ircb/send-message irc nick "You have no messages."))))
 
-(defmethod respond :mail [{:keys [irc channel nick args server]}]
+(defmethod respond :mail [{:keys [irc channel nick args irc]}]
   (if (seq args)
     (let [lower-user (.toLowerCase (first args))]
       (if (and (not (.contains lower-user "serv"))
-	       (not= lower-user (.toLowerCase (((read-config) :irc-name) server))))
+	       (not= lower-user (.toLowerCase (((read-config) :bot-name) (:server @irc)))))
 	(do
 	  (new-message nick lower-user 
 		       (->> args rest (interpose " ") (apply str)))

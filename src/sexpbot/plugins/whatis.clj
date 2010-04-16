@@ -1,6 +1,6 @@
 (ns sexpbot.plugins.whatis
   (:use [sexpbot respond info gist]
-	[clojure.contrib.duck-streams :only [spit]])
+	[clojure.contrib.io :only [spit]])
   (:require [irclj.irclj :as ircb])
   (:import java.io.File))
 
@@ -29,10 +29,8 @@
 
 (defmethod respond :dumpwdb [{:keys [irc channel nick]}]
   (ircb/send-message irc channel 
-		     (str nick ": " (->> (read-config) 
-					 (with-info whatis) 
-					 format-config
-					 (post-gist "dump.clj")))))
+		     (str nick ": " (with-info whatis 
+				      (->> (read-config :string? true) (post-gist "dump.clj"))))))
 
 (defplugin
   {"learn"   :learn

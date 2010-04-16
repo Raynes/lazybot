@@ -1,7 +1,7 @@
 ;; The result of a team effort between programble and Rayne.
 (ns sexpbot.plugins.title
   (:use [sexpbot info respond utilities]
-	[clojure.contrib.duck-streams :only [reader]])
+	[clojure.contrib.io :only [reader]])
   (:require [irclj.irclj :as ircb])
   (:import java.util.concurrent.TimeoutException))
 
@@ -41,18 +41,18 @@
 			   #(is-blacklisted? % (strip-tilde user)) 
 			   blacklist))))
 
-(defmethod respond :title* [{:keys [irc nick server user channel args verbose?]}]
+(defmethod respond :title* [{:keys [irc nick user channel args verbose?]}]
   (if (or (and verbose? (seq args)) 
 	  (and (seq args) 
-	       (not (check-blacklist server nick user))
-	       (not ((((read-config) :channel-catch-blacklist) server) channel))))
+	       (not (check-blacklist (:server irc) nick user))
+	       (not ((((read-config) :channel-catch-blacklist) (:server @irc)) channel))))
     (doseq [link (take 1 args)]
       (try
        (thunk-timeout #(let [url (add-url-prefix link)
 			     page (slurp-or-default url)
 			     match (second page)]
 			 (if (and (seq page) (seq match) (not (url-check url)))
-			   (ircb/send-message irc channel (collapse-whitespace match))
+			   (ircb/send-message irc channel (str "\"" (collapse-whitespace match) "\""))
 			   (when verbose? (ircb/send-message irc channel "Page has no title."))))
 		      20)
        (catch TimeoutException _ 

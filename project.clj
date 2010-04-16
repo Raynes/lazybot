@@ -6,7 +6,7 @@
 		 [commons-io/commons-io "1.4"]
 		 [org.danlarkin/clojure-json "1.1-SNAPSHOT"]
 		 [org.clojars.rayne/clj-time "0.1.0-SNAPSHOT"]
-		 [clj-sandbox "0.3.0-SNAPSHOT"]
+		 [org.clojars.rayne/clj-sandbox "0.3.0-1.2-SNAPSHOT"]
 		 [org.clojars.rayne/clj-apache-http "2.0.1"]
 		 [irclj "0.1.0-SNAPSHOT"]]
   :dev-dependencies [[swank-clojure "1.1.0"]
