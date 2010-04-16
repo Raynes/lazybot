@@ -31,7 +31,7 @@
   (let [user-to-rape (if (= (first args) "*") 
 		       (->> (ircb/get-names bot channel) drop-modes stringify)
 		       (first args))]
-    (.sendAction bot channel (str "raepz " user-to-rape "."))))
+    (ircb/send-action bot channel (str "raepz " user-to-rape "."))))
 
 (defmethod respond :coin [{:keys [bot sender channel]}]
   (ircb/send-message bot channel (str sender ": " (if (= 0 (rand-int 2)) "Heads." "Tails."))))
