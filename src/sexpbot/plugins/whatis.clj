@@ -6,14 +6,14 @@
 
 (def whatis (str (System/getProperty "user.home") "/.sexpbot/whatis.clj"))
 
-(defn ascii?
+(defn ascii-char?
   "Checks to see if a the character is valid ascii."
-  [c] (< (int c) 255))
+  [c] (< (int c) 126))
 
 (defmethod respond :learn [{:keys [irc channel args]}]
   (let [[subject & is] args
 	current (with-info whatis (read-config))]
-    (if (every? ascii? is)
+    (if (every? ascii-char? is)
       (do
 	(with-info whatis (write-config {subject (apply str (interpose " " is))}))
 	(ircb/send-message irc channel "Never shall I forget it."))
