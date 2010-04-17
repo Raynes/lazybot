@@ -18,8 +18,11 @@
 (defn slurp-or-default [url]
   (try
    (with-open [readerurl (reader url)]
-     (some #(re-find titlere %) (line-seq readerurl)))   
-   (catch java.lang.Exception e nil)))
+     (loop [acc [] lines (line-seq readerurl)]
+       (if (some #(.contains % "</title>") acc) 
+	 (->> acc (apply str) (#(.replace % "\n" " ")) (re-find titlere))
+	 (recur (conj acc (first lines)) (rest lines)))))
+   (catch java.lang.Exception e e)))
 
 (def url-blacklist-words ((read-config) :url-blacklist))
 
