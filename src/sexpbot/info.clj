@@ -26,9 +26,9 @@
       (.createNewFile ifile)
       (spit *info-file* "{}"))))
 
-(defn read-config [& {flag :string? :or {flag false}}]
+(defn read-config [& {:keys [string?] :or {string? false}}]
   (let [file (slurp *info-file*)]
-    (if flag file (read-string file))))
+    (if string? file (read-string file))))
 
 (defn write-config [new-info]
   (spit *info-file* (-> (read-config) (merge new-info)))

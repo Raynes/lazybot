@@ -33,7 +33,7 @@
   (if-admin nick
 	    (ircb/send-message irc channel "I bid thee adieu! Into the abyss I go!")
 	    (System/exit 0)))
-g
+
 (defn loadmod [modu]
   (when (modules (-> modu keyword))
     (((modules (-> modu keyword)) :load)) true))
