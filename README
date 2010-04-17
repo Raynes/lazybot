@@ -1,6 +1,6 @@
 # sexpbot
 
-My answer to clojurebot. A likely horribly designed IRC bot written in Clojure. This is my biggest project at the moment, and it's been all sorts of fun to write. It uses the Pircbot Java framework for low-level IRC connection handling, and uses multimethods for dispatch for commands. It's most prominent feature is likely the sandboxed Clojure code evaluation.
+My answer to clojurebot. A likely horribly designed IRC bot written in Clojure. This is my biggest project at the moment, and it's been all sorts of fun to write. It uses Irclj (http://github.com/Raynes/irclj), my IRC library for low-level IRC connection handling, and uses multimethods for dispatch for commands. It's most prominent feature is likely the sandboxed Clojure code evaluation.
 
 ## Usage
 
