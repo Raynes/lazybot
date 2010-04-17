@@ -61,7 +61,7 @@
 	       :on-join (fn [irc-map]
 			  (when (find-ns 'sexpbot.plugins.mail)
 			    (try-handle (assoc irc-map :message (str prepend "mailalert")))))}]
-    (ircb/create-bot {:name name :password pass :server server :fnmap fnmap})))
+    (ircb/create-irc {:name name :password pass :server server :fnmap fnmap})))
 
 (defn make-bot [server] 
   (let [bot-config (read-config)
