@@ -13,7 +13,7 @@
 (defmethod respond :learn [{:keys [irc channel args]}]
   (let [[subject & is] args
 	current (with-info whatis (read-config))]
-    (if (every? ascii-char? is)
+    (if (every? ascii-char? (apply str (interpose " " is)))
       (do
 	(with-info whatis (write-config {subject (apply str (interpose " " is))}))
 	(ircb/send-message irc channel "Never shall I forget it."))
