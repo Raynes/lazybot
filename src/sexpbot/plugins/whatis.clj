@@ -12,12 +12,13 @@
 
 (defmethod respond :learn [{:keys [irc channel args]}]
   (let [[subject & is] args
-	current (with-info whatis (read-config))]
-    (if (every? ascii-char? (apply str (interpose " " is)))
+	current (with-info whatis (read-config))
+	is-s (apply str (interpose " " is))]
+    (if (and (every? ascii-char? subject) (every? ascii-char? is-s))
       (do
-	(with-info whatis (write-config {subject (apply str (interpose " " is))}))
+	(with-info whatis (write-config {subject is-s}))
 	(ircb/send-message irc channel "Never shall I forget it."))
-      (ircb/send-message irc channel "Only ascii is allowed."))))
+      (ircb/send-message irc channel "Only ascii characters are allowed."))))
 
 (defmethod respond :whatis [{:keys [irc channel args]}]
   (let [whatmap (with-info whatis (read-config))
