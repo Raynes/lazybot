@@ -54,11 +54,24 @@
       (try-handle (assoc irc-map :message mess)))))
 
 (defn make-bot-run [name pass server]
-  (let [fnmap {:on-message (fn [irc-map] (on-message irc-map))
+  (let [fnmap {:on-message (fn [irc-map] 
+			     (when (find-ns 'sexpbot.plugins.seen)
+			       (try-handle (assoc irc-map
+					     :message (str prepend "putseen*")
+					     :extra-args ["talking"])))
+			     (on-message irc-map))
 	       :on-quit (fn [irc-map]
+			  (when (find-ns 'sexpbot.plugins.seen)
+			    (try-handle (assoc irc-map 
+					  :message (str prepend "putseen*") 
+					  :extra-args ["quitting"])))
 			  (when (find-ns 'sexpbot.plugins.login) 
 			    (try-handle (assoc irc-map :message (str prepend "quit")))))
 	       :on-join (fn [irc-map]
+			  (when (find-ns 'sexpbot.plugins.seen)
+			    (try-handle (assoc irc-map 
+					  :message (str prepend "putseen*")
+					  :extra-args ["joining"])))
 			  (when (find-ns 'sexpbot.plugins.mail)
 			    (try-handle (assoc irc-map :message (str prepend "mailalert")))))}]
     (ircb/create-irc {:name name :password pass :server server :fnmap fnmap})))
