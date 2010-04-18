@@ -9,7 +9,7 @@
   (if-admin nick (ircb/set-mode irc channel  "-o" (first args))))
 
 (defmethod respond :kick [{:keys [irc nick channel args]}]
-  (if-admin nick (ircb/kick irc channel (first args) (apply str (rest args)))))
+  (if-admin nick (ircb/kick irc channel (first args) :reason (apply str (rest args)))))
 
 (defmethod respond :settopic [{:keys [irc nick channel args]}]
   (if-admin nick (ircb/set-topic irc channel (apply str (interpose " " args)))))

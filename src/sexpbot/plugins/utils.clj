@@ -25,7 +25,7 @@
   (if-admin nick
 	    (let [chan (if (seq args) (first args) channel)]
 	      (ircb/send-message irc chan "Bai!")
-	      (ircb/part-chan irc chan))))
+	      (ircb/part-chan irc chan :reason "Because I don't like you."))))
 
 (defmethod respond :rape [{:keys [args irc channel]}]
   (let [user-to-rape (if (= (first args) "*") 
