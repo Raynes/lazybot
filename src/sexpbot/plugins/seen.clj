@@ -28,7 +28,7 @@
 
 (defmethod respond :seen [{:keys [irc nick channel args]}]
   (if-let [{:keys [time chan doing nick]} (get-seen (first args))]
-    (ircb/send-message irc channel (str nick " was last seen " doing " on " 
+    (ircb/send-message irc channel (str nick " was last seen " doing (when-not (= doing "quitting") " on ") 
 				    chan " " time " minutes ago."))
     (ircb/send-message irc channel (str "I have never seen " (first args) "."))))
 
