@@ -19,9 +19,12 @@
   (try
    (with-open [readerurl (reader url)]
      (loop [acc [] lines (line-seq readerurl)]
-       (if (or (not lines) (some #(.contains % "</title>") acc)) 
-	 (->> acc (apply str) (#(.replace % "\n" " ")) (re-find titlere))
-	 (recur (conj acc (first lines)) (rest lines)))))
+       (cond
+	(not (seq lines)) nil
+	(some #(re-find #"</title>|</TITLE>" %) acc) (->> acc (apply str) 
+							  (#(.replace % "\n" " ")) 
+							  (re-find titlere))
+	:else (recur (conj acc (first lines)) (rest lines)))))
    (catch java.lang.Exception e e)))
 
 (def url-blacklist-words ((read-config) :url-blacklist))
