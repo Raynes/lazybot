@@ -19,7 +19,7 @@
   (try
    (with-open [readerurl (reader url)]
      (loop [acc [] lines (line-seq readerurl)]
-       (if (or lines (some #(.contains % "</title>") acc)) 
+       (if (or (not lines) (some #(.contains % "</title>") acc)) 
 	 (->> acc (apply str) (#(.replace % "\n" " ")) (re-find titlere))
 	 (recur (conj acc (first lines)) (rest lines)))))
    (catch java.lang.Exception e e)))
