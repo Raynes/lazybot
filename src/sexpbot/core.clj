@@ -21,7 +21,6 @@
 			:first (first command)
 			:args args}))
 
-
 (defn handle-message [{:keys [nick message] :as irc-map}]
   (let [bot-map (assoc irc-map :privs (get-priv nick))]
     (if (= (first message) prepend)
