@@ -35,6 +35,12 @@
 	  (ircb/send-message irc channel (str subject " is removed. RIP.")))
       (ircb/send-message irc channel (str subject " is not in my database.")))))
 
+(defmethod respond :rwhatis [{:keys [irc channel]}]
+  (let [whatmap (with-info whatis (read-config))
+	key (nth (keys whatmap) (rand-int (count whatmap)))]
+    (ircb/send-message irc channel
+		       (str key " = " (whatmap key)))))
+
 (defmethod respond :dumpwdb [{:keys [irc channel nick]}]
   (ircb/send-message irc channel 
 		     (str nick ": " (with-info whatis 
@@ -42,6 +48,7 @@
 
 (defplugin
   {"learn"   :learn
+   "rwhatis" :rwhatis
    "whatis"  :whatis
    "forget"  :forget
    "dumpwdb" :dumpwdb})
