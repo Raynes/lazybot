@@ -6,6 +6,8 @@ My answer to clojurebot. A likely horribly designed IRC bot written in Clojure. 
 
 Right now, there are no distributions, so the easiest way to run the bot is to clone the repository, do 'lein deps' to install the project's dependencies into the lib/ directory, and then edit .sexpbot/info.clj to put the servers and other information the bot needs to have in there, and then run ./sexpbot.
 
+IMPORTANT: You must rename and move "example.policy" to "~/.java.policy" to avoid some troublesome security errors!
+
 I'll be adding a list of commands soon, and I'll also be making it easier to set up the bot and such.
 
 ## Thanks
