@@ -44,7 +44,6 @@
   (->> s (re-seq #"(http://|www\.)[^ ]+") (apply concat) (take-nth 2)))
 
 (defn on-message [{:keys [nick message irc] :as irc-map}]
-  (println (str "GOT MESSAGE: " message))
   (when (and (not= nick "sexpbot-test") ; rem to change
 	     (not= (take 4 message) (cons (:prepend info) "sed")))  (def last-in message))
   (when (not (((info :user-blacklist) (:server @irc)) nick))
