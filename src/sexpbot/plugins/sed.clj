@@ -5,8 +5,8 @@
 (def prepend (:prepend (read-config)))
 
 (defn sed [string expr]
-  (def results (rest (re-find #"s/([^/]+)/([^/]*)/" expr)))
-  (.replaceAll string (first results) (last results)))
+  (let [results (rest (re-find #"s/([^/]+)/([^/]*)/" expr))]
+    (.replaceAll string (first results) (last results))))
 
 (defmethod respond :sed [{:keys [irc channel args]}]
   (let [conj-args (apply str (interpose " " args))
