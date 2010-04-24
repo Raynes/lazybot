@@ -27,7 +27,6 @@
 	opts (parse-opts (if (re-find #"([a-zA-Z]+)[\s]+s/([^/]+)/([^/]*)/" conj-args)
 			   (rest (re-matches #"([a-zA-Z]+)[\s]+s/[^/]+/[^/]*/" conj-args))
 			   " "))] ;; NAIVE, expects correct input
-    (println (str "OPTS:" opts "CONJ:" conj-args))
     (when (= last-in "")
       (ircb/send-message irc channel "No one said anything yet!"))
     (when (re-matches #"([a-zA-Z]*)[\s]+s/[^/]+/[^/]*/" conj-args)
