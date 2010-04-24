@@ -13,11 +13,6 @@
 (def servers (:servers info))
 (def plugins (:plugins info))
 (def catch-links? (:catch-links? info))
-<<<<<<< HEAD
-
-(def last-in "") ; to hold the last line of input
-=======
->>>>>>> upstr/master
 
 ; Require all plugin files listed in info.clj
 (doseq [plug plugins] (->> plug (str "sexpbot.plugins.") symbol require))
@@ -47,18 +42,13 @@
   (->> s (re-seq #"(http://|www\.)[^ ]+") (apply concat) (take-nth 2)))
 
 (defn on-message [{:keys [nick message irc] :as irc-map}]
-<<<<<<< HEAD
-  (when (and (not= nick (:name @irc)) ; rem to change
-	     (not= (take 4 message) (cons (:prepend info) "sed")))  (def last-in message))
-=======
   (when (and (not= nick (:name @irc))
 	     (not= (take 4 message) (cons (:prepend info) "sed")))
     (dosync (alter irc assoc :last-in message)))
->>>>>>> upstr/master
   (when (not (((info :user-blacklist) (:server @irc)) nick))
     (let [links (get-links message)
 	  title-links? (and (not= prepend (first message)) 
-			    (catch-links? (:server @irc))
+;			    (catch-links? (:server @irc))
 			    (seq links)
 			    (find-ns 'sexpbot.plugins.title))
 	  mess (if title-links? 
