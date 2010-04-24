@@ -16,7 +16,7 @@
 	is-s (apply str (interpose " " is))]
     (if (and (every? ascii-char? subject) (every? ascii-char? is-s))
       (do
-	(with-info whatis (write-config {subject is-s}))
+	(with-info whatis (write-config {subject is-s} :format? true))
 	(ircb/send-message irc channel "Never shall I forget it."))
       (ircb/send-message irc channel "Only ascii characters are allowed."))))
 
@@ -31,7 +31,7 @@
   (let [whatmap (with-info whatis (read-config))
 	subject (first args)]
     (if (whatmap subject) 
-      (do (with-info whatis (remove-key subject))
+      (do (with-info whatis (remove-key subject :format? true))
 	  (ircb/send-message irc channel (str subject " is removed. RIP.")))
       (ircb/send-message irc channel (str subject " is not in my database.")))))
 

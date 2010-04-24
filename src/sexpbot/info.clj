@@ -23,14 +23,16 @@
   (let [file (slurp *info-file*)]
     (if string? file (read-string file))))
 
-(defn write-config [new-info]
-  (spit *info-file* (-> (read-config) (merge new-info) str format-config)))
+(defn write-config [new-info & {:keys [format?] :or {format? false}}]
+  (let [config (-> (read-config) (merge new-info) str)] 
+    (spit *info-file* (if format? (format-config config) config))))
 
 (defn get-key [key]
   (-> key ((read-config))))
 
 (defn remove-key [key]
-  (spit *info-file* (-> (read-config) (dissoc key) str format-config)))
+  (let [config (-> (read-config) (dissoc key) str)]
+    (spit *info-file* (if format? (format-config config) config))))
 
 (defn set-key [key nval]
   (-> (read-config) (assoc key nval) write-config))
