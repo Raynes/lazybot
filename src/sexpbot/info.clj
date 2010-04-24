@@ -30,7 +30,7 @@
 (defn get-key [key]
   (-> key ((read-config))))
 
-(defn remove-key [key]
+(defn remove-key [key & {:keys [format?] :or {format? false}}]
   (let [config (-> (read-config) (dissoc key) str)]
     (spit *info-file* (if format? (format-config config) config))))
 
