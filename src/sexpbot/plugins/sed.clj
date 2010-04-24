@@ -9,7 +9,6 @@
   (.replaceAll string (first results) (last results)))
 
 (defmethod respond :sed [{:keys [irc channel args]}]
-  ;(cond
   (let [conj-args (apply str (interpose " " args))
 	last-in core/last-in]
     

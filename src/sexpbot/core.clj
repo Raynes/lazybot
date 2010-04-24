@@ -12,7 +12,7 @@
 (def prepend (:prepend info))
 (def servers (:servers info))
 (def plugins (:plugins info))
-(def catch-links? (:check-links? info))
+(def catch-links? (:catch-links? info))
 
 (def last-in "") ; to hold the last line of input
 
@@ -44,7 +44,7 @@
   (->> s (re-seq #"(http://|www\.)[^ ]+") (apply concat) (take-nth 2)))
 
 (defn on-message [{:keys [nick message irc] :as irc-map}]
-  (when (and (not= nick "sexpbot-test") ; rem to change
+  (when (and (not= nick (:name @irc)) ; rem to change
 	     (not= (take 4 message) (cons (:prepend info) "sed")))  (def last-in message))
   (when (not (((info :user-blacklist) (:server @irc)) nick))
     (let [links (get-links message)
