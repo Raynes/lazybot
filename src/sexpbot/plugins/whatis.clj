@@ -16,7 +16,7 @@
 	is-s (apply str (interpose " " is))]
     (if (and (every? ascii-char? subject) (every? ascii-char? is-s))
       (do
-	(with-info whatis (write-config {subject is-s}))
+	(with-info whatis (write-config {subject is-s} :format? true))
 	(ircb/send-message irc channel "Never shall I forget it."))
       (ircb/send-message irc channel "Only ascii characters are allowed."))))
 
@@ -31,9 +31,15 @@
   (let [whatmap (with-info whatis (read-config))
 	subject (first args)]
     (if (whatmap subject) 
-      (do (with-info whatis (remove-key subject))
+      (do (with-info whatis (remove-key subject :format? true))
 	  (ircb/send-message irc channel (str subject " is removed. RIP.")))
       (ircb/send-message irc channel (str subject " is not in my database.")))))
+
+(defmethod respond :rwhatis [{:keys [irc channel]}]
+  (let [whatmap (with-info whatis (read-config))
+	key (nth (keys whatmap) (rand-int (count whatmap)))]
+    (ircb/send-message irc channel
+		       (str key " = " (whatmap key)))))
 
 (defmethod respond :dumpwdb [{:keys [irc channel nick]}]
   (ircb/send-message irc channel 
@@ -42,6 +48,7 @@
 
 (defplugin
   {"learn"   :learn
+   "rwhatis" :rwhatis
    "whatis"  :whatis
    "forget"  :forget
    "dumpwdb" :dumpwdb})

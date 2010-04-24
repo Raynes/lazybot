@@ -8,7 +8,7 @@
 		 [org.clojars.rayne/clj-time "0.1.0-SNAPSHOT"]
 		 [clj-sandbox "0.3.1"]
 		 [org.clojars.rayne/clj-apache-http "2.0.1"]
-		 [irclj "0.2.0-SNAPSHOT"]
+		 [irclj "0.2.1"]
 		 [walton "0.5.0"]]
   :dev-dependencies [[swank-clojure "1.1.0"]
 		     [leiningen/lein-swank "1.1.0"]
