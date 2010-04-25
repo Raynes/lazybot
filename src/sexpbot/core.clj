@@ -40,10 +40,10 @@
 (defn get-links [s]
   (->> s (re-seq #"(http://|www\.)[^ ]+") (apply concat) (take-nth 2)))
 
-(defn on-message [{:keys [nick message irc] :as irc-map}]
+(defn on-message [{:keys [nick channel message irc] :as irc-map}]
   (when (and (not= nick (:name @irc))
 	     (not= (take 4 message) (cons (:prepend info) "sed")))
-    (dosync (alter irc assoc :last-in message)))
+    (dosync (alter irc assoc :last-in {channel message})))
   (when (not (((info :user-blacklist) (:server @irc)) nick))
     (let [links (get-links message)
 	  title-links? (and (not= prepend (first message)) 
@@ -83,12 +83,7 @@
 	name ((bot-config :bot-name) server)
 	pass ((bot-config :bot-password) server)
 	channels ((bot-config :channels) server)
-	irc (ircb/connect (make-bot-run name pass server) :channels channels)]
-    (when (seq pass)
-      (Thread/sleep 3000)
-      (ircb/send-message irc "NickServ" (str "identify " pass))
-      (println "Sleeping while identification takes effect.")
-      (Thread/sleep 3000))
+	irc (ircb/connect (make-bot-run name pass server) :channels channels :identify-after-secs 3)]
     (doseq [plug plugins] (.start (Thread. (fn [] (loadmod plug)))))))
 
 (doseq [server servers] (.start (Thread. (fn [] (make-bot server)))))
