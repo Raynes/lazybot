@@ -8,7 +8,7 @@
 		 [org.clojars.rayne/clj-time "0.1.0-SNAPSHOT"]
 		 [org.clojars.rayne/clj-sandbox "0.3.2"]
 		 [org.clojars.rayne/clj-apache-http "2.0.1"]
-		 [irclj "0.2.1"]
+		 [irclj "0.3.0-SNAPSHOT"]
 		 [walton "0.5.0"]
 		 [stupiddb "0.1.4"]]
   :dev-dependencies [[swank-clojure "1.1.0"]
