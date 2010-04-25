@@ -5,8 +5,7 @@
   (:require [org.danlarkin.json :as json]
 	    [irclj.irclj :as ircb])
   (:import [java.io File FileReader]
-	   java.util.concurrent.TimeoutException
-	   java.lang.String ))
+	   java.util.concurrent.TimeoutException))
 
 (def info (read-config))
 (def prepend (:prepend info))

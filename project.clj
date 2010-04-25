@@ -6,10 +6,11 @@
 		 [commons-io/commons-io "1.4"]
 		 [org.danlarkin/clojure-json "1.1-SNAPSHOT"]
 		 [org.clojars.rayne/clj-time "0.1.0-SNAPSHOT"]
-		 [clj-sandbox "0.3.1"]
+		 [org.clojars.rayne/clj-sandbox "0.3.2"]
 		 [org.clojars.rayne/clj-apache-http "2.0.1"]
 		 [irclj "0.2.1"]
-		 [walton "0.5.0"]]
+		 [walton "0.5.0"]
+		 [org.clojars.rayne/stupiddb "0.1.3-sp"]]
   :dev-dependencies [[swank-clojure "1.1.0"]
 		     [leiningen/lein-swank "1.1.0"]
 		     [lein-search "0.3.0-SNAPSHOT"]])
