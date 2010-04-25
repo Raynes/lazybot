@@ -25,7 +25,7 @@
 							  (#(.replace % "\n" " ")) 
 							  (re-find titlere))
 	:else (recur (conj acc (first lines)) (rest lines)))))
-   (catch java.lang.Exception e e)))
+   (catch java.lang.Exception e nil)))
 
 (def url-blacklist-words ((read-config) :url-blacklist))
 
