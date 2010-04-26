@@ -16,24 +16,24 @@
     (if string? file (read-string file))))
 
 (defmethod respond :addtopic [{:keys [irc nick channel args]}]
-  (let [topic (first args)
+  (let [topic (str " " (first args))
 	content (->> args
 		   (interpose " ")
 		   (rest)
 		   (apply str))]
     (cond
-     (not-empty (db-get db topic)) (ircb/send-message irc channel "Topic already exists!")
+     (not-empty (db-get db (.trim topic))) (ircb/send-message irc channel "Topic already exists!")
      (or (empty? (.trim topic))
 	 (empty? (.trim content))) (ircb/send-message irc channel "Neither topic nor content can be empty!")
       :else  (if admin-add?
 	       (if (= :admin (get-priv nick))
 		 (do
-		   (db-assoc db topic content)
-		   (ircb/send-message irc channel (str "Topic Added: " topic)))
+		   (db-assoc db (.trim topic) content)
+		   (ircb/send-message irc channel (str "Topic Added: " (.trim topic))))
 		 (ircb/send-message irc channel (str nick ": Only admins can add topics!")))
 	       (do
-		 (db-assoc db topic content)
-		 (ircb/send-message irc channel (str "Topic Added: " topic)))))))
+		 (db-assoc db (.trim topic) content)
+		 (ircb/send-message irc channel (str "Topic Added: " (.trim topic))))))))
 
 (defmethod respond :rmtopic [{:keys [irc nick channel args]}]
   (let [topic (first args)]
@@ -43,7 +43,10 @@
 	   (do
 	     (db-dissoc db topic)
 	     (ircb/send-message irc channel (str "Topic Removed: " topic)))
-	   (ircb/send-message irc channel (str nick ": Only admins can remove topics!"))))
+	   (ircb/send-message irc channel (str nick ": Only admins can remove topics!")))
+	 (do
+	   (db-dissoc db topic)
+	   (ircb/send-message irc channel (str "Topic Removed: " topic))))
        (ircb/send-message irc channel (str "Topic: \"" topic  "\" doesn't exist!")))))
 
 (defmethod respond :help [{:keys [irc nick channel args]}]
