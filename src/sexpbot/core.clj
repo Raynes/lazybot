@@ -47,7 +47,7 @@
   (when (not (((info :user-blacklist) (:server @irc)) nick))
     (let [links (get-links message)
 	  title-links? (and (not= prepend (first message)) 
-;			    (catch-links? (:server @irc))
+			    (catch-links? (:server @irc))
 			    (seq links)
 			    (find-ns 'sexpbot.plugins.title))
 	  mess (if title-links? 
@@ -83,7 +83,8 @@
 	name ((bot-config :bot-name) server)
 	pass ((bot-config :bot-password) server)
 	channels ((bot-config :channels) server)
-	irc (ircb/connect (make-bot-run name pass server) :channels channels :identify-after-secs 3)]
-    (doseq [plug plugins] (.start (Thread. (fn [] (loadmod plug)))))))
+	irc (ircb/connect (make-bot-run name pass server) :channels channels)]
+    irc))
 
-(doseq [server servers] (.start (Thread. (fn [] (make-bot server)))))
+(doseq [plug plugins] (.start (Thread. (fn [] (loadmod plug)))))
+(doseq [server servers] (make-bot server))
