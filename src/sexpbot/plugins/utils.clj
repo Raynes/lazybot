@@ -36,8 +36,8 @@
 (defmethod respond :coin [{:keys [irc nick channel]}]
   (ircb/send-message irc channel (str nick ": " (if (= 0 (rand-int 2)) "Heads." "Tails."))))
 
-(defmethod respond :help [{:keys [irc nick channel]}]
-  (ircb/send-message irc channel (str nick ": I can't help you, I'm afraid. You can only help yourself.")))
+(comment (defmethod respond :help [{:keys [irc nick channel]}]
+  (ircb/send-message irc channel (str nick ": I can't help you, I'm afraid. You can only help yourself."))))
 
 (defmethod respond :what [{:keys [irc channel]}]
   (ircb/send-message irc channel "It's AWWWW RIGHT!"))
@@ -93,7 +93,7 @@
   {"time"     :time
    "rape"     :rape
    "coin"     :coin
-   "help"     :help
+;   "help"     :help
    "what"     :what
    "pangram?" :pangram
    "join"     :join
