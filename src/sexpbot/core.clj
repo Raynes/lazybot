@@ -1,7 +1,6 @@
 (ns sexpbot.core
   (:use [sexpbot respond info utilities]
-	[clojure.stacktrace :only [root-cause]]
-	[clojure.contrib.string :only [split]])
+	[clojure.stacktrace :only [root-cause]])
   (:require [org.danlarkin.json :as json]
 	    [irclj.irclj :as ircb])
   (:import [java.io File FileReader]
@@ -15,16 +14,6 @@
 
 ; Require all plugin files listed in info.clj
 (doseq [plug plugins] (->> plug (str "sexpbot.plugins.") symbol require))
-
-(defn split-args [s] (let [[command & args] (split #" " s)]
-		       {:command command
-			:first (first command)
-			:args args}))
-
-(defn handle-message [{:keys [nick message] :as irc-map}]
-  (let [bot-map (assoc irc-map :privs (get-priv nick))]
-    (if (= (first message) prepend)
-      (-> bot-map (into (->> message rest (apply str) split-args)) respond))))
 
 (defn try-handle [{:keys [nick channel irc] :as irc-map}]
   (try

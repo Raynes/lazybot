@@ -1,7 +1,6 @@
 (ns sexpbot.plugins.sed
   (:use [sexpbot respond info])
-  (:require [irclj.irclj :as ircb]
-	    [sexpbot.core :as core]))
+  (:require [irclj.irclj :as ircb]))
 
 (def prepend (:prepend (read-config)))
 
@@ -33,7 +32,7 @@
 	  (do (ircb/send-message irc channel (sed last-in conj-args opts))
 	      (when (and (= (first last-in) prepend)
 			 (not (:no-exec opts)))
-		(core/handle-message (assoc irc-map :message (sed last-in conj-args opts)))))
+		(handle-message (assoc irc-map :message (sed last-in conj-args opts)))))
 	  :else (ircb/send-message irc channel "Format: sed channel [options] s/regex/replacement/ Options are: Case Insensitive: i Don't Execute: x"))))
 
 (defplugin {"sed" :sed})
