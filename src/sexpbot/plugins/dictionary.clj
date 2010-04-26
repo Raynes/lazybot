@@ -3,8 +3,7 @@
   (:require [com.twinql.clojure.http :as http]
 	    [org.danlarkin.json :as json]
 	    [irclj.irclj :as ircb])
-  (:import java.net.URI
-	   org.apache.commons.lang.StringEscapeUtils))
+  (:import java.net.URI))
 
 (def wordnik-key (-> :wordnik-key get-key))
 

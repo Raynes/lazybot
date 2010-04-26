@@ -3,7 +3,8 @@
   (:use [sexpbot info respond utilities]
 	[clojure.contrib.io :only [reader]])
   (:require [irclj.irclj :as ircb])
-  (:import java.util.concurrent.TimeoutException))
+  (:import java.util.concurrent.TimeoutException
+	   org.apache.commons.lang.StringEscapeUtils))
 
 (def titlere #"(?i)<title>([^<]+)</title>")
 
@@ -25,7 +26,7 @@
 							  (#(.replace % "\n" " ")) 
 							  (re-find titlere))
 	:else (recur (conj acc (first lines)) (rest lines)))))
-   (catch java.lang.Exception e e)))
+   (catch java.lang.Exception e nil)))
 
 (def url-blacklist-words ((read-config) :url-blacklist))
 
@@ -58,7 +59,9 @@
 			     page (slurp-or-default url)
 			     match (second page)]
 			 (if (and (seq page) (seq match) (not (url-check url)))
-			   (ircb/send-message irc channel (str "\"" (collapse-whitespace match) "\""))
+			   (ircb/send-message irc channel 
+					      (str "\"" 
+						   (StringEscapeUtils/unescapeHtml ( collapse-whitespace match)) "\""))
 			   (when verbose? (ircb/send-message irc channel "Page has no title."))))
 		      20)
        (catch TimeoutException _ 

@@ -1,12 +1,10 @@
 (ns sexpbot.core
   (:use [sexpbot respond info utilities]
-	[clojure.stacktrace :only [root-cause]]
-	[clojure.contrib.string :only [split]])
+	[clojure.stacktrace :only [root-cause]])
   (:require [org.danlarkin.json :as json]
 	    [irclj.irclj :as ircb])
   (:import [java.io File FileReader]
-	   java.util.concurrent.TimeoutException
-	   java.lang.String ))
+	   java.util.concurrent.TimeoutException))
 
 (def info (read-config))
 (def prepend (:prepend info))
@@ -16,16 +14,6 @@
 
 ; Require all plugin files listed in info.clj
 (doseq [plug plugins] (->> plug (str "sexpbot.plugins.") symbol require))
-
-(defn split-args [s] (let [[command & args] (split #" " s)]
-		       {:command command
-			:first (first command)
-			:args args}))
-
-(defn handle-message [{:keys [nick message] :as irc-map}]
-  (let [bot-map (assoc irc-map :privs (get-priv nick))]
-    (if (= (first message) prepend)
-      (-> bot-map (into (->> message rest (apply str) split-args)) respond))))
 
 (defn try-handle [{:keys [nick channel irc] :as irc-map}]
   (try
@@ -41,14 +29,14 @@
 (defn get-links [s]
   (->> s (re-seq #"(http://|www\.)[^ ]+") (apply concat) (take-nth 2)))
 
-(defn on-message [{:keys [nick message irc] :as irc-map}]
+(defn on-message [{:keys [nick channel message irc] :as irc-map}]
   (when (and (not= nick (:name @irc))
 	     (not= (take 4 message) (cons (:prepend info) "sed")))
-    (dosync (alter irc assoc :last-in message)))
+    (dosync (alter irc assoc :last-in {channel message})))
   (when (not (((info :user-blacklist) (:server @irc)) nick))
     (let [links (get-links message)
 	  title-links? (and (not= prepend (first message)) 
-;			    (catch-links? (:server @irc))
+			    (catch-links? (:server @irc))
 			    (seq links)
 			    (find-ns 'sexpbot.plugins.title))
 	  mess (if title-links? 
@@ -84,12 +72,8 @@
 	name ((bot-config :bot-name) server)
 	pass ((bot-config :bot-password) server)
 	channels ((bot-config :channels) server)
-	irc (ircb/connect (make-bot-run name pass server) :channels channels)]
-    (when (seq pass)
-      (Thread/sleep 3000)
-      (ircb/send-message irc "NickServ" (str "identify " pass))
-      (println "Sleeping while identification takes effect.")
-      (Thread/sleep 3000))
-    (doseq [plug plugins] (.start (Thread. (fn [] (loadmod plug)))))))
+	irc (ircb/connect (make-bot-run name pass server) :channels channels :identify-after-secs 3)]
+    irc))
 
-(doseq [server servers] (.start (Thread. (fn [] (make-bot server)))))
+(doseq [plug plugins] (.start (Thread. (fn [] (loadmod plug)))))
+(doseq [server servers] (make-bot server))
