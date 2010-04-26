@@ -47,7 +47,7 @@
   (when (not (((info :user-blacklist) (:server @irc)) nick))
     (let [links (get-links message)
 	  title-links? (and (not= prepend (first message)) 
-			    (catch-links? (:server @irc))
+;			    (catch-links? (:server @irc))
 			    (seq links)
 			    (find-ns 'sexpbot.plugins.title))
 	  mess (if title-links? 
