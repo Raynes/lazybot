@@ -72,7 +72,7 @@
 	name ((bot-config :bot-name) server)
 	pass ((bot-config :bot-password) server)
 	channels ((bot-config :channels) server)
-	irc (ircb/connect (make-bot-run name pass server) :channels channels)]
+	irc (ircb/connect (make-bot-run name pass server) :channels channels :identify-after-secs 3)]
     irc))
 
 (doseq [plug plugins] (.start (Thread. (fn [] (loadmod plug)))))
