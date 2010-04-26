@@ -60,7 +60,6 @@
 (defmethod respond :default [{:keys [irc channel]}]
   (ircb/send-message irc channel "Command not found. No entiendo lo que estás diciendo."))
 
-
 (defn split-args [s] (let [[command & args] (clojure.contrib.string/split #" " s)]
 		       {:command command
 			:first (first command)
@@ -70,7 +69,6 @@
   (let [bot-map (assoc irc-map :privs (get-priv nick))]
     (if (= (first message) (:prepend (read-config)))
       (-> bot-map (into (->> message rest (apply str) split-args)) respond))))
-
 
 (defn defplugin [cmd-map]
   (dosync
