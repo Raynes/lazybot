@@ -10,6 +10,7 @@
 (def help-file (str (System/getProperty "user.home") "/.sexpbot/help.db"))
 (def db (db-init help-file 30))
 
+;; shamelessly stolen from info.clj's read-config
 (defn read-db [& {:keys [string?] :or {string? false}}]
   (let [file (slurp help-file)]
     (if string? file (read-string file))))
