@@ -10,6 +10,9 @@
 (def help-file (str (System/getProperty "user.home") "/.sexpbot/help.db"))
 (def db (db-init help-file 30))
 
+(defn read-db [& {:keys [string?] :or {string? false}}]
+  (let [file (slurp help-file)]
+    (if string? file (read-string file))))
 
 (defmethod respond :addtopic [{:keys [irc nick channel args]}]
   (let [topic (first args)
@@ -51,6 +54,12 @@
       (if (empty? topic)
 	(ircb/send-message irc channel (str nick ": I can't help you, I'm afraid. You can only help yourself."))
 	(ircb/send-message irc channel (str "Topic: \"" topic "\" doesn't exist!"))))))
+
+(defmethod respond :list [{:keys [irc channel]}]
+  (ircb/send-message irc channel (str "I know: " (->> (read-db)
+						      (keys)
+						      (interpose " ")
+						      (apply str)))))
 
 
 (defplugin
