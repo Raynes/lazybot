@@ -12,6 +12,8 @@
 (def plugins (:plugins info))
 (def catch-links? (:catch-links? info))
 
+(def bots (ref {}))
+
 ; Require all plugin files listed in info.clj
 (doseq [plug plugins] (->> plug (str "sexpbot.plugins.") symbol require))
 
@@ -76,4 +78,5 @@
     irc))
 
 (doseq [plug plugins] (.start (Thread. (fn [] (loadmod plug)))))
-(doseq [server servers] (make-bot server))
+(doseq [server servers] 
+  (dosync (alter bots assoc server (make-bot server))))
