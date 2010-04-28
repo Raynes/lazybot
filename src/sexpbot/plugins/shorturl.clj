@@ -22,9 +22,9 @@
 				:longUrl url
 				:version "2.0.1"} :as :string)))))
 
-(defmethod respond :short [{:keys [irc channel nick args]}]
-  (ircb/send-message irc channel (->> args first shorten-url (str nick ": "))))
-
 (defplugin
-  {"short"   :short
-   "shorten" :short})
+  (:short 
+   "Shortens a URL with bit.ly"
+   ["shorten" "short"] 
+   [{:keys [irc channel nick args]}]
+   (ircb/send-message irc channel (->> args first shorten-url (str nick ": ")))))

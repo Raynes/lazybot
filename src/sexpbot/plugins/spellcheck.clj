@@ -34,8 +34,9 @@
     (apply max-key #(get nwords % 1) candidates)))
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(defmethod respond :scheck [{:keys [irc channel args nick]}]
-  (ircb/send-message irc channel (str nick ": " (-> args first (correct *nwords*)))))
-
-(defplugin
-  {"scheck" :scheck})
+(defplugin 
+  (:scheck 
+   "Spell checks a word for you."
+   ["scheck"]
+   [{:keys [irc channel args nick]}]
+   (ircb/send-message irc channel (str nick ": " (-> args first (correct *nwords*))))))

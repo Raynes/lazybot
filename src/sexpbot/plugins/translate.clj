@@ -13,16 +13,18 @@
 	       :q text
 	       :langpair (str lang1 "|" lang2)} :as :string) :content json/decode-from-str))
 
-(defmethod respond :translate [{:keys [irc channel args]}]
-  (let [[lang-from lang-to & text] args
-	translation (translate lang-from lang-to (stringify text))]
-    (if (:responseData translation)
-      (ircb/send-message irc channel (-> translation 
-					 :responseData 
-					 :translatedText 
-					 StringEscapeUtils/unescapeHtml))
-      (ircb/send-message irc channel "Languages not recognized."))))
-
 (defplugin
-  {"translate" :translate
-   "trans"     :translate})
+  (:translate
+   "Translates with google translate. Takes two language abbreviations (google's ones) and some text
+   to translate, and returns it translated."
+   ["trans" "translate"]
+   [{:keys [irc channel args]}]
+   (let [[lang-from lang-to & text] args
+	 translation (translate lang-from lang-to (stringify text))]
+     (if (:responseData translation)
+       (ircb/send-message irc channel (-> translation 
+					  :responseData 
+					  :translatedText 
+					  StringEscapeUtils/unescapeHtml
+					  (.replaceAll "\n|\r" "")))
+       (ircb/send-message irc channel "Languages not recognized.")))))

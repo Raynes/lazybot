@@ -82,13 +82,14 @@
     (println (apply str (map char *output*)))))
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(defmethod respond :bf [{:keys [irc channel args]}]
-  (let [[bf & input] args]
-    (doseq [x (-> bf 
-		  (compile-and-run input) 
-		  with-out-str 
-		  (#(.split % "\n")))]
-      (ircb/send-message irc channel x))))
-
 (defplugin
-  {"bf" :bf})
+  (:bf 
+   "Executes brainfuck."
+   ["bf"] 
+   [{:keys [irc channel args]}]
+   (let [[bf & input] args]
+     (doseq [x (-> bf 
+		   (compile-and-run input) 
+		   with-out-str 
+		   (#(.split % "\n")))]
+       (ircb/send-message irc channel (.replaceAll x "\n|\r" ""))))))

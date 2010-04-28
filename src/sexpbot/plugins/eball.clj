@@ -24,8 +24,10 @@
       "Outlook not so good."
       "Very doubtful."])
 
-(defmethod respond :8ball [{:keys [irc nick channel]}]
-  (let [answer (rand-int 20)]
-    (ircb/send-message irc channel (str nick ": " (nth responses answer)))))
-
-(defplugin {"8ball" :8ball})
+(defplugin
+  (:8ball 
+   "Ask the magic eight ball a question."
+   ["8ball"] 
+   [{:keys [irc nick channel]}]
+   (let [answer (rand-int 20)]
+     (ircb/send-message irc channel (str nick ": " (nth responses answer))))))

@@ -2,36 +2,51 @@
   (:use [sexpbot respond])
   (:require [irclj.irclj :as ircb]))
 
-(defmethod respond :op [{:keys [irc nick channel args]}]
-  (if-admin nick (ircb/set-mode irc channel "+o" (first args))))
-
-(defmethod respond :deop [{:keys [irc nick channel args]}]
-  (if-admin nick (ircb/set-mode irc channel  "-o" (first args))))
-
-(defmethod respond :kick [{:keys [irc nick channel args]}]
-  (if-admin nick (ircb/kick irc channel (first args) :reason (apply str (rest args)))))
-
-(defmethod respond :settopic [{:keys [irc nick channel args]}]
-  (if-admin nick (ircb/set-topic irc channel (apply str (interpose " " args)))))
-
-(defmethod respond :ban [{:keys [irc nick channel args]}]
-  (if-admin nick (ircb/set-mode irc channel "+b" (first args))))
-
-(defmethod respond :unban [{:keys [irc nick channel args]}]
-  (if-admin nick (ircb/set-mode irc channel "-b" (first args))))
-
-(defmethod respond :voice [{:keys [irc channel nick args]}]
-  (if-admin nick (ircb/set-mode irc channel "+v" (first args))))
-
-(defmethod respond :devoice [{:keys [irc channel nick args]}]
-  (if-admin nick (ircb/set-mode irc channel "-v" (first args))))
-
 (defplugin
-  {"op"       :op
-   "deop"     :deop
-   "kick"     :kick
-   "settopic" :settopic
-   "ban"      :ban
-   "unban"    :unban
-   "voice"    :voice
-   "devoice"  :devoice})
+  (:op 
+   "Sets the person you specify as operator. ADMIN ONLY."
+   ["op"] 
+   [{:keys [irc nick channel args]}]
+   (if-admin nick (ircb/set-mode irc channel "+o" (first args))))
+  
+  (:deop 
+   "Deops the person you specify. ADMIN ONLY."
+   ["deop"] 
+   [{:keys [irc nick channel args]}]
+   (if-admin nick (ircb/set-mode irc channel  "-o" (first args))))
+
+  (:kick 
+   "Kicks the person you specify. ADMIN ONLY."
+   ["kick"] 
+   [{:keys [irc nick channel args]}]
+   (if-admin nick (ircb/kick irc channel (first args) :reason (apply str (rest args)))))
+
+  (:settopic 
+   "Set's the channel's topic. ADMIN ONLY."
+   ["settopic"]
+   [{:keys [irc nick channel args]}]
+   (if-admin nick (ircb/set-topic irc channel (apply str (interpose " " args)))))
+
+  (:ban 
+   "Ban's whatever you specify. ADMIN ONLY."
+   ["ban"]
+   [{:keys [irc nick channel args]}]
+   (if-admin nick (ircb/set-mode irc channel "+b" (first args))))
+
+  (:unban 
+   "Unban's whatever you specify. ADMIN ONLY."
+   ["unban"]
+   [{:keys [irc nick channel args]}]
+   (if-admin nick (ircb/set-mode irc channel "-b" (first args))))
+
+  (:voice 
+   "Voices the person you specify. ADMIN 0NLY."
+   ["voice"] 
+   [{:keys [irc channel nick args]}]
+   (if-admin nick (ircb/set-mode irc channel "+v" (first args))))
+
+  (:devoice 
+   "Devoices the person you specify. ADMIN ONLY."
+   ["devoice"]
+   [{:keys [irc channel nick args]}]
+   (if-admin nick (ircb/set-mode irc channel "-v" (first args)))))

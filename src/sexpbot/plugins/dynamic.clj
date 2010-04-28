@@ -24,8 +24,9 @@
        (map char-map)
        (apply str)))
 
-(defmethod respond :dytostr [{:keys [irc channel args]}]
-  (ircb/send-message irc channel (dynamic-to-str (first args))))
-
-(defplugin
-  {"dytostr" :dytostr})
+(defplugin 
+  (:dytostr 
+   "Converts a dynamic string to a English string."
+   ["dy2str" "dytostr"]
+   [{:keys [irc channel args]}]
+   (ircb/send-message irc channel (dynamic-to-str (first args)))))

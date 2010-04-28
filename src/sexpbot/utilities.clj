@@ -1,7 +1,11 @@
 (ns sexpbot.utilities
+  (:use sexpbot.info)
   (:require [org.danlarkin.json :as json])
   (:import [java.io File FileReader]
 	   [java.util.concurrent FutureTask TimeUnit TimeoutException]))
+
+(defn reload-plugins [] 
+  (doseq [plug ((read-config) :plugins)] (require (symbol (str "sexpbot.plugins." plug)) :reload)))
 
 (defn stringify [coll]
   (apply str (interpose " " coll)))

@@ -26,7 +26,7 @@
 (def cap 300)
 
 (defn trim [s]
-  (let [res (.replaceAll (apply str (take cap s)) "\n" " ")
+  (let [res (.replaceAll (apply str (take cap s)) "\n|\r" " ")
 	rescount (count res)]
     (if (= rescount cap) 
       (str res "... " (when (> (count s) cap) (post-gist "output.clj" s))) 
@@ -35,19 +35,19 @@
 (defn execute-text [txt]
   (let [writer (StringWriter.)]
     (try
-     (trim (str writer ((sc txt) {'*out* writer})))
+     (str "result: " (trim (str writer ((sc txt) {'*out* writer}))))
      (catch TimeoutException _ "Execution Timed Out!")
      (catch SecurityException _ "DENIED!")
      (catch Exception e (.getMessage (root-cause e))))))
 
-(defmethod respond :eval [{:keys [irc channel command args]}]
-  (ircb/send-message irc channel (->> (if (= (first command) \() 
-					(cons command args) 
-					args)
-				      (interpose " ")
-				      (apply str) 
-				      execute-text)))
-
 (defplugin
-  {\(     :eval
-   "eval" :eval})
+  (:eval 
+   "Evalutate Clojure code. Sandboxed, so you're welcome to try to break it."
+   [\( "eval"] 
+   [{:keys [irc channel command args]}]
+   (ircb/send-message irc channel (->> (if (= (first command) \() 
+					 (cons command args) 
+					 args)
+				       (interpose " ")
+				       (apply str) 
+				       execute-text))))
