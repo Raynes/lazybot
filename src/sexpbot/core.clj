@@ -15,7 +15,7 @@
 (def bots (ref {}))
 
 ; Require all plugin files listed in info.clj
-(doseq [plug plugins] (->> plug (str "sexpbot.plugins.") symbol require))
+(reload-plugins)
 
 (defn try-handle [{:keys [nick channel irc] :as irc-map}]
   (try
