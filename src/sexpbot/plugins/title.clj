@@ -23,7 +23,7 @@
        (cond
 	(not (seq lines)) nil
 	(some #(re-find #"</title>|</TITLE>" %) acc) (->> acc (apply str) 
-							  (#(.replace % "\n|\r" " ")) 
+							  (#(.replace % "\n" " ")) 
 							  (re-find titlere))
 	:else (recur (conj acc (first lines)) (rest lines)))))
    (catch java.lang.Exception e nil)))
@@ -66,7 +66,9 @@
 			  (if (and (seq page) (seq match) (not (url-check url)))
 			    (ircb/send-message irc channel 
 					       (str "\"" 
-						    (StringEscapeUtils/unescapeHtml (collapse-whitespace match))  
+						    (.replaceAll 
+						     (StringEscapeUtils/unescapeHtml (collapse-whitespace match)) 
+						     "\n|\r" "") 
 						    "\""))
 			    (when verbose? (ircb/send-message irc channel "Page has no title."))))
 		       20)
