@@ -26,7 +26,7 @@
 (def cap 300)
 
 (defn trim [s]
-  (let [res (.replaceAll (apply str (take cap s)) "\n" " ")
+  (let [res (.replaceAll (apply str (take cap s)) "\n|\r" " ")
 	rescount (count res)]
     (if (= rescount cap) 
       (str res "... " (when (> (count s) cap) (post-gist "output.clj" s))) 
