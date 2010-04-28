@@ -25,5 +25,6 @@
        (ircb/send-message irc channel (-> translation 
 					  :responseData 
 					  :translatedText 
-					  StringEscapeUtils/unescapeHtml))
+					  StringEscapeUtils/unescapeHtml
+					  (.replaceAll "\n|\r" "")))
        (ircb/send-message irc channel "Languages not recognized.")))))
