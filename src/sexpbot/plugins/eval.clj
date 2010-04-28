@@ -35,7 +35,7 @@
 (defn execute-text [txt]
   (let [writer (StringWriter.)]
     (try
-     (trim (str writer ((sc txt) {'*out* writer})))
+     (str "result: " (trim (str writer ((sc txt) {'*out* writer}))))
      (catch TimeoutException _ "Execution Timed Out!")
      (catch SecurityException _ "DENIED!")
      (catch Exception e (.getMessage (root-cause e))))))
