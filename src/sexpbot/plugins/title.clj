@@ -67,9 +67,7 @@
 			    (ircb/send-message irc channel 
 					       (str "\"" 
 						    (.replaceAll 
-						     (.replaceAll 
-						      (StringEscapeUtils/unescapeHtml 
-						       (collapse-whitespace match))) 
+						     (StringEscapeUtils/unescapeHtml (collapse-whitespace match)) 
 						     "\n|\r" "") 
 						    "\""))
 			    (when verbose? (ircb/send-message irc channel "Page has no title."))))
