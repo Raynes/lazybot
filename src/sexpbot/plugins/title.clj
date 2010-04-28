@@ -80,4 +80,4 @@
 
   (:title 
    "Get's the title of a web page. Takes a link. This is verbose, and prints error messages."
-   ["title2"] [ircmap] (respond (assoc ircmap :command "title*" :verbose? true))))
+   ["title"] [ircmap] (respond (assoc ircmap :command "title*" :verbose? true))))
