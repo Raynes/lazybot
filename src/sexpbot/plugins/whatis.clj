@@ -51,7 +51,7 @@
    
    (:dumpwdb 
     "Dumps the entire database to a gist."
-    ["dumbwdb"]
+    ["dumpwdb"]
     [{:keys [irc channel nick]}]
     (ircb/send-message irc channel 
 		       (str nick ": " (with-info whatis 
