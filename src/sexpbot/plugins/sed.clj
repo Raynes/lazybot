@@ -11,7 +11,10 @@
 ;; case insensitive -i ;;
 ;; don't execute -x    ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;
-
+;;<Raynes> boredomist: Make it so that specifying a channel and options are
+;;	 unnecessary. Make it default to case insensitive and the current
+;;	 channel.
+;;<Raynes> boredomist: And make sure you pull my latest repo
 (defn parse-opts [opt-string]
   {:case-inse (.contains opt-string "i")
    :no-exec (.contains opt-string "x")})
