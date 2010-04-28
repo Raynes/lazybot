@@ -35,32 +35,37 @@
     (< 30 (-> usertime (interval (now)) in-secs))
     true))
 
-(defmethod respond :mailalert [{:keys [irc channel nick]}]
-  (let [lower-nick (.toLowerCase nick)
-	nmess (count-messages lower-nick)]
-    (when (and (> nmess 0) (alert-time? lower-nick))
-      (ircb/send-notice irc nick (str nick ": You have " nmess 
-					" new message(s). Type $getmessages (in PM if you want) to see them."))
-      (dosync (alter alerted assoc lower-nick (now))))))
+(defplugin 
+  (:mailalert 
+   "" 
+   ["mailalert"] 
+   [{:keys [irc channel nick]}]
+   (let [lower-nick (.toLowerCase nick)
+	 nmess (count-messages lower-nick)]
+     (when (and (> nmess 0) (alert-time? lower-nick))
+       (ircb/send-notice irc nick (str nick ": You have " nmess 
+				       " new message(s). Type $getmessages (in PM if you want) to see them."))
+       (dosync (alter alerted assoc lower-nick (now))))))
+  
+  (:getmessages 
+   "Request that your messages be sent you via PM. Executing this command will delete all your messages."
+   ["getmessages" "getmail" "mymail"] 
+   [{:keys [irc nick]}]
+    (let [lower-nick (.toLowerCase nick)]
+      (if-let [messages (seq (get-messages lower-nick))]
+	(doseq [message messages] (ircb/send-message irc lower-nick message))
+	(ircb/send-message irc nick "You have no messages."))))
 
-(defmethod respond :getmessages [{:keys [irc nick]}]
-  (let [lower-nick (.toLowerCase nick)]
-    (if-let [messages (seq (get-messages lower-nick))]
-      (doseq [message messages] (ircb/send-message irc lower-nick message))
-      (ircb/send-message irc nick "You have no messages."))))
-
-(defmethod respond :mail [{:keys [irc channel nick args irc]}]
-  (if (seq args)
-    (let [lower-user (.toLowerCase (first args))]
-      (if (and (not (.contains lower-user "serv"))
-	       (not= lower-user (.toLowerCase (((read-config) :bot-name) (:server @irc)))))
-	(do
-	  (new-message nick lower-user 
-		       (->> args rest (interpose " ") (apply str)))
-	  (ircb/send-message irc channel "Message saved."))
-	(ircb/send-message irc channel "You can't message the unmessageable.")))))
-
-(defplugin
-  {"mailalert"   :mailalert
-   "getmessages" :getmessages
-   "mail"        :mail})
+  (:mail 
+   "Send somebody a message. Takes a nickname and a message to send. Will alert the person with a notice."
+   ["mail"]
+   [{:keys [irc channel nick args irc]}]
+   (if (seq args)
+     (let [lower-user (.toLowerCase (first args))]
+       (if (and (not (.contains lower-user "serv"))
+		(not= lower-user (.toLowerCase (((read-config) :bot-name) (:server @irc)))))
+	  (do
+	    (new-message nick lower-user 
+			 (->> args rest (interpose " ") (apply str)))
+	    (ircb/send-message irc channel "Message saved."))
+	  (ircb/send-message irc channel "You can't message the unmessageable."))))))

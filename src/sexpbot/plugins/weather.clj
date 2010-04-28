@@ -31,16 +31,18 @@
        zip/xml-zip 
        cull))
 
-(defmethod respond :fcst [{:keys [irc channel nick args]}]
-  (let [[date [today tonight :as a]] (->> args (interpose " ") get-fcst)
-	conditions (if (string? today) today a)]
-    (if (seq date)
-      (do
-	(ircb/send-message irc channel (str nick ": " date))
-	(ircb/send-message irc channel (str nick ": TODAY: " conditions))
-	(when (string? today)
-	  (ircb/send-message irc channel (str nick ": TONIGHT: " tonight))))
-      (ircb/send-message irc channel (str nick ": Location not found!")))))
-
 (defplugin
-  {"fcst" :fcst})
+  (:fcst 
+   "Get's the forecast for a location. Can take a zipcode, or a City, State combination."
+   ["fcst"]
+   [{:keys [irc channel nick args]}]
+   (let [[date [today tonight :as a]] (->> args (interpose " ") get-fcst)
+	 conditions (if (string? today) today a)]
+     (if (seq date)
+       (do
+	 (ircb/send-message irc channel (str nick ": " date))
+	 (ircb/send-message irc channel (str nick ": TODAY: " conditions))
+	 (when (string? today)
+	   (ircb/send-message irc channel (str nick ": TONIGHT: " tonight))))
+       (ircb/send-message irc channel (str nick ": Location not found!"))))))
+

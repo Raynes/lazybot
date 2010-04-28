@@ -40,14 +40,14 @@
      (catch SecurityException _ "DENIED!")
      (catch Exception e (.getMessage (root-cause e))))))
 
-(defmethod respond :eval [{:keys [irc channel command args]}]
-  (ircb/send-message irc channel (->> (if (= (first command) \() 
-					(cons command args) 
-					args)
-				      (interpose " ")
-				      (apply str) 
-				      execute-text)))
-
 (defplugin
-  {\(     :eval
-   "eval" :eval})
+  (:eval 
+   "Evalutate Clojure code. Sandboxed, so you're welcome to try to break it."
+   [\( "eval"] 
+   [{:keys [irc channel command args]}]
+   (ircb/send-message irc channel (->> (if (= (first command) \() 
+					 (cons command args) 
+					 args)
+				       (interpose " ")
+				       (apply str) 
+				       execute-text))))

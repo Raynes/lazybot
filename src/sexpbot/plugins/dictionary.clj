@@ -19,11 +19,12 @@
        :as :string)
       :content json/decode-from-str first extract-stuff))
 
-(defmethod respond :dict [{:keys [irc channel nick args]}]
-  (ircb/send-message irc channel 
-		     (str nick ": " 
-			  (let [[text part] (lookup-def (first args))]
-			    (if (seq text) (str part ": " text) "Word not found.")))))
-
-(defplugin
-  {"dict" :dict})
+(defplugin 
+  (:dict 
+   "Takes a word and look's up it's definition via the Wordnik dictionary API." 
+   ["dict"] 
+   [{:keys [irc channel nick args]}]
+   (ircb/send-message irc channel 
+		      (str nick ": " 
+			   (let [[text part] (lookup-def (first args))]
+			     (if (seq text) (str part ": " text) "Word not found."))))))

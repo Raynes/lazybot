@@ -21,16 +21,22 @@
     (ircb/send-message irc channel title)
     (ircb/send-message irc channel url)))
 
-(defmethod respond :google [args]
-  (handle-search args))
+(defplugin
+  (:google 
+   "Searches google for whatever you ask it to, and displays the first result and the estimated
+   number of results found."
+   ["google"] 
+   [args]
+   (handle-search args)
 
-(defmethod respond :wiki [args]
-  (handle-search (assoc args :args (conj (:args args) "site:en.wikipedia.org"))))
+   (:wiki 
+    "Searches wikipedia via google."
+    ["wiki"] 
+    [args]
+    (handle-search (assoc args :args (conj (:args args) "site:en.wikipedia.org"))))
 
-(defmethod respond :ed [args]
-  (handle-search (assoc args :args (conj (:args args) "site:encyclopediadramatica.com"))))
-
-(defplugin 
-  {"google" :google
-   "wiki"   :wiki
-   "ed"     :ed})
+   (:ed 
+    "Searches encyclopediadramtica via google."
+    ["ed"] 
+    [args]
+    (handle-search (assoc args :args (conj (:args args) "site:encyclopediadramatica.com"))))))

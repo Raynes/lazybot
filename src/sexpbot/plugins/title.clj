@@ -48,31 +48,36 @@
 			   #(is-blacklisted? % (strip-tilde user)) 
 			   blacklist))))
 
-(defmethod respond :title* [{:keys [irc nick user channel args verbose?]}]
-  (if (or (and verbose? (seq args)) 
-	  (and (seq args) 
-	       (not (check-blacklist (:server @irc) user))
-	       (not ((((read-config) :channel-catch-blacklist) (:server @irc)) channel))))
-    (doseq [link (take 1 args)]
-      (try
-       (thunk-timeout #(let [url (add-url-prefix link)
-			     page (slurp-or-default url)
-			     match (second page)]
-			 (if (and (seq page) (seq match) (not (url-check url)))
-			   (ircb/send-message irc channel 
-					      (str "\"" 
-						   (StringEscapeUtils/unescapeHtml ( collapse-whitespace match)) "\""))
-			   (when verbose? (ircb/send-message irc channel "Page has no title."))))
-		      20)
-       (catch TimeoutException _ 
-	 (when verbose? 
-	   (ircb/send-message irc channel "It's taking too long to find the title. I'm giving up.")))))
-    (when verbose? (ircb/send-message irc channel "Which page?"))))
+(defplugin 
+  (:title*
+   "A utility method to get the title of a webpage. Non-verbose, so it doesn't
+   print error messages. Use $title instead."
+   ["title*"]
+   [{:keys [irc nick user channel args verbose?]}]
+   (if (or (and verbose? (seq args)) 
+	   (and (seq args) 
+		(not (check-blacklist (:server @irc) user))
+		(not ((((read-config) :channel-catch-blacklist) (:server @irc)) channel))))
+     (doseq [link (take 1 args)]
+       (try
+	(thunk-timeout #(let [url (add-url-prefix link)
+			      page (slurp-or-default url)
+			      match (second page)]
+			  (if (and (seq page) (seq match) (not (url-check url)))
+			    (ircb/send-message irc channel 
+					       (str "\"" 
+						    (StringEscapeUtils/unescapeHtml ( collapse-whitespace match)) "\""))
+			    (when verbose? (ircb/send-message irc channel "Page has no title."))))
+		       20)
+	(catch TimeoutException _ 
+	  (when verbose? 
+	    (ircb/send-message irc channel "It's taking too long to find the title. I'm giving up.")))))
+     (when verbose? (ircb/send-message irc channel "Which page?"))))
+  
+  (:title2
+   "Get's the title of a webpage. Just takes a link." 
+   ["title2"] [ircmap] (respond (assoc ircmap :command "title*")))
 
-(defmethod respond :title2 [ircmap] (respond (assoc ircmap :command "title*")))
-(defmethod respond :title [ircmap] (respond (assoc ircmap :command "title*" :verbose? true)))
-
-(defplugin
-  {"title"  :title
-   "title2" :title2
-   "title*" :title*})
+  (:title 
+   "Get's the title of a web page. Takes a link. This is verbose, and prints error messages."
+   ["title2"] [ircmap] (respond (assoc ircmap :command "title*" :verbose? true))))
