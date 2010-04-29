@@ -17,8 +17,7 @@
   (let [[res-count res-map] (-> (apply str (interpose " " args)) google cull)
 	title (:titleNoFormatting res-map)
 	url (:url res-map)]
-    (ircb/send-message irc channel (str "First out of " res-count " results is:"))
-    (ircb/send-message irc channel title)
+    (ircb/send-message irc channel (str "First out of " res-count " results is: " title))
     (ircb/send-message irc channel url)))
 
 (defplugin
