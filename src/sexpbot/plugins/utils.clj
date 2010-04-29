@@ -1,6 +1,5 @@
 (ns sexpbot.plugins.utils
   (:use [sexpbot utilities [info :only [format-config]] respond gist]
-	[clojure.contrib.seq :only [shuffle]]
 	[clj-time [core :only [now]] [format :only [unparse formatters]]])
   (:require [irclj.irclj :as ircb]))
 
