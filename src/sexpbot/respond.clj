@@ -87,7 +87,6 @@
   []
   (reset-hooks)
   (reset-commands)
-  (reset-ref logged-in)
   (reset-ref modules)
   (use 'sexpbot.respond :reload)
   (reload-plugins)
