@@ -1,6 +1,6 @@
 ;; The result of a team effort between programble and Rayne.
 (ns sexpbot.plugins.title
-  (:use [sexpbot info respond utilities]
+  (:use [sexpbot [info :only [read-config]] respond utilities]
 	[clojure.contrib.io :only [reader]])
   (:require [irclj.irclj :as ircb])
   (:import java.util.concurrent.TimeoutException
@@ -48,7 +48,21 @@
 			   #(is-blacklisted? % (strip-tilde user)) 
 			   blacklist))))
 
-(defplugin 
+(defplugin
+  (:add-hook :on-message
+	     (fn [{:keys [irc nick channel message] :as irc-map}]
+	       (let [info (read-config)
+		     get-links (fn [s] (->> s (re-seq #"(http://|www\.)[^ ]+") (apply concat) (take-nth 2)))]
+		 (when (not (((info :user-blacklist) (:server @irc)) nick))
+		   (let [prepend (:prepend info)
+			 links (get-links message)
+			 title-links? (and (not= prepend (first message)) 
+					   ((:catch-links? info) (:server @irc))
+					   (seq links))]
+		     (when title-links? 
+		       (try-handle 
+			(assoc irc-map :message (str prepend "title2 " (apply str (interpose " " links)))))))))))
+
   (:title*
    "A utility method to get the title of a webpage. Non-verbose, so it doesn't
    print error messages. Use $title instead."

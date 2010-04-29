@@ -10,6 +10,9 @@
 (defn logged-in? [user] (some #{user} (keys @logged-in)))
 
 (defplugin
+  (:add-hook :on-quit
+	     (fn [irc-map] (try-handle (assoc irc-map :message (str (:prepend (read-config)) "quit")))))
+
   (:login 
    "Best executed via PM. Give it your password, and it will log you in."
    ["login"] 

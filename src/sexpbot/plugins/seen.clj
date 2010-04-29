@@ -27,6 +27,23 @@
 				       (now)))))))
 
 (defplugin
+  (:add-hook :on-message
+	     (fn [irc-map]
+	       (try-handle (assoc irc-map
+			     :message (str (:prepend (read-config)) "putseen*")
+			     :extra-args ["talking"]))))
+  (:add-hook :on-join 
+	     (fn [irc-map] 
+	       (try-handle (assoc irc-map 
+			     :message (str (:prepend (read-config)) "putseen*")
+			     :extra-args ["joining"]))))
+
+  (:add-hook :on-quit
+	     (fn [irc-map] 
+	       (try-handle (assoc irc-map 
+			     :message (str (:prepend (read-config)) "putseen*")
+			     :extra-args ["quitting"]))))
+
   (:seen 
    "Checks to see when the person you specify was last seen."
    ["seen"] 
