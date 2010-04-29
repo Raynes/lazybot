@@ -1,10 +1,5 @@
 (ns sexpbot.plugins.utils
-<<<<<<< HEAD
   (:use [sexpbot utilities [info :only [format-config read-config]] respond gist]
-	[clojure.contrib.seq :only [shuffle]]
-=======
-  (:use [sexpbot utilities [info :only [format-config]] respond gist]
->>>>>>> c864300bf1679fa477852277b429d480f830794d
 	[clj-time [core :only [now]] [format :only [unparse formatters]]])
   (:require [irclj.irclj :as ircb]))
 
@@ -115,42 +110,7 @@
 				       (post-gist (first args) 
 						  (->> args rest (interpose " ") (apply str))))))
    
-<<<<<<< HEAD
-   (:timeout "" ["timeout"] [_] (Thread/sleep 15000))
 
-   (:dumpcmds 
-    "Dumps a list of commands to a gist."
-    ["dumpcmds"]
-    [{:keys [irc channel]}]
-    (println @commands)
-    (ircb/send-message irc channel
-		       (->> @commands vals (filter map?) (apply merge) keys 
-			    (interpose "\n") (apply str) (post-gist "dumpcmds.clj"))))
-
-   (:balance 
-    "Balances parens for you."
-    ["balance"]
-    [{:keys [irc channel nick args]}]
-    (let [[fst & more] args]
-      (ircb/send-message irc channel 
-			 (str nick ": " (apply str (concat fst (repeat (count fst) ")")))))))
-
-   (:say 
-    "Says what you tell it to in the channel you specify. ADMIN ONLY."
-    ["say"] 
-    [{:keys [irc channel nick args]}]
-    (if-admin nick
-	      (ircb/send-message irc (first args) (->> args rest (interpose " ") (apply str)))))
-   (:privs
-    "Finds your privs"
-    ["privs"]
-    [{:keys [irc channel nick]}]
-    (do
-      (ircb/send-message irc channel (str nick ": You are a"
-					  (if (not= :admin ((((read-config) :users) nick) :privs))
-					    " regular user."
-					    (if (-> nick logged-in) "n admin; you are logged in." "n admin; you aren't logged in!")))))))
-=======
   (:timeout "" ["timeout"] [_] (Thread/sleep 15000))
 
   (:dumpcmds 
@@ -175,5 +135,13 @@
    ["say"] 
    [{:keys [irc channel nick args]}]
    (if-admin nick
-	     (ircb/send-message irc (first args) (->> args rest (interpose " ") (apply str))))))
->>>>>>> c864300bf1679fa477852277b429d480f830794d
+	     (ircb/send-message irc (first args) (->> args rest (interpose " ") (apply str)))))
+  (:privs
+   "Finds your privs"
+   ["privs"]
+   [{:keys [irc channel nick]}]
+   (do
+     (ircb/send-message irc channel (str nick ": You are a"
+					 (if (not= :admin ((((read-config) :users) nick) :privs))
+					   " regular user."
+					   (if (-> nick logged-in) "n admin; you are logged in." "n admin; you aren't logged in!")))))))
