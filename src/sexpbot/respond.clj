@@ -1,5 +1,5 @@
 (ns sexpbot.respond
-  (:use [sexpbot info [utilities :only [thunk-timeout]]])
+  (:use [sexpbot info [utilities :only [reload-plugins thunk-timeout]]])
   (:require [irclj.irclj :as ircb])
   (:import java.util.concurrent.TimeoutException))
 
@@ -7,6 +7,7 @@
 		       "unload"  {:cmd :unload :doc "Unload's a module. ADMIN ONLY."}
 		       "quit"    {:cmd :quit :doc "Makes the bot go bai bai. ADMIN ONLY."}
 		       "loaded?" {:cmd :loaded :doc "Returns a list of the currently loaded modules."}
+		       "reload"  {:cmd :reload :doc "Reloads respond and all plugins."}
 		       "help"    {:cmd :help :doc "Teh help."}})
 
 (def commands 
@@ -78,6 +79,20 @@
 
 (defn reset-hooks [] (dosync (ref-set hooks create-initial-hooks)))
 
+(defn reload-all!
+  "A clever function to reload everything when running sexpbot from SLIME.
+  Do not try to reload anything individually. It doesn't work because of the
+  way refs are used. This makes sure everything is reset to the way it was
+  when the bot was first loaded."
+  []
+  (reset-hooks)
+  (reset-commands)
+  (reset-ref logged-in)
+  (reset-ref modules)
+  (use 'sexpbot.respond :reload)
+  (reload-plugins)
+  (doseq [plug (:plugins (read-config))] (.start (Thread. (fn [] (loadmod plug))))))
+
 ;; Thanks to mmarczyk, Chousuke, and most of all cgrand for the help writing this macro.
 ;; It's nice to know that you have people like them around when it comes time to face
 ;; unfamiliar concepts.
@@ -113,6 +128,9 @@
   (if-admin nick
 	    (ircb/send-message irc channel 
 			  (->> @commands (filter (comp map? second)) (into {}) keys str str))))
+
+(defmethod respond :reload [{nick :nick}]
+  (if-admin nick (reload-all!)))
 
 (defmethod respond :help [{:keys [irc nick channel args]}]
   (ircb/send-message 

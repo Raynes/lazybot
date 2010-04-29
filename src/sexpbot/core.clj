@@ -1,5 +1,5 @@
 (ns sexpbot.core
-  (:use [sexpbot respond info utilities]
+  (:use [sexpbot respond info]
 	[clojure.stacktrace :only [root-cause]])
   (:require [org.danlarkin.json :as json]
 	    [irclj.irclj :as ircb])
@@ -25,17 +25,3 @@
 	channels ((bot-config :channels) server)
 	irc (ircb/connect (make-bot-run name pass server) :channels channels :identify-after-secs 3)]
     irc))
-
-(defn reload-all!
-  "A clever function to reload everything when running sexpbot from SLIME.
-  Do not try to reload anything individually. It doesn't work because of the
-  way refs are used. This makes sure everything is reset to the way it was
-  when the bot was first loaded."
-  []
-  (reset-hooks)
-  (reset-commands)
-  (reset-ref logged-in)
-  (reset-ref modules)
-  (use 'sexpbot.respond :reload)
-  (reload-plugins)
-  (doseq [plug (:plugins (read-config))] (.start (Thread. (fn [] (loadmod plug))))))
