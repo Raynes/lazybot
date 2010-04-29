@@ -27,7 +27,7 @@
    number of results found."
    ["google"] 
    [args]
-   (handle-search args)
+   (handle-search args))
 
    (:wiki 
     "Searches wikipedia via google."
@@ -39,4 +39,4 @@
     "Searches encyclopediadramtica via google."
     ["ed"] 
     [args]
-    (handle-search (assoc args :args (conj (:args args) "site:encyclopediadramatica.com"))))))
+    (handle-search (assoc args :args (conj (:args args) "site:encyclopediadramatica.com")))))
