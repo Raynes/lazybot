@@ -8,14 +8,7 @@
 
 (def info (read-config))
 (def prepend (:prepend info))
-(def servers (:servers info))
-(def plugins (:plugins info))
 (def catch-links? (:catch-links? info))
-
-(def bots (ref {}))
-
-; Require all plugin files listed in info.clj
-(reload-plugins)
 
 (defn try-handle [{:keys [nick channel irc] :as irc-map}]
   (try
@@ -76,7 +69,3 @@
 	channels ((bot-config :channels) server)
 	irc (ircb/connect (make-bot-run name pass server) :channels channels :identify-after-secs 3)]
     irc))
-
-(doseq [plug plugins] (.start (Thread. (fn [] (loadmod plug)))))
-(doseq [server servers] 
-  (dosync (alter bots assoc server (make-bot server))))
