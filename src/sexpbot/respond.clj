@@ -60,23 +60,23 @@
 		   :unload #(dosync (alter commands dissoc m-name#))}}))))))
 
 (defmethod respond :load [{:keys [irc nick channel args]}]
-  (if-admin nick 
+ ; (if-admin nick 
 	    (if (true? (-> args first loadmod))
 	      (ircb/send-message irc channel "Loaded.")
-	      (ircb/send-message irc channel (str "Module " (first args) " not found.")))))
+	      (ircb/send-message irc channel (str "Module " (first args) " not found."))));)
 
 (defmethod respond :unload [{:keys [irc nick channel args]}]
-  (if-admin nick
+ ; (if-admin nick
 	    (if (modules (-> args first keyword))
 	      (do 
 		(((modules (-> args first keyword)) :unload))
 		(ircb/send-message irc channel "Unloaded."))
-	      (ircb/send-message irc channel (str "Module " (first args) " not found.")))))
+	      (ircb/send-message irc channel (str "Module " (first args) " not found."))));)
 
 (defmethod respond :loaded [{:keys [irc nick channel args]}]
-  (if-admin nick
+ ; (if-admin nick
 	    (ircb/send-message irc channel 
-			  (->> @commands (filter (comp map? second)) (into {}) keys str str))))
+			  (->> @commands (filter (comp map? second)) (into {}) keys str str)));)
 
 (defmethod respond :help [{:keys [irc nick channel args]}]
   (ircb/send-message 

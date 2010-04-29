@@ -15,16 +15,20 @@
   (let [file (slurp help-file)]
     (if string? file (read-string file))))
 
-(defmethod respond :addtopic [{:keys [irc nick channel args]}]
-  (let [topic (str " " (first args))
-	content (->> args
-		   (interpose " ")
-		   (rest)
-		   (apply str))]
-    (cond
-     (not-empty (db-get db (.trim topic))) (ircb/send-message irc channel "Topic already exists!")
-     (or (empty? (.trim topic))
-	 (empty? (.trim content))) (ircb/send-message irc channel "Neither topic nor content can be empty!")
+(defplugin
+  (:addtopic
+   "Adds a topic to the help DB. You may have to be an admin to do this."
+   ["addtopic"]
+   [{:keys [irc nick channel args]}]
+   (let [topic (str " " (first args))
+	 content (->> args
+		      (interpose " ")
+		      (rest)
+		      (apply str))]
+     (cond
+      (not-empty (db-get db (.trim topic))) (ircb/send-message irc channel "Topic already exists!")
+      (or (empty? (.trim topic))
+	  (empty? (.trim content))) (ircb/send-message irc channel "Neither topic nor content can be empty!")
       :else  (if admin-add?
 	       (if (= :admin (get-priv nick))
 		 (do
@@ -35,7 +39,10 @@
 		 (db-assoc db (.trim topic) content)
 		 (ircb/send-message irc channel (str "Topic Added: " (.trim topic))))))))
 
-(defmethod respond :rmtopic [{:keys [irc nick channel args]}]
+(:rmtopic
+ "Removes a topic from the help DB. You may need to be an admin to do this"
+ ["rmtopic"]
+ [{:keys [irc nick channel args]}]
   (let [topic (first args)]
      (if (not-empty (db-get db topic))
        (if admin-rm?
@@ -49,7 +56,10 @@
 	   (ircb/send-message irc channel (str "Topic Removed: " topic))))
        (ircb/send-message irc channel (str "Topic: \"" topic  "\" doesn't exist!")))))
 
-(defmethod respond :help [{:keys [irc nick channel args]}]
+(:help-
+ "Gives help information on a topic passed to it"
+ ["help-"]
+ [{:keys [irc nick channel args]}]
   (let [topic (first args)
 	content (db-get db topic)]
     (if (not-empty content)
@@ -59,17 +69,13 @@
 	(ircb/send-message irc channel (str nick ": I can't help you, I'm afraid. You can only help yourself."))
 	(ircb/send-message irc channel (str "Topic: \"" topic "\" doesn't exist!"))))))
 
-(defmethod respond :list [{:keys [irc channel]}]
+(:list
+ "Lists the available help topics in the DB."
+ ["list"]
+ [{:keys [irc channel]}]
   (ircb/send-message irc channel (str "I know: " (->> (read-db)
 						      (keys)
 						      (interpose " ")
-						      (apply str)))))
+						      (apply str))))))
 
 
-(defplugin
- {
-  "addtopic" :addtopic
-  "rmtopic" :rmtopic
-  "help" :help
-  "list" :list
- })

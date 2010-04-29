@@ -1,5 +1,5 @@
 (ns sexpbot.plugins.utils
-  (:use [sexpbot utilities [info :only [format-config]] respond gist]
+  (:use [sexpbot utilities [info :only [format-config read-config]] respond gist]
 	[clojure.contrib.seq :only [shuffle]]
 	[clj-time [core :only [now]] [format :only [unparse formatters]]])
   (:require [irclj.irclj :as ircb]))
@@ -135,4 +135,13 @@
     ["say"] 
     [{:keys [irc channel nick args]}]
     (if-admin nick
-	      (ircb/send-message irc (first args) (->> args rest (interpose " ") (apply str))))))
+	      (ircb/send-message irc (first args) (->> args rest (interpose " ") (apply str)))))
+   (:privs
+    "Finds your privs"
+    ["privs"]
+    [{:keys [irc channel nick]}]
+    (do
+      (ircb/send-message irc channel (str nick ": You are a"
+					  (if (not= :admin ((((read-config) :users) nick) :privs))
+					    " regular user."
+					    (if (-> nick logged-in) "n admin; you are logged in." "n admin; you aren't logged in!")))))))
