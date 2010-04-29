@@ -4,7 +4,7 @@
   (:require [irclj.irclj :as ircb]))
 
 (def commands 
-     (ref {"load"    {:cmd :load :doc "Load's a module. ADMIN ONLY."}
+     (ref {"load"    {:cmd :load :doc "Loads a module. ADMIN ONLY."}
 	   "unload"  {:cmd :unload :doc "Unload's a module. ADMIN ONLY."}
 	   "quit"    {:cmd :quit :doc "Makes the bot go bai bai. ADMIN ONLY."}
 	   "loaded?" {:cmd :loaded :doc "Returns a list of the currently loaded modules."}

@@ -16,7 +16,7 @@
 
 (defplugin
   (:time 
-   "Get's the current time and date in UTC format."
+   "Gets the current time and date in UTC format."
    ["time"] 
    [{:keys [irc nick channel]}]
    (let [time (unparse (formatters :date-time-no-ms) (now))]
@@ -104,7 +104,7 @@
    (:error "" ["error"] [_] (throw (Exception. "Hai!")))
 
    (:gist 
-    "Gist's it's arguments."
+    "Gists it's arguments."
     ["gist"] 
     [{:keys [irc channel nick args]}]
     (ircb/send-message irc channel (str nick ": " 
