@@ -1,3 +1,3 @@
 (use 'swank.swank)
 
-(start-repl 4005 :host "localhost" :dont-close true)
+(start-repl 4010 :host "localhost" :dont-close true)

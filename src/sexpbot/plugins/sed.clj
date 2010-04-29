@@ -23,7 +23,13 @@
   (let [results (rest (re-find #"s/([^/]+)/([^/]*)/" expr))]
     (.replaceAll string (str (if (:case-inse options) "(?i)" "") (first results)) (last results))))
 
-(defplugin 
+(defplugin
+  (:add-hook :on-message
+	     (fn [{:keys [irc nick message channel] :as irc-map}]
+	       (when (and (not= nick (:name @irc))
+			  (not= (take 4 message) (cons (:prepend (read-config)) "sed")))
+		 (dosync (alter irc assoc :last-in {channel message})))))
+
   (:sed 
    "Replaces what the last person said with what you want in whatever channel you want."
    ["sed"]

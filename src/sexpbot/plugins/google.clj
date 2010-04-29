@@ -17,8 +17,7 @@
   (let [[res-count res-map] (-> (apply str (interpose " " args)) google cull)
 	title (:titleNoFormatting res-map)
 	url (:url res-map)]
-    (ircb/send-message irc channel (str "First out of " res-count " results is:"))
-    (ircb/send-message irc channel title)
+    (ircb/send-message irc channel (str "First out of " res-count " results is: " title))
     (ircb/send-message irc channel url)))
 
 (defplugin
@@ -27,7 +26,7 @@
    number of results found."
    ["google"] 
    [args]
-   (handle-search args)
+   (handle-search args))
 
    (:wiki 
     "Searches wikipedia via google."
@@ -39,4 +38,4 @@
     "Searches encyclopediadramtica via google."
     ["ed"] 
     [args]
-    (handle-search (assoc args :args (conj (:args args) "site:encyclopediadramatica.com"))))))
+    (handle-search (assoc args :args (conj (:args args) "site:encyclopediadramatica.com")))))

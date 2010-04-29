@@ -1,1 +1,1 @@
-java -cp lib/*:src/ clojure.main src/sexpbot/core.clj
+java -cp lib/*:src/ clojure.main src/sexpbot/run.clj

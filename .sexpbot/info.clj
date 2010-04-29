@@ -9,10 +9,11 @@
  :users {"JohnDoe" {:pass "iliekpie", :privs :admin}
 	 "JaneDoe" {:pass "ohai", :privs :admin}}
  :user-blacklist {"irc.freenode.net" #{"Meowzorz"}} ; ignore these users on these servers.
- :catch-links? true ; Should only be enabled if the title plugin is activated below.
- :url-channel-blacklist #{} ; Channels in which URL title scraper is to be disabled.
+
+ :catch-links? {"irc.freenode.net" true} ; Should only be enabled if the title plugin is activated below.
+ :channel-catch-blacklist {"irc.freenode.net" #{}} ; Channels in which URL title scraper is to be disabled.
  :url-blacklist #{} ; URL title scraper will look for these words in URLs and not use them if they appear.
- :user-ignore-url-blacklist [["bot" "ters"]] ; A series of "match this" but "not this" pairs.
+ :user-ignore-url-blacklist {"irc.freenode.net" [["bot" "ters"]]} ; A series of "match this" but "not this" pairs.
  :admin-add? true ; only admins can add help topics
  :admin-rm? true ; only admins can remove help topics
  :plugins [;"dictionary"

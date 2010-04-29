@@ -41,7 +41,7 @@
 	(ircb/send-message irc channel (str subject " is not in my database.")))))
 
    (:rwhatis 
-    "Get's a random value from the database."
+    "Gets a random value from the database."
     ["rwhatis"] 
     [{:keys [irc channel]}]
     (let [whatmap (with-info whatis (read-config))

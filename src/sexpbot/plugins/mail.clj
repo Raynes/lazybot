@@ -35,7 +35,11 @@
     (< 30 (-> usertime (interval (now)) in-secs))
     true))
 
-(defplugin 
+(defplugin
+  (:add-hook :on-message 
+	     (fn [irc-map]
+	       (try-handle (assoc irc-map :message (str (:prepend (read-config)) "mailalert")))))
+
   (:mailalert 
    "" 
    ["mailalert"] 
