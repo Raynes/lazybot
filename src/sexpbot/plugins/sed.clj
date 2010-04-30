@@ -40,7 +40,10 @@
    (let [farg (or (first args) "")
 	 margs (or (rest args) "")
 	 conj-args  (apply str (interpose " " margs))
-	 last-in (or (((@message-map irc) channel) :channel-last) "Nobody said anything yet!")
+	 last-in (try
+		  (((@message-map irc) channel) :channel-last)
+		  (catch
+		      NullPointerException e "Nobody said anything yet!"))
 	 user-to (or (second (re-find #"-([\w]+)" farg)) nil)]
 	 ;; Options temporarily removed
 
