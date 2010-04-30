@@ -8,7 +8,8 @@
 (def info (read-config))
 (def prepend (:prepend info))
 
-(defn call-all [irc-map hooks hook-key] (doseq [hook (hook-key hooks)] (hook irc-map)))
+(defn call-all [irc-map hooks hook-key] 
+  (doseq [hook (hook-key (apply merge-with concat (vals hooks)))] (hook irc-map)))
 
 (defn make-fnmap [] 
   {:on-message (fn [irc-map] (call-all irc-map @hooks :on-message))

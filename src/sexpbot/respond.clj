@@ -71,9 +71,9 @@
      (ircb/send-message irc channel "Execution Timed Out!"))))
 
 (def create-initial-hooks
-  {:on-message [(fn [irc-map] (try-handle irc-map))]
-   :on-quit []
-   :on-join []})
+  {:core {:on-message [(fn [irc-map] (try-handle irc-map))]
+	  :on-quit []
+	  :on-join []}})
 
 (def hooks (ref create-initial-hooks))
 
@@ -97,17 +97,19 @@
 ;; unfamiliar concepts.
 (defmacro defplugin [& body]
   (let [[hook-fns methods] ((juxt filter remove) #(= :add-hook (first %)) body)
-	cmd-list (into {} (for [[cmdkey docs words] methods word words] [word {:cmd cmdkey :doc docs}]))]
+	cmd-list (into {} (for [[cmdkey docs words] methods word words] [word {:cmd cmdkey :doc docs}]))
+	hook-list (apply merge-with concat (for [[_ hook-this hook-fn] hook-fns] {hook-this [hook-fn]}))]
     `(do
-       ~@(for [[_ hook-this hook-fn] hook-fns] `(dosync (alter hooks update-in [~hook-this] conj ~hook-fn)))
        ~@(for [[cmdkey docs words & method-stuff] body]
 	   `(defmethod respond ~cmdkey ~@method-stuff))
-       (dosync
-	(let [m-name# (keyword (last (.split (str *ns*) "\\.")))]
+       (let [m-name# (keyword (last (.split (str *ns*) "\\.")))]
+	 (dosync
 	  (alter modules merge 
-		 {m-name# 
-		  {:load #(dosync (alter commands assoc m-name# ~cmd-list))
-		   :unload #(dosync (alter commands dissoc m-name#))}}))))))
+		 {m-name#
+		  {:load #(dosync (alter commands assoc m-name# ~cmd-list)
+				  (alter hooks assoc m-name# ~hook-list))
+		   :unload #(dosync (alter commands dissoc m-name#)
+				    (alter hooks dissoc m-name#))}}))))))
 
 (defmethod respond :load [{:keys [irc nick channel args]}]
   (if-admin nick 
