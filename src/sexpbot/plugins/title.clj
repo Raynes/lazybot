@@ -80,9 +80,7 @@
 			  (if (and (seq page) (seq match) (not (url-check url)))
 			    (ircb/send-message irc channel 
 					       (str "\"" 
-						    (.replaceAll 
-						     (StringEscapeUtils/unescapeHtml (collapse-whitespace match)) 
-						     "\n|\r" "") 
+						    (StringEscapeUtils/unescapeHtml (collapse-whitespace match)) 
 						    "\""))
 			    (when verbose? (ircb/send-message irc channel "Page has no title."))))
 		       20)
