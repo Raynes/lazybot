@@ -5,24 +5,11 @@
 (def prepend (:prepend (read-config)))
 (def message-map (ref {}))
 
-; Feel free to write some new ones.
-; -- 
-;;;;;;;;;;;;;;;;;;;;;;;;;
-;;;     OPTIONS       ;;;
-;; case insensitive -i ;;
-;; don't execute -x    ;;
-;;;;;;;;;;;;;;;;;;;;;;;;;
-;;<Raynes> boredomist: Make it so that specifying a channel and options are
-;;	 unnecessary. Make it default to case insensitive and the current
-;;	 channel.
-;;<Raynes> boredomist: And make sure you pull my latest repo
-(defn parse-opts [opt-string]
-  {:case-inse (.contains opt-string "i")
-   :no-exec (.contains opt-string "x")})
+(defn- format-msg [{:keys [irc nick channel]}]
+  (ircb/send-message irc channel (str nick ": Format is sed [-<user name>] s/<regexp>/<replacement>/  try $help sed")))
     
-(defn sed [string expr]
-  (let [[regexp replacement] (rest (re-find #"s/([^/]+)/([^/]*)/" expr))]
-    (.replaceAll string (str "(?i)" "" regexp) replacement)))
+(defn sed [string regexp replacement]
+    (.replaceAll string (str "(?i)" "" regexp) replacement))
 
 (defplugin
   (:add-hook :on-message
@@ -40,32 +27,27 @@
    ["sed"]
    [{:keys [irc channel args] :as irc-map}]
    (let [farg (or (first args) "")
-	 margs (or (rest args) "")
-	 conj-args  (->> margs
-			 (interpose " ")
-			 (apply str))
-	 user-to (or
-		   (second (re-find #"-([\w]+)" farg))		   
-		  nil)
+	 margs (if(not-empty (rest args))
+		 (.trim (->> (rest args)
+		      (interpose " ")
+		      (apply str)))
+		 farg)
+
+	 user-to (or (second (re-find #"-([\w]+)" farg)) nil)
 	 last-in (or
-		  (((@message-map irc) channel) user-to)
+		  (try
+		   (((@message-map irc) channel) user-to)
+		   (catch NullPointerException e nil))
 		  (try
 		   (((@message-map irc) channel) :channel-last)
 		   (catch
-		       NullPointerException e nil)))]
+		       NullPointerException e nil)))
+	 [regexp replacement] (or
+			       (not-empty (rest (re-find #"s/([^/]+)/([^/]*)/" margs)))
+			       nil)]
 	 ;; Options temporarily removed
      
-     (ircb/send-message irc channel (str "LASTIN: " last-in " TO: " user-to)))))
-
-
-
-
-
-
-(comment     (cond (empty? last-in) (ircb/send-message irc channel "No one said anything there yet!")
-	   (re-matches #"([a-zA-Z]*)[\s]+s/[^/]+/[^/]*/" conj-args) 
-	   (do (ircb/send-message irc channel (sed last-in conj-args opts))
-	       (when (and (= (first last-in) prepend)
-			  (not (:no-exec opts)))
-		 (handle-message (assoc irc-map :message (sed last-in conj-args opts)))))
-	   :else (ircb/send-message irc channel "Format: sed channel [options] s/regex/replacement/ Options are: Case Insensitive: i Don't Execute: x")))
+     (cond
+      (empty? last-in) (ircb/send-message irc channel "No one said anything yet!")
+      (not-any? seq [regexp replacement]) (format-msg irc-map)
+      :else (ircb/send-message irc channel (str (sed last-in regexp replacement)))))))
