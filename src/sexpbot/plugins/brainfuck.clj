@@ -92,4 +92,4 @@
 		   (compile-and-run input) 
 		   with-out-str 
 		   (#(.split % "\n")))]
-       (ircb/send-message irc channel (.replaceAll x "\n|\r" ""))))))
+       (ircb/send-message irc channel x)))))

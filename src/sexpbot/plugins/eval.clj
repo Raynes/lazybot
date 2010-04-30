@@ -23,10 +23,10 @@
 						 :timeout 10000 
 						 :object-tester my-obj-tester)))
 
-(def cap 300)
+(def cap 200)
 
 (defn trim [s]
-  (let [res (.replaceAll (apply str (take cap s)) "\n|\r" " ")
+  (let [res (apply str (take cap s))
 	rescount (count res)]
     (if (= rescount cap) 
       (str res "... " (when (> (count s) cap) (post-gist "output.clj" s))) 
