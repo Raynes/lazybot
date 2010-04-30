@@ -20,9 +20,9 @@
   {:case-inse (.contains opt-string "i")
    :no-exec (.contains opt-string "x")})
     
-(defn sed [string expr options]
-  (let [results (rest (re-find #"s/([^/]+)/([^/]*)/" expr))]
-    (.replaceAll string (str (if (:case-inse options) "(?i)" "") (first results)) (last results))))
+(defn sed [string expr]
+  (let [[regexp replacement] (rest (re-find #"s/([^/]+)/([^/]*)/" expr))]
+    (.replaceAll string (str "(?i)" "" regexp) replacement)))
 
 (defplugin
   (:add-hook :on-message
@@ -34,19 +34,27 @@
 		  (alter message-map assoc-in [irc channel :channel-last] message )))))
 
   (:sed 
-   "Replaces what the last person said with what you want in whatever channel you want."
+   "Simple find and replace. Usage: sed [-<user name>] s/<regexp>/<replacement>/
+    If the specified user isn't found, it will default to the last thing said in the channel.
+    Example Usage: sed -boredomist s/[aeiou]/#/"
    ["sed"]
    [{:keys [irc channel args] :as irc-map}]
    (let [farg (or (first args) "")
 	 margs (or (rest args) "")
-	 conj-args  (apply str (interpose " " margs))
-	 last-in (try
-		  (((@message-map irc) channel) :channel-last)
-		  (catch
-		      NullPointerException e "Nobody said anything yet!"))
-	 user-to (or (second (re-find #"-([\w]+)" farg)) nil)]
+	 conj-args  (->> margs
+			 (interpose " ")
+			 (apply str))
+	 user-to (or
+		   (second (re-find #"-([\w]+)" farg))		   
+		  nil)
+	 last-in (or
+		  (((@message-map irc) channel) user-to)
+		  (try
+		   (((@message-map irc) channel) :channel-last)
+		   (catch
+		       NullPointerException e nil)))]
 	 ;; Options temporarily removed
-
+     
      (ircb/send-message irc channel (str "LASTIN: " last-in " TO: " user-to)))))
 
 
