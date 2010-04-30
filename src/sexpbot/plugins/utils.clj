@@ -144,4 +144,4 @@
      (ircb/send-message irc channel (str nick ": You are a"
 					 (if (not= :admin ((((read-config) :users) nick) :privs))
 					   " regular user."
-					   (if (-> nick logged-in) "n admin; you are logged in." "n admin; you aren't logged in!")))))))
+					   (str "n admin; you are "(if (-> nick logged-in) "logged in." "not logged in!"))))))))

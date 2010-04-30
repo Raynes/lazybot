@@ -57,7 +57,7 @@
 		   (let [prepend (:prepend info)
 			 links (get-links message)
 			 title-links? (and (not= prepend (first message)) 
-					   ((:catch-links? info) (:server @irc))
+					   ;((:catch-links? info) (:server @irc))
 					   (seq links))]
 		     (when title-links? 
 		       (try-handle 
