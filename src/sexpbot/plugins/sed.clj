@@ -17,7 +17,7 @@ Try $help sed")))
 (defplugin
   (:add-hook :on-message
 	     (fn [{:keys [irc nick message channel] :as irc-map}]
-	       (when (not-empty (re-find #"s/([^/]+)/([^/]*)/" message))
+	       (when (not-empty (re-find #"^s/([^/]+)/([^/]*)/" message))
 		 (try-handle (assoc irc-map :message (str prepend "sed " message))))
 				
 	       (when (and (not= nick (:name @irc))
@@ -50,7 +50,7 @@ Try $help sed")))
 		   (catch
 		       NullPointerException e nil)))
 	 [regexp replacement] (or
-			       (not-empty (rest (re-find #"s/([^/]+)/([^/]*)/" margs)))
+			       (not-empty (rest (re-find #"^s/([^/]+)/([^/]*)/" margs)))
 			       nil)]     
      (cond
       (empty? last-in) (ircb/send-message irc channel "No one said anything yet!")
