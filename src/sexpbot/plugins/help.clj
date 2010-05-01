@@ -1,3 +1,4 @@
+;; Written by Eric (boredomist)
 (ns sexpbot.plugins.help
   (:use [sexpbot respond info gist]
 	stupiddb.core)
