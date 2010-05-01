@@ -141,7 +141,9 @@
    ["privs"]
    [{:keys [irc channel nick]}]
    (do
-     (ircb/send-message irc channel (str nick ": You are a"
-					 (if (not= :admin ((((read-config) :users) nick) :privs))
-					   " regular user."
-					   (str "n admin; you are "(if (-> nick logged-in) "logged in." "not logged in!"))))))))
+     (ircb/send-message irc channel 
+			(str nick ": You are a"
+			     (if (not= :admin ((((read-config) :users) nick) :privs))
+			       " regular user."
+			       (str "n admin; you are " 
+				    (if (logged-in nick) "logged in." "not logged in!"))))))))
