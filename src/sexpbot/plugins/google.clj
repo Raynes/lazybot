@@ -3,7 +3,8 @@
 	[clojure.contrib.io :only [slurp*]])
   (:require [org.danlarkin.json :as json]
 	    [com.twinql.clojure.http :as http]
-	    [irclj.irclj :as ircb]))
+	    [irclj.irclj :as ircb])
+  (:import org.apache.commons.lang.StringEscapeUtils))
 
 (defn google [term]
   (-> (http/get (java.net.URI. "http://ajax.googleapis.com/ajax/services/search/web")
@@ -17,7 +18,8 @@
   (let [[res-count res-map] (-> (apply str (interpose " " args)) google cull)
 	title (:titleNoFormatting res-map)
 	url (:url res-map)]
-    (ircb/send-message irc channel (str "First out of " res-count " results is: " title))
+    (ircb/send-message irc channel (StringEscapeUtils/unescapeHtml 
+				    (str "First out of " res-count " results is: " title)))
     (ircb/send-message irc channel url)))
 
 (defplugin
