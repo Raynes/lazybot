@@ -8,6 +8,10 @@
 (defn- format-msg [{:keys [irc nick channel]}]
   (ircb/send-message irc channel (str nick ": Format is sed [-<user name>] s/<regexp>/<replacement>/
 Try $help sed")))
+(defn- conj-args [args]
+  (->> args
+       (interpose " ")
+       (apply str)))
     
 (defn sed [string regexp replacement]
   (try
@@ -33,14 +37,9 @@ Try $help sed")))
     Shorthand    : s/[aeiou]/#/"
    ["sed"]
    [{:keys [irc channel args] :as irc-map}]
-   (let [farg (or (first args) "")
-	 margs (if(not-empty (rest args))
-		 (.trim (->> (rest args)
-		      (interpose " ")
-		      (apply str)))
-		 farg)
-
-	 user-to (or (second (re-find #"-([\w]+)" farg)) nil)
+   (let [user-to (or (second (re-find #"^[\s]*-([\w]+)" (.trim (conj-args args)))) "")
+	 margs (or (second (re-find #"[\s]*(s/[^/]+/[^/]*/)$" (.trim (conj-args args)))) "")
+	 
 	 last-in (or
 		  (try
 		   (((@message-map irc) channel) user-to)
@@ -51,7 +50,7 @@ Try $help sed")))
 		       NullPointerException e nil)))
 	 [regexp replacement] (or
 			       (not-empty (rest (re-find #"^s/([^/]+)/([^/]*)/" margs)))
-			       nil)]     
+			       nil)]
      (cond
       (empty? last-in) (ircb/send-message irc channel "No one said anything yet!")
       (not-any? seq [regexp replacement]) (format-msg irc-map)
