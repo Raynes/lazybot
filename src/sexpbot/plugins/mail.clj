@@ -35,10 +35,18 @@
     (< 30 (-> usertime (interval (now)) in-secs))
     true))
 
+(defn mail-alert
+  [{:keys [irc channel nick]}]
+  (let [lower-nick (.toLowerCase nick)
+	nmess (count-messages lower-nick)]
+    (when (and (> nmess 0) (alert-time? lower-nick))
+      (ircb/send-notice irc nick (str nick ": You have " nmess 
+				      " new message(s). Type $getmessages (in PM if you want) to see them."))
+      (dosync (alter alerted assoc lower-nick (now))))))
+
 (defplugin
   (:add-hook :on-message 
-	     (fn [irc-map]
-	       (try-handle (assoc irc-map :message (str (:prepend (read-config)) "mailalert")))))
+	     (fn [irc-map] (mail-alert irc-map)))
 
   (:mailalert 
    "" 
