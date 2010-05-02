@@ -45,8 +45,7 @@
       (dosync (alter alerted assoc lower-nick (now))))))
 
 (defplugin
-  (:add-hook :on-message 
-	     (fn [irc-map] (mail-alert irc-map)))
+  (:add-hook :on-message (fn [irc-map] (mail-alert irc-map)))
   
   (:getmessages 
    "Request that your messages be sent you via PM. Executing this command will delete all your messages."

@@ -1,5 +1,5 @@
 (ns sexpbot.respond
-  (:use [sexpbot info [utilities :only [reload-plugins thunk-timeout]]])
+  (:use [sexpbot info [utilities :only [thunk-timeout]]])
   (:require [irclj.irclj :as ircb])
   (:import java.util.concurrent.TimeoutException))
 
@@ -79,6 +79,12 @@
 
 (defn reset-hooks [] (dosync (ref-set hooks create-initial-hooks)))
 
+(defn reload-plugins []
+  (doseq [plug ((read-config) :plugins)] (require (symbol (str "sexpbot.plugins." plug)) :reload)))
+
+(defn cleanup-plugins []
+  (doseq [cfn (map :cleanup (vals @modules))] (cfn)))
+
 (defn reload-all!
   "A clever function to reload everything when running sexpbot from SLIME.
   Do not try to reload anything individually. It doesn't work because of the
@@ -87,6 +93,7 @@
   []
   (reset-hooks)
   (reset-commands)
+  (cleanup-plugins)
   (reset-ref modules)
   (use 'sexpbot.respond :reload)
   (reload-plugins)
@@ -96,11 +103,12 @@
 ;; It's nice to know that you have people like them around when it comes time to face
 ;; unfamiliar concepts.
 (defmacro defplugin [& body]
-  (let [[hook-fns methods] ((juxt filter remove) #(= :add-hook (first %)) body)
+  (let [clean-fn (if-let [cfn (seq (filter #(= :cleanup (first %)) body))] (second (first cfn)) (fn []))
+	[hook-fns methods] ((juxt filter remove) #(= :add-hook (first %)) (remove #(= :cleanup (first %)) body))
 	cmd-list (into {} (for [[cmdkey docs words] methods word words] [word {:cmd cmdkey :doc docs}]))
 	hook-list (apply merge-with concat (for [[_ hook-this hook-fn] hook-fns] {hook-this [hook-fn]}))]
     `(do
-       ~@(for [[cmdkey docs words & method-stuff] body]
+       ~@(for [[cmdkey docs words & method-stuff] methods]
 	   `(defmethod respond ~cmdkey ~@method-stuff))
        (let [m-name# (keyword (last (.split (str *ns*) "\\.")))]
 	 (dosync
@@ -109,7 +117,8 @@
 		  {:load #(dosync (alter commands assoc m-name# ~cmd-list)
 				  (alter hooks assoc m-name# ~hook-list))
 		   :unload #(dosync (alter commands dissoc m-name#)
-				    (alter hooks dissoc m-name#))}}))))))
+				    (alter hooks dissoc m-name#))
+		   :cleanup ~clean-fn}}))))))
 
 ;; TODO: Warn when user is not an admin
 

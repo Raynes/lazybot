@@ -20,16 +20,16 @@ Try $help sed")))
 
 (defplugin
   (:add-hook :on-message
-	     (fn [{:keys [irc nick message channel] :as irc-map}]
-	       (when (not-empty (re-find #"^s/([^/]+)/([^/]*)/" message))
-		 (try-handle (assoc irc-map :message (str prepend "sed " message))))
-				
-	       (when (and (not= nick (:name @irc))
-			  (not= (take 4 message) (cons prepend "sed")))
-		 (dosync
-		  (alter message-map assoc-in [irc channel nick] message)
-		  (alter message-map assoc-in [irc channel :channel-last] message )))))
-
+	    (fn [{:keys [irc nick message channel] :as irc-map}]
+	      (when (not-empty (re-find #"^s/([^/]+)/([^/]*)/" message))
+		(try-handle (assoc irc-map :message (str prepend "sed " message))))
+	      
+	      (when (and (not= nick (:name @irc))
+			 (not= (take 4 message) (cons prepend "sed")))
+		(dosync
+		 (alter message-map assoc-in [irc channel nick] message)
+		 (alter message-map assoc-in [irc channel :channel-last] message )))))
+  
   (:sed 
    "Simple find and replace. Usage: sed [-<user name>] s/<regexp>/<replacement>/
     If the specified user isn't found, it will default to the last thing said in the channel.

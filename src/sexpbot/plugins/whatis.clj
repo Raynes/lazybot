@@ -1,5 +1,5 @@
 (ns sexpbot.plugins.whatis
-  (:use [sexpbot respond info gist]
+  (:use [sexpbot respond info gist utilities]
 	[clojure.contrib.io :only [spit]]
 	stupiddb.core)
   (:require [irclj.irclj :as ircb])
@@ -55,4 +55,5 @@
     [{:keys [irc channel nick]}]
     (ircb/send-message irc channel 
 		       (str nick ": " (with-info whatis 
-					(->> (read-config :string? true) (post-gist "dump.clj")))))))
+					(->> (read-config :string? true) (post-gist "dump.clj"))))))
+   (:cleanup (fn [] (db-close db))))

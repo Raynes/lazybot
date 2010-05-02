@@ -62,7 +62,7 @@
 		     (when title-links? 
 		       (try-handle 
 			(assoc irc-map :message (str prepend "title2 " (apply str (interpose " " links)))))))))))
-
+  
   (:title*
    "A utility method to get the title of a webpage. Non-verbose, so it doesn't
    print error messages. Use $title instead."
