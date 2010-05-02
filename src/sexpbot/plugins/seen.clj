@@ -1,13 +1,13 @@
 (ns sexpbot.plugins.seen
   (:refer-clojure :exclude [extend])
-  (:use [sexpbot respond info]
+  (:use [sexpbot respond info utilities]
 	[clj-time core format]
 	stupiddb.core)
   (:require [irclj.irclj :as ircb]))
 
 
 (def seenfile (str sexpdir "/seen.db"))
-(def db (db-init seenfile 30))
+(def db (db-init seenfile 1800))
 
 
 (defn tack-time
@@ -45,4 +45,5 @@
    (if-let [{:keys [time chan doing nick]} (get-seen (first args))]
      (ircb/send-message irc channel (str nick " was last seen " doing (when-not (= doing "quitting") " on ") 
 					 chan " " time " minutes ago."))
-     (ircb/send-message irc channel (str "I have never seen " (first args) ".")))))
+     (ircb/send-message irc channel (str "I have never seen " (first args) "."))))
+  (:cleanup (fn [] (db-close db))))
