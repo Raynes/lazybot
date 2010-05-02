@@ -146,4 +146,16 @@
 			     (if (not= :admin ((((read-config) :users) nick) :privs))
 			       " regular user."
 			       (str "n admin; you are " 
-				    (if (logged-in nick) "logged in." "not logged in!"))))))))
+				    (if (logged-in nick) "logged in." "not logged in!")))))))
+
+  (:tempconv
+   "If given Cn, converts from C to F. If given Fn, converts from F to C."
+   ["tc" "tempconv"]
+   [{:keys [irc channel nick args]}]
+   (let [num (->> args first rest (apply str) Integer/parseInt)]
+     (ircb/send-message irc channel 
+			(str nick ": "
+			     (condp = (ffirst args)
+			       \F (* (- num 32) (/ 5 9.0))
+			       \C (+ 32 (* (/ 9.0 5) num))
+			       "Malformed expression."))))))
