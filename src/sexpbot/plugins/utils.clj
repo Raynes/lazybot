@@ -149,7 +149,7 @@
 				    (if (logged-in nick) "logged in." "not logged in!")))))))
 
   (:tempconv
-   "If given Cn, converts from C to F. If given Fn, converts from F to C."
+   "Temperature conversion. If given Cn, converts from C to F. If given Fn, converts from F to C."
    ["tc" "tempconv"]
    [{:keys [irc channel nick args]}]
    (let [num (->> args first rest (apply str) Integer/parseInt)]
