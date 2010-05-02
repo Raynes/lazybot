@@ -37,9 +37,3 @@
       (.close (:log @db))
          (alter db assoc :log (io/writer (str (:file @db)
                                                ".log")))))
-
-(defn db-close [db]
-  "Closes a db, stops the auto saving and writes the entire log into the db file for faster startup."
-  (.stop (:thread @db))
-  (flush-db db)
-  (.close (:log @db)))
