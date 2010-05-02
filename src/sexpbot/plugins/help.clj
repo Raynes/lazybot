@@ -9,7 +9,7 @@
 (def admin-rm? (:admin-rm? info))
 
 (def help-file (str (System/getProperty "user.home") "/.sexpbot/help.db"))
-(def db (db-init help-file 30))
+(def db (db-init help-file 1800))
 
 ;; shamelessly stolen from info.clj's read-config
 (defn read-db [& {:keys [string?] :or {string? false}}]
