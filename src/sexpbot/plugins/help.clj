@@ -66,8 +66,7 @@
    (let [topic (first args)
 	 content (db-get db topic)]
      (if (not-empty content)
-       (do (ircb/send-message irc channel (str topic ":"))
-	   (ircb/send-message irc channel (.trim content)))
+       (ircb/send-message irc channel (str nick ":" (.trim content)))
        (if (empty? topic)
 	 (ircb/send-message irc channel (str nick ": I can't help you, I'm afraid. You can only help yourself."))
 	 (ircb/send-message irc channel (str "Topic: \"" topic "\" doesn't exist!"))))))

@@ -1,6 +1,6 @@
 (ns sexpbot.plugins.seen
   (:refer-clojure :exclude [extend])
-  (:use [sexpbot respond info]
+  (:use [sexpbot respond info utilities]
 	[clj-time core format]
 	stupiddb.core)
   (:require [irclj.irclj :as ircb]))
