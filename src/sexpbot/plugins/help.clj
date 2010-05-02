@@ -1,4 +1,4 @@
-;; Written by Eric (boredomist)
+;; Written by Erik (boredomist)
 (ns sexpbot.plugins.help
   (:use [sexpbot respond info gist utilities]
 	stupiddb.core)

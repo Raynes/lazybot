@@ -1,33 +1,31 @@
 (ns sexpbot.plugins.seen
   (:refer-clojure :exclude [extend])
   (:use [sexpbot respond info]
-	[clj-time core format])
+	[clj-time core format]
+	stupiddb.core)
   (:require [irclj.irclj :as ircb]))
 
-;; TODO: Port to StupidDB
 
+(def seenfile (str sexpdir "/seen.db"))
+(def db (db-init seenfile 1800))
 
-(def seenfile (str sexpdir "/seen.clj"))
 
 (defn tack-time
   "Takes a nick and updates the seen database with that nick and the current time."
   [nick channel doing]
   (let [lower-nick (.toLowerCase nick)]
-    (with-info seenfile
-      (-> (read-config) (assoc lower-nick {:time (unparse (formatters :date-time) (now)) 
+    (db-assoc db lower-nick {:time (unparse (formatters :date-time) (now)) 
 					   :chan channel 
 					   :doing doing
-					   :nick nick}) 
-	  (write-config)))))
+					   :nick nick})))
 
 (defn get-seen
   "Get's the last-seen for a nick."
   [nick]
-  (with-info seenfile
-    (when-let [seen-map ((read-config) (.toLowerCase nick))]
+    (when-let [seen-map (db-get db (.toLowerCase nick))]
       (assoc seen-map :time (in-minutes 
-			     (interval (parse (formatters :date-time) (:time seen-map))
-				       (now)))))))
+			(interval (parse (formatters :date-time) (:time seen-map))
+				  (now))))))
 
 (defn put-seen [{:keys [nick channel]} doing] (tack-time nick channel doing))
 
