@@ -24,11 +24,10 @@
 (defn get-seen
   "Get's the last-seen for a nick."
   [nick]
-  (println @db)
-   (when-let [seen-map (db-get db (.toLowerCase nick))]
-     (assoc seen-map :time (in-minutes 
-			    (interval (parse (formatters :date-time) (:time seen-map))
-				      (now))))))
+  (when-let [seen-map (db-get db (.toLowerCase nick))]
+    (assoc seen-map :time (in-minutes 
+			   (interval (parse (formatters :date-time) (:time seen-map))
+				     (now))))))
 
 (defn put-seen [{:keys [nick channel]} doing] (tack-time nick channel doing))
 
