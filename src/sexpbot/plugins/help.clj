@@ -34,6 +34,7 @@
 	       (if (= :admin (get-priv nick))
 		 (do
 		   (db-assoc db (.trim topic) content)
+		   (flush-db db)
 		   (ircb/send-message irc channel (str "Topic Added: " (.trim topic))))
 		 (ircb/send-message irc channel (str nick ": Only admins can add topics!")))
 	       (do
@@ -50,6 +51,7 @@
 	 (if (= :admin (get-priv nick))
 	   (do
 	     (db-dissoc db topic)
+	     (flush-db db)
 	     (ircb/send-message irc channel (str "Topic Removed: " topic)))
 	   (ircb/send-message irc channel (str nick ": Only admins can remove topics!")))
 	 (do
@@ -74,7 +76,7 @@
    "Lists the available help topics in the DB."
    ["list"]
    [{:keys [irc channel]}]
-   (ircb/send-message irc channel (str "I know: " (->> read-db
+   (ircb/send-message irc channel (str "I know: " (->> (read-db)
 						       keys
 						       (interpose " ")
 						       (apply str)))))

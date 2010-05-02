@@ -15,17 +15,20 @@
   [nick channel doing]
   (let [lower-nick (.toLowerCase nick)]
     (db-assoc db lower-nick {:time (unparse (formatters :date-time) (now)) 
-					   :chan channel 
-					   :doing doing
-					   :nick nick})))
+			     :chan channel 
+			     :doing doing
+			     :nick nick}))
+  (flush-db db))
+
 
 (defn get-seen
   "Get's the last-seen for a nick."
   [nick]
-    (when-let [seen-map (db-get db (.toLowerCase nick))]
-      (assoc seen-map :time (in-minutes 
-			(interval (parse (formatters :date-time) (:time seen-map))
-				  (now))))))
+  (println @db)
+   (when-let [seen-map (db-get db (.toLowerCase nick))]
+     (assoc seen-map :time (in-minutes 
+			    (interval (parse (formatters :date-time) (:time seen-map))
+				      (now))))))
 
 (defn put-seen [{:keys [nick channel]} doing] (tack-time nick channel doing))
 
@@ -34,10 +37,10 @@
 	     (fn [irc-map] (put-seen irc-map "talking")))
   (:add-hook :on-join 
 	     (fn [irc-map] (put-seen irc-map "joining")))
-
+  
   (:add-hook :on-quit
 	     (fn [irc-map] (put-seen irc-map "quitting")))
-
+  
   (:seen 
    "Checks to see when the person you specify was last seen."
    ["seen"] 
