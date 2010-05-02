@@ -7,7 +7,7 @@
 
 
 (def seenfile (str sexpdir "/seen.db"))
-(def db (db-init seenfile 1800))
+(def db (db-init seenfile 30))
 
 
 (defn tack-time
