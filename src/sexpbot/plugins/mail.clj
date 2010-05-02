@@ -35,21 +35,17 @@
     (< 30 (-> usertime (interval (now)) in-secs))
     true))
 
-(defplugin
-  (:add-hook :on-message 
-	     (fn [irc-map]
-	       (try-handle (assoc irc-map :message (str (:prepend (read-config)) "mailalert")))))
+(defn mail-alert
+  [{:keys [irc channel nick]}]
+  (let [lower-nick (.toLowerCase nick)
+	nmess (count-messages lower-nick)]
+    (when (and (> nmess 0) (alert-time? lower-nick))
+      (ircb/send-notice irc nick (str nick ": You have " nmess 
+				      " new message(s). Type $getmessages (in PM if you want) to see them."))
+      (dosync (alter alerted assoc lower-nick (now))))))
 
-  (:mailalert 
-   "" 
-   ["mailalert"] 
-   [{:keys [irc channel nick]}]
-   (let [lower-nick (.toLowerCase nick)
-	 nmess (count-messages lower-nick)]
-     (when (and (> nmess 0) (alert-time? lower-nick))
-       (ircb/send-notice irc nick (str nick ": You have " nmess 
-				       " new message(s). Type $getmessages (in PM if you want) to see them."))
-       (dosync (alter alerted assoc lower-nick (now))))))
+(defplugin
+  (:add-hook :on-message (fn [irc-map] (mail-alert irc-map)))
   
   (:getmessages 
    "Request that your messages be sent you via PM. Executing this command will delete all your messages."

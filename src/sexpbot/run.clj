@@ -1,6 +1,5 @@
 (ns sexpbot.run
-  (:use [sexpbot core utilities respond])
-  (:require[irclj.irclj :as ircb]))
+  (:use [sexpbot core respond]))
 
 (def bots (ref {}))
 

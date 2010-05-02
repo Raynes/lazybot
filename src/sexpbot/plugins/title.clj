@@ -1,7 +1,7 @@
 ;; The result of a team effort between programble and Rayne.
 (ns sexpbot.plugins.title
   (:use [sexpbot [info :only [read-config]] respond utilities]
-	[clojure.contrib.io :only [reader]])
+	[clojure.contrib [string :only [ltrim]] [io :only [reader]]])
   (:require [irclj.irclj :as ircb])
   (:import java.util.concurrent.TimeoutException
 	   org.apache.commons.lang.StringEscapeUtils))
@@ -62,7 +62,7 @@
 		     (when title-links? 
 		       (try-handle 
 			(assoc irc-map :message (str prepend "title2 " (apply str (interpose " " links)))))))))))
-
+  
   (:title*
    "A utility method to get the title of a webpage. Non-verbose, so it doesn't
    print error messages. Use $title instead."
@@ -80,7 +80,9 @@
 			  (if (and (seq page) (seq match) (not (url-check url)))
 			    (ircb/send-message irc channel 
 					       (str "\"" 
-						    (StringEscapeUtils/unescapeHtml (collapse-whitespace match)) 
+						    (ltrim 
+						     (StringEscapeUtils/unescapeHtml 
+						      (collapse-whitespace match))) 
 						    "\""))
 			    (when verbose? (ircb/send-message irc channel "Page has no title."))))
 		       20)
