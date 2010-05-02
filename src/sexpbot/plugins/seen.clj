@@ -4,6 +4,9 @@
 	[clj-time core format])
   (:require [irclj.irclj :as ircb]))
 
+;; TODO: Port to StupidDB
+
+
 (def seenfile (str sexpdir "/seen.clj"))
 
 (defn tack-time

@@ -6,13 +6,12 @@
 (def message-map (ref {}))
 
 (defn- format-msg [{:keys [irc nick channel]}]
-  (ircb/send-message irc channel (str nick ": Format is sed [-<user name>] s/<regexp>/<replacement>/
-Try $help sed")))
+  (ircb/send-message irc channel (str nick ": Format is sed [-<user name>] s/<regexp>/<replacement>/ Try $help sed")))
 (defn- conj-args [args]
   (->> args
        (interpose " ")
        (apply str)))
-    
+
 (defn sed [string regexp replacement]
   (try
    (.replaceAll string (str "(?i)" regexp) replacement)
@@ -29,7 +28,7 @@ Try $help sed")))
 		 (dosync
 		  (alter message-map assoc-in [irc channel nick] message)
 		  (alter message-map assoc-in [irc channel :channel-last] message )))))
-
+  
   (:sed 
    "Simple find and replace. Usage: sed [-<user name>] s/<regexp>/<replacement>/
     If the specified user isn't found, it will default to the last thing said in the channel.
@@ -55,7 +54,7 @@ Try $help sed")))
       (empty? last-in) (ircb/send-message irc channel "No one said anything yet!")
       (not-any? seq [regexp replacement]) (format-msg irc-map)
       :else (do
-		(let [result (sed last-in regexp replacement)]
-		  (ircb/send-message irc channel result)
-		  (when (= (first result) prepend)
-		    (try-handle (assoc irc-map :message result)))))))))
+	      (let [result (sed last-in regexp replacement)]
+		(ircb/send-message irc channel result)
+		(when (= (first result) prepend)
+		  (try-handle (assoc irc-map :message result)))))))))
