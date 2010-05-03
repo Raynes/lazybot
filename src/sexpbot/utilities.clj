@@ -1,6 +1,5 @@
 (ns sexpbot.utilities
-  (:use sexpbot.info
-	stupiddb.core)
+  (:use sexpbot.info)
   (:require [org.danlarkin.json :as json]
 	    [clojure.contrib.io :as io])
   (:import [java.io File FileReader]
@@ -27,13 +26,3 @@
                  (.stop thr (Exception. "Thread stopped!")) 
 		 (throw (TimeoutException. "Execution Timed Out"))))))
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-(defn flush-db [db]
-  (dosync
-   (println (:file @db))
-   (with-open [w (io/writer (:file @db))]
-     (binding [*out* w]
-              (prn (:data @db))))
-      (.close (:log @db))
-         (alter db assoc :log (io/writer (str (:file @db)
-                                               ".log")))))
