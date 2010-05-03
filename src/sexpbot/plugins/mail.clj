@@ -19,7 +19,7 @@
 (defn compose-message [{:keys [from message timestamp]}]
   (str "From: " from ", Time: " timestamp ", Text: " message))
 
-(defn get-messages [user]
+(defn get-messages* [user]
   (with-info mailfile
     (let [messages (read-config)
 	  mlist (map compose-message (messages user))]
@@ -46,7 +46,7 @@
 
 (defn get-messages [irc nick]
   (let [lower-nick (.toLowerCase nick)]
-    (if-let [messages (seq (get-messages lower-nick))]
+    (if-let [messages (seq (get-messages* lower-nick))]
       (doseq [message messages] (ircb/send-message irc lower-nick message))
       (ircb/send-message irc nick "You have no messages."))))
 
