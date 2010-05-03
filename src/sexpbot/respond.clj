@@ -23,12 +23,11 @@
 (defn get-priv [user]
   (if (-> user logged-in (= :admin)) :admin :noadmin))
 
-
-(defmacro if-admin [user & body]
-  `(if (= :admin (get-priv ~user)) ~@body))
-
-(defn admin? [user]
-  (= :admin (get-priv user)))
+(defmacro if-admin
+  [user irc-map & body]
+  `(cond
+    (= :admin (get-priv ~user))  ~@body
+     :else (ircb/send-message (:irc ~irc-map) (:channel ~irc-map)  (str ~user ": You aren't an admin!"))))
 
 (defn find-command [cmds command first]
   (let [res (apply merge (remove keyword? (vals cmds)))]
@@ -125,32 +124,27 @@
 		   :cleanup ~clean-fn}}))))))
 
 
-(defmethod respond :load [{:keys [irc nick channel args]}]
-  (if (admin? nick) 
+(defmethod respond :load [{:keys [irc nick channel args] :as irc-map}]
+  (if-admin nick irc-map
     (if (true? (-> args first loadmod))
       (ircb/send-message irc channel "Loaded.")
-      (ircb/send-message irc channel (str "Module " (first args) " not found.")))
-    (ircb/send-message irc channel (str nick ": you aren't an admin!"))))
+      (ircb/send-message irc channel (str "Module " (first args) " not found.")))))
 
-(defmethod respond :unload [{:keys [irc nick channel args]}]
-  (if (admin? nick)
+(defmethod respond :unload [{:keys [irc nick channel args] :as irc-map}]
+  (if-admin nick irc-map
     (if (modules (-> args first keyword))
       (do 
 	(((modules (-> args first keyword)) :unload))
 	(ircb/send-message irc channel "Unloaded."))
-      (ircb/send-message irc channel (str "Module " (first args) " not found.")))
-    (ircb/send-message irc channel (str nick ": you aren't an admin!"))))
+      (ircb/send-message irc channel (str "Module " (first args) " not found.")))))
 
-(defmethod respond :loaded [{:keys [irc nick channel args]}]
- (if (admin? nick)
+(defmethod respond :loaded [{:keys [irc nick channel args] :as irc-map}]
+ (if-admin nick irc-map
    (ircb/send-message irc channel 
-		      (->> @commands (filter (comp map? second)) (into {}) keys str str)))
- (ircb/send-message irc channel (str nick ": you aren't an admin!")))
+		      (->> @commands (filter (comp map? second)) (into {}) keys str str))))
 
-(defmethod respond :reload [{:keys [irc channel nick ]}]
-  (if (admin? nick)
-    (reload-all!)
-    (ircb/send-message irc channel (str nick ": you aren't an admin!"))))
+(defmethod respond :reload [{:keys [irc channel nick ] :as irc-map}]
+  (if-admin nick irc-map (reload-all!)))
 
 (defmethod respond :help [{:keys [irc nick channel args] :as irc-map}]
   (let [help-msg (.trim 
@@ -159,11 +153,11 @@
 				    (filter seq 
 					    (.split 
 					     (apply str (remove #(= \newline %) (find-docs (first args)))) " ")))))]
-	(if-not (seq help-msg)
-	  (try-handle (assoc irc-map :message (str (:prepend (read-config)) "help- " (->> args
-											  (interpose " ")
-											  (apply str)))))
-	  (ircb/send-message irc channel (str nick ": " help-msg)))))
+    (if-not (seq help-msg)
+      (try-handle (assoc irc-map :message (str (:prepend (read-config)) "help- " (->> args
+										      (interpose " ")
+										      (apply str)))))
+      (ircb/send-message irc channel (str nick ": " help-msg)))))
 
 (defmethod respond :default [{:keys [irc channel]}]
   (ircb/send-message irc channel "Command not found. No entiendo lo que estás diciendo."))

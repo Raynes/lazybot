@@ -24,14 +24,15 @@
   (:join 
    "Joins a channel. ADMIN ONLY."
    ["join"] 
-   [{:keys [irc channel nick args]}]
-   (if-admin nick (ircb/join-chan irc (first args))))
+   [{:keys [irc channel nick args] :as irc-map}]
+   (if-admin nick irc-map
+	     (ircb/join-chan irc (first args))))
    
   (:part 
    "Parts a channel. Takes a channel and a part message. ADMIN ONLY." 
    ["part"] 
-   [{:keys [irc nick args channel]}]
-   (if-admin nick
+   [{:keys [irc nick args channel] :as irc-map}]
+   (if-admin nick irc-map
 	     (let [chan (if (seq args) (first args) channel)]
 	       (ircb/send-message irc chan "Bai!")
 	       (ircb/part-chan irc chan :reason "Because I don't like you."))))
@@ -72,8 +73,8 @@
   (:setnick 
    "Sets the bot's nick. ADMIN ONLY."
    ["setnick"] 
-   [{:keys [irc nick args]}]
-   (if-admin nick (ircb/set-nick irc (first args))))
+   [{:keys [irc channel nick args] :as irc-map}]
+   (if-admin nick irc-map (ircb/set-nick irc (first args))))
 
   (:exists 
    "Amusing command to check to see if a directory exists on the system that runs the bot."
@@ -133,8 +134,8 @@
   (:say 
    "Says what you tell it to in the channel you specify. ADMIN ONLY."
    ["say"] 
-   [{:keys [irc channel nick args]}]
-   (if-admin nick
+   [{:keys [irc channel nick args] :as irc-map}]
+   (if-admin irc-map nick
 	     (ircb/send-message irc (first args) (->> args rest (interpose " ") (apply str)))))
   (:privs
    "Finds your privs"
