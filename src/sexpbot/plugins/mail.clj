@@ -44,6 +44,12 @@
 				      " new message(s). Type $getmessages (in PM if you want) to see them."))
       (dosync (alter alerted assoc lower-nick (now))))))
 
+(defn get-messages [irc nick]
+  (let [lower-nick (.toLowerCase nick)]
+    (if-let [messages (seq (get-messages lower-nick))]
+      (doseq [message messages] (ircb/send-message irc lower-nick message))
+      (ircb/send-message irc nick "You have no messages."))))
+
 (defplugin
   (:add-hook :on-message (fn [irc-map] (mail-alert irc-map)))
   
@@ -51,10 +57,7 @@
    "Request that your messages be sent you via PM. Executing this command will delete all your messages."
    ["getmessages" "getmail" "mymail"] 
    [{:keys [irc nick]}]
-    (let [lower-nick (.toLowerCase nick)]
-      (if-let [messages (seq (get-messages lower-nick))]
-	(doseq [message messages] (ircb/send-message irc lower-nick message))
-	(ircb/send-message irc nick "You have no messages."))))
+    (get-messages irc nick))
 
   (:mail 
    "Send somebody a message. Takes a nickname and a message to send. Will alert the person with a notice."
@@ -68,4 +71,5 @@
 	    (new-message nick lower-user 
 			 (->> args rest (interpose " ") (apply str)))
 	    (ircb/send-message irc channel "Message saved."))
-	  (ircb/send-message irc channel "You can't message the unmessageable."))))))
+	  (ircb/send-message irc channel "You can't message the unmessageable.")))
+     (get-messages irc nick))))
