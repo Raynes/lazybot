@@ -41,7 +41,7 @@
 	nmess (count-messages lower-nick)]
     (when (and (> nmess 0) (alert-time? lower-nick))
       (ircb/send-notice irc nick (str nick ": You have " nmess 
-				      " new message(s). Type $getmessages (in PM if you want) to see them."))
+				      " new message(s). Type $mymail or $mail without any arguments to see them. This also works via PM."))
       (dosync (alter alerted assoc lower-nick (now))))))
 
 (defn get-messages [irc nick]
