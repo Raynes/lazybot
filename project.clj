@@ -7,7 +7,7 @@
 		 [org.danlarkin/clojure-json "1.1-SNAPSHOT"]
 		 [org.clojars.rayne/clj-time "0.1.0-SNAPSHOT"]
 		 [org.clojars.rayne/clj-sandbox "0.3.3"]
-		 [org.clojars.rayne/clj-apache-http "2.0.1"]
+		 [org.clojars.rayne/clj-apache-http "2.0.3"]
 		 [irclj "0.3.0-SNAPSHOT"]
 		 [walton "0.5.0"]
 		 [stupiddb "0.1.5"]]
