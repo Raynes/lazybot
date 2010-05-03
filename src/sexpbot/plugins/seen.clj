@@ -5,7 +5,6 @@
 	stupiddb.core)
   (:require [irclj.irclj :as ircb]))
 
-
 (def seenfile (str sexpdir "/seen.db"))
 (def db (db-init seenfile 1800))
 
@@ -18,7 +17,6 @@
 		  :chan channel 
 		  :doing doing
 		  :nick nick})))
-
 
 (defn get-seen
   "Get's the last-seen for a nick."
