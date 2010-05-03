@@ -26,8 +26,8 @@
 (defmacro if-admin
   [user irc-map & body]
   `(cond
-    (= :admin (get-priv ~user))  ~@body
-     :else (ircb/send-message (:irc ~irc-map) (:channel ~irc-map)  (str ~user ": You aren't an admin!"))))
+    (= :admin (get-priv ~user)) ~@body
+    :else (ircb/send-message (:irc ~irc-map) (:channel ~irc-map) (str ~user ": You aren't an admin!"))))
 
 (defn find-command [cmds command first]
   (let [res (apply merge (remove keyword? (vals cmds)))]
