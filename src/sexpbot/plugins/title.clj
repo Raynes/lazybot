@@ -1,7 +1,8 @@
 ;; The result of a team effort between programble and Rayne.
 (ns sexpbot.plugins.title
-  (:use [sexpbot [info :only [read-config]] respond utilities]
-	[clojure.contrib [string :only [ltrim]] [io :only [reader]]])
+  (:use [sexpbot info respond utilities]
+	[clojure.contrib [string :only [ltrim]] [io :only [reader]]]
+	[clj-config.core :only [read-config]])
   (:require [irclj.irclj :as ircb])
   (:import java.util.concurrent.TimeoutException
 	   org.apache.commons.lang.StringEscapeUtils))
@@ -28,7 +29,7 @@
 	:else (recur (conj acc (first lines)) (rest lines)))))
    (catch java.lang.Exception e nil)))
 
-(def url-blacklist-words ((read-config) :url-blacklist))
+(def url-blacklist-words (:url-blacklist (read-config info-file)))
 
 (defn url-check [url]
   (some #(.contains url %) url-blacklist-words))
@@ -43,7 +44,7 @@
 (defn strip-tilde [s] (apply str (remove #(= \~ %) s)))
 
 (defn check-blacklist [server user]
-  (let [blacklist (((read-config) :user-ignore-url-blacklist) server)]
+  (let [blacklist ((:user-ignore-url-blacklist (read-config info-file)) server)]
     (some (comp not nil?) (map 
 			   #(is-blacklisted? % (strip-tilde user)) 
 			   blacklist))))
@@ -51,7 +52,7 @@
 (defplugin
   (:add-hook :on-message
 	     (fn [{:keys [irc nick channel message] :as irc-map}]
-	       (let [info (read-config)
+	       (let [info (read-config info-file)
 		     get-links (fn [s] (->> s (re-seq #"(http://|www\.)[^ ]+") (apply concat) (take-nth 2)))]
 		 (when (not (((info :user-blacklist) (:server @irc)) nick))
 		   (let [prepend (:prepend info)
@@ -71,7 +72,7 @@
    (if (or (and verbose? (seq args)) 
 	   (and (seq args) 
 		(not (check-blacklist (:server @irc) user))
-		(not ((((read-config) :channel-catch-blacklist) (:server @irc)) channel))))
+		(not (((:channel-catch-blacklist (read-config)) (:server @irc)) channel))))
      (doseq [link (take 1 args)]
        (try
 	(thunk-timeout #(let [url (add-url-prefix link)

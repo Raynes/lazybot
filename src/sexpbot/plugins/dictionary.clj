@@ -1,11 +1,12 @@
 (ns sexpbot.plugins.dictionary
-  (:use [sexpbot respond info])
+  (:use [sexpbot respond info]
+	[clj-config.core :only [get-key]])
   (:require [com.twinql.clojure.http :as http]
 	    [org.danlarkin.json :as json]
 	    [irclj.irclj :as ircb])
   (:import java.net.URI))
 
-(def wordnik-key (-> :wordnik-key get-key))
+(def wordnik-key (get-key :wordnik-key info-file))
 
 (defn extract-stuff [js]
   (let [text (:text js)]

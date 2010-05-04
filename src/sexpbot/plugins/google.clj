@@ -15,7 +15,7 @@
    (first (:results (:responseData result-set)))])
 
 (defn handle-search [{:keys [irc channel args]}]
-  (if-not (seq (.trim (apply str (interpose " "args))))
+  (if-not (seq (.trim (apply str (interpose " " args))))
     (ircb/send-message irc channel (str "No search term!"))
     (let [[res-count res-map] (-> (apply str (interpose " " args)) google cull)
 	  title (:titleNoFormatting res-map)

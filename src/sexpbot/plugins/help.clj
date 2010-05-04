@@ -1,20 +1,16 @@
 ;; Written by Erik (boredomist)
 (ns sexpbot.plugins.help
   (:use [sexpbot respond info gist]
+	[clj-config.core :only [read-config]]
 	stupiddb.core)
   (:require [irclj.irclj :as ircb]))
 
-(let [info (read-config)]
+(let [info (read-config info-file)]
   (def admin-add? (:admin-add? info))
   (def admin-rm? (:admin-rm? info)))
 
 (def help-file (str sexpdir "/help.db"))
 (def db (db-init help-file 1800))
-
-;; shamelessly stolen from info.clj's read-config
-(defn read-db [& {:keys [string?] :or {string? false}}]
-  (let [file (slurp help-file)]
-    (if string? file (read-string file))))
 
 (defplugin
   (:addtopic
@@ -73,7 +69,7 @@
    "Lists the available help topics in the DB."
    ["list"]
    [{:keys [irc channel]}]
-   (ircb/send-message irc channel (str "I know: " (->> (read-db)
+   (ircb/send-message irc channel (str "I know: " (->> (read-config help-file)
 						       keys
 						       (interpose " ")
 						       (apply str)))))

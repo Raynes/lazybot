@@ -1,5 +1,6 @@
 (ns sexpbot.plugins.utils
-  (:use [sexpbot utilities [info :only [format-config read-config]] respond gist]
+  (:use [sexpbot utilities info respond gist]
+	clj-config.core
 	[clj-time [core :only [now]] [format :only [unparse formatters]]])
   (:require [irclj.irclj :as ircb]))
 
@@ -144,7 +145,7 @@
    (do
      (ircb/send-message irc channel 
 			(str nick ": You are a"
-			     (if (not= :admin ((((read-config) :users) nick) :privs))
+			     (if (not= :admin (:privs ((:users (read-config info-file)) nick)))
 			       " regular user."
 			       (str "n admin; you are " 
 				    (if (logged-in nick) "logged in." "not logged in!")))))))

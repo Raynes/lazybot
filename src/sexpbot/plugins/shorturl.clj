@@ -1,14 +1,15 @@
 (ns sexpbot.plugins.shorturl
   (:use [sexpbot respond info]
-	[clojure.contrib.io :only [slurp*]])
+	[clojure.contrib.io :only [slurp*]]
+	[clj-config.core :only [get-key]])
   (:require [org.danlarkin.json :as json]
 	    [com.twinql.clojure.http :as http]
 	    [irclj.irclj :as ircb])
   (:import java.net.URI))
 
 
-(def bitkey (-> :bitly-key get-key))
-(def login (-> :bitly-login get-key))
+(def bitkey (-> :bitly-key (get-key info-file)))
+(def login (-> :bitly-login (get-key info-file)))
 
 (defn grab-url [js]
   (-> js :results vals first :shortUrl))

@@ -1,11 +1,12 @@
 (ns sexpbot.core
   (:use [sexpbot respond info]
+	[clj-config.core :only [read-config]]
 	[clojure.stacktrace :only [root-cause]])
   (:require [org.danlarkin.json :as json]
 	    [irclj.irclj :as ircb])
   (:import [java.io File FileReader]))
 
-(def info (read-config))
+(def info (read-config info-file))
 (def prepend (:prepend info))
 
 (defn call-all [irc-map hooks hook-key] 
@@ -20,7 +21,7 @@
   (ircb/create-irc {:name name :password pass :server server :fnmap (make-fnmap)}))
 
 (defn make-bot [server] 
-  (let [bot-config (read-config)
+  (let [bot-config info
 	name ((bot-config :bot-name) server)
 	pass ((bot-config :bot-password) server)
 	channels ((bot-config :channels) server)

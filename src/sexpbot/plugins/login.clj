@@ -1,5 +1,6 @@
 (ns sexpbot.plugins.login
-  (:use [sexpbot respond info])
+  (:use [sexpbot respond info]
+	[clj-config.core :only [read-config]])
   (:require [irclj.irclj :as ircb]))
 
 (defn check-pass [user pass]
@@ -11,7 +12,7 @@
 
 (defplugin
   (:add-hook :on-quit
-	    (fn [irc-map] (try-handle (assoc irc-map :message (str (:prepend (read-config)) "quit")))))
+	    (fn [irc-map] (try-handle (assoc irc-map :message (str (:prepend (read-config info-file)) "quit")))))
 
   (:login 
    "Best executed via PM. Give it your password, and it will log you in."

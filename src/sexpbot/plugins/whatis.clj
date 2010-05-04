@@ -1,6 +1,7 @@
 (ns sexpbot.plugins.whatis
   (:use [sexpbot respond info gist utilities]
 	[clojure.contrib.io :only [spit]]
+	clj-config.core
 	stupiddb.core)
   (:require [irclj.irclj :as ircb])
   (:import java.io.File))
@@ -44,7 +45,7 @@
     "Gets a random value from the database."
     ["rwhatis"] 
     [{:keys [irc channel]}]
-    (let [whatmap (with-info whatis (read-config))
+    (let [whatmap (read-config whatis)
 	  key (nth (keys whatmap) (rand-int (count whatmap)))]
       (ircb/send-message irc channel
 			 (str key " = " (whatmap key)))))
@@ -54,6 +55,5 @@
     ["dumpwdb"]
     [{:keys [irc channel nick]}]
     (ircb/send-message irc channel 
-		       (str nick ": " (with-info whatis 
-					(->> (read-config :string? true) (post-gist "dump.clj"))))))
+		       (str nick ": " (->> (read-config whatis :string? true) (post-gist "dump.clj")))))
    (:cleanup (fn [] (db-close db))))
