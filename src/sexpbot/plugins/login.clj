@@ -1,5 +1,6 @@
 (ns sexpbot.plugins.login
-  (:use [sexpbot respond info])
+  (:use [sexpbot respond info]
+	[clj-config.core :only [read-config]])
   (:require [irclj.irclj :as ircb]))
 
 (defn check-pass [user pass]

@@ -10,7 +10,8 @@
 		 [org.clojars.rayne/clj-apache-http "2.0.3"]
 		 [irclj "0.3.0-SNAPSHOT"]
 		 [walton "0.5.0"]
-		 [stupiddb "0.1.5"]]
+		 [stupiddb "0.1.5"]
+		 [clj-config "0.1.0-SNAPSHOT"]]
   :dev-dependencies [[swank-clojure "1.2.0-SNAPSHOT"]
 		     [leiningen/lein-swank "1.1.0"]
 		     [lein-search "0.3.0-SNAPSHOT"]])

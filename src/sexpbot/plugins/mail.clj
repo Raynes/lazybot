@@ -1,7 +1,8 @@
 (ns sexpbot.plugins.mail
   (:refer-clojure :exclude [extend])
   (:use [sexpbot respond info]
-	[clj-time core format])
+	[clj-time core format]
+	clj-config.core)
   (:require [irclj.irclj :as ircb]))
 
 (def mailfile (str sexpdir "/mail.clj"))
@@ -9,26 +10,23 @@
 (def alerted (ref {}))
 
 (defn new-message [from to text]
-  (with-info mailfile
-    (let [messages (read-config)
-	  time (unparse (formatters :date-time-no-ms) (now))] 
-      (write-config (assoc messages to (conj (messages to) {:from from 
-							    :message text
-							    :timestamp time}))))))
+  (let [messages (read-config mailfile)
+	time (unparse (formatters :date-time-no-ms) (now))] 
+    (write-config (assoc messages to (conj (messages to) {:from from 
+							  :message text
+							  :timestamp time})))))
 
 (defn compose-message [{:keys [from message timestamp]}]
   (str "From: " from ", Time: " timestamp ", Text: " message))
 
 (defn get-messages* [user]
-  (with-info mailfile
-    (let [messages (read-config)
-	  mlist (map compose-message (messages user))]
-      (remove-key user)
-      mlist)))
+  (let [messages (read-config)
+	mlist (map compose-message (messages user))]
+    (remove-key user mailfile)
+    mlist))
 
 (defn count-messages [user]
-  (with-info mailfile
-    (count ((read-config) user))))
+  (count ((read-config mailfile) user)))
 
 (defn alert-time? [user]
   (if-let [usertime (@alerted (.toLowerCase user))]
@@ -66,7 +64,7 @@
    (if (seq args)
      (let [lower-user (.toLowerCase (first args))]
        (if (and (not (.contains lower-user "serv"))
-		(not= lower-user (.toLowerCase (((read-config) :bot-name) (:server @irc)))))
+		(not= lower-user (.toLowerCase ((:bot-name (read-config info-file)) (:server @irc)))))
 	  (do
 	    (new-message nick lower-user 
 			 (->> args rest (interpose " ") (apply str)))

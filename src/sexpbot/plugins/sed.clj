@@ -1,8 +1,9 @@
 (ns sexpbot.plugins.sed
-  (:use [sexpbot respond info])
+  (:use [sexpbot respond info]
+	clj-config.core)
   (:require [irclj.irclj :as ircb]))
 
-(def prepend (:prepend (read-config)))
+(def prepend (:prepend (read-config info-file)))
 (def message-map (ref {}))
 
 (defn- format-msg [{:keys [irc nick channel]}]

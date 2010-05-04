@@ -1,5 +1,6 @@
 (ns sexpbot.respond
-  (:use [sexpbot info [utilities :only [thunk-timeout]]])
+  (:use [sexpbot info [utilities :only [thunk-timeout]]]
+	[clj-config.core :only [read-config]])
   (:require [irclj.irclj :as ircb])
   (:import java.util.concurrent.TimeoutException))
 
@@ -59,7 +60,7 @@
 
 (defn handle-message [{:keys [nick message] :as irc-map}]
   (let [bot-map (assoc irc-map :privs (get-priv nick))]
-    (if (= (first message) (:prepend (read-config)))
+    (if (= (first message) (:prepend (read-config info-file)))
       (-> bot-map (into (->> message rest (apply str) split-args)) respond))))
 
 (defn try-handle [{:keys [nick channel irc] :as irc-map}]
@@ -83,7 +84,7 @@
 (defn reset-hooks [] (dosync (ref-set hooks create-initial-hooks)))
 
 (defn reload-plugins []
-  (doseq [plug ((read-config) :plugins)] (require (symbol (str "sexpbot.plugins." plug)) :reload)))
+  (doseq [plug ((read-config info-file) :plugins)] (require (symbol (str "sexpbot.plugins." plug)) :reload)))
 
 (defn cleanup-plugins []
   (doseq [cfn (map :cleanup (vals @modules))] (cfn)))
@@ -100,7 +101,7 @@
   (reset-ref modules)
   (use 'sexpbot.respond :reload)
   (reload-plugins)
-  (doseq [plug (:plugins (read-config))] (.start (Thread. (fn [] (loadmod plug))))))
+  (doseq [plug (:plugins (read-config info-file))] (.start (Thread. (fn [] (loadmod plug))))))
 
 ;; Thanks to mmarczyk, Chousuke, and most of all cgrand for the help writing this macro.
 ;; It's nice to know that you have people like them around when it comes time to face
@@ -154,9 +155,8 @@
 					    (.split 
 					     (apply str (remove #(= \newline %) (find-docs (first args)))) " ")))))]
     (if-not (seq help-msg)
-      (try-handle (assoc irc-map :message (str (:prepend (read-config)) "help- " (->> args
-										      (interpose " ")
-										      (apply str)))))
+      (try-handle (assoc irc-map :message (str (:prepend (read-config info-file)) 
+					       "help- " (->> args (interpose " ") (apply str)))))
       (ircb/send-message irc channel (str nick ": " help-msg)))))
 
 (defmethod respond :default [{:keys [irc channel]}]
