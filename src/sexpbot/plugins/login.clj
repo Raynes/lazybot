@@ -4,7 +4,7 @@
   (:require [irclj.irclj :as ircb]))
 
 (defn check-pass [user pass]
-  (let [userconf (((read-config) :users) user)]
+  (let [userconf ((:users (read-config info-file)) user)]
     (when (= pass (userconf :pass)) 
       (dosync (alter logged-in assoc user (userconf :privs))))))
 

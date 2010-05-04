@@ -40,13 +40,15 @@
     (Thread. 
      (fn []
        (let [ctime (now)
-	     [hour minute second] (map #(Integer/parseInt %) (.split (first args) ":"))
-	     newt (plus ctime (hours hour) (minutes minute) (secs second))
+	     [hour minute sec] (map #(Integer/parseInt %) (.split (first args) ":"))
+	     newt (plus ctime (hours hour) (minutes minute) (secs sec))
 	     fint (in-secs (interval ctime newt))
 	     text (->> args rest (interpose " ") (apply str))
 	     timer-name (gensym)]
 	 (dosync (alter running-timers assoc timer-name {:end-time newt 
 							 :text (cap-text text 30)}))
 	 (Thread/sleep (* fint 1000))
-	 (->> text (ircb/send-message irc channel))
+	 (if (= (second args) "/me") 
+	   (ircb/send-action irc channel (apply str (interpose " " (nnext args))))
+	   (ircb/send-message irc channel text))
 	 (dosync (alter running-timers dissoc timer-name))))))))
