@@ -72,7 +72,7 @@
    (if (or (and verbose? (seq args)) 
 	   (and (seq args) 
 		(not (check-blacklist (:server @irc) user))
-		(not (((:channel-catch-blacklist (read-config)) (:server @irc)) channel))))
+		(not (((:channel-catch-blacklist (read-config info-file)) (:server @irc)) channel))))
      (doseq [link (take 1 args)]
        (try
 	(thunk-timeout #(let [url (add-url-prefix link)
