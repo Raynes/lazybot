@@ -49,6 +49,29 @@
 			   #(is-blacklisted? % (strip-tilde user)) 
 			   blacklist))))
 
+(defn title [{:keys [irc nick user channel]} links & {verbose? :verbose? :or {verbose? false}}]
+  (if (or (and verbose? (seq links))
+	  (and (not (check-blacklist (:server @irc) user))
+	       (not (((:channel-catch-blacklist (read-config info-file)) (:server @irc)) channel))))
+    (doseq [link (take 1 links)]
+      (try
+       (thunk-timeout #(let [url (add-url-prefix link)
+			     page (slurp-or-default url)
+			     match (second page)]
+			 (if (and (seq page) (seq match) (not (url-check url)))
+			   (ircb/send-message irc channel 
+					      (str "\"" 
+						   (ltrim 
+						    (StringEscapeUtils/unescapeHtml 
+						     (collapse-whitespace match))) 
+						   "\""))
+			   (when verbose? (ircb/send-message irc channel "Page has no title."))))
+		      20)
+       (catch TimeoutException _ 
+	 (when verbose? 
+	   (ircb/send-message irc channel "It's taking too long to find the title. I'm giving up.")))))
+    (when verbose? (ircb/send-message irc channel "Which page?"))))
+
 (defplugin
   (:add-hook :on-message
 	     (fn [{:keys [irc nick channel message] :as irc-map}]
@@ -60,42 +83,9 @@
 			 title-links? (and (not= prepend (first message)) 
 					   ((:catch-links? info) (:server @irc))
 					   (seq links))]
-		     (when title-links? 
-		       (try-handle 
-			(assoc irc-map :message (str prepend "title2 " (apply str (interpose " " links)))))))))))
-  
-  (:title*
-   "A utility method to get the title of a webpage. Non-verbose, so it doesn't
-   print error messages. Use $title instead."
-   ["title*"]
-   [{:keys [irc nick user channel args verbose?]}]
-   (if (or (and verbose? (seq args)) 
-	   (and (seq args) 
-		(not (check-blacklist (:server @irc) user))
-		(not (((:channel-catch-blacklist (read-config info-file)) (:server @irc)) channel))))
-     (doseq [link (take 1 args)]
-       (try
-	(thunk-timeout #(let [url (add-url-prefix link)
-			      page (slurp-or-default url)
-			      match (second page)]
-			  (if (and (seq page) (seq match) (not (url-check url)))
-			    (ircb/send-message irc channel 
-					       (str "\"" 
-						    (ltrim 
-						     (StringEscapeUtils/unescapeHtml 
-						      (collapse-whitespace match))) 
-						    "\""))
-			    (when verbose? (ircb/send-message irc channel "Page has no title."))))
-		       20)
-	(catch TimeoutException _ 
-	  (when verbose? 
-	    (ircb/send-message irc channel "It's taking too long to find the title. I'm giving up.")))))
-     (when verbose? (ircb/send-message irc channel "Which page?"))))
-  
-  (:title2
-   "Get's the title of a webpage. Just takes a link." 
-   ["title2"] [ircmap] (respond (assoc ircmap :command "title*")))
+		     (when title-links?
+		       (title irc-map links)))))))
 
   (:title 
-   "Get's the title of a web page. Takes a link. This is verbose, and prints error messages."
-   ["title"] [ircmap] (respond (assoc ircmap :command "title*" :verbose? true))))
+   "Gets the title of a web page. Takes a link. This is verbose, and prints error messages."
+   ["title"] [irc-map] (title irc-map (:args irc-map) :verbose? true)))
