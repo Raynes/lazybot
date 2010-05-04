@@ -9,7 +9,7 @@
   (:lmgtfy 
    "Constructs a lmgtfy URL. If you attach @ nick at the end, it will direct it towards
    the person named by nick."
-   ["lmgty"]
+   ["lmgtfy"]
    [{:keys [irc channel args]}]
    (if (not (seq args))
      (ircb/send-message irc channel "http://www.lmgtfy.com")
