@@ -14,7 +14,8 @@
 	time (unparse (formatters :date-time-no-ms) (now))] 
     (write-config (assoc messages to (conj (messages to) {:from from 
 							  :message text
-							  :timestamp time})))))
+							  :timestamp time}))
+		  mailfile)))
 
 (defn compose-message [{:keys [from message timestamp]}]
   (str "From: " from ", Time: " timestamp ", Text: " message))
