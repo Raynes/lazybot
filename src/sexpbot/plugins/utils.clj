@@ -1,8 +1,7 @@
 (ns sexpbot.plugins.utils
-  (:refer-clojure :exclude [extend])
   (:use [sexpbot utilities info respond gist]
 	clj-config.core
-	[clj-time core [format :only [unparse formatters]]])
+	[clj-time [core :only [now interval in-secs]] [format :only [unparse formatters]]])
   (:require [irclj.irclj :as ircb])
   (:import java.net.InetAddress))
 
