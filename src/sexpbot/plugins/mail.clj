@@ -21,7 +21,7 @@
   (str "From: " from ", Time: " timestamp ", Text: " message))
 
 (defn get-messages* [user]
-  (let [messages (read-config)
+  (let [messages (read-config info-file)
 	mlist (map compose-message (messages user))]
     (remove-key user mailfile)
     mlist))
