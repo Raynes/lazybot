@@ -32,10 +32,11 @@
     [{:keys [irc nick channel args] :as irc-map}]
     (let [user (.trim (or (first args) ""))]
       (if (seq user)
-	(if-let [status-m (@statusmsg-map (:server @irc))]
-	  (let [status-map (status-m user)]
+	(let [status-m (@statusmsg-map (:server @irc))]
+	  ;(if (status-m user)
+	  (if-let [status-map (status-m user)]
 	    (if (= :away (get status-map :status))
-	      (ircb/send-message irc channel (str nick " is away: " (status-map :msg)))
-	      (ircb/send-message irc channel (str nick " is active. "))))
-	  (ircb/send-message irc channel (str (first args) " doesn't exist, or hasn't set their status")))
+	      (ircb/send-message irc channel (str user " is away: " (status-map :msg)))
+	      (ircb/send-message irc channel (str user " is active. ")))
+	    (ircb/send-message irc channel (str (first args) " doesn't exist, or hasn't set their status"))))
 	(ircb/send-message irc channel "Who?")))))
