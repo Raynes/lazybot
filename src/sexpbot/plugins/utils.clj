@@ -1,8 +1,9 @@
 (ns sexpbot.plugins.utils
   (:use [sexpbot utilities info respond gist]
 	clj-config.core
-	[clj-time [core :only [now]] [format :only [unparse formatters]]])
-  (:require [irclj.irclj :as ircb]))
+	[clj-time [core :only [now interval in-secs]] [format :only [unparse formatters]]])
+  (:require [irclj.irclj :as ircb])
+  (:import java.net.InetAddress))
 
 (def known-prefixes
      [\& \+ \@ \% \! \~])
@@ -160,4 +161,17 @@
 			     (condp = (ffirst args)
 			       \F (* (- num 32) (/ 5 9.0))
 			       \C (+ 32 (* (/ 9.0 5) num))
-			       "Malformed expression."))))))
+			       "Malformed expression.")))))
+  
+  (:ping
+   "Pings an IP address or host name. If it doesn't complete within 10 seconds, it will give up."
+   ["ping"]
+   [{:keys [irc channel nick args]}]
+   (let [address (InetAddress/getByName (first args))
+	 stime (now)]
+     (ircb/send-message 
+      irc channel 
+      (str nick ": "
+	   (if (= false (.isReachable address 10000))
+	     "FAILURE!"
+	     (str "Ping completed in " (in-secs (interval stime (now))) " seconds.")))))))
