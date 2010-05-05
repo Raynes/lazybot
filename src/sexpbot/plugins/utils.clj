@@ -1,4 +1,5 @@
 (ns sexpbot.plugins.utils
+  (:refer-clojure :exclude [extend])
   (:use [sexpbot utilities info respond gist]
 	clj-config.core
 	[clj-time core [format :only [unparse formatters]]])
