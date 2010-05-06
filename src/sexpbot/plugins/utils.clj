@@ -180,6 +180,6 @@
      (ircb/send-message 
       irc channel 
       (str nick ": "
-	   (if (= false (.isReachable address 10000))
+	   (if (= false (.isReachable address 5000))
 	     "FAILURE!"
 	     (str "Ping completed in " (in-secs (interval stime (now))) " seconds.")))))))
