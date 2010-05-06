@@ -1,7 +1,7 @@
 (ns sexpbot.plugins.utils
   (:use [sexpbot utilities info respond gist]
 	clj-config.core
-	[clj-time [core :only [now interval in-secs]] [format :only [unparse formatters]]])
+	[clj-time [core :only [plus minus now interval in-secs hours]] [format :only [unparse formatters]]])
   (:require [irclj.irclj :as ircb])
   (:import java.net.InetAddress))
 
@@ -19,8 +19,16 @@
   (:time 
    "Gets the current time and date in UTC format."
    ["time"] 
-   [{:keys [irc nick channel]}]
-   (let [time (unparse (formatters :date-time-no-ms) (now))]
+   [{:keys [irc nick channel args]}]
+   (let [time (unparse (formatters :date-time-no-ms) 
+		       (if-let [[[m num]] (seq args)]
+			 
+			 (let [n (try (Integer/parseInt (str num)) (catch Exception _ 0))] 
+			   (condp = m
+			     \+ (plus (now) (hours n))
+			     \- (minus (now) (hours n))
+			     (now)))
+			 (now)))]
      (ircb/send-message irc channel (str nick ": The time is now " time))))
 
   (:join 
