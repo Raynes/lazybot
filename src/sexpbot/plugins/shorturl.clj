@@ -41,36 +41,27 @@
    (= site "dottk") (dot-tk url)
    :else "Service is not supported"))
 
+(defn shorten [{:keys [irc channel nick args]} site]
+  (if-let [url (first args)]
+    (ircb/send-message irc channel (str nick ": " (shorten-url url site)))
+    (ircb/send-message irc channel "You didn't specify a URL!")))
+
 (defplugin
-  (:short 
-   "Interal method, use bit-ly or is-gd instead"
-   ["shorten*"] 
-   [{:keys [irc channel nick args]}]
-   (let [url (first args)
-	 site (second args)]
-     (ircb/send-message irc channel (str nick ": " (shorten-url url site)))))
-  
   (:bit-ly
    "Gets a shortened URL from bit.ly"
    ["bitly" "bit-ly" "bit.ly"]
-   [{:keys [irc channel nick args] :as irc-map}]
-   (if-let [url (first args)]
-     (try-handle (assoc irc-map :message (str prepend "shorten* " url " bitly")))
-     (ircb/send-message irc channel "You didn't specify a URL!")))
+   [irc-map]
+   (shorten irc-map "bitly"))
   
    (:is-gd
     "Gets a shortened URL from isgd"
     ["is-gd" "is.gd" "isgd"]
-    [{:keys [irc channel nick args] :as irc-map}]
-    (if-let [url (first args)]
-      (try-handle (assoc irc-map :message (str prepend "shorten* " url " isgd")))
-      (ircb/send-message irc channel "You didn't specify a URL!")))
+    [irc-map]
+    (shorten irc-map "isgd"))
    
    (:dot-tk
     "Gets a shortened URL from dottk"
     ["dottk" ".tk" "dot-tk"]
-    [{:keys [irc channel nick args] :as irc-map}]
-    (if-let [url (first args)]
-      (try-handle (assoc irc-map :message (str prepend "shorten* " url " dottk")))
-      (ircb/send-message irc channel "You didn't specify a URL!"))))
+    [irc-map]
+    (shorten irc-map "dottk")))
 		 
