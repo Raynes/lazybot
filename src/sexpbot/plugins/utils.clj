@@ -182,4 +182,10 @@
       (str nick ": "
 	   (if (= false (.isReachable address 5000))
 	     "FAILURE!"
-	     (str "Ping completed in " (in-secs (interval stime (now))) " seconds.")))))))
+	     (str "Ping completed in " (in-secs (interval stime (now))) " seconds."))))))
+
+  (:huggle
+   "Huggles your best fwiendz."
+   ["huggle"]
+   [{:keys [irc channel args]}]
+   (ircb/send-action irc channel (str "Hugglez " (first args) ". I lubs yous."))))
