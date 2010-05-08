@@ -33,7 +33,6 @@
     (let [user (.trim (or (first args) ""))]
       (if (seq user)
 	(let [status-m (@statusmsg-map (:server @irc))]
-	  ;(if (status-m user)
 	  (if-let [status-map (status-m user)]
 	    (if (= :away (get status-map :status))
 	      (ircb/send-message irc channel (str user " is away: " (status-map :msg)))
