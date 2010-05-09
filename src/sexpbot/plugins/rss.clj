@@ -14,7 +14,7 @@
 	   [(first (zf/xml-> item :title zf/text)) 
 	    (shorten-url (first (if-let [atom-link (seq (zf/xml-> item :link (zf/attr :href)))]
 				  atom-link
-				  (zf/xml-> item :link zf/text))))]) 
+				  (zf/xml-> item :link zf/text))) "isgd")]) 
 	 (cond (seq items)  items 
 	       (seq items2) items2
 	       (seq items3) items3))))
