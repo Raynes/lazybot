@@ -1,7 +1,8 @@
 ; Written by Programble <programble@gmail.com>
 ; Licensed under the EPL
 (ns sexpbot.plugins.fortune
-  (:use [sexpbot respond info gist]
+  (:use [sexpbot respond info]
+	clj-gist.core
 	clj-config.core)
   (:require [irclj.irclj :as ircb]))
 

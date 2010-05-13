@@ -1,5 +1,6 @@
 (ns sexpbot.plugins.utils
-  (:use [sexpbot utilities info respond gist]
+  (:use [sexpbot utilities info respond]
+	clj-gist.core
 	clj-config.core
 	[clj-time [core :only [plus minus now interval in-secs hours]] [format :only [unparse formatters]]])
   (:require [irclj.irclj :as ircb])

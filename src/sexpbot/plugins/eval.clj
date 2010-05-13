@@ -2,7 +2,8 @@
   (:use net.licenser.sandbox
 	clojure.stacktrace
 	[net.licenser.sandbox tester matcher]
-	[sexpbot respond gist])
+	sexpbot.respond
+	clj-gist.core)
   (:require [irclj.irclj :as ircb])
   (:import java.io.StringWriter
 	   java.util.concurrent.TimeoutException))

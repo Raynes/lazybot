@@ -1,6 +1,7 @@
 ;; Written by Erik (boredomist)
 (ns sexpbot.plugins.help
-  (:use [sexpbot respond info gist]
+  (:use [sexpbot respond info]
+	clj-gist.core
 	[clj-config.core :only [read-config]]
 	stupiddb.core)
   (:require [irclj.irclj :as ircb]))
