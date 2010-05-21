@@ -37,7 +37,7 @@
   (try
    (with-open [writer (StringWriter.)]
      (let [res (pr-str ((sc txt) {'*out* writer}))]
-       (str "=> " (trim (str (.replaceAll (str writer) "\n" "") " " res)))))
+       (str "=> " (trim (str (.replaceAll (str writer) "\n" " ") " " res)))))
    (catch TimeoutException _ "Execution Timed Out!")
    (catch SecurityException _ "DENIED!")
    (catch Exception e (.getMessage (root-cause e)))))
