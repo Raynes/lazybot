@@ -1,5 +1,6 @@
 (ns sexpbot.plugins.whatis
-  (:use [sexpbot respond info gist utilities]
+  (:use [sexpbot respond info utilities]
+	clj-gist.core
 	[clojure.contrib.io :only [spit]]
 	clj-config.core
 	stupiddb.core)

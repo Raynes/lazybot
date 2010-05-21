@@ -2,7 +2,8 @@
   (:use net.licenser.sandbox
 	clojure.stacktrace
 	[net.licenser.sandbox tester matcher]
-	[sexpbot respond gist])
+	sexpbot.respond
+	clj-gist.core)
   (:require [irclj.irclj :as ircb])
   (:import java.io.StringWriter
 	   java.util.concurrent.TimeoutException))
@@ -21,7 +22,7 @@
 
 (def sc (stringify-sandbox (new-sandbox-compiler :tester sandbox-tester 
 						 :timeout 10000 
-						 :object-tester my-obj-tester)))
+					  	 :object-tester my-obj-tester)))
 
 (def cap 200)
 
@@ -33,12 +34,13 @@
       res)))
 
 (defn execute-text [txt]
-  (let [writer (StringWriter.)]
-    (try
-     (str "result: " (trim (str writer ((sc txt) {'*out* writer}))))
-     (catch TimeoutException _ "Execution Timed Out!")
-     (catch SecurityException _ "DENIED!")
-     (catch Exception e (.getMessage (root-cause e))))))
+  (try
+   (with-open [writer (StringWriter.)]
+     (let [res (trim (pr-str ((sc txt) {'*out* writer})))]
+       (str "=> " (str (.replaceAll (str writer) "\n" " ") " " res))))
+   (catch TimeoutException _ "Execution Timed Out!")
+   (catch SecurityException _ "DENIED!")
+   (catch Exception e (.getMessage (root-cause e)))))
 
 (defplugin
   (:eval 
