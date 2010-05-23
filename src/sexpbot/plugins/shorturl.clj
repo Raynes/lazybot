@@ -26,7 +26,7 @@
 	      (http/get (URI. "http://api.bit.ly/shorten") 
 			:query {:login login 
 				:apiKey bitkey
-				:longUrl url
+				:longUrl (apply str (cons (if-not (= (apply str (take 7 url)) "http://") "http://" "") url)) ;;prepend http://
 				:version "2.0.1"} :as :string)))))
 
 (defn dot-tk [url]
