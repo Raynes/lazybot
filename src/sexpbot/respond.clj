@@ -58,22 +58,27 @@
 			:first (first command)
 			:args args}))
 
-(defn handle-message [{:keys [nick message] :as irc-map}]
-  (let [bot-map (assoc irc-map :privs (get-priv nick))]
-    (if (= (first message) (:prepend (read-config info-file)))
-      (-> bot-map (into (->> message rest (apply str) split-args)) respond))))
+(def running (ref 0))
 
-(defn try-handle [{:keys [nick channel irc] :as irc-map}]
-  (try
-   (thunk-timeout 
-    #(try
-      (handle-message irc-map)
-      (catch Exception e 
-	(.printStackTrace e)))
-    30)
-   (catch TimeoutException _
-     (ircb/send-message irc channel "Execution Timed Out!"))))
-
+(defn try-handle [{:keys [nick channel irc message] :as irc-map}]
+  (.start
+   (Thread.
+    (fn []
+      (let [bot-map (assoc irc-map :privs (get-priv nick))
+	    conf (read-config info-file)]
+	(when (= (first message) (:prepend conf))
+	  (if (< @running (:max-operations conf))
+	    (do
+	      (dosync (alter running inc))
+	      (try
+		(thunk-timeout
+		 #(-> bot-map (into (->> message rest (apply str) split-args)) respond)
+		 30)
+		(catch TimeoutException _ (ircb/send-message irc channel "Execution timed out."))
+		(catch Exception e (.printStackTrace e))
+		(finally (dosync (alter running dec)))))
+	    (ircb/send-message irc channel "Too much is happening at once. Wait until other operations cease."))))))))
+  
 (def create-initial-hooks
   {:core {:on-message [(fn [irc-map] (try-handle irc-map))]
 	  :on-quit []
