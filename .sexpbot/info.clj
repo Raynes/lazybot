@@ -10,7 +10,7 @@
  :users {"JohnDoe" {:pass "iliekpie", :privs :admin}
 	 "JaneDoe" {:pass "ohai", :privs :admin}}
  :user-blacklist {"irc.freenode.net" #{"Meowzorz"}} ; ignore these users on these servers.
-
+ :log false ; set to true if you want logs.
  :catch-links? {"irc.freenode.net" true} ; Should only be enabled if the title plugin is activated below.
  :channel-catch-blacklist {"irc.freenode.net" #{}} ; Channels in which URL title scraper is to be disabled.
  :url-blacklist #{} ; URL title scraper will look for these words in URLs and not use them if they appear.
@@ -40,7 +40,8 @@
 	   "timer"
 	   "fortune"
 	   "rss"
-	   "title"]}
+	   "title"
+	   "log"]}
 
 ; users is a series of username to password and privileges.
 ; plugins is a list of plugins to load at startup.

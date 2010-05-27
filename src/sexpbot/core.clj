@@ -13,7 +13,8 @@
   (doseq [hook (hook-key (apply merge-with concat (vals hooks)))] (hook irc-map)))
 
 (defn make-fnmap [] 
-  {:on-message (fn [irc-map] (call-all irc-map @hooks :on-message))
+  {:on-any (fn [irc-map] (call-all irc-map @hooks :on-any))
+   :on-message (fn [irc-map] (call-all irc-map @hooks :on-message))
    :on-quit (fn [irc-map] (call-all irc-map @hooks :on-quit))
    :on-join (fn [irc-map] (call-all irc-map @hooks :on-join))})
 
