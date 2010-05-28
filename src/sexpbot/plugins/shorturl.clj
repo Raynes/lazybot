@@ -1,9 +1,8 @@
 (ns sexpbot.plugins.shorturl
   (:use [sexpbot respond info]
-	[clojure.contrib.io :only [slurp*]]
 	[clj-config.core])
   (:require [org.danlarkin.json :as json]
-	    [com.twinql.clojure.http :as http]
+	    [clojure-http.resourcefully :as res]
 	    [irclj.irclj :as ircb])
   (:import java.net.URI))
 
@@ -16,23 +15,24 @@
   (-> js :results vals first :shortUrl))
 
 (defn is-gd [url]
- (:content
-  (http/get (URI. "http://is.gd/api.php")
-	    :query {:longurl url} :as :string)))
+  (-> (res/get "http://is.gd/api.php" {} {"longurl" url}) :body-seq first))
   
 (defn bit-ly [url]
   (grab-url (json/decode-from-str 
-	     (:content
-	      (http/get (URI. "http://api.bit.ly/shorten") 
-			:query {:login login 
-				:apiKey bitkey
-				:longUrl (if (.startsWith url "http://") url (str "http://" url))
-				:version "2.0.1"} :as :string)))))
+	     (->> (res/get "http://api.bit.ly/shorten"
+			   {}
+			   {"login" login 
+			    "apiKey" bitkey
+			    "longUrl" (if (.startsWith url "http://") url (str "http://" url))
+			    "version" "2.0.1"})
+		  :body-seq
+		  (apply str)))))
 
 (defn dot-tk [url]
-  (.substring (:content
-	  (http/get (URI. "http://api.dot.tk/tweak/shorten")
-		    :query {:long url} :as :string)) 0 16))
+  (.substring
+   (->> (res/get "http://api.dot.tk/tweak/shorten" {} {"long" url})
+	:body-seq (apply str))
+   0 15))
 
 (defn shorten-url [url site]
   (cond

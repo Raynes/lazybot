@@ -1,14 +1,15 @@
 (ns sexpbot.plugins.haskell
   (:use [sexpbot respond])
   (:require [org.danlarkin.json :as json]
-	    [com.twinql.clojure.http :as http]
+	    [clojure-http.resourcefully :as res]
 	    [irclj.irclj :as ircb]))
 
 (def tryurl "http://tryhaskell.org/haskell.json?method=eval")
 
 (defn eval-haskell [expr]
-  (-> (http/get (java.net.URI. tryurl) :query {:expr expr} :as :string) 
-      :content
+  (-> (res/get tryurl {} {"expr" expr}) 
+      :body-seq
+      first
       json/decode-from-str
       :result))
 

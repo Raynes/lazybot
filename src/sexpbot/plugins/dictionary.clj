@@ -1,7 +1,7 @@
 (ns sexpbot.plugins.dictionary
   (:use [sexpbot respond info]
 	[clj-config.core :only [get-key]])
-  (:require [com.twinql.clojure.http :as http]
+  (:require [clojure-http.resourcefully :as res]
 	    [org.danlarkin.json :as json]
 	    [irclj.irclj :as ircb])
   (:import java.net.URI))
@@ -13,12 +13,11 @@
     [(.replaceAll (if (seq text) text "") "\\<.*?\\>" "") (:partOfSpeech js)]))
 
 (defn lookup-def [word]
-  (-> (http/get 
-       (URI. (str "http://api.wordnik.com/api/word.json/" word "/definitions"))
-       :query {:count "1"}
-       :headers {"api_key" wordnik-key}
-       :as :string)
-      :content json/decode-from-str first extract-stuff))
+  (-> (res/get
+       (str "http://api.wordnik.com/api/word.json/" word "/definitions")
+       {"api_key" wordnik-key}
+       {"count" "1"})
+      :body-seq first json/decode-from-str first extract-stuff))
 
 (defplugin 
   (:dict 
