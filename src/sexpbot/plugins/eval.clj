@@ -40,7 +40,7 @@
        (str "=> " (trim (str (.replaceAll (str writer) "\n" " ") " " res)))))
    (catch TimeoutException _ "Execution Timed Out!")
    (catch SecurityException _ "DENIED!")
-   (catch Exception e (.getMessage (root-cause e)))))
+   (catch Exception e (str "Exception: " (.getMessage (root-cause e))))))
 
 (defplugin
   (:eval 
