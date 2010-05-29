@@ -6,7 +6,7 @@
 		 [commons-io/commons-io "1.4"]
 		 [org.danlarkin/clojure-json "1.1-SNAPSHOT"]
 		 [org.clojars.rayne/clj-time "0.1.0-SNAPSHOT"]
-		 [clj-sandbox "0.3.7"]
+		 [clj-sandbox "0.3.8"]
 		 [org.clojars.rayne/clojure-http-client "1.0.1"]
 		 [irclj "0.3.0-SNAPSHOT"]
 		; [walton "0.5.0"]
