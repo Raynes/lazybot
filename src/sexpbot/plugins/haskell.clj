@@ -22,4 +22,4 @@
    "Evaluates some Haskell code. Doesn't print error messages and uses the TryHaskell API."
    ["heval"] 
    [{:keys [irc channel nick args]}]
-   (ircb/send-message irc channel (str "\"" (eval-haskell (apply str (interpose " " args))) "\""))))
+   (ircb/send-message irc channel (str "=> " (eval-haskell (apply str (interpose " " args)))))))
