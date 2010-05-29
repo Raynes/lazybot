@@ -10,11 +10,12 @@
   (if-let [result (seq (:result js))] result (:error js)))
 
 (defn eval-haskell [expr]
-  (-> (res/get tryurl {} {"method" "eval" "expr" expr}) 
-      :body-seq
-      first
-      json/decode-from-str
-      cull))
+  (->> (res/get tryurl {} {"method" "eval" "expr" expr}) 
+       :body-seq
+       first
+       json/decode-from-str
+       cull
+       (apply str)))
 
 (defplugin
   (:heval 
