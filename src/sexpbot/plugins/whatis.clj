@@ -50,10 +50,4 @@
       (ircb/send-message irc channel
 			 (str key " = " (whatmap key)))))
    
-   (:dumpwdb 
-    "Dumps the entire database to a gist."
-    ["dumpwdb"]
-    [{:keys [irc channel nick]}]
-    (ircb/send-message irc channel 
-		       (str nick ": " (->> (read-config whatis :string? true) (post-gist "dump.clj")))))
    (:cleanup (fn [] (db-close db))))
