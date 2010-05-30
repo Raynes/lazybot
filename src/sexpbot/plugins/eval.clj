@@ -39,8 +39,8 @@
      (let [res (pr-str ((sc txt) {'*out* writer}))]
        (str "=> " (trim (str (.replaceAll (str writer) "\n" " ") " " res)))))
    (catch TimeoutException _ "Execution Timed Out!")
-   (catch SecurityException _ "DENIED!")
-   (catch Exception e (str "Exception: " (.getMessage (root-cause e))))))
+   (catch SecurityException e (str (root-cause e)))
+   (catch Exception e (str (root-cause e)))))
 
 (defplugin
   (:eval 
