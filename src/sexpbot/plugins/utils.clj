@@ -148,17 +148,6 @@
    [{:keys [irc channel nick args] :as irc-map}]
    (if-admin irc-map nick
 	     (ircb/send-message irc (first args) (->> args rest (interpose " ") (apply str)))))
-  (:privs
-   "Finds your privs"
-   ["privs"]
-   [{:keys [irc channel nick]}]
-   (do
-     (ircb/send-message irc channel 
-			(str nick ": You are a"
-			     (if (not= :admin (:privs ((:users (read-config info-file)) nick)))
-			       " regular user."
-			       (str "n admin; you are " 
-				    (if (logged-in nick) "logged in." "not logged in!")))))))
 
   (:tempconv
    "Temperature conversion. If given Cn, converts from C to F. If given Fn, converts from F to C."
