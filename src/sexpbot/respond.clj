@@ -11,36 +11,31 @@
 		       "reload"  {:cmd :reload :doc "Reloads respond and all plugins."}
 		       "help"    {:cmd :help :doc "Teh help."}})
 
-(def commands 
-     (ref initial-commands))
-
-(defn reset-commands [] (dosync (ref-set commands initial-commands)))
-
-(def logged-in (ref {}))
-(def modules (ref {}))
+;(defn reset-commands [] (dosync (ref-set commands initial-commands)))
 
 (defn reset-ref [aref] (dosync (ref-set aref {})))
 
-(defn get-priv [user]
-  (if (-> user logged-in (= :admin)) :admin :noadmin))
+(defn get-priv [logged-in user]
+  (if (and (seq logged-in) (-> user logged-in (= :noadmin))) :admin :noadmin))
 
 (defmacro if-admin
-  [user irc-map & body]
+  [user irc & body]
   `(cond
-    (= :admin (get-priv ~user)) ~@body
-    :else (ircb/send-message (:irc ~irc-map) (:channel ~irc-map) (str ~user ": You aren't an admin!"))))
+    (= :admin (get-priv (:logged-in @~irc) ~user)) ~@body
+    :else (ircb/send-message (:irc ~irc) (:channel ~irc) (str ~user ": You aren't an admin!"))))
 
 (defn find-command [cmds command first]
+  (println "looking up command.")
   (let [res (apply merge (remove keyword? (vals cmds)))]
     (cond
      (res first) (res first)
      (cmds command) (cmds command)
      (some (comp map? val) cmds) (res command))))
 
-(defn find-docs [command]
-  (:doc (find-command @commands command (first command))))
+(defn find-docs [irc command]
+  (:doc (find-command (:commands @irc) command (first command))))
 
-(defn cmd-respond [{:keys [command first]} & _] (:cmd (find-command @commands command first)))
+(defn cmd-respond [{:keys [command first irc]} & _] (:cmd (find-command (:commands @irc) command first)))
 
 (defmulti respond cmd-respond)
 
@@ -49,9 +44,9 @@
 			:first (first command)
 			:args args}))
 
-(defn loadmod [modu]
-  (when (modules (-> modu keyword))
-    (((modules (-> modu keyword)) :load)) true))
+(defn loadmod [irc modu]
+  (when ((:modules @irc) (-> modu keyword))
+    ((((:modules @irc) (-> modu keyword)) :load)) true))
 
 (defn split-args [s] (let [[command & args] (clojure.contrib.string/split #" " s)]
 		       {:command command
@@ -64,7 +59,7 @@
   (.start
    (Thread.
     (fn []
-      (let [bot-map (assoc irc-map :privs (get-priv nick))
+      (let [bot-map (assoc irc-map :privs (get-priv (:logged-in @irc) nick))
 	    conf (read-config info-file)]
 	(when (= (first message) (:prepend conf))
 	  (if (< @running (:max-operations conf))
@@ -84,28 +79,36 @@
 	  :on-quit []
 	  :on-join []}})
 
-(def hooks (ref create-initial-hooks))
+;(def hooks (ref create-initial-hooks))
 
-(defn reset-hooks [] (dosync (ref-set hooks create-initial-hooks)))
+;(defn reset-hooks [] (dosync (ref-set hooks create-initial-hooks)))
 
-(defn reload-plugins []
-  (doseq [plug ((read-config info-file) :plugins)] (require (symbol (str "sexpbot.plugins." plug)) :reload)))
+(defn require-plugins []
+  (doseq [plug ((read-config info-file) :plugins)]
+    (let [prefix (str "sexpbot.plugins." plug)]
+      (require (symbol prefix) :reload))))
 
-(defn cleanup-plugins []
-  (doseq [cfn (map :cleanup (vals @modules))] (cfn)))
+(defn load-plugins [irc]
+  (doseq [plug ((read-config info-file) :plugins)]
+    (let [prefix (str "sexpbot.plugins." plug)]
+      ((resolve (symbol (str prefix "/load-this-plugin"))) irc))))
+
+;(defn cleanup-plugins []
+;  (doseq [cfn (map :cleanup (vals @modules))] (cfn)))
 
 (defn reload-all!
   "A clever function to reload everything when running sexpbot from SLIME.
   Do not try to reload anything individually. It doesn't work because of the
   way refs are used. This makes sure everything is reset to the way it was
   when the bot was first loaded."
-  []
-  (reset-hooks)
-  (reset-commands)
-  (cleanup-plugins)
-  (reset-ref modules)
+  [irc]
+ ; (reset-hooks)
+ ; (reset-commands)
+ ; (cleanup-plugins)
+ ; (reset-ref modules)
   (use 'sexpbot.respond :reload)
-  (reload-plugins)
+  (require-plugins)
+  (load-plugins irc)
   (doseq [plug (:plugins (read-config info-file))] (.start (Thread. (fn [] (loadmod plug))))))
 
 ;; Thanks to mmarczyk, Chousuke, and most of all cgrand for the help writing this macro.
@@ -119,35 +122,36 @@
     `(do
        ~@(for [[cmdkey docs words & method-stuff] methods]
 	   `(defmethod respond ~cmdkey ~@method-stuff))
-       (let [m-name# (keyword (last (.split (str *ns*) "\\.")))]
-	 (dosync
-	  (alter modules merge 
-		 {m-name#
-		  {:load #(dosync (alter commands assoc m-name# ~cmd-list)
-				  (alter hooks assoc m-name# ~hook-list))
-		   :unload #(dosync (alter commands dissoc m-name#)
-				    (alter hooks dissoc m-name#))
-		   :cleanup ~clean-fn}}))))))
+       (let [pns# *ns*]
+	 (defn ~'load-this-plugin [irc#]
+	   (let [m-name# (keyword (last (.split (str pns#) "\\.")))]
+	     (dosync
+	      (alter irc# assoc-in [:modules m-name#]
+		     {:load #(dosync (alter irc# assoc-in [:commands m-name#] ~cmd-list)
+				     (alter irc# assoc-in [:hooks m-name#] ~hook-list))
+		      :unload #(dosync (alter irc# update-in [:commands] dissoc m-name#)
+				       (alter irc# update-in [:hooks] dissoc m-name#))
+		      :cleanup ~clean-fn}))))))))
 
 
 (defmethod respond :load [{:keys [irc nick channel args] :as irc-map}]
   (if-admin nick irc-map
-    (if (true? (-> args first loadmod))
+    (if (true? (->> args first (loadmod irc)))
       (ircb/send-message irc channel "Loaded.")
       (ircb/send-message irc channel (str "Module " (first args) " not found.")))))
 
 (defmethod respond :unload [{:keys [irc nick channel args] :as irc-map}]
   (if-admin nick irc-map
-    (if (modules (-> args first keyword))
+    (if ((:modules @irc) (-> args first keyword))
       (do 
-	(((modules (-> args first keyword)) :unload))
+	((((:modules @irc) (-> args first keyword)) :unload))
 	(ircb/send-message irc channel "Unloaded."))
       (ircb/send-message irc channel (str "Module " (first args) " not found.")))))
 
 (defmethod respond :loaded [{:keys [irc nick channel args] :as irc-map}]
  (if-admin nick irc-map
    (ircb/send-message irc channel 
-		      (->> @commands (filter (comp map? second)) (into {}) keys str str))))
+		      (->> (:commands @irc) (filter (comp map? second)) (into {}) keys str str))))
 
 (defmethod respond :reload [{:keys [irc channel nick ] :as irc-map}]
   (if-admin nick irc-map (reload-all!)))
@@ -158,7 +162,7 @@
 			 (interpose " " 
 				    (filter seq 
 					    (.split 
-					     (apply str (remove #(= \newline %) (find-docs (first args)))) " ")))))]
+					     (apply str (remove #(= \newline %) (find-docs irc (first args)))) " ")))))]
     (if-not (seq help-msg)
       (try-handle (assoc irc-map :message (str (:prepend (read-config info-file)) 
 					       "help- " (->> args (interpose " ") (apply str)))))

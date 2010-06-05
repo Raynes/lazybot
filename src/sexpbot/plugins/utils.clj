@@ -129,9 +129,8 @@
    "Dumps a list of commands to a gist."
    ["dumpcmds"]
    [{:keys [irc channel]}]
-   (println @commands)
    (ircb/send-message irc channel
-		      (->> @commands vals (filter map?) (apply merge) keys 
+		      (->> (:commands @irc) vals (filter map?) (apply merge) keys 
 			   (interpose "\n") (apply str) (post-gist "dumpcmds.clj"))))
 
   (:balance 

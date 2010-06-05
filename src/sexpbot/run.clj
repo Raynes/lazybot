@@ -4,8 +4,14 @@
 (def bots (ref {}))
 
 ; Require all plugin files listed in info.clj
-(reload-plugins)
+(require-plugins)
 
-(doseq [plug (:plugins info)] (.start (Thread. (fn [] (loadmod plug)))))
 (doseq [server (:servers info)]
-  (dosync (alter bots assoc server (make-bot server))))
+  (let [bot (make-bot server)]
+    (dosync (alter bots assoc server bot))
+    (load-plugins bot)))
+
+(doseq [irc (vals @bots)] (println (:hooks @irc)))
+
+(doseq [plug (:plugins info) irc (vals @bots)] (.start (Thread. (fn [] (loadmod irc plug)))))
+

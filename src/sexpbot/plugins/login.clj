@@ -6,13 +6,17 @@
 (defn check-pass-login [user pass irc]
   (let [userconf (((:users (read-config info-file)) (:server @irc)) user)]
     (when (= pass (:pass userconf)) 
-      (dosync (alter irc assoc-in [logged-in user] (userconf :privs))))))
+      (dosync (alter irc assoc-in [:logged-in :user] (userconf :privs))))))
 
-(defn logged-in? [user] (some #{user} (keys @logged-in)))
+(defn logged-in? [irc user] (some #{user} (keys ((:logged-in @irc) (:server @irc)))))
+
+
 
 (defplugin
   (:add-hook :on-quit
-	    (fn [{:keys [nick]}] (when (logged-in? nick) (dosync (alter logged-in dissoc nick)))))
+	     (fn [{:keys [irc nick]}] (when (logged-in? irc nick)
+					(dosync (alter irc update-in [:logged-in (:server @irc)]
+						       dissoc nick)))))
 
   (:login 
    "Best executed via PM. Give it your password, and it will log you in."
@@ -26,7 +30,7 @@
    "Logs you out."
    ["logout"] 
    [{:keys [irc nick channel]}]
-   (dosync (alter irc update-in [logged-in] dissoc nick)
+   (dosync (alter irc update-in [:logged-in] dissoc nick)
 	   (ircb/send-message irc channel "You've been logged out.")))
 
    (:privs
@@ -39,4 +43,4 @@
 			     (if (not= :admin (:privs (((:users (read-config info-file)) (:server @irc)) nick)))
 			       " regular user."
 			       (str "n admin; you are " 
-				    (if (logged-in nick) "logged in." "not logged in!"))))))))
+				    (if (logged-in? irc nick) "logged in." "not logged in!"))))))))
