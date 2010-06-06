@@ -8,7 +8,9 @@
     (when (= pass (:pass userconf)) 
       (dosync (alter irc assoc-in [:logged-in :user] (userconf :privs))))))
 
-(defn logged-in? [irc user] (some #{user} (keys ((:logged-in @irc) (:server @irc)))))
+(defn logged-in? [irc user]
+  (when (:logged-in @irc)
+    (some #{user} (keys ((:logged-in @irc) (:server @irc))))))
 
 
 
