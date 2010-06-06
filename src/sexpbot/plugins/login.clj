@@ -4,15 +4,13 @@
   (:require [irclj.irclj :as ircb]))
 
 (defn check-pass-login [user pass irc]
-  (let [userconf (((:users (read-config info-file)) (:server @irc)) user)]
+  (let [userconf ((:users ((read-config info-file) (:server @irc))) user)]
     (when (= pass (:pass userconf)) 
-      (dosync (alter irc assoc-in [:logged-in :user] (userconf :privs))))))
+      (dosync (alter irc assoc-in [:logged-in (:server @irc) user] (userconf :privs))))))
 
 (defn logged-in? [irc user]
-  (when (:logged-in @irc)
+  (when (seq (:logged-in @irc))
     (some #{user} (keys ((:logged-in @irc) (:server @irc))))))
-
-
 
 (defplugin
   (:add-hook :on-quit
@@ -42,7 +40,7 @@
    (do
      (ircb/send-message irc channel 
 			(str nick ": You are a"
-			     (if (not= :admin (:privs (((:users (read-config info-file)) (:server @irc)) nick)))
+			     (if (not= :admin (:privs ((:users ((read-config info-file) (:server @irc))) nick)))
 			       " regular user."
 			       (str "n admin; you are " 
 				    (if (logged-in? irc nick) "logged in." "not logged in!"))))))))

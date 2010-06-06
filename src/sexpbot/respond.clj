@@ -15,16 +15,16 @@
 (def all-plugins (:plugins (read-config info-file)))
 
 (defn get-priv [logged-in user]
-  (if (and (seq logged-in) (-> user logged-in (= :noadmin))) :admin :noadmin))
+  (if (and (seq logged-in) (-> user logged-in (= :admin))) :admin :noadmin))
 
 (defmacro if-admin
   [user irc & body]
-  `(cond
-    (= :admin (get-priv (:logged-in @~irc) ~user)) ~@body
-    :else (ircb/send-message (:irc ~irc) (:channel ~irc) (str ~user ": You aren't an admin!"))))
+  `(let [irc# (:irc ~irc)]
+     (cond
+      (and (seq (:logged-in @irc#)) (= :admin (get-priv ((:logged-in @irc#) (:server @irc#)) ~user))) ~@body
+      :else (ircb/send-message irc# (:channel ~irc) (str ~user ": You aren't an admin!")))))
 
 (defn find-command [cmds command first]
-  (println "looking up command.")
   (let [res (apply merge (remove keyword? (vals cmds)))]
     (cond
      (res first) (res first)

@@ -44,7 +44,7 @@
 (defn strip-tilde [s] (apply str (remove #(= \~ %) s)))
 
 (defn check-blacklist [server user]
-  (let [blacklist ((:user-ignore-url-blacklist (read-config info-file)) server)]
+  (let [blacklist (:user-ignore-url-blacklist ((read-config info-file) server))]
     (some (comp not nil?) (map 
 			   #(is-blacklisted? % (strip-tilde user)) 
 			   blacklist))))
@@ -52,7 +52,7 @@
 (defn title [{:keys [irc nick user channel]} links & {verbose? :verbose? :or {verbose? false}}]
   (if (or (and verbose? (seq links))
 	  (and (not (check-blacklist (:server @irc) user))
-	       (not (((:channel-catch-blacklist (read-config info-file)) (:server @irc)) channel))))
+	       (not ((:channel-catch-blacklist ((read-config info-file) (:server @irc))) channel))))
     (doseq [link (take 1 links)]
       (try
        (thunk-timeout #(let [url (add-url-prefix link)
@@ -77,7 +77,7 @@
 	     (fn [{:keys [irc nick channel message] :as irc-map}]
 	       (let [info (read-config info-file)
 		     get-links (fn [s] (->> s (re-seq #"(http://|www\.)[^ ]+") (apply concat) (take-nth 2)))]
-		 (when (not (((info :user-blacklist) (:server @irc)) nick))
+		 (when (not (:user-blacklist (info (:server @irc)) nick))
 		   (let [prepend (:prepend info)
 			 links (get-links message)
 			 title-links? (and (not= prepend (first message)) 
