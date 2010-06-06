@@ -14,10 +14,6 @@
 
 (def all-plugins (:plugins (read-config info-file)))
 
-;(defn reset-commands [] (dosync (ref-set commands initial-commands)))
-
-(defn reset-ref [aref] (dosync (ref-set aref {})))
-
 (defn get-priv [logged-in user]
   (if (and (seq logged-in) (-> user logged-in (= :noadmin))) :admin :noadmin))
 
@@ -82,10 +78,6 @@
 	  :on-quit []
 	  :on-join []}})
 
-;(def hooks (ref create-initial-hooks))
-
-;(defn reset-hooks [] (dosync (ref-set hooks create-initial-hooks)))
-
 (defn require-plugins []
   (doseq [plug ((read-config info-file) :plugins)]
     (let [prefix (str "sexpbot.plugins." plug)]
@@ -97,9 +89,6 @@
     (doseq [plug plugins-to-load]
       (let [prefix (str "sexpbot.plugins." plug)]
 	((resolve (symbol (str prefix "/load-this-plugin"))) irc)))))
-
-;(defn cleanup-plugins []
-;  (doseq [cfn (map :cleanup (vals @modules))] (cfn)))
 
 (defn load-modules
   "Loads all of the modules in the IRC's :module map in another thread."
@@ -113,10 +102,11 @@
   way refs are used. This makes sure everything is reset to the way it was
   when the bot was first loaded."
   [irc]
- ; (reset-hooks)
- ; (reset-commands)
- ; (cleanup-plugins)
- ; (reset-ref modules)
+  (dosync
+   (alter irc assoc :hooks create-initial-hooks)
+   (alter irc assoc :commands initial-commands)
+   (doseq [cfn (map :cleanup (vals (:modules @irc)))] (cfn))
+   (alter irc assoc :modules {}))
   (use 'sexpbot.respond :reload)
   (require-plugins)
   (load-plugins irc)
