@@ -1,6 +1,7 @@
 (ns sexpbot.respond
   (:use [sexpbot info [utilities :only [thunk-timeout]]]
-	[clj-config.core :only [read-config]])
+	[clj-config.core :only [read-config]]
+	[clojure.set :only [intersection]])
   (:require [irclj.irclj :as ircb])
   (:import java.util.concurrent.TimeoutException))
 
@@ -10,6 +11,8 @@
 		       "loaded?" {:cmd :loaded :doc "Returns a list of the currently loaded modules."}
 		       "reload"  {:cmd :reload :doc "Reloads respond and all plugins."}
 		       "help"    {:cmd :help :doc "Teh help."}})
+
+(def all-plugins (:plugins (read-config info-file)))
 
 ;(defn reset-commands [] (dosync (ref-set commands initial-commands)))
 
@@ -89,12 +92,20 @@
       (require (symbol prefix) :reload))))
 
 (defn load-plugins [irc]
-  (doseq [plug ((read-config info-file) :plugins)]
-    (let [prefix (str "sexpbot.plugins." plug)]
-      ((resolve (symbol (str prefix "/load-this-plugin"))) irc))))
+  (let [info (read-config info-file)
+	plugins-to-load (intersection (:plugins info) (:plugins (info (:server @irc))))]
+    (doseq [plug plugins-to-load]
+      (let [prefix (str "sexpbot.plugins." plug)]
+	((resolve (symbol (str prefix "/load-this-plugin"))) irc)))))
 
 ;(defn cleanup-plugins []
 ;  (doseq [cfn (map :cleanup (vals @modules))] (cfn)))
+
+(defn load-modules
+  "Loads all of the modules in the IRC's :module map in another thread."
+  [irc]
+  (doseq [plug (:plugins ((read-config info-file) (:server @irc)))]
+    (.start (Thread. (fn [] (loadmod irc plug))))))
 
 (defn reload-all!
   "A clever function to reload everything when running sexpbot from SLIME.
@@ -109,7 +120,7 @@
   (use 'sexpbot.respond :reload)
   (require-plugins)
   (load-plugins irc)
-  (doseq [plug (:plugins (read-config info-file))] (.start (Thread. (fn [] (loadmod plug))))))
+  (load-modules irc))
 
 ;; Thanks to mmarczyk, Chousuke, and most of all cgrand for the help writing this macro.
 ;; It's nice to know that you have people like them around when it comes time to face

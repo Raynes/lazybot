@@ -23,9 +23,9 @@
 
 (defn make-bot [server] 
   (let [bot-config info
-	name ((bot-config :bot-name) server)
-	pass ((bot-config :bot-password) server)
-	channels ((bot-config :channels) server)
+	name (:bot-name (bot-config server))
+	pass (:bot-password (bot-config server))
+	channels (:channels (bot-config server))
 	irc (ircb/connect (make-bot-run name pass server) :channels channels :identify-after-secs 3)]
     (dosync (alter irc assoc-in [:hooks] create-initial-hooks)
 	    (alter irc assoc-in [:commands] initial-commands))

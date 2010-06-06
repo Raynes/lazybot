@@ -9,9 +9,5 @@
 (doseq [server (:servers info)]
   (let [bot (make-bot server)]
     (dosync (alter bots assoc server bot))
-    (load-plugins bot)))
-
-(doseq [irc (vals @bots)] (println (:hooks @irc)))
-
-(doseq [plug (:plugins info) irc (vals @bots)] (.start (Thread. (fn [] (loadmod irc plug)))))
-
+    (load-plugins bot)
+    (doseq [plug (:plugins info)] (load-modules bot))))
