@@ -53,18 +53,29 @@
 	   (db-dissoc db topic)
 	   (ircb/send-message irc channel (str "Topic Removed: " topic))))
        (ircb/send-message irc channel (str "Topic: \"" topic  "\" doesn't exist!")))))
-  
-  (:help-
-   "Gives help information on a topic passed to it"
-   ["help-"]
-   [{:keys [irc nick channel args]}]
-   (let [topic (first args)
-	 content (db-get db topic)]
-     (if (not-empty content)
-       (ircb/send-message irc channel (str nick ":" (.trim content)))
-       (if (empty? topic)
-	 (ircb/send-message irc channel (str nick ": I can't help you, I'm afraid. You can only help yourself."))
-	 (ircb/send-message irc channel (str "Topic: \"" topic "\" doesn't exist!"))))))
+
+  (:help
+   "Get help with commands and stuff."
+   ["help"]
+   [{:keys [irc nick channel args] :as irc-map}]
+   (let [help-msg (.trim 
+		   (apply
+		    str 
+		    (interpose
+		     " " 
+		     (filter
+		      seq 
+		      (.split 
+		       (apply str (remove #(= \newline %) (find-docs irc (first args)))) " ")))))]
+     (if-not (seq help-msg)
+       (let [topic (first args)
+	     content (db-get db topic)]
+	 (if (not-empty content)
+	   (ircb/send-message irc channel (str nick ":" (.trim content)))
+	   (if (empty? topic)
+	     (ircb/send-message irc channel (str nick ": I can't help you, I'm afraid. You can only help yourself."))
+	     (ircb/send-message irc channel (str "Topic: \"" topic "\" doesn't exist!")))))
+       (ircb/send-message irc channel (str nick ": " help-msg)))))
   
   (:list
    "Lists the available help topics in the DB."
