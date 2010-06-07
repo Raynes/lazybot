@@ -1,5 +1,5 @@
 (ns sexpbot.run
-  (:use [sexpbot core respond]))
+  (:use [sexpbot core load]))
 
 (def bots (ref {}))
 
