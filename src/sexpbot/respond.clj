@@ -124,14 +124,14 @@
        ~@(for [[cmdkey docs words & method-stuff] methods]
 	   `(defmethod respond ~cmdkey ~@method-stuff))
        (let [pns# *ns*]
-	 (defn ~'load-this-plugin [~'irc]
+	 (defn ~'load-this-plugin [irc#]
 	   (let [m-name# (keyword (last (.split (str pns#) "\\.")))]
 	     (dosync
-	      (alter ~'irc assoc-in [:modules m-name#]
-		     {:load (fn [] (dosync (alter ~'irc assoc-in [:commands m-name#] ~cmd-list)
-					   (alter ~'irc assoc-in [:hooks m-name#] ~hook-list)))
-		      :unload (fn [] (dosync (alter ~'irc update-in [:commands] dissoc m-name#)
-					     (alter ~'irc update-in [:hooks] dissoc m-name#)))
+	      (alter irc# assoc-in [:modules m-name#]
+		     {:load (fn [] (dosync (alter irc# assoc-in [:commands m-name#] ~cmd-list)
+					   (alter irc# assoc-in [:hooks m-name#] ~hook-list)))
+		      :unload (fn [] (dosync (alter irc# update-in [:commands] dissoc m-name#)
+					     (alter irc# update-in [:hooks] dissoc m-name#)))
 		      :cleanup ~clean-fn}))))))))
 
 
