@@ -1,5 +1,5 @@
 (ns sexpbot.core
-  (:use [sexpbot respond info]
+  (:use [sexpbot respond info [load :only [initial-hooks]]]
 	[clj-config.core :only [read-config]]
 	[clojure.stacktrace :only [root-cause]])
   (:require [org.danlarkin.json :as json]
@@ -27,6 +27,6 @@
 	pass (:bot-password (bot-config server))
 	channels (:channels (bot-config server))
 	irc (ircb/connect (make-bot-run name pass server) :channels channels :identify-after-secs 3)]
-    (dosync (alter irc assoc-in [:hooks] create-initial-hooks)
-	    (alter irc assoc-in [:commands] initial-commands))
+    (dosync (alter irc assoc-in [:hooks] initial-hooks)
+	    (alter irc assoc-in [:commands] {}))
     irc))
