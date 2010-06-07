@@ -3,8 +3,6 @@
 
 (def bots (ref {}))
 
-
-
 (require-plugins)
 
 (doseq [server (:servers info)]
