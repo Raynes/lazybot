@@ -116,7 +116,7 @@
 ;; It's nice to know that you have people like them around when it comes time to face
 ;; unfamiliar concepts.
 (defmacro defplugin [& body]
-  (let [clean-fn (if-let [cfn (seq (filter #(= :cleanup (first %)) body))] (second (first cfn)) (fn []))
+  (let [clean-fn (if-let [cfn (seq (filter #(= :cleanup (first %)) body))] (second (first cfn)) `(fn [] nil))
 	[hook-fns methods] ((juxt filter remove) #(= :add-hook (first %)) (remove #(= :cleanup (first %)) body))
 	cmd-list (into {} (for [[cmdkey docs words] methods word words] [word {:cmd cmdkey :doc docs}]))
 	hook-list (apply merge-with concat (for [[_ hook-this hook-fn] hook-fns] {hook-this [hook-fn]}))]
@@ -124,14 +124,14 @@
        ~@(for [[cmdkey docs words & method-stuff] methods]
 	   `(defmethod respond ~cmdkey ~@method-stuff))
        (let [pns# *ns*]
-	 (defn ~'load-this-plugin [irc#]
+	 (defn ~'load-this-plugin [~'irc]
 	   (let [m-name# (keyword (last (.split (str pns#) "\\.")))]
 	     (dosync
-	      (alter irc# assoc-in [:modules m-name#]
-		     {:load #(dosync (alter irc# assoc-in [:commands m-name#] ~cmd-list)
-				     (alter irc# assoc-in [:hooks m-name#] ~hook-list))
-		      :unload #(dosync (alter irc# update-in [:commands] dissoc m-name#)
-				       (alter irc# update-in [:hooks] dissoc m-name#))
+	      (alter ~'irc assoc-in [:modules m-name#]
+		     {:load (fn [] (dosync (alter ~'irc assoc-in [:commands m-name#] ~cmd-list)
+					   (alter ~'irc assoc-in [:hooks m-name#] ~hook-list)))
+		      :unload (fn [] (dosync (alter ~'irc update-in [:commands] dissoc m-name#)
+					     (alter ~'irc update-in [:hooks] dissoc m-name#)))
 		      :cleanup ~clean-fn}))))))))
 
 
@@ -155,7 +155,7 @@
 		      (->> (:commands @irc) (filter (comp map? second)) (into {}) keys str str))))
 
 (defmethod respond :reload [{:keys [irc channel nick ] :as irc-map}]
-  (if-admin nick irc-map (reload-all!)))
+	   (if-admin nick irc-map (reload-all! irc)))
 
 (defmethod respond :help [{:keys [irc nick channel args] :as irc-map}]
   (let [help-msg (.trim 

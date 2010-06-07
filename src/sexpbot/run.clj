@@ -3,7 +3,8 @@
 
 (def bots (ref {}))
 
-; Require all plugin files listed in info.clj
+
+
 (require-plugins)
 
 (doseq [server (:servers info)]
