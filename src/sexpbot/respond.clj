@@ -1,18 +1,8 @@
 (ns sexpbot.respond
   (:use [sexpbot info [utilities :only [thunk-timeout]]]
-	[clj-config.core :only [read-config]]
-	[clojure.set :only [intersection]])
+	[clj-config.core :only [read-config]])
   (:require [irclj.irclj :as ircb])
   (:import java.util.concurrent.TimeoutException))
-
-(def initial-commands {"load"    {:cmd :load :doc "Loads a module. ADMIN ONLY."}
-		       "unload"  {:cmd :unload :doc "Unload's a module. ADMIN ONLY."}
-		       "quit"    {:cmd :quit :doc "Makes the bot go bai bai. ADMIN ONLY."}
-		       "loaded?" {:cmd :loaded :doc "Returns a list of the currently loaded modules."}
-		       "reload"  {:cmd :reload :doc "Reloads respond and all plugins."}
-		       "help"    {:cmd :help :doc "Teh help."}})
-
-(def all-plugins (:plugins (read-config info-file)))
 
 (defn get-priv [logged-in user]
   (if (and (seq logged-in) (-> user logged-in (= :admin))) :admin :noadmin))
@@ -43,10 +33,6 @@
 			:first (first command)
 			:args args}))
 
-(defn loadmod [irc modu]
-  (when ((:modules @irc) (-> modu keyword))
-    ((((:modules @irc) (-> modu keyword)) :load)) true))
-
 (defn split-args [s] (let [[command & args] (clojure.contrib.string/split #" " s)]
 		       {:command command
 			:first (first command)
@@ -72,45 +58,6 @@
 		(catch Exception e (.printStackTrace e))
 		(finally (dosync (alter running dec)))))
 	    (ircb/send-message irc channel "Too much is happening at once. Wait until other operations cease."))))))))
-  
-(def create-initial-hooks
-  {:core {:on-message [(fn [irc-map] (try-handle irc-map))]
-	  :on-quit []
-	  :on-join []}})
-
-(defn require-plugins []
-  (doseq [plug ((read-config info-file) :plugins)]
-    (let [prefix (str "sexpbot.plugins." plug)]
-      (require (symbol prefix) :reload))))
-
-(defn load-plugins [irc]
-  (let [info (read-config info-file)
-	plugins-to-load (intersection (:plugins info) (:plugins (info (:server @irc))))]
-    (doseq [plug plugins-to-load]
-      (let [prefix (str "sexpbot.plugins." plug)]
-	((resolve (symbol (str prefix "/load-this-plugin"))) irc)))))
-
-(defn load-modules
-  "Loads all of the modules in the IRC's :module map in another thread."
-  [irc]
-  (doseq [plug (:plugins ((read-config info-file) (:server @irc)))]
-    (.start (Thread. (fn [] (loadmod irc plug))))))
-
-(defn reload-all!
-  "A clever function to reload everything when running sexpbot from SLIME.
-  Do not try to reload anything individually. It doesn't work because of the
-  way refs are used. This makes sure everything is reset to the way it was
-  when the bot was first loaded."
-  [irc]
-  (dosync
-   (alter irc assoc :hooks create-initial-hooks)
-   (alter irc assoc :commands initial-commands)
-   (doseq [cfn (map :cleanup (vals (:modules @irc)))] (cfn))
-   (alter irc assoc :modules {}))
-  (use 'sexpbot.respond :reload)
-  (require-plugins)
-  (load-plugins irc)
-  (load-modules irc))
 
 ;; Thanks to mmarczyk, Chousuke, and most of all cgrand for the help writing this macro.
 ;; It's nice to know that you have people like them around when it comes time to face
@@ -133,41 +80,6 @@
 		      :unload (fn [] (dosync (alter irc# update-in [:commands] dissoc m-name#)
 					     (alter irc# update-in [:hooks] dissoc m-name#)))
 		      :cleanup ~clean-fn}))))))))
-
-
-(defmethod respond :load [{:keys [irc nick channel args] :as irc-map}]
-  (if-admin nick irc-map
-    (if (true? (->> args first (loadmod irc)))
-      (ircb/send-message irc channel "Loaded.")
-      (ircb/send-message irc channel (str "Module " (first args) " not found.")))))
-
-(defmethod respond :unload [{:keys [irc nick channel args] :as irc-map}]
-  (if-admin nick irc-map
-    (if ((:modules @irc) (-> args first keyword))
-      (do 
-	((((:modules @irc) (-> args first keyword)) :unload))
-	(ircb/send-message irc channel "Unloaded."))
-      (ircb/send-message irc channel (str "Module " (first args) " not found.")))))
-
-(defmethod respond :loaded [{:keys [irc nick channel args] :as irc-map}]
- (if-admin nick irc-map
-   (ircb/send-message irc channel 
-		      (->> (:commands @irc) (filter (comp map? second)) (into {}) keys str str))))
-
-(defmethod respond :reload [{:keys [irc channel nick ] :as irc-map}]
-	   (if-admin nick irc-map (reload-all! irc)))
-
-(defmethod respond :help [{:keys [irc nick channel args] :as irc-map}]
-  (let [help-msg (.trim 
-		  (apply str 
-			 (interpose " " 
-				    (filter seq 
-					    (.split 
-					     (apply str (remove #(= \newline %) (find-docs irc (first args)))) " ")))))]
-    (if-not (seq help-msg)
-      (try-handle (assoc irc-map :message (str (:prepend (read-config info-file)) 
-					       "help- " (->> args (interpose " ") (apply str)))))
-      (ircb/send-message irc channel (str nick ": " help-msg)))))
 
 (defmethod respond :default [{:keys [irc channel]}]
   (ircb/send-message irc channel "Command not found. No entiendo lo que estás diciendo."))
