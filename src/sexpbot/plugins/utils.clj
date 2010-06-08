@@ -145,7 +145,7 @@
    "Says what you tell it to in the channel you specify. ADMIN ONLY."
    ["say"] 
    [{:keys [irc channel nick args] :as irc-map}]
-   (if-admin irc-map nick
+   (if-admin nick irc-map
 	     (ircb/send-message irc (first args) (->> args rest (interpose " ") (apply str)))))
 
   (:tempconv
