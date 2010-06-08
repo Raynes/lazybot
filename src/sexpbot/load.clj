@@ -37,13 +37,14 @@
   Do not try to reload anything individually. It doesn't work because of the
   way refs are used. This makes sure everything is reset to the way it was
   when the bot was first loaded."
-  [irc]
-  (dosync
-   (alter irc assoc :hooks initial-hooks)
-   (alter irc assoc :commands {})
-   (doseq [cfn (map :cleanup (vals (:modules @irc)))] (cfn))
-   (alter irc assoc :modules {}))
-  (use 'sexpbot.respond :reload)
+  [& ircs]
   (require-plugins)
-  (load-plugins irc)
-  (load-modules irc))
+  (doseq [irc ircs]
+    (dosync
+     (alter irc assoc :hooks initial-hooks)
+     (alter irc assoc :commands {})
+     (doseq [cfn (map :cleanup (vals (:modules @irc)))] (cfn))
+     (alter irc assoc :modules {}))
+    (use 'sexpbot.respond :reload)
+    (load-plugins irc)
+    (load-modules irc)))
