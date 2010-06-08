@@ -29,10 +29,10 @@
 	:else (recur (conj acc (first lines)) (rest lines)))))
    (catch java.lang.Exception e nil)))
 
-(def url-blacklist-words (:url-blacklist (read-config info-file)))
+(defn url-blacklist-words [irc] (:url-blacklist ((read-config info-file) (:server @irc))))
 
-(defn url-check [url]
-  (some #(.contains url %) url-blacklist-words))
+(defn url-check [irc url]
+  (some #(.contains url %) (url-blacklist-words irc)))
 
 (defn is-blacklisted? [[match-this not-this] s]
   (let [lower-s (.toLowerCase s)
@@ -58,7 +58,7 @@
        (thunk-timeout #(let [url (add-url-prefix link)
 			     page (slurp-or-default url)
 			     match (second page)]
-			 (if (and (seq page) (seq match) (not (url-check url)))
+			 (if (and (seq page) (seq match) (not (url-check irc url)))
 			   (ircb/send-message irc channel 
 					      (str "\"" 
 						   (ltrim 
