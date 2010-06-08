@@ -1,6 +1,7 @@
 (ns sexpbot.plugins.dictionary
   (:use [sexpbot respond info]
-	[clj-config.core :only [get-key]])
+	[clj-config.core :only [get-key]]
+	[clojure-http.client :only [add-query-params]])
   (:require [clojure-http.resourcefully :as res]
 	    [org.danlarkin.json :as json]
 	    [irclj.irclj :as ircb])
@@ -14,9 +15,8 @@
 
 (defn lookup-def [word]
   (-> (res/get
-       (str "http://api.wordnik.com/api/word.json/" word "/definitions")
-       {"api_key" wordnik-key}
-       {"count" "1"})
+       (add-query-params (str "http://api.wordnik.com/api/word.json/" word "/definitions") ["count" "1"])
+       {"api_key" wordnik-key})
       :body-seq first json/decode-from-str first extract-stuff))
 
 (defplugin 

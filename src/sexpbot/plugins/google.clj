@@ -1,13 +1,14 @@
 (ns sexpbot.plugins.google
-  (:use [sexpbot respond])
+  (:use [sexpbot respond]
+	[clojure-http.client :only [add-query-params]])
   (:require [org.danlarkin.json :as json]
 	    [clojure-http.resourcefully :as res]
 	    [irclj.irclj :as ircb])
   (:import org.apache.commons.lang.StringEscapeUtils))
 
 (defn google [term]
-  (-> (res/get "http://ajax.googleapis.com/ajax/services/search/web"
-	       {} {"v" "1.0", "q" term})
+  (-> (res/get (add-query-params "http://ajax.googleapis.com/ajax/services/search/web"
+				 ["v" "1.0"] ["q" term]))
       :body-seq first json/decode-from-str))
 
 (defn cull [result-set]
