@@ -38,13 +38,14 @@
   way refs are used. This makes sure everything is reset to the way it was
   when the bot was first loaded."
   [& ircs]
-  (require-plugins)
   (doseq [irc ircs]
     (dosync
      (alter irc assoc :hooks initial-hooks)
      (alter irc assoc :commands {})
      (doseq [cfn (map :cleanup (vals (:modules @irc)))] (cfn))
-     (alter irc assoc :modules {}))
-    (use 'sexpbot.respond :reload)
+     (alter irc assoc :modules {})))
+  (use 'sexpbot.respond :reload)
+  (require-plugins)
+  (doseq [irc ircs]
     (load-plugins irc)
     (load-modules irc)))

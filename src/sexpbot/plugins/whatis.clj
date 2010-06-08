@@ -8,7 +8,7 @@
 
 (def whatis (str (System/getProperty "user.home") "/.sexpbot/whatis.db"))
 
-(def db (db-init whatis 1800))
+(def db (db-init whatis 10))
 
 (defplugin 
   (:learn 
