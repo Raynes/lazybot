@@ -36,7 +36,9 @@
     (cond
      (empty? last-in) (ircb/send-message irc channel "No one said anything yet!")
      (not-any? seq [regexp replacement]) (format-msg irc nick channel)
-     :else (ircb/send-message irc channel (sed* last-in regexp replacement)))))
+     :else (let [orig-msg last-in
+		 new-msg (sed* last-in regexp replacement)]
+	     (when-not (= orig-msg new-msg) (ircb/send-message irc channel new-msg))))))
 
 
 (defplugin
