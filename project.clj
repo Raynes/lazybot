@@ -4,7 +4,7 @@
                  [org.clojure/clojure-contrib "1.2.0-SNAPSHOT"]
 		 [commons-lang/commons-lang "2.5"]
 		 [commons-io/commons-io "1.4"]
-		 [org.danlarkin/clojure-json "1.1-SNAPSHOT"]
+		 [org.danlarkin/clojure-json "1.1"]
 		 [org.clojars.rayne/clj-time "0.1.0-SNAPSHOT"]
 		 [clj-sandbox "0.3.8"]
 		 [clojure-http-client "1.1.0-SNAPSHOT"]

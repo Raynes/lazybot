@@ -65,7 +65,7 @@
    (if (seq args)
      (let [lower-user (.toLowerCase (first args))]
        (if (and (not (.contains lower-user "serv"))
-		(not= lower-user (.toLowerCase ((:bot-name (read-config info-file)) (:server @irc)))))
+		(not= lower-user (.toLowerCase (:bot-name ((read-config info-file) (:server @irc))))))
 	  (do
 	    (new-message nick lower-user 
 			 (->> args rest (interpose " ") (apply str)))
