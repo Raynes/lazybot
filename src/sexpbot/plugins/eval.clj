@@ -14,12 +14,13 @@
      (extend-tester secure-tester 
 		    (whitelist 
 		     (function-matcher '*out* 'println 'print 'pr 'prn 'var 'print-doc 'doc 'throw)
-		     (class-matcher java.io.StringWriter))))
+		     (class-matcher java.io.StringWriter java.net.URL java.net.URI))))
 
 (def my-obj-tester
      (extend-tester default-obj-tester
 		    (whitelist
-		     (class-matcher java.io.StringWriter String Byte Character StrictMath StringBuffer))))
+		     (class-matcher java.io.StringWriter String Byte Character StrictMath StringBuffer
+				    java.net.URL java.net.URI))))
 
 (def sc (stringify-sandbox (new-sandbox-compiler :tester sandbox-tester 
 						 :timeout 10000 
