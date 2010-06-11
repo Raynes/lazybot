@@ -17,7 +17,7 @@
   (:addtopic
    "Adds a topic to the help DB. You may have to be an admin to do this."
    ["addtopic"]
-   [{:keys [irc nick channel args]}]
+   [{:keys [irc nick channel args] :as ircm}]
    (let [topic (str " " (first args))
 	 content (->> args
 		      (interpose " ")
@@ -28,11 +28,10 @@
       (or (empty? (.trim topic))
 	  (empty? (.trim content))) (ircb/send-message irc channel "Neither topic nor content can be empty!")
       :else  (if admin-add?
-	       (if (= :admin (get-priv (:logged-in @irc) nick))
+	       (if-admin nick ircm
 		 (do
 		   (db-assoc db (.trim topic) content)
-		   (ircb/send-message irc channel (str "Topic Added: " (.trim topic))))
-		 (ircb/send-message irc channel (str nick ": Only admins can add topics!")))
+		   (ircb/send-message irc channel (str "Topic Added: " (.trim topic)))))
 	       (do
 		 (db-assoc db (.trim topic) content)
 		 (ircb/send-message irc channel (str "Topic Added: " (.trim topic))))))))
@@ -40,15 +39,14 @@
   (:rmtopic
    "Removes a topic from the help DB. You may need to be an admin to do this"
    ["rmtopic"]
-   [{:keys [irc nick channel args]}]
+   [{:keys [irc nick channel args] :as ircm}]
    (let [topic (first args)]
      (if (not-empty (db-get db topic))
        (if admin-rm?
-	 (if (= :admin (get-priv nick))
+	 (if-admin nick ircm
 	   (do
 	     (db-dissoc db topic)
-	     (ircb/send-message irc channel (str "Topic Removed: " topic)))
-	   (ircb/send-message irc channel (str nick ": Only admins can remove topics!")))
+	     (ircb/send-message irc channel (str "Topic Removed: " topic))))
 	 (do
 	   (db-dissoc db topic)
 	   (ircb/send-message irc channel (str "Topic Removed: " topic))))
