@@ -28,7 +28,7 @@
       (or (empty? (.trim topic))
 	  (empty? (.trim content))) (ircb/send-message irc channel "Neither topic nor content can be empty!")
       :else  (if admin-add?
-	       (if (= :admin (get-priv nick))
+	       (if (= :admin (get-priv (:logged-in @irc) nick))
 		 (do
 		   (db-assoc db (.trim topic) content)
 		   (ircb/send-message irc channel (str "Topic Added: " (.trim topic))))
