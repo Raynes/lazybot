@@ -12,6 +12,6 @@
 		; [walton "0.5.0"]
 		 [stupiddb "0.3.0"]
 		 [clj-config "0.1.0-SNAPSHOT"]
-		 [clj-gist "1.0.0-SNAPSHOT"]]
+                 [clj-github "1.0.0-SNAPSHOT"]]
   :dev-dependencies [[swank-clojure "1.2.1"]
 		     [lein-search "0.3.0-SNAPSHOT"]])

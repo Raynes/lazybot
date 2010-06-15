@@ -2,7 +2,7 @@
 ; Licensed under the EPL
 (ns sexpbot.plugins.fortune
   (:use [sexpbot respond info]
-	clj-gist.core
+        [clj-github.gists :only [new-gist]]
 	clj-config.core)
   (:require [irclj.irclj :as ircb]))
 
@@ -15,7 +15,6 @@
    ["fortune"] 
    [{:keys [irc channel args]}]
    (let [db (:fortunes (read-config fortunefile))]
-					; Check if database is empty
      (if (zero? (count db))
        (ircb/send-message irc channel "I have no fortune cookies. Please feed me some!")
        (ircb/send-message irc channel (nth db (rand-int (count db)))))))
@@ -37,4 +36,6 @@
    [{:keys [irc channel args]}]
    (let [db (:fortunes (read-config fortunefile))
 	 dump (->> db (interpose "\n") (apply str))]
-     (ircb/send-message irc channel (post-gist "Fortunes Dump" dump)))))
+     (ircb/send-message irc channel
+                        (str "http://gist.github.com/"
+                             (:repo (new-gist "Fortunes Dump" dump)))))))

@@ -3,7 +3,7 @@
 	clojure.stacktrace
 	[net.licenser.sandbox tester matcher]
 	sexpbot.respond
-	clj-gist.core)
+	[clj-github.gists :only [new-gist]])
   (:require [irclj.irclj :as ircb])
   (:import java.io.StringWriter
 	   java.util.concurrent.TimeoutException))
@@ -32,7 +32,9 @@
   (let [res (apply str (take cap s))
 	rescount (count res)]
     (if (= rescount cap) 
-      (str res "... " (when (> (count s) cap) (post-gist "output.clj" s))) 
+      (str res "... "
+           (when (> (count s) cap)
+             (str "http://gist.github.com/" (:repo (new-gist "output.clj" s))))) 
       res)))
 
 (defn execute-text [txt]

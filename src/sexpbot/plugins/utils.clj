@@ -1,6 +1,6 @@
 (ns sexpbot.plugins.utils
   (:use [sexpbot utilities info respond]
-	clj-gist.core
+	[clj-github.gists :only [new-gist]]
 	clj-config.core
 	[clj-time [core :only [plus minus now interval in-secs hours]] [format :only [unparse formatters]]])
   (:require [irclj.irclj :as ircb])
@@ -118,9 +118,9 @@
    "Gists it's arguments."
    ["gist"] 
    [{:keys [irc channel nick args]}]
-   (ircb/send-message irc channel (str nick ": " 
-				       (post-gist (first args) 
-						  (->> args rest (interpose " ") (apply str))))))
+   (ircb/send-message irc channel (str nick ": http://gist.github.com/" 
+				       (:repo (new-gist (first args) 
+                                                        (->> args rest (interpose " ") (apply str)))))))
    
 
   (:timeout "" ["timeout"] [_] (Thread/sleep 15000))
@@ -131,7 +131,8 @@
    [{:keys [irc channel]}]
    (ircb/send-message irc channel
 		      (->> (:commands @irc) vals (filter map?) (apply merge) keys 
-			   (interpose "\n") (apply str) (post-gist "dumpcmds.clj"))))
+			   (interpose "\n") (apply str) (new-gist "dumpcmds.clj")
+                           :repo (str "http://gist.github.com/"))))
 
   (:balance 
    "Balances parens for you."
