@@ -10,9 +10,9 @@
     ((((:modules @irc) (-> modu keyword)) :load)) true))
 
 (def initial-hooks
-  {:core {:on-message [(fn [irc-map] (try-handle irc-map))]
-	  :on-quit []
-	  :on-join []}})
+     {:core {:on-message [(fn [irc-map] (try-handle irc-map))]
+             :on-quit []
+             :on-join []}})
 
 (defn require-plugins []
   (doseq [plug ((read-config info-file) :plugins)]
