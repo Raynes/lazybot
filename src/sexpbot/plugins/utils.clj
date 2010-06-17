@@ -121,18 +121,20 @@
    (ircb/send-message irc channel (str nick ": http://gist.github.com/" 
 				       (:repo (new-gist (first args) 
                                                         (->> args rest (interpose " ") (apply str)))))))
-   
 
   (:timeout "" ["timeout"] [_] (Thread/sleep 15000))
 
-  (:dumpcmds 
-   "Dumps a list of commands to a gist."
-   ["dumpcmds"]
-   [{:keys [irc channel]}]
-   (ircb/send-message irc channel
-		      (->> (:commands @irc) vals (filter map?) (apply merge) keys 
-			   (interpose "\n") (apply str) (new-gist "dumpcmds.clj")
-                           :repo (str "http://gist.github.com/"))))
+  ;(:dumpcmds
+  ; "Dumps a list of commands to a gist."
+  ; ["dumpcmds" "commands"]
+  ; [{:keys [irc channel]}]
+  ; (ircb/send-message
+  ;  irc channel
+  ;  (str "http://gist.github.com/"
+  ;       (:repo (new-gist "dumpcmds"
+  ;                        ((constantly "omg") ( apply str
+  ;                                                    (for [[x {doc :doc}] (->> (:commands @irc) vals (apply merge))]
+  ;                                                      (str x ": " doc "\n")))))))))
 
   (:balance 
    "Balances parens for you."
