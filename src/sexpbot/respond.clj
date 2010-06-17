@@ -38,7 +38,7 @@
 			:first (first command)
 			:args args}))
 
-(def running (ref 0))
+(def running (atom 0))
 
 (defn try-handle [{:keys [nick channel irc message] :as irc-map}]
   (.start
@@ -49,14 +49,14 @@
 	(when (= (first message) (:prepend conf))
 	  (if (< @running (:max-operations conf))
 	    (do
-	      (dosync (alter running inc))
+	      (swap! running inc)
 	      (try
 		(thunk-timeout
 		 #(-> bot-map (into (->> message rest (apply str) split-args)) respond)
 		 30)
 		(catch TimeoutException _ (ircb/send-message irc channel "Execution timed out."))
 		(catch Exception e (.printStackTrace e))
-		(finally (dosync (alter running dec)))))
+		(finally (swap! running dec))))
 	    (ircb/send-message irc channel "Too much is happening at once. Wait until other operations cease."))))))))
 
 ;; Thanks to mmarczyk, Chousuke, and most of all cgrand for the help writing this macro.
