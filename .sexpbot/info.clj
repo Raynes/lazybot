@@ -1,11 +1,11 @@
-{:servers ["irc.freenode.net"]	    ; A list of servers.
- :prepends ["@"] ; The character you want for a prepend. Currently set to @
+{:servers ["irc.freenode.net"]          ; A list of servers.
+ :prepends #{"@"} ; The character you want for a prepend. Currently set to @
  :bitly-login ""  ; Your bit.ly login.
  :bitly-key ""	  ; API key and login above needed for URL shortening.
  :wordnik-key ""  ; API key needed for dictionary access.
  :max-operations 3 ; The maximum number of operations that can be running at any given time.
- :admin-add? true ; only admins can add help topics
- :admin-rm? true ; only admins can remove help topics
+ :admin-add? true  ; only admins can add help topics
+ :admin-rm? true   ; only admins can remove help topics
  "irc.freenode.net" {:channels ["#tempchan"]
 		     :bot-name "sexpbot-test"
 		     :bot-password nil
