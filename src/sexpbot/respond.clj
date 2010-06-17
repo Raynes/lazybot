@@ -35,7 +35,7 @@
                 command
                 (apply str (rest prepend)))
      :first (if is-long-pre (first command) (first (rest prepend)))
-     :args (if is-long-pre args (conj args command))}))
+     :args (if is-long-pre args (when command (conj args command)))}))
 
 (def running (atom 0))
 
