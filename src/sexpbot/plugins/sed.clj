@@ -3,7 +3,7 @@
 	clj-config.core)
   (:require [irclj.irclj :as ircb]))
 
-(def prepend (:prepend (read-config info-file)))
+(def prepends (:prepends (read-config info-file)))
 (def message-map (atom {}))
 
 (defn- format-msg [irc nick channel]
@@ -46,7 +46,7 @@
 		(sed irc channel nick [(str "-" nick) message]))
 	      
 	      (when (and (not= nick (:name @irc))
-			 (not= (take 4 message) (str prepend "sed")))
+			 (not= (take 4 message) (str (first prepends) "sed")))
                 (swap! message-map assoc-in [irc channel nick] message)
                 (swap! message-map assoc-in [irc channel :channel-last] message))))
   

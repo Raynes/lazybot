@@ -6,5 +6,5 @@
   (:add-hook :on-message
              (fn [{message :message :as irc-map}]
                (doseq [x (reverse (re-seq #"\$#(.*?)#\$" message))]
-                 (->> x second (str (get-key :prepend info-file))
+                 (->> x second (str (first (get-key :prepends info-file)))
                       (assoc irc-map :message) try-handle)))))

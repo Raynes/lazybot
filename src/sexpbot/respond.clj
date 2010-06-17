@@ -1,6 +1,6 @@
 (ns sexpbot.respond
   (:use [sexpbot info [utilities :only [thunk-timeout]]]
-	[clj-config.core :only [read-config]])
+	[clj-config.core :only [read-config get-key]])
   (:require [irclj.irclj :as ircb])
   (:import java.util.concurrent.TimeoutException))
 
@@ -28,15 +28,14 @@
 
 (defmulti respond cmd-respond)
 
-(defn split-args [s] (let [[command & args] (.split " " s)]
-		       {:command command
-			:first (first command)
-			:args args}))
-
-(defn split-args [s] (let [[command & args] (clojure.contrib.string/split #" " s)]
-		       {:command command
-			:first (first command)
-			:args args}))
+(defn split-args [s]
+  (let [[prepend command & args] (.split s " ")
+        is-long-pre ((get-key :prepends info-file) prepend)]
+    {:command (if is-long-pre
+                command
+                (apply str (rest prepend)))
+     :first (if is-long-pre (first command) (first (rest prepend)))
+     :args (if is-long-pre args (conj args command))}))
 
 (def running (atom 0))
 
@@ -46,13 +45,13 @@
     (fn []
       (let [bot-map (assoc irc-map :privs (get-priv (:logged-in @irc) nick))
 	    conf (read-config info-file)]
-	(when (= (first message) (:prepend conf))
+	(when (some identity (map #(.startsWith message %) (:prepends conf)))
 	  (if (< @running (:max-operations conf))
 	    (do
 	      (swap! running inc)
 	      (try
 		(thunk-timeout
-		 #(-> bot-map (into (->> message rest (apply str) split-args)) respond)
+		 #(-> bot-map (into (split-args message)) respond)
 		 30)
 		(catch TimeoutException _ (ircb/send-message irc channel "Execution timed out."))
 		(catch Exception e (.printStackTrace e))
