@@ -6,8 +6,7 @@
 (def prepends (:prepends (read-config info-file)))
 (def message-map (atom {}))
 
-(defn- format-msg [irc nick channel]
-  (ircb/send-message irc channel (str nick ": Format is sed [-<user name>] s/<regexp>/<replacement>/ Try $help sed")))
+(defn- format-msg [irc nick channel]  (ircb/send-message irc channel (str nick ": Format is sed [-<user name>] s/<regexp>/<replacement>/ Try $help sed")))
 (defn- conj-args [args]
   (->> args
        (interpose " ")
@@ -15,10 +14,9 @@
 
 (defn sed* [string regexp replacement]
   (try
-   (.replaceAll string (str "(?i)" regexp) replacement)
-   (catch java.util.regex.PatternSyntaxException e (str "Incorrectly formatted regular expression: " regexp))))
+   (.replaceAll string (str "(?i)" regexp) replacement)))
 
-(defn sed [irc channel nick args]
+(defn sed [irc channel nick args verbose?]
   (let [user-to (or (second (re-find #"^[\s]*-([\w]+)" (.trim (conj-args args)))) "")
 	margs (or (second (re-find #"[\s]*(s/[^/]+/[^/]*/)$" (.trim (conj-args args)))) "")
 	
@@ -36,16 +34,18 @@
     (cond
      (empty? last-in) (ircb/send-message irc channel "No one said anything yet!")
      (not-any? seq [regexp replacement]) (format-msg irc nick channel)
-     :else (let [orig-msg last-in
-		 new-msg (sed* last-in regexp replacement)]
-	     (when-not (= orig-msg new-msg) (ircb/send-message irc channel new-msg))))))
+     :else (try
+	     (let [orig-msg last-in
+		   new-msg (sed* last-in regexp replacement)]
+	       (when-not (= orig-msg new-msg) (ircb/send-message irc channel new-msg)))
+	     (catch Exception _ (when verbose? (format-msg irc nick channel)))))))
 
 
 (defplugin
   (:add-hook :on-message
 	    (fn [{:keys [irc nick message channel] :as irc-map}]
 	      (when (not-empty (re-find #"^s/([^/]+)/([^/]*)/" message))
-		(sed irc channel nick [(str "-" nick) message]))
+		(sed irc channel nick [(str "-" nick) message] false))
 	      
 	      (when (and (not= nick (:name @irc))
 			 (not= (take 4 message) (str (first prepends) "sed")))
@@ -58,4 +58,4 @@
     Example Usage: sed -boredomist s/[aeiou]/#/
     Shorthand    : s/[aeiou]/#/"
    ["sed"]
-   [{:keys [irc channel args nick] :as irc-map}] (sed irc channel nick args)))
+   [{:keys [irc channel args nick] :as irc-map}] (sed irc channel nick args true)))
