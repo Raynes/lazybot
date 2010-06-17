@@ -1,5 +1,5 @@
 {:servers ["irc.freenode.net"]	    ; A list of servers.
- :prepend \@ ; The character you want for a prepend. Currently set to @
+ :prepends ["@"] ; The character you want for a prepend. Currently set to @
  :bitly-login ""  ; Your bit.ly login.
  :bitly-key ""	  ; API key and login above needed for URL shortening.
  :wordnik-key ""  ; API key needed for dictionary access.
@@ -19,10 +19,12 @@
 		     :user-ignore-url-blacklist [["bot" "ters"]] ; A series of "match this" but "not this" pairs.}
 		     :plugins #{#_"dictionary" "lmgtfy" "google" "translate" "eball" "utils" "leet" "eval" "login"
 				"weather" "brainfuck" "whatis" "shorturl" "spellcheck" "dynamic" #_"walton" "haskell"
-				"mail" "timer" "fortune" "rss" "title" "operator" "seen" "sed" "help" "status" "log"}} ; A series of "match this" but "not this" pairs.
+				"mail" "timer" "fortune" "rss" "title" "operator" "seen" "sed" "help" "status" "log"
+                                "load" "embedded"}} ; A series of "match this" but "not this" pairs.
  :plugins #{#_"dictionary" "lmgtfy" "google" "translate" "eball" "utils" "leet" "eval" "login"
 	    "weather" "brainfuck" "whatis" "shorturl" "spellcheck" "dynamic" #_"walton" "haskell"
-	    "mail" "timer" "fortune" "rss" "title" "operator" "seen" "sed" "help" "status" "log"}}
+	    "mail" "timer" "fortune" "rss" "title" "operator" "seen" "sed" "help" "status" "log"
+            "load" "embedded"}}
 
 ; users is a series of username to password and privileges.
 ; plugins is a list of plugins to load at startup.
