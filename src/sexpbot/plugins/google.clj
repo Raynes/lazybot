@@ -8,7 +8,7 @@
 
 (defn google [term]
   (-> (res/get (add-query-params "http://ajax.googleapis.com/ajax/services/search/web"
-				 ["v" "1.0"] ["q" term]))
+				 {"v" "1.0" "q" term}))
       :body-seq first json/decode-from-str))
 
 (defn cull [result-set]

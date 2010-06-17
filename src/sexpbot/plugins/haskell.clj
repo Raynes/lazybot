@@ -11,7 +11,7 @@
   (if-let [result (seq (:result js))] result (:error js)))
 
 (defn eval-haskell [expr]
-  (->> (res/get (add-query-params tryurl ["method" "eval"] ["expr" expr])) 
+  (->> (res/get (add-query-params tryurl {"method" "eval" "expr" expr})) 
        :body-seq
        first
        json/decode-from-str

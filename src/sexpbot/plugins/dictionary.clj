@@ -15,7 +15,7 @@
 
 (defn lookup-def [word]
   (-> (res/get
-       (add-query-params (str "http://api.wordnik.com/api/word.json/" word "/definitions") ["count" "1"])
+       (add-query-params (str "http://api.wordnik.com/api/word.json/" word "/definitions") {"count" "1"})
        {"api_key" wordnik-key})
       :body-seq first json/decode-from-str first extract-stuff))
 

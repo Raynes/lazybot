@@ -16,21 +16,21 @@
   (-> js :results vals first :shortUrl))
 
 (defn is-gd [url]
-  (-> (res/get (add-query-params "http://is.gd/api.php" ["longurl" url])) :body-seq first))
+  (-> (res/get (add-query-params "http://is.gd/api.php" {"longurl" url})) :body-seq first))
   
 (defn bit-ly [url]
   (grab-url (json/decode-from-str 
 	     (->> (res/get (add-query-params "http://api.bit.ly/shorten"
-					     ["login" login] 
-					     ["apiKey" bitkey]
-					     ["longUrl" (if (.startsWith url "http://") url (str "http://" url))]
-					     ["version" "2.0.1"]))
+					     {"login" login 
+                                              "apiKey" bitkey
+                                              "longUrl" (if (.startsWith url "http://") url (str "http://" url))
+                                              "version" "2.0.1"}))
 		  :body-seq
 		  (apply str)))))
 
 (defn dot-tk [url]
   (.substring
-   (->> (res/get (add-query-params "http://api.dot.tk/tweak/shorten" ["long" url]))
+   (->> (res/get (add-query-params "http://api.dot.tk/tweak/shorten" {"long" url}))
 	:body-seq (apply str))
    0 15))
 
