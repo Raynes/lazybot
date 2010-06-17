@@ -34,7 +34,9 @@
     (if (= rescount cap) 
       (str res "... "
            (when (> (count s) cap)
-             (str "http://gist.github.com/" (:repo (new-gist "output.clj" s))))) 
+             (try
+               (str "http://gist.github.com/" (:repo (new-gist "output.clj" s)))
+               (catch java.io.IOException _ nil)))) 
       res)))
 
 (defn execute-text [txt]
