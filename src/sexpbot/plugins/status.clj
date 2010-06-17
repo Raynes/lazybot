@@ -2,29 +2,27 @@
   (:use [sexpbot respond])
   (:require [irclj.irclj :as ircb]))
 
-(def statusmsg-map (ref {}))
+(def statusmsg-map (atom {}))
 
 (defplugin	 
   (:setaway
    "Sets your away status."
    ["setaway"]
    [{:keys [irc nick channel args] :as irc-map}]
-   (dosync
-    (alter statusmsg-map assoc-in [(:server @irc) nick]
-	   {:status :away 
-	    :msg (let [msg (.trim
-			    (->> args
-				 (interpose " ")
-				 (apply str)))]
-		   (if (seq msg)
-		     msg
-		     "I'm away."))})))
+   (swap! statusmsg-map assoc-in [(:server @irc) nick]
+          {:status :away 
+           :msg (let [msg (.trim
+                           (->> args
+                                (interpose " ")
+                                (apply str)))]
+                  (if (seq msg)
+                    msg
+                    "I'm away."))}))
    (:return
     "Return from being away."
     ["return"]
     [{:keys [irc nick channel] :as irc-map}]
-    (dosync
-     (alter statusmsg-map assoc (:server @irc) {nick {:status :active :msg ""}})))
+    (swap! statusmsg-map assoc (:server @irc) {nick {:status :active :msg ""}}))
 
    (:status
     "Get the status of a user."

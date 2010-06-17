@@ -4,7 +4,7 @@
 	clj-time.core)
   (:require [irclj.irclj :as ircb]))
 
-(def running-timers (ref {}))
+(def running-timers (atom {}))
 
 (defn compose-timer [{:keys [end-time text]}]
   (let [this-moment (now)
@@ -45,10 +45,10 @@
 	     fint (in-secs (interval ctime newt))
 	     text (->> args rest (interpose " ") (apply str))
 	     timer-name (gensym)]
-	 (dosync (alter running-timers assoc timer-name {:end-time newt 
-							 :text (cap-text text 30)}))
+	 (swap! running-timers assoc timer-name {:end-time newt 
+                                                 :text (cap-text text 30)})
 	 (Thread/sleep (* fint 1000))
 	 (if (= (second args) "/me") 
 	   (ircb/send-action irc channel (apply str (interpose " " (nnext args))))
 	   (ircb/send-message irc channel text))
-	 (dosync (alter running-timers dissoc timer-name))))))))
+         (swap! running-timers dissoc timer-name)))))))

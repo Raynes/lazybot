@@ -6,6 +6,8 @@
 	    [irclj.irclj :as ircb])
   (:import [java.io File FileReader]))
 
+(def bots (atom {}))
+
 (def info (read-config info-file))
 (def prepend (:prepend info))
 

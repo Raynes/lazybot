@@ -1,5 +1,5 @@
 (ns sexpbot.plugins.load
-  (:use [sexpbot respond load]
+  (:use [sexpbot respond load core]
 	[irclj.irclj :as ircb]))
 
 (defplugin
@@ -35,4 +35,4 @@
    "Reloads all plugins. ADMIN ONLY!"
    ["reload"]
    [{:keys [irc channel nick ] :as irc-map}]
-   (if-admin nick irc-map (reload-all! irc))))
+   (if-admin nick irc-map (apply reload-all! (vals @bots)))))

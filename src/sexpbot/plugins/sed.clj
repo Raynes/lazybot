@@ -4,7 +4,7 @@
   (:require [irclj.irclj :as ircb]))
 
 (def prepend (:prepend (read-config info-file)))
-(def message-map (ref {}))
+(def message-map (atom {}))
 
 (defn- format-msg [irc nick channel]
   (ircb/send-message irc channel (str nick ": Format is sed [-<user name>] s/<regexp>/<replacement>/ Try $help sed")))
@@ -47,9 +47,8 @@
 	      
 	      (when (and (not= nick (:name @irc))
 			 (not= (take 4 message) (str prepend "sed")))
-		(dosync
-		 (alter message-map assoc-in [irc channel nick] message)
-		 (alter message-map assoc-in [irc channel :channel-last] message)))))
+                (swap! message-map assoc-in [irc channel nick] message)
+                (swap! message-map assoc-in [irc channel :channel-last] message))))
   
   (:sed 
    "Simple find and replace. Usage: sed [-<user name>] s/<regexp>/<replacement>/
