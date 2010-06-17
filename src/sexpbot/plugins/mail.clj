@@ -7,7 +7,7 @@
 
 (def mailfile (str sexpdir "/mail.clj"))
 
-(def alerted (ref {}))
+(def alerted (atom {}))
 
 (defn new-message [from to text]
   (let [messages (read-config mailfile)
@@ -41,7 +41,7 @@
     (when (and (> nmess 0) (alert-time? lower-nick))
       (ircb/send-notice irc nick (str nick ": You have " nmess 
 				      " new message(s). Type $mymail or $mail without any arguments to see them. This also works via PM."))
-      (dosync (alter alerted assoc lower-nick (now))))))
+      (swap! alerted assoc lower-nick (now)))))
 
 (defn get-messages [irc nick]
   (let [lower-nick (.toLowerCase nick)]
