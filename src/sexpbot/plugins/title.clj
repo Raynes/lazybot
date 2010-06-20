@@ -77,11 +77,11 @@
 	     (fn [{:keys [irc nick channel message] :as irc-map}]
 	       (let [info (read-config info-file)
 		     get-links (fn [s] (->> s (re-seq #"(http://|www\.)[^ ]+") (apply concat) (take-nth 2)))]
-		 (when (not (:user-blacklist (info (:server @irc)) nick))
-		   (let [prepend (:prepend info)
+		 (when (not ((:user-blacklist (info (:server @irc))) nick))
+		   (let [prepend (:prepends info)
 			 links (get-links message)
-			 title-links? (and (not= prepend (first message)) 
-					   ((:catch-links? info) (:server @irc))
+			 title-links? (and (not (m-starts-with message (:prepends info))) 
+					   (:catch-links? (info (:server @irc)))
 					   (seq links))]
 		     (when title-links?
 		       (title irc-map links)))))))

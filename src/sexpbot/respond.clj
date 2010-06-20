@@ -28,9 +28,15 @@
 
 (defmulti respond cmd-respond)
 
+(defn full-prepend [s]
+  ((get-key :prepends info-file) s))
+
+(defn m-starts-with [m s]
+  (some identity (map #(.startsWith m %) s)))
+
 (defn split-args [s]
   (let [[prepend command & args] (.split s " ")
-        is-long-pre ((get-key :prepends info-file) prepend)]
+        is-long-pre (full-prepend s)]
     {:command (if is-long-pre
                 command
                 (apply str (rest prepend)))
@@ -45,7 +51,7 @@
     (fn []
       (let [bot-map (assoc irc-map :privs (get-priv (:logged-in @irc) nick))
 	    conf (read-config info-file)]
-	(when (some identity (map #(.startsWith message %) (:prepends conf)))
+	(when (m-starts-with message (:prepends conf))
 	  (if (< @running (:max-operations conf))
 	    (do
 	      (swap! running inc)
