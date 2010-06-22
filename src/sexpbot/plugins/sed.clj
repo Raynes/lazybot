@@ -6,7 +6,7 @@
 (def prepends (:prepends (read-config info-file)))
 (def message-map (atom {}))
 
-(defn- format-msg [irc nick channel]  (ircb/send-message irc channel (str nick ": Format is sed [-<user name>] s/<regexp>/<replacement>/ Try $help sed")))
+(defn- format-msg [irc nick channel] (ircb/send-message irc channel (str nick ": Format is sed [-<user name>] s/<regexp>/<replacement>/ Try $help sed")))
 (defn- conj-args [args]
   (->> args
        (interpose " ")
@@ -14,7 +14,7 @@
 
 (defn sed* [string regexp replacement]
   (try
-   (.replaceAll string (str "(?i)" regexp) replacement)))
+    (.replaceAll string (str "(?i)" regexp) replacement)))
 
 (defn sed [irc channel nick args verbose?]
   (let [user-to (or (second (re-find #"^[\s]*-([\w]+)" (.trim (conj-args args)))) "")
@@ -43,19 +43,20 @@
 
 (defplugin
   (:add-hook :on-message
-	    (fn [{:keys [irc nick message channel] :as irc-map}]
-	      (when (not-empty (re-find #"^s/([^/]+)/([^/]*)/" message))
-		(sed irc channel nick [(str "-" nick) message] false))
-	      
-	      (when (and (not= nick (:name @irc))
-			 (not= (take 4 message) (str (first prepends) "sed")))
-                (swap! message-map assoc-in [irc channel nick] message)
-                (swap! message-map assoc-in [irc channel :channel-last] message))))
+	     (fn [{:keys [irc nick message channel] :as irc-map}]
+	       (when (not-empty (re-find #"^s/([^/]+)/([^/]*)/" message))
+		 (sed irc channel nick [(str "-" nick) message] false))
+	       
+	       (when (and (not= nick (:name @irc))
+			  (not= (take 4 message) (str (first prepends) "sed")))
+		 (swap! message-map assoc-in [irc channel nick] message)
+		 (swap! message-map assoc-in [irc channel :channel-last] message))))
   
-  (:sed 
+  (:sed
    "Simple find and replace. Usage: sed [-<user name>] s/<regexp>/<replacement>/
-    If the specified user isn't found, it will default to the last thing said in the channel.
-    Example Usage: sed -boredomist s/[aeiou]/#/
-    Shorthand    : s/[aeiou]/#/"
+If the specified user isn't found, it will default to the last thing said in the channel.
+Example Usage: sed -boredomist s/[aeiou]/#/
+Shorthand : s/[aeiou]/#/"
    ["sed"]
    [{:keys [irc channel args nick] :as irc-map}] (sed irc channel nick args true)))
+
