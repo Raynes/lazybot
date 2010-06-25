@@ -36,7 +36,7 @@
 
 (defn split-args [s]
   (let [[prepend command & args] (.split s " ")
-        is-long-pre (full-prepend s)]
+        is-long-pre (full-prepend prepend)]
     {:command (if is-long-pre
                 command
                 (apply str (rest prepend)))
