@@ -13,7 +13,8 @@
 (def sandbox-tester
      (extend-tester secure-tester 
 		    (whitelist 
-		     (function-matcher '*out* 'println 'print 'pr 'prn 'var 'print-doc 'doc 'throw)
+		     (function-matcher '*out* 'println 'print 'pr 'prn 'var 'print-doc 'doc 'throw
+                                       'def 'def*)
 		     (class-matcher java.io.StringWriter java.net.URL java.net.URI))))
 
 (def my-obj-tester
@@ -24,7 +25,8 @@
 
 (def sc (stringify-sandbox (new-sandbox-compiler :tester sandbox-tester 
 						 :timeout 10000 
-					  	 :object-tester my-obj-tester)))
+					  	 :object-tester my-obj-tester
+                                                 :remember-state 5)))
 
 (def cap 200)
 
