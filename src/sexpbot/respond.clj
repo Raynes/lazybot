@@ -86,5 +86,6 @@
 					     (alter irc# update-in [:hooks] dissoc m-name#)))
 		      :cleanup ~clean-fn}))))))))
 
-(defmethod respond :default [{:keys [irc channel]}]
-  (ircb/send-message irc channel "Command not found. No entiendo lo que estás diciendo."))
+; Disabled for now. Will make this a configuration option in a little while.
+;(defmethod respond :default [{:keys [irc channel]}]
+;  (ircb/send-message irc channel "Command not found. No entiendo lo que estás diciendo."))
