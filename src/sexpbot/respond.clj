@@ -87,5 +87,5 @@
 		      :cleanup ~clean-fn}))))))))
 
 ; Disabled for now. Will make this a configuration option in a little while.
-;(defmethod respond :default [{:keys [irc channel]}]
-;  (ircb/send-message irc channel "Command not found. No entiendo lo que estás diciendo."))
+(defmethod respond :default [{:keys [irc channel]}]
+           #_(ircb/send-message irc channel "Command not found. No entiendo lo que estás diciendo."))
