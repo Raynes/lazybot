@@ -51,13 +51,12 @@
    (catch Exception e (str (root-cause e)))))
 
 (defplugin
-  (:eval 
-   "Evalutate Clojure code. Sandboxed, so you're welcome to try to break it."
-   [\( "eval"] 
-   [{:keys [irc channel command args]}]
-   (ircb/send-message irc channel (->> (if (= (first command) \() 
-					 (cons command args) 
-					 args)
-				       (interpose " ")
-				       (apply str) 
-				       execute-text))))
+  (:add-hook :on-message
+             (fn [{:keys [irc channel message]}]
+               (when (.startsWith message "=>")
+                 (ircb/send-message irc channel (execute-text (apply str (drop 2 message)))))))
+  (:eval
+   "Old. Use => now. It's a hook, so it can evaluate anything."
+   [\( "eval"]
+   [{:keys [irc channel]}]
+   (ircb/send-message irc channel "This command is old. Use => now. It's a hook, so it can evaluate anything, even stuff that doesn't start with parentheses.")))
