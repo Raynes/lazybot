@@ -30,7 +30,7 @@
    "Logs you out."
    ["logout"] 
    [{:keys [irc nick channel]}]
-   (dosync (alter irc update-in [:logged-in] dissoc nick)
+   (dosync (alter irc update-in [:logged-in (:server @irc)] dissoc nick)
 	   (ircb/send-message irc channel "You've been logged out.")))
 
    (:privs
