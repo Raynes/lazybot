@@ -46,18 +46,29 @@
    (with-open [writer (StringWriter.)]
      (let [res (pr-str ((sc txt) {'*out* writer}))
            replaced (.replaceAll (str writer) "\n" " ")]
-       (str "-> " (trim (str replaced (when (= last \space) " ") res)))))
+       (str "=> " (trim (str replaced (when (= last \space) " ") res)))))
    (catch TimeoutException _ "Execution Timed Out!")
    (catch SecurityException e (str (root-cause e)))
    (catch Exception e (str (root-cause e)))))
 
+(def many (atom 0))
+
 (defplugin
   (:add-hook :on-message
              (fn [{:keys [irc channel message]}]
-               (when (.startsWith message "=>")
-                 (ircb/send-message irc channel (execute-text (apply str (drop 2 message)))))))
+               (.start
+                (Thread.
+                 (fn []
+                   (when (.startsWith message "->")
+                     (if (< @many 3)
+                       (do
+                         (try
+                           (swap! many inc)
+                           (ircb/send-message irc channel (execute-text (apply str (drop 2 message))))
+                           (finally (swap! many dec))))
+                       (ircb/send-message irc channel "Too much is happening at once. Wait until other operations cease."))))))))
   (:eval
    "Old. Use => now. It's a hook, so it can evaluate anything."
    [\( "eval"]
    [{:keys [irc channel]}]
-   (ircb/send-message irc channel "This command is old. Use => now. It's a hook, so it can evaluate anything, even stuff that doesn't start with parentheses.")))
+   (ircb/send-message irc channel "This command is old. Use -> now. It's a hook, so it can evaluate anything, even stuff that doesn't start with parentheses.")))
