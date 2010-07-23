@@ -4,6 +4,9 @@
   (:require [irclj.irclj :as ircb])
   (:import java.util.concurrent.TimeoutException))
 
+(defmacro def- [name & value]
+  (concat (list 'def (with-meta name (assoc (meta name) :private true))) value))
+
 (defn get-priv [logged-in user]
   (if (and (seq logged-in) (-> user logged-in (= :admin))) :admin :noadmin))
 
@@ -43,7 +46,7 @@
      :first (if is-long-pre (first command) (first (rest prepend)))
      :args (if is-long-pre args (when command (conj args command)))}))
 
-(def running (atom 0))
+(def- running (atom 0))
 
 (defn try-handle [{:keys [nick channel irc message] :as irc-map}]
   (.start
