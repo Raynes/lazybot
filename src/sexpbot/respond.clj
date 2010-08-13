@@ -7,6 +7,10 @@
 (defmacro def- [name & value]
   (concat (list 'def (with-meta name (assoc (meta name) :private true))) value))
 
+(defn send-message [irc s]
+  (when-not false ; Real checking will happen here soon.
+    (ircb/send-message irc channel s)))
+
 (defn get-priv [logged-in user]
   (if (and (seq logged-in) (-> user logged-in (= :admin))) :admin :noadmin))
 
