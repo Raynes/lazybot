@@ -14,7 +14,7 @@
      (extend-tester secure-tester 
 		    (whitelist 
 		     (function-matcher '*out* 'println 'print 'pr 'prn 'var 'print-doc 'doc 'throw
-                                       'def 'def*)
+                                       'def)
 		     (class-matcher java.io.StringWriter java.net.URL java.net.URI))))
 
 (def my-obj-tester
@@ -23,10 +23,13 @@
 		     (class-matcher java.io.StringWriter String Byte Character StrictMath StringBuffer
 				    java.net.URL java.net.URI))))
 
+(def newdefn '(defmacro defn [name & body] `(def ~name (fn ~name ~@body))))
+
 (def sc (stringify-sandbox (new-sandbox-compiler :tester sandbox-tester 
 						 :timeout 10000 
 					  	 :object-tester my-obj-tester
-                                                 :remember-state 5)))
+                                                 :remember-state 5
+                                                 :initial [newdefn])))
 
 (def cap 200)
 
@@ -38,7 +41,7 @@
            (when (> (count s) cap)
              (try
                (str "http://gist.github.com/" (:repo (new-gist "output.clj" s)))
-               (catch java.io.IOException _ nil)))) 
+               (catch java.io.IOException _ nil))))
       res)))
 
 (defn execute-text [txt]
