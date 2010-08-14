@@ -3,7 +3,7 @@
   (:use [sexpbot info respond utilities]
 	[clojure.contrib [string :only [ltrim]] [io :only [reader]]]
 	[clj-config.core :only [read-config]])
-  (:require [irclj.irclj :as ircb])
+  
   (:import java.util.concurrent.TimeoutException
 	   org.apache.commons.lang.StringEscapeUtils))
 
@@ -59,18 +59,18 @@
 			     page (slurp-or-default url)
 			     match (second page)]
 			 (if (and (seq page) (seq match) (not (url-check irc url)))
-			   (ircb/send-message irc channel 
+			   (send-message irc channel 
 					      (str "\"" 
 						   (ltrim 
 						    (StringEscapeUtils/unescapeHtml 
 						     (collapse-whitespace match))) 
 						   "\""))
-			   (when verbose? (ircb/send-message irc channel "Page has no title."))))
+			   (when verbose? (send-message irc channel "Page has no title."))))
 		      20)
        (catch TimeoutException _ 
 	 (when verbose? 
-	   (ircb/send-message irc channel "It's taking too long to find the title. I'm giving up.")))))
-    (when verbose? (ircb/send-message irc channel "Which page?"))))
+	   (send-message irc channel "It's taking too long to find the title. I'm giving up.")))))
+    (when verbose? (send-message irc channel "Which page?"))))
 
 (defplugin
   (:add-hook :on-message

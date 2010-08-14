@@ -1,12 +1,12 @@
 (ns sexpbot.plugins.sed
   (:use [sexpbot respond info]
 	clj-config.core)
-  (:require [irclj.irclj :as ircb]))
+  )
 
 (def prepends (:prepends (read-config info-file)))
 (def message-map (atom {}))
 
-(defn- format-msg [irc nick channel] (ircb/send-message irc channel (str nick ": Format is sed [-<user name>] s/<regexp>/<replacement>/ Try $help sed")))
+(defn- format-msg [irc nick channel] (send-message irc channel (str nick ": Format is sed [-<user name>] s/<regexp>/<replacement>/ Try $help sed")))
 (defn- conj-args [args]
   (->> args
        (interpose " ")
@@ -32,12 +32,12 @@
 			      (not-empty (rest (re-find #"^s/([^/]+)/([^/]*)/" margs)))
 			      nil)]
     (cond
-     (empty? last-in) (ircb/send-message irc channel "No one said anything yet!")
+     (empty? last-in) (send-message irc channel "No one said anything yet!")
      (not-any? seq [regexp replacement]) (format-msg irc nick channel)
      :else (try
 	     (let [orig-msg last-in
 		   new-msg (sed* last-in regexp replacement)]
-	       (when-not (= orig-msg new-msg) (ircb/send-message irc channel new-msg)))
+	       (when-not (= orig-msg new-msg) (send-message irc channel new-msg)))
 	     (catch Exception _ (when verbose? (format-msg irc nick channel)))))))
 
 

@@ -1,6 +1,6 @@
 (ns sexpbot.plugins.leet
   (:use sexpbot.respond)
-  (:require [irclj.irclj :as ircb]))
+  )
 
 
 (defn char-to-leet [c]
@@ -26,7 +26,7 @@
    "Takes words and replaces them with their leetspeak alternatives." 
    ["elite"] 
    [{:keys [irc channel args]}]
-   (ircb/send-message irc channel 
+   (send-message irc channel 
 		      (->> args 
 			   (interpose " ")
 			   (apply str)

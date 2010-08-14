@@ -30,7 +30,7 @@
 			     \- (minus (now) (hours n))
 			     (now)))
 			 (now)))]
-     (ircb/send-message irc channel (str nick ": The time is now " time))))
+     (send-message irc channel (str nick ": The time is now " time))))
 
   (:join 
    "Joins a channel. ADMIN ONLY."
@@ -45,7 +45,7 @@
    [{:keys [irc nick args channel] :as irc-map}]
    (if-admin nick irc-map
 	     (let [chan (if (seq args) (first args) channel)]
-	       (ircb/send-message irc chan "Bai!")
+	       (send-message irc chan "Bai!")
 	       (ircb/part-chan irc chan :reason "Because I don't like you."))))
 
   (:rape 
@@ -61,25 +61,25 @@
    "Flips a coin."
    ["coin"] 
    [{:keys [irc nick channel]}]
-   (ircb/send-message irc channel (str nick ": " (if (= 0 (rand-int 2)) "Heads." "Tails."))))
+   (send-message irc channel (str nick ": " (if (= 0 (rand-int 2)) "Heads." "Tails."))))
 
   (:what 
    "Prints an amusing message."
    ["what"] 
    [{:keys [irc channel]}]
-   (ircb/send-message irc channel "It's AWWWW RIGHT!"))
+   (send-message irc channel "It's AWWWW RIGHT!"))
    
   (:pangram 
    "Checks if it's input string is a pangram."
    ["pangram?"] 
    [{:keys [irc channel args]}]
-   (ircb/send-message irc channel (-> args stringify pangram? str)))
+   (send-message irc channel (-> args stringify pangram? str)))
    
   (:fuck 
    "Just says the sender's name: no u."
    ["fuck"] 
    [{:keys [irc channel nick]}]
-   (ircb/send-message irc channel (str nick ": no u")))
+   (send-message irc channel (str nick ": no u")))
 
   (:setnick 
    "Sets the bot's nick. ADMIN ONLY."
@@ -91,26 +91,26 @@
    "Amusing command to check to see if a directory exists on the system that runs the bot."
    ["exists?"] 
    [{:keys [irc channel args]}]
-   (ircb/send-message irc channel (str (.exists (java.io.File. (first args))))))
+   (send-message irc channel (str (.exists (java.io.File. (first args))))))
 
   (:botsnack 
    "Love your bot? Give him a snack and thank him for his hard work!"
    ["botsnack"] 
    [{:keys [nick irc channel args]}]
-   (ircb/send-message irc channel (str nick ": Thanks! Om nom nom!!")))
+   (send-message irc channel (str nick ": Thanks! Om nom nom!!")))
    
   (:your 
    "Prints an amusing and inappropriate message directed at a person you specify. For when people
     use 'your' when they should have used 'you're'"
    ["your"] 
    [{:keys [irc channel args]}]
-   (ircb/send-message irc channel (str (first args) ": It's 'you're', you fucking illiterate bastard.")))
+   (send-message irc channel (str (first args) ": It's 'you're', you fucking illiterate bastard.")))
 
   (:kill 
    "Prints an amusing message."
    ["kill"]
    [{:keys [irc channel]}]
-   (ircb/send-message irc channel "IT WITH FIRE. FOR GREAT JUSTICE!"))
+   (send-message irc channel "IT WITH FIRE. FOR GREAT JUSTICE!"))
    
   (:error "" ["error"] [_] (throw (Exception. "Hai!")))
 
@@ -118,7 +118,7 @@
    "Gists it's arguments."
    ["gist"] 
    [{:keys [irc channel nick args]}]
-   (ircb/send-message irc channel (str nick ": http://gist.github.com/" 
+   (send-message irc channel (str nick ": http://gist.github.com/" 
 				       (:repo (new-gist (first args) 
                                                         (->> args rest (interpose " ") (apply str)))))))
 
@@ -128,7 +128,7 @@
   ; "Dumps a list of commands to a gist."
   ; ["dumpcmds" "commands"]
   ; [{:keys [irc channel]}]
-  ; (ircb/send-message
+  ; (send-message
   ;  irc channel
   ;  (str "http://gist.github.com/"
   ;       (:repo (new-gist "dumpcmds"
@@ -141,7 +141,7 @@
    ["balance"]
    [{:keys [irc channel nick args]}]
    (let [[fst & more] args]
-     (ircb/send-message irc channel 
+     (send-message irc channel 
 			(str nick ": " (apply str (concat fst (repeat (count fst) ")")))))))
 
   (:say 
@@ -149,14 +149,14 @@
    ["say"] 
    [{:keys [irc channel nick args] :as irc-map}]
    (if-admin nick irc-map
-	     (ircb/send-message irc (first args) (->> args rest (interpose " ") (apply str)))))
+	     (send-message irc (first args) (->> args rest (interpose " ") (apply str)))))
 
   (:tempconv
    "Temperature conversion. If given Cn, converts from C to F. If given Fn, converts from F to C."
    ["tc" "tempconv"]
    [{:keys [irc channel nick args]}]
    (let [num (->> args first rest (apply str) Integer/parseInt)]
-     (ircb/send-message irc channel 
+     (send-message irc channel 
 			(str nick ": "
 			     (condp = (ffirst args)
 			       \F (* (- num 32) (/ 5 9.0))
@@ -169,7 +169,7 @@
    [{:keys [irc channel nick args]}]
    (let [address (InetAddress/getByName (first args))
 	 stime (now)]
-     (ircb/send-message 
+     (send-message 
       irc channel 
       (str nick ": "
 	   (if (= false (.isReachable address 5000))

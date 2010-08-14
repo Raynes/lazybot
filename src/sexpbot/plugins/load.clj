@@ -1,6 +1,5 @@
 (ns sexpbot.plugins.load
-  (:use [sexpbot respond load core]
-	[irclj.irclj :as ircb]))
+  (:use [sexpbot respond load core]))
 
 (defplugin
   (:load
@@ -9,8 +8,8 @@
    [{:keys [irc nick channel args] :as irc-map}]
    (if-admin nick irc-map
 	     (if (true? (->> args first (loadmod irc)))
-	       (ircb/send-message irc channel "Loaded.")
-	       (ircb/send-message irc channel (str "Module " (first args) " not found.")))))
+	       (send-message irc channel "Loaded.")
+	       (send-message irc channel (str "Module " (first args) " not found.")))))
   
   (:unload
    "Unload a plugin. ADMIN ONLY!"
@@ -20,15 +19,15 @@
 	     (if ((:modules @irc) (-> args first keyword))
 	       (do 
 		 ((((:modules @irc) (-> args first keyword)) :unload))
-		 (ircb/send-message irc channel "Unloaded."))
-	       (ircb/send-message irc channel (str "Module " (first args) " not found.")))))
+		 (send-message irc channel "Unloaded."))
+	       (send-message irc channel (str "Module " (first args) " not found.")))))
 
   (:loaded
    "Lists all the plugins that are currently loaded. ADMIN ONLY!"
    ["loaded?"]
    [{:keys [irc nick channel args] :as irc-map}]
    (if-admin nick irc-map
-	     (ircb/send-message irc channel 
+	     (send-message irc channel 
 				(->> (:commands @irc) (filter (comp map? second)) (into {}) keys str str))))
   
   (:reload

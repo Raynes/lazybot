@@ -1,8 +1,9 @@
 (ns sexpbot.plugins.timer
   (:refer-clojure :exclude [extend])
+  (:require [irclj.irclj :as ircb])
   (:use sexpbot.respond
 	clj-time.core)
-  (:require [irclj.irclj :as ircb]))
+  )
 
 (def running-timers (atom {}))
 
@@ -24,12 +25,12 @@
    (let [timers (map compose-timer (vals @running-timers))]
      (if (> (count timers) 0)
        (if-let [n-to-show (first args)]
-	 (doseq [timer (take n-to-show timers)] (ircb/send-message irc channel timer))
+	 (doseq [timer (take n-to-show timers)] (send-message irc channel timer))
 	 (do
 	   (doseq [timer (take 3 timers)] 
-	     (ircb/send-message irc channel timer))
-	   (when (> (count timers) 3) (ircb/send-message irc channel "and more..."))))
-       (ircb/send-message irc channel "No timers are currently running."))))
+	     (send-message irc channel timer))
+	   (when (> (count timers) 3) (send-message irc channel "and more..."))))
+       (send-message irc channel "No timers are currently running."))))
 
   (:timer 
    "Create's a timer. You specify the time you want it to run in a 00:00:00 format, and a message
@@ -50,5 +51,5 @@
 	 (Thread/sleep (* fint 1000))
 	 (if (= (second args) "/me") 
 	   (ircb/send-action irc channel (apply str (interpose " " (nnext args))))
-	   (ircb/send-message irc channel text))
+	   (send-message irc channel text))
          (swap! running-timers dissoc timer-name)))))))

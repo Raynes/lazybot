@@ -1,6 +1,6 @@
 (ns sexpbot.plugins.status
   (:use [sexpbot respond])
-  (:require [irclj.irclj :as ircb]))
+  )
 
 (def statusmsg-map (atom {}))
 
@@ -33,7 +33,7 @@
 	(let [status-m (@statusmsg-map (:server @irc))]
 	  (if-let [status-map (status-m user)]
 	    (if (= :away (get status-map :status))
-	      (ircb/send-message irc channel (str user " is away: " (status-map :msg)))
-	      (ircb/send-message irc channel (str user " is active. ")))
-	    (ircb/send-message irc channel (str (first args) " doesn't exist, or hasn't set their status"))))
-	(ircb/send-message irc channel "Who?")))))
+	      (send-message irc channel (str user " is away: " (status-map :msg)))
+	      (send-message irc channel (str user " is active. ")))
+	    (send-message irc channel (str (first args) " doesn't exist, or hasn't set their status"))))
+	(send-message irc channel "Who?")))))

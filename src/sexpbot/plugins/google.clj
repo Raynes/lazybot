@@ -3,7 +3,7 @@
 	[clojure-http.client :only [add-query-params]])
   (:require [org.danlarkin.json :as json]
 	    [clojure-http.resourcefully :as res]
-	    [irclj.irclj :as ircb])
+	    )
   (:import org.apache.commons.lang.StringEscapeUtils))
 
 (defn google [term]
@@ -17,13 +17,13 @@
 
 (defn handle-search [{:keys [irc channel args]}]
   (if-not (seq (.trim (apply str (interpose " " args))))
-    (ircb/send-message irc channel (str "No search term!"))
+    (send-message irc channel (str "No search term!"))
     (let [[res-count res-map] (-> (apply str (interpose " " args)) google cull)
 	  title (:titleNoFormatting res-map)
 	  url (:url res-map)]
-      (ircb/send-message irc channel (StringEscapeUtils/unescapeHtml 
+      (send-message irc channel (StringEscapeUtils/unescapeHtml 
 				      (str "First out of " res-count " results is: " title)))
-      (ircb/send-message irc channel url))))
+      (send-message irc channel url))))
 
 (defplugin
   (:google 

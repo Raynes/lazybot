@@ -1,6 +1,6 @@
 (ns sexpbot.plugins.dynamic
   (:use [sexpbot respond])
-  (:require [irclj.irclj :as ircb]))
+  )
 
 (def char-map (apply hash-map (interleave (range 1 28) "abcdefghijklmnopqrstuvwxyz ")))
 
@@ -30,5 +30,5 @@
    ["dy2str" "dytostr"]
    [{:keys [irc channel args]}]
    (if-not (seq (.trim (apply str (interpose " "  args))))
-     (ircb/send-message irc channel "No dynamic string given!")
-     (ircb/send-message irc channel (dynamic-to-str (first args))))))
+     (send-message irc channel "No dynamic string given!")
+     (send-message irc channel (dynamic-to-str (first args))))))

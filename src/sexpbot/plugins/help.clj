@@ -3,7 +3,7 @@
   (:use [sexpbot respond info]
 	[clj-config.core :only [read-config]]
 	stupiddb.core)
-  (:require [irclj.irclj :as ircb]))
+  )
 
 (let [info (read-config info-file)]
   (def admin-add? (:admin-add? info))
@@ -23,17 +23,17 @@
 		      (rest)
 		      (apply str))]
      (cond
-      (not-empty (db-get db (.trim topic))) (ircb/send-message irc channel "Topic already exists!")
+      (not-empty (db-get db (.trim topic))) (send-message irc channel "Topic already exists!")
       (or (empty? (.trim topic))
-	  (empty? (.trim content))) (ircb/send-message irc channel "Neither topic nor content can be empty!")
+	  (empty? (.trim content))) (send-message irc channel "Neither topic nor content can be empty!")
       :else  (if admin-add?
 	       (if-admin nick ircm
 		 (do
 		   (db-assoc db (.trim topic) content)
-		   (ircb/send-message irc channel (str "Topic Added: " (.trim topic)))))
+		   (send-message irc channel (str "Topic Added: " (.trim topic)))))
 	       (do
 		 (db-assoc db (.trim topic) content)
-		 (ircb/send-message irc channel (str "Topic Added: " (.trim topic))))))))
+		 (send-message irc channel (str "Topic Added: " (.trim topic))))))))
 
   (:rmtopic
    "Removes a topic from the help DB. You may need to be an admin to do this"
@@ -45,11 +45,11 @@
 	 (if-admin nick ircm
 	   (do
 	     (db-dissoc db topic)
-	     (ircb/send-message irc channel (str "Topic Removed: " topic))))
+	     (send-message irc channel (str "Topic Removed: " topic))))
 	 (do
 	   (db-dissoc db topic)
-	   (ircb/send-message irc channel (str "Topic Removed: " topic))))
-       (ircb/send-message irc channel (str "Topic: \"" topic  "\" doesn't exist!")))))
+	   (send-message irc channel (str "Topic Removed: " topic))))
+       (send-message irc channel (str "Topic: \"" topic  "\" doesn't exist!")))))
 
   (:help
    "Get help with commands and stuff."
@@ -68,17 +68,17 @@
        (let [topic (first args)
 	     content (db-get db topic)]
 	 (if (not-empty content)
-	   (ircb/send-message irc channel (str nick ":" (.trim content)))
+	   (send-message irc channel (str nick ":" (.trim content)))
 	   (if (empty? topic)
-	     (ircb/send-message irc channel (str nick ": I can't help you, I'm afraid. You can only help yourself."))
-	     (ircb/send-message irc channel (str "Topic: \"" topic "\" doesn't exist!")))))
-       (ircb/send-message irc channel (str nick ": " help-msg)))))
+	     (send-message irc channel (str nick ": I can't help you, I'm afraid. You can only help yourself."))
+	     (send-message irc channel (str "Topic: \"" topic "\" doesn't exist!")))))
+       (send-message irc channel (str nick ": " help-msg)))))
   
   (:list
    "Lists the available help topics in the DB."
    ["list"]
    [{:keys [irc channel]}]
-   (ircb/send-message irc channel (str "I know: " (->> (read-config help-file)
+   (send-message irc channel (str "I know: " (->> (read-config help-file)
 						       keys
 						       (interpose " ")
 						       (apply str)))))

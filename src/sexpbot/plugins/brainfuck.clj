@@ -1,6 +1,6 @@
 (ns sexpbot.plugins.brainfuck
   (:use sexpbot.respond)
-  (:require [irclj.irclj :as ircb]))
+  )
 
 ;;; From Rosettacode ;;;
 (def *input*)
@@ -92,4 +92,4 @@
 		   (compile-and-run input) 
 		   with-out-str 
 		   (#(.split % "\n")))]
-       (ircb/send-message irc channel x)))))
+       (send-message irc channel x)))))

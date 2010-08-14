@@ -3,7 +3,7 @@
 	[clojure-http.client :only [add-query-params]])
   (:require [org.danlarkin.json :as json]
 	    [clojure-http.resourcefully :as res]
-	    [irclj.irclj :as ircb]))
+	    ))
 
 (def tryurl "http://tryhaskell.org/haskell.json")
 
@@ -23,4 +23,4 @@
    "Evaluates some Haskell code. Doesn't print error messages and uses the TryHaskell API."
    ["heval"] 
    [{:keys [irc channel nick args]}]
-   (ircb/send-message irc channel (str "=> " (eval-haskell (apply str (interpose " " args)))))))
+   (send-message irc channel (str "=> " (eval-haskell (apply str (interpose " " args)))))))

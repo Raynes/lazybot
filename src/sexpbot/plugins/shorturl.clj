@@ -4,7 +4,7 @@
 	[clojure-http.client :only [add-query-params]])
   (:require [org.danlarkin.json :as json]
 	    [clojure-http.resourcefully :as res]
-	    [irclj.irclj :as ircb])
+	    )
   (:import java.net.URI))
 
 
@@ -43,8 +43,8 @@
 
 (defn shorten [{:keys [irc channel nick args]} site]
   (if-let [url (first args)]
-    (ircb/send-message irc channel (str nick ": " (shorten-url url site)))
-    (ircb/send-message irc channel "You didn't specify a URL!")))
+    (send-message irc channel (str nick ": " (shorten-url url site)))
+    (send-message irc channel "You didn't specify a URL!")))
 
 (defplugin
   (:bit-ly

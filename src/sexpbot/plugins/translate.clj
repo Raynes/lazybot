@@ -2,7 +2,7 @@
   (:use [sexpbot respond utilities])
   (:require [org.danlarkin.json :as json]
 	    [clojure-http.resourcefully :as res]
-	    [irclj.irclj :as ircb])
+	    )
   (:import org.apache.commons.lang.StringEscapeUtils))
 
 (defn translate [lang1 lang2 text]
@@ -20,9 +20,9 @@
    (let [[lang-from lang-to & text] args
 	 translation (translate lang-from lang-to (stringify text))]
      (if (:responseData translation)
-       (ircb/send-message irc channel (-> translation 
+       (send-message irc channel (-> translation 
 					  :responseData 
 					  :translatedText 
 					  StringEscapeUtils/unescapeHtml
 					  (.replaceAll "\n|\r" "")))
-       (ircb/send-message irc channel "Languages not recognized.")))))
+       (send-message irc channel "Languages not recognized.")))))

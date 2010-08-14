@@ -4,7 +4,7 @@
   (:require [clojure.xml :as xml]
 	    [clojure.zip :as zip]
 	    [clojure.contrib.zip-filter.xml :as zf]
-	    [irclj.irclj :as ircb]))
+	    ))
 
 (def forcasturl "http://api.wunderground.com/auto/wui/geo/ForecastXML/index.xml?query=")
 
@@ -40,9 +40,9 @@
 	 conditions (if (string? today) today a)]
      (if (seq date)
        (do
-	 (ircb/send-message irc channel (str nick ": " date))
-	 (ircb/send-message irc channel (str nick ": TODAY: " conditions))
+	 (send-message irc channel (str nick ": " date))
+	 (send-message irc channel (str nick ": TODAY: " conditions))
 	 (when (string? today)
-	   (ircb/send-message irc channel (str nick ": TONIGHT: " tonight))))
-       (ircb/send-message irc channel (str nick ": Location not found!"))))))
+	   (send-message irc channel (str nick ": TONIGHT: " tonight))))
+       (send-message irc channel (str nick ": Location not found!"))))))
 

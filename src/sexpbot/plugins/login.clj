@@ -1,7 +1,7 @@
 (ns sexpbot.plugins.login
   (:use [sexpbot respond info]
 	[clj-config.core :only [read-config]])
-  (:require [irclj.irclj :as ircb]))
+  )
 
 (defn check-pass-login [user pass irc]
   (let [userconf ((:users ((read-config info-file) (:server @irc))) user)]
@@ -23,22 +23,22 @@
    ["login"] 
    [{:keys [irc nick channel args]}]
    (if (check-pass-login nick (first args) irc)
-     (ircb/send-message irc channel "You've been logged in.")
-     (ircb/send-message irc channel "Username and password combination do not match.")))
+     (send-message irc channel "You've been logged in.")
+     (send-message irc channel "Username and password combination do not match.")))
   
   (:logout 
    "Logs you out."
    ["logout"] 
    [{:keys [irc nick channel]}]
    (dosync (alter irc update-in [:logged-in (:server @irc)] dissoc nick)
-	   (ircb/send-message irc channel "You've been logged out.")))
+	   (send-message irc channel "You've been logged out.")))
 
    (:privs
    "Finds your privs"
    ["privs"]
    [{:keys [irc channel nick]}]
    (do
-     (ircb/send-message irc channel 
+     (send-message irc channel 
 			(str nick ": You are a"
 			     (if (not= :admin (:privs ((:users ((read-config info-file) (:server @irc))) nick)))
 			       " regular user."

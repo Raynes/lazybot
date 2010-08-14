@@ -4,7 +4,7 @@
   (:require [clojure.xml :as xml]
 	    [clojure.zip :as zip]
 	    [clojure.contrib.zip-filter.xml :as zf]
-	    [irclj.irclj :as ircb]))
+	    ))
 
 (defn cull [zipper]
   (let [items (take 3 (zf/xml-> zipper :channel :item))
@@ -29,5 +29,5 @@
    [{:keys [irc channel args]}]
    (try
     (doseq [[title link] (pull-feed (first args))]
-      (ircb/send-message irc channel (str title " -- " link)))
-    (catch Exception _ (ircb/send-message irc channel "Feed is unreadable.")))))
+      (send-message irc channel (str title " -- " link)))
+    (catch Exception _ (send-message irc channel "Feed is unreadable.")))))

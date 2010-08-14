@@ -1,9 +1,10 @@
 (ns sexpbot.plugins.mail
   (:refer-clojure :exclude [extend])
+  (:require [irclj.irclj :as ircb])
   (:use [sexpbot respond info]
 	[clj-time core format]
 	clj-config.core)
-  (:require [irclj.irclj :as ircb]))
+  )
 
 (def mailfile (str sexpdir "/mail.clj"))
 
@@ -46,8 +47,8 @@
 (defn get-messages [irc nick]
   (let [lower-nick (.toLowerCase nick)]
     (if-let [messages (seq (get-messages* lower-nick))]
-      (doseq [message messages] (ircb/send-message irc lower-nick message))
-      (ircb/send-message irc nick "You have no messages."))))
+      (doseq [message messages] (send-message irc lower-nick message))
+      (send-message irc nick "You have no messages."))))
 
 (defplugin
   (:add-hook :on-message (fn [irc-map] (mail-alert irc-map)))
@@ -70,6 +71,6 @@
 	  (do
 	    (new-message nick lower-user 
 			 (->> args rest (interpose " ") (apply str)))
-	    (ircb/send-message irc channel "Message saved."))
-	  (ircb/send-message irc channel "You can't message the unmessageable.")))
+	    (send-message irc channel "Message saved."))
+	  (send-message irc channel "You can't message the unmessageable.")))
      (get-messages irc nick))))

@@ -3,7 +3,7 @@
   (:use [sexpbot respond info]
 	[clj-time core format]
 	stupiddb.core)
-  (:require [irclj.irclj :as ircb]))
+  )
 
 (def seenfile (str sexpdir "/seen.db"))
 (def db (db-init seenfile 1800))
@@ -42,7 +42,7 @@
    ["seen"] 
    [{:keys [irc nick channel args]}]
    (if-let [{:keys [time chan doing nick]} (get-seen (first args) (:server @irc))]
-     (ircb/send-message irc channel (str nick " was last seen " doing (when-not (= doing "quitting") " on ") 
+     (send-message irc channel (str nick " was last seen " doing (when-not (= doing "quitting") " on ") 
 					 chan " " time " minutes ago."))
-     (ircb/send-message irc channel (str "I have never seen " (first args) "."))))
+     (send-message irc channel (str "I have never seen " (first args) "."))))
   (:cleanup (fn [] (db-close db))))

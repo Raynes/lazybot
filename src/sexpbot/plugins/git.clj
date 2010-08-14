@@ -1,7 +1,7 @@
 (ns sexpbot.plugins.git
   (:use [sexpbot respond]
 	clojure.java.shell)
-  (:require [irclj.irclj :as ircb]))
+  )
 
 (defn git-pull []
   (let [out (sh "git" "pull")]
@@ -15,4 +15,4 @@
    ["gitpull"]
    [{:keys [irc channel nick args] :as ircm}]
    (if-admin nick ircm
-     (ircb/send-message irc channel (git-pull)))))
+     (send-message irc channel (git-pull)))))

@@ -2,7 +2,7 @@
   (:use [sexpbot respond info utilities]
 	clj-config.core
 	stupiddb.core)
-  (:require [irclj.irclj :as ircb])
+  
   (:import java.io.File))
 
 (def whatis (str (System/getProperty "user.home") "/.sexpbot/whatis.db"))
@@ -19,7 +19,7 @@
 	 is-s (apply str (interpose " " is))]
      (do
        (db-assoc db subject is-s)
-       (ircb/send-message irc channel "My memory is more powerful than M-x butterfly. I wont forget it."))))
+       (send-message irc channel "My memory is more powerful than M-x butterfly. I wont forget it."))))
    
    (:whatis 
     "Pass it a key, and it will tell you what is at the key in the database."
@@ -27,8 +27,8 @@
     [{:keys [irc channel args]}]
     (let [result (->> args first (db-get db))]
       (if result
-	(ircb/send-message irc channel (str (first args) " = " result))
-	(ircb/send-message irc channel (str (first args) " does not exist in my database.")))))
+	(send-message irc channel (str (first args) " = " result))
+	(send-message irc channel (str (first args) " does not exist in my database.")))))
    
    (:forget 
     "Forgets the value of a key."
@@ -37,8 +37,8 @@
     (let [subject (first args)]
       (if (db-get db subject) 
 	(do (db-dissoc db subject)
-	    (ircb/send-message irc channel (str subject " is removed. RIP.")))
-	(ircb/send-message irc channel (str subject " is not in my database.")))))
+	    (send-message irc channel (str subject " is removed. RIP.")))
+	(send-message irc channel (str subject " is not in my database.")))))
 
    (:rwhatis 
     "Gets a random value from the database."
@@ -46,7 +46,7 @@
     [{:keys [irc channel]}]
     (let [whatmap (read-config whatis)
 	  key (nth (keys whatmap) (rand-int (count whatmap)))]
-      (ircb/send-message irc channel
+      (send-message irc channel
 			 (str key " = " (whatmap key)))))
    
    (:cleanup (fn [] (db-close db))))

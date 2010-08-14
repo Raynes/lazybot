@@ -4,7 +4,7 @@
 	[net.licenser.sandbox tester matcher]
 	sexpbot.respond
 	[clj-github.gists :only [new-gist]])
-  (:require [irclj.irclj :as ircb])
+  
   (:import java.io.StringWriter
 	   java.util.concurrent.TimeoutException))
 
@@ -67,11 +67,11 @@
                        (do
                          (try
                            (swap! many inc)
-                           (ircb/send-message irc channel (execute-text (apply str (drop 2 message))))
+                           (send-message irc channel (execute-text (apply str (drop 2 message))))
                            (finally (swap! many dec))))
-                       (ircb/send-message irc channel "Too much is happening at once. Wait until other operations cease."))))))))
+                       (send-message irc channel "Too much is happening at once. Wait until other operations cease."))))))))
   (:eval
    "Old. Use => now. It's a hook, so it can evaluate anything."
    [\( "eval"]
    [{:keys [irc channel]}]
-   (ircb/send-message irc channel "This command is old. Use -> now. It's a hook, so it can evaluate anything, even stuff that doesn't start with parentheses.")))
+   (send-message irc channel "This command is old. Use -> now. It's a hook, so it can evaluate anything, even stuff that doesn't start with parentheses.")))

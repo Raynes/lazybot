@@ -7,7 +7,7 @@
 (defmacro def- [name & value]
   (concat (list 'def (with-meta name (assoc (meta name) :private true))) value))
 
-(defn send-message [irc s]
+(defn send-message [irc channel s]
   (when-not false ; Real checking will happen here soon.
     (ircb/send-message irc channel s)))
 
@@ -19,7 +19,7 @@
   `(let [irc# (:irc ~irc)]
      (cond
       (and (seq (:logged-in @irc#)) (= :admin (get-priv ((:logged-in @irc#) (:server @irc#)) ~user))) ~@body
-      :else (ircb/send-message irc# (:channel ~irc) (str ~user ": You aren't an admin!")))))
+      :else (send-message irc# (:channel ~irc) (str ~user ": You aren't an admin!")))))
 
 (defn find-command [cmds command first]
   (let [res (apply merge (remove keyword? (vals cmds)))]
@@ -66,10 +66,10 @@
 		(thunk-timeout
 		 #(-> bot-map (into (split-args message)) respond)
 		 30)
-		(catch TimeoutException _ (ircb/send-message irc channel "Execution timed out."))
+		(catch TimeoutException _ (send-message irc channel "Execution timed out."))
 		(catch Exception e (.printStackTrace e))
 		(finally (swap! running dec))))
-	    (ircb/send-message irc channel "Too much is happening at once. Wait until other operations cease."))))))))
+	    (send-message irc channel "Too much is happening at once. Wait until other operations cease."))))))))
 
 ;; Thanks to mmarczyk, Chousuke, and most of all cgrand for the help writing this macro.
 ;; It's nice to know that you have people like them around when it comes time to face
@@ -95,4 +95,4 @@
 
 ; Disabled for now. Will make this a configuration option in a little while.
 (defmethod respond :default [{:keys [irc channel]}]
-           #_(ircb/send-message irc channel "Command not found. No entiendo lo que estás diciendo."))
+           #_(send-message irc channel "Command not found. No entiendo lo que estás diciendo."))
