@@ -1,7 +1,7 @@
 (defproject sexpbot "0.5.0"
   :description "FIXME: write"
-  :dependencies [[org.clojure/clojure "1.2.0-beta1"]
-                 [org.clojure/clojure-contrib "1.2.0-beta1"]
+  :dependencies [[org.clojure/clojure "1.2.0"]
+                 [org.clojure/clojure-contrib "1.2.0"]
 		 [commons-lang/commons-lang "2.5"]
 		 [commons-io/commons-io "1.4"]
 		 [org.danlarkin/clojure-json "1.1"]
