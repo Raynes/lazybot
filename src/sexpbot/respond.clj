@@ -7,9 +7,25 @@
 (defmacro def- [name & value]
   (concat (list 'def (with-meta name (assoc (meta name) :private true))) value))
 
+;; I'm sleepy, so I'm using loop. Don't judge me. Fuck off.
+(defn nil-comp [irc channel s & fns]
+  (loop [cs s f fns]
+    (if (seq f)
+      (when-let [new-s ((first f) @irc channel cs)]
+        (recur new-s (rest fns)))
+      cs)))
+
+(defn pull-hooks [irc hook-key]
+  (hook-key (apply merge-with concat (vals (:hooks @irc)))))
+
+(defn call-message-hooks [irc channel s]
+  (apply nil-comp irc channel s (pull-hooks irc :on-send-message)))
+
 (defn send-message [irc channel s]
-  (when-not false ; Real checking will happen here soon.
-    (ircb/send-message irc channel s)))
+  (if-let [result (call-message-hooks irc channel s)]
+    (do (ircb/send-message irc channel result)
+        :success)
+    :failure))
 
 (defn get-priv [logged-in user]
   (if (and (seq logged-in) (-> user logged-in (= :admin))) :admin :noadmin))
@@ -17,9 +33,10 @@
 (defmacro if-admin
   [user irc & body]
   `(let [irc# (:irc ~irc)]
-     (cond
-      (and (seq (:logged-in @irc#)) (= :admin (get-priv ((:logged-in @irc#) (:server @irc#)) ~user))) ~@body
-      :else (send-message irc# (:channel ~irc) (str ~user ": You aren't an admin!")))))
+     (if (and (seq (:logged-in @irc#))
+              (= :admin (get-priv ((:logged-in @irc#) (:server @irc#)) ~user)))
+       ~@body
+       (send-message irc# (:channel ~irc) (str ~user ": You aren't an admin!")))))
 
 (defn find-command [cmds command first]
   (let [res (apply merge (remove keyword? (vals cmds)))]
@@ -88,9 +105,11 @@
 	     (dosync
 	      (alter irc# assoc-in [:modules m-name#]
 		     {:load (fn [] (dosync (alter irc# assoc-in [:commands m-name#] ~cmd-list)
-					   (alter irc# assoc-in [:hooks m-name#] ~hook-list)))
+					   (alter irc# assoc-in [:hooks m-name#] ~hook-list)
+                                           (alter irc# assoc-in [:configs m-name#] {})))
 		      :unload (fn [] (dosync (alter irc# update-in [:commands] dissoc m-name#)
-					     (alter irc# update-in [:hooks] dissoc m-name#)))
+					     (alter irc# update-in [:hooks] dissoc m-name#)
+                                             (alter irc# update-in [:configs] dissoc m-name#)))
 		      :cleanup ~clean-fn}))))))))
 
 ; Disabled for now. Will make this a configuration option in a little while.
