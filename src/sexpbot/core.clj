@@ -12,7 +12,7 @@
 (def prepend (:prepend info))
 
 (defn call-all [{irc-map :irc :as ircm} hook-key]
-  (doseq [hook (hook-key (apply merge-with concat (vals (:hooks @irc-map))))] (hook ircm)))
+  (doseq [hook (pull-hooks irc-map hook-key)] (hook ircm)))
 
 (defn make-fnmap []
   {:on-any (fn [irc-map] (call-all irc-map :on-any))
