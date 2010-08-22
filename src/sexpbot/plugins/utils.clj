@@ -122,8 +122,6 @@
 				       (:repo (new-gist (first args) 
                                                         (->> args rest (interpose " ") (apply str)))))))
 
-  (:timeout "" ["timeout"] [_] (Thread/sleep 15000))
-
   ;(:dumpcmds
   ; "Dumps a list of commands to a gist."
   ; ["dumpcmds" "commands"]
