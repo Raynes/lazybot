@@ -25,8 +25,8 @@
   (:elite 
    "Takes words and replaces them with their leetspeak alternatives." 
    ["elite"] 
-   [{:keys [irc channel args]}]
-   (send-message irc channel 
+   [{:keys [irc bot channel args]}]
+   (send-message irc bot channel 
 		      (->> args 
 			   (interpose " ")
 			   (apply str)

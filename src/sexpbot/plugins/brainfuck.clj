@@ -86,10 +86,10 @@
   (:bf 
    "Executes brainfuck."
    ["bf"] 
-   [{:keys [irc channel args]}]
+   [{:keys [irc bot channel args]}]
    (let [[bf & input] args]
      (doseq [x (-> bf 
 		   (compile-and-run input) 
 		   with-out-str 
 		   (#(.split % "\n")))]
-       (send-message irc channel x)))))
+       (send-message irc bot channel x)))))

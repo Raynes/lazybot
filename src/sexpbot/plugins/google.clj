@@ -15,15 +15,15 @@
   [(:estimatedResultCount (:cursor (:responseData result-set)))
    (first (:results (:responseData result-set)))])
 
-(defn handle-search [{:keys [irc channel args]}]
+(defn handle-search [{:keys [irc bot channel args]}]
   (if-not (seq (.trim (apply str (interpose " " args))))
     (send-message irc channel (str "No search term!"))
     (let [[res-count res-map] (-> (apply str (interpose " " args)) google cull)
 	  title (:titleNoFormatting res-map)
 	  url (:url res-map)]
-      (send-message irc channel (StringEscapeUtils/unescapeHtml 
+      (send-message irc bot channel (StringEscapeUtils/unescapeHtml 
 				      (str "First out of " res-count " results is: " title)))
-      (send-message irc channel url))))
+      (send-message irc bot channel url))))
 
 (defplugin
   (:google 

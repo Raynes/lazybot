@@ -28,7 +28,7 @@
   (:dytostr 
    "Converts a dynamic string to a English string."
    ["dy2str" "dytostr"]
-   [{:keys [irc channel args]}]
+   [{:keys [irc bot channel args]}]
    (if-not (seq (.trim (apply str (interpose " "  args))))
-     (send-message irc channel "No dynamic string given!")
-     (send-message irc channel (dynamic-to-str (first args))))))
+     (send-message irc bot channel "No dynamic string given!")
+     (send-message irc bot channel (dynamic-to-str (first args))))))

@@ -14,39 +14,39 @@
    "Teaches the bot a new thing. It takes a name and whatever you want to assign the name
    to. For example: $learn me a human being."
    ["learn"] 
-   [{:keys [irc channel args]}]
+   [{:keys [irc bot channel args]}]
    (let [[subject & is] args
 	 is-s (apply str (interpose " " is))]
      (do
        (db-assoc db subject is-s)
-       (send-message irc channel "My memory is more powerful than M-x butterfly. I wont forget it."))))
+       (send-message irc bot channel "My memory is more powerful than M-x butterfly. I wont forget it."))))
    
    (:whatis 
     "Pass it a key, and it will tell you what is at the key in the database."
     ["whatis"]
-    [{:keys [irc channel args]}]
+    [{:keys [irc bot channel args]}]
     (let [result (->> args first (db-get db))]
       (if result
-	(send-message irc channel (str (first args) " = " result))
-	(send-message irc channel (str (first args) " does not exist in my database.")))))
+	(send-message irc bot channel (str (first args) " = " result))
+	(send-message irc bot channel (str (first args) " does not exist in my database.")))))
    
    (:forget 
     "Forgets the value of a key."
     ["forget"] 
-    [{:keys [irc channel args]}]
+    [{:keys [irc bot channel args]}]
     (let [subject (first args)]
       (if (db-get db subject) 
 	(do (db-dissoc db subject)
-	    (send-message irc channel (str subject " is removed. RIP.")))
-	(send-message irc channel (str subject " is not in my database.")))))
+	    (send-message irc bot channel (str subject " is removed. RIP.")))
+	(send-message irc bot channel (str subject " is not in my database.")))))
 
    (:rwhatis 
     "Gets a random value from the database."
     ["rwhatis"] 
-    [{:keys [irc channel]}]
+    [{:keys [irc bot channel]}]
     (let [whatmap (read-config whatis)
 	  key (nth (keys whatmap) (rand-int (count whatmap)))]
-      (send-message irc channel
+      (send-message irc bot channel
 			 (str key " = " (whatmap key)))))
    
    (:cleanup (fn [] (db-close db))))
