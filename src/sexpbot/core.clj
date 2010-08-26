@@ -11,24 +11,24 @@
 (def info (read-config info-file))
 (def prepend (:prepend info))
 
-(defn call-all [{irc-map :irc :as ircm} hook-key]
-  (doseq [hook (pull-hooks irc-map hook-key)] (hook ircm)))
+(defn call-all [{bot :bot :as ircm} hook-key]
+  (doseq [hook (pull-hooks bot hook-key)] (hook ircm)))
 
-(defn make-fnmap []
-  {:on-any (fn [irc-map] (call-all irc-map :on-any))
-   :on-message (fn [irc-map] (call-all irc-map :on-message))
-   :on-quit (fn [irc-map] (call-all irc-map :on-quit))
-   :on-join (fn [irc-map] (call-all irc-map :on-join))})
+(defn make-callbacks []
+  (let [refzors (ref {:hooks initial-hooks :commands {}})]
+    [(into {}
+           (map (fn [key] [key (fn [irc-map] (call-all (assoc irc-map :bot refzors) key))])
+                [:on-any :on-message :on-quit :on-join]))
+     refzors]))
 
-(defn make-bot-run [name pass server]
-  (ircb/create-irc {:name name :password pass :server server :fnmap (make-fnmap)}))
+(defn make-bot-run [name pass server fnmap]
+  (ircb/create-irc {:name name :password pass :server server :fnmap fnmap}))
 
 (defn make-bot [server] 
   (let [bot-config info
 	name (:bot-name (bot-config server))
 	pass (:bot-password (bot-config server))
 	channels (:channels (bot-config server))
-	irc (ircb/connect (make-bot-run name pass server) :channels channels :identify-after-secs 3)]
-    (dosync (alter irc assoc-in [:hooks] initial-hooks)
-	    (alter irc assoc-in [:commands] {}))
-    irc))
+        [fnmap refzors] (make-callbacks)
+	irc (ircb/connect (make-bot-run name pass server fnmap) :channels channels :identify-after-secs 3)]
+    [irc refzors]))

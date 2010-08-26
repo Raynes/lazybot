@@ -8,21 +8,21 @@
   (concat (list 'def (with-meta name (assoc (meta name) :private true))) value))
 
 ;; I'm sleepy, so I'm using loop. Don't judge me. Fuck off.
-(defn nil-comp [irc channel s & fns]
+(defn nil-comp [irc bot channel s & fns]
   (loop [cs s f fns]
     (if (seq f)
-      (when-let [new-s ((first f) @irc channel cs)]
+      (when-let [new-s ((first f) @irc @bot channel cs)]
         (recur new-s (rest fns)))
       cs)))
 
-(defn pull-hooks [irc hook-key]
-  (hook-key (apply merge-with concat (vals (:hooks @irc)))))
+(defn pull-hooks [bot hook-key]
+  (hook-key (apply merge-with concat (vals (:hooks @bot)))))
 
-(defn call-message-hooks [irc channel s]
-  (apply nil-comp irc channel s (pull-hooks irc :on-send-message)))
+(defn call-message-hooks [irc bot channel s]
+  (apply nil-comp irc bot channel s (pull-hooks bot :on-send-message)))
 
-(defn send-message [irc channel s]
-  (if-let [result (call-message-hooks irc channel s)]
+(defn send-message [irc bot channel s]
+  (if-let [result (call-message-hooks irc bot channel s)]
     (do (ircb/send-message irc channel result)
         :success)
     :failure))
@@ -31,10 +31,10 @@
   (if (and (seq logged-in) (-> user logged-in (= :admin))) :admin :noadmin))
 
 (defmacro if-admin
-  [user irc & body]
+  [user irc bot & body]
   `(let [irc# (:irc ~irc)]
-     (if (and (seq (:logged-in @irc#))
-              (= :admin (get-priv ((:logged-in @irc#) (:server @irc#)) ~user)))
+     (if (and (seq (:logged-in @~bot))
+              (= :admin (get-priv ((:logged-in @~bot) (:server @irc#)) ~user)))
        ~@body
        (send-message irc# (:channel ~irc) (str ~user ": You aren't an admin!")))))
 
@@ -48,7 +48,7 @@
 (defn find-docs [irc command]
   (:doc (find-command (:commands @irc) command (first command))))
 
-(defn cmd-respond [{:keys [command first irc]} & _] (:cmd (find-command (:commands @irc) command first)))
+(defn cmd-respond [{:keys [command first bot]} & _] (:cmd (find-command (:commands @bot) command first)))
 
 (defmulti respond cmd-respond)
 
@@ -69,11 +69,11 @@
 
 (def- running (atom 0))
 
-(defn try-handle [{:keys [nick channel irc message] :as irc-map}]
+(defn try-handle [{:keys [nick channel irc bot message] :as irc-map}]
   (.start
    (Thread.
     (fn []
-      (let [bot-map (assoc irc-map :privs (get-priv (:logged-in @irc) nick))
+      (let [bot-map (assoc irc-map :privs (get-priv (:logged-in @bot) nick))
 	    conf (read-config info-file)]
 	(when (m-starts-with message (:prepends conf))
 	  (if (< @running (:max-operations conf))
@@ -100,16 +100,16 @@
        ~@(for [[cmdkey docs words & method-stuff] methods]
 	   `(defmethod respond ~cmdkey ~@method-stuff))
        (let [pns# *ns*]
-	 (defn ~'load-this-plugin [irc#]
+	 (defn ~'load-this-plugin [bot#]
 	   (let [m-name# (keyword (last (.split (str pns#) "\\.")))]
 	     (dosync
-	      (alter irc# assoc-in [:modules m-name#]
-		     {:load (fn [] (dosync (alter irc# assoc-in [:commands m-name#] ~cmd-list)
-					   (alter irc# assoc-in [:hooks m-name#] ~hook-list)
-                                           (alter irc# assoc-in [:configs m-name#] {})))
-		      :unload (fn [] (dosync (alter irc# update-in [:commands] dissoc m-name#)
-					     (alter irc# update-in [:hooks] dissoc m-name#)
-                                             (alter irc# update-in [:configs] dissoc m-name#)))
+	      (alter bot# assoc-in [:modules m-name#]
+		     {:load (fn [] (dosync (alter bot# assoc-in [:commands m-name#] ~cmd-list)
+					   (alter bot# assoc-in [:hooks m-name#] ~hook-list)
+                                           (alter bot# assoc-in [:configs m-name#] {})))
+		      :unload (fn [] (dosync (alter bot# update-in [:commands] dissoc m-name#)
+					     (alter bot# update-in [:hooks] dissoc m-name#)
+                                             (alter bot# update-in [:configs] dissoc m-name#)))
 		      :cleanup ~clean-fn}))))))))
 
 ; Disabled for now. Will make this a configuration option in a little while.

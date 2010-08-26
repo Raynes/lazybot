@@ -4,7 +4,7 @@
 (require-plugins)
 
 (doseq [server (:servers info)]
-  (let [bot (make-bot server)]
-    (swap! bots assoc server bot)
-    (load-plugins bot)
-    (doseq [plug (:plugins info)] (load-modules bot))))
+  (let [[irc refzors] (make-bot server)]
+    (swap! bots assoc server {:irc irc :refzors refzors})
+    (load-plugins (:server @irc) refzors)
+    (doseq [plug (:plugins info)] (load-modules (:server @irc) refzors))))
