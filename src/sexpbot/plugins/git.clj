@@ -14,5 +14,5 @@
    "Updates sexpbot from git (must be admin)"
    ["gitpull"]
    [{:keys [irc bot channel nick args] :as ircm}]
-   (if-admin nick ircm
+   (if-admin nick ircm bot
      (send-message irc bot channel (git-pull)))))

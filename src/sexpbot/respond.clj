@@ -36,7 +36,7 @@
      (if (and (seq (:logged-in @~bot))
               (= :admin (get-priv ((:logged-in @~bot) (:server @irc#)) ~user)))
        ~@body
-       (send-message irc# (:channel ~irc) (str ~user ": You aren't an admin!")))))
+       (send-message irc# ~bot (:channel ~irc) (str ~user ": You aren't an admin!")))))
 
 (defn find-command [cmds command first]
   (let [res (apply merge (remove keyword? (vals cmds)))]
