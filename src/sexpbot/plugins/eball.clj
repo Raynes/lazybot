@@ -1,6 +1,5 @@
 (ns sexpbot.plugins.eball
-  (:use [sexpbot respond])
-  )
+  (:use [sexpbot respond]))
 
 (def responses
      ["As I see it, yes."
