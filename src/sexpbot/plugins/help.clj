@@ -62,7 +62,7 @@
 		     (filter
 		      seq 
 		      (.split 
-		       (apply str (remove #(= \newline %) (find-docs irc (first args)))) " ")))))]
+		       (apply str (remove #(= \newline %) (find-docs bot (first args)))) " ")))))]
      (if-not (seq help-msg)
        (let [topic (first args)
 	     content (db-get db topic)]
