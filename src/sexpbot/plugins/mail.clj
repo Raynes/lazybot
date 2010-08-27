@@ -43,11 +43,11 @@
 				      " new message(s). Type $mymail or $mail without any arguments to see them. This also works via PM."))
       (swap! alerted assoc lower-nick (now)))))
 
-(defn get-messages [irc nick]
+(defn get-messages [irc bot nick]
   (let [lower-nick (.toLowerCase nick)]
     (if-let [messages (seq (get-messages* lower-nick))]
-      (doseq [message messages] (send-message irc lower-nick message))
-      (send-message irc nick "You have no messages."))))
+      (doseq [message messages] (send-message irc bot lower-nick message))
+      (send-message irc bot nick "You have no messages."))))
 
 (defplugin
   (:add-hook :on-message (fn [irc-map] (mail-alert irc-map)))
