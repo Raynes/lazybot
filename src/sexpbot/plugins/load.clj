@@ -33,5 +33,5 @@
   (:reload
    "Reloads all plugins. ADMIN ONLY!"
    ["reload"]
-   [{:keys [irc channel nick bot] :as irc-map}]
-   (if-admin nick irc-map bot (apply reload-all! (vals @bots)))))
+   [{:keys [irc bot channel nick bot] :as irc-map}]
+   (if-admin nick irc-map bot (apply reload-all! (map (fn [[server {bot :bot}]] [server bot]) @bots)))))

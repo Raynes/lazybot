@@ -40,8 +40,7 @@
   [& bots]
   (doseq [[_ bot] bots]
     (dosync
-     (alter bot assoc :hooks initial-hooks)
-     (alter bot assoc :commands {})
+     (alter bot assoc :hooks initial-hooks :commands {})
      (doseq [cfn (map :cleanup (vals (:modules @bot)))] (cfn))
      (alter bot assoc :modules {})))
   (use 'sexpbot.respond :reload)

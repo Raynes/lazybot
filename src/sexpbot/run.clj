@@ -5,6 +5,6 @@
 
 (doseq [server (:servers info)]
   (let [[irc refzors] (make-bot server)]
-    (swap! bots assoc server {:irc irc :refzors refzors})
+    (swap! bots assoc server {:irc irc :bot refzors})
     (load-plugins (:server @irc) refzors)
     (doseq [plug (:plugins info)] (load-modules (:server @irc) refzors))))

@@ -67,6 +67,6 @@
                        (do
                          (try
                            (swap! many inc)
-                           (send-message irc channel (execute-text (apply str (drop 2 message))))
+                           (send-message irc bot channel (execute-text (apply str (drop 2 message))))
                            (finally (swap! many dec))))
                        (send-message irc bot channel "Too much is happening at once. Wait until other operations cease.")))))))))
