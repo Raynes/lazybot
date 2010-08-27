@@ -3,7 +3,6 @@
   (:use [sexpbot info respond utilities]
 	[clojure.contrib [string :only [ltrim]] [io :only [reader]]]
 	[clj-config.core :only [read-config]])
-  
   (:import java.util.concurrent.TimeoutException
 	   org.apache.commons.lang.StringEscapeUtils))
 
@@ -49,7 +48,7 @@
 			   #(is-blacklisted? % (strip-tilde user)) 
 			   blacklist))))
 
-(defn title [{:keys [irc nick user channel]} links & {verbose? :verbose? :or {verbose? false}}]
+(defn title [{:keys [irc nick bot user channel]} links & {verbose? :verbose? :or {verbose? false}}]
   (if (or (and verbose? (seq links))
 	  (and (not (check-blacklist (:server @irc) user))
 	       (not ((:channel-catch-blacklist ((read-config info-file) (:server @irc))) channel))))
@@ -59,18 +58,18 @@
 			     page (slurp-or-default url)
 			     match (second page)]
 			 (if (and (seq page) (seq match) (not (url-check irc url)))
-			   (send-message irc channel 
+			   (send-message irc bot channel
 					      (str "\"" 
 						   (ltrim 
 						    (StringEscapeUtils/unescapeHtml 
 						     (collapse-whitespace match))) 
 						   "\""))
-			   (when verbose? (send-message irc channel "Page has no title."))))
+			   (when verbose? (send-message irc bot channel "Page has no title."))))
 		      20)
        (catch TimeoutException _ 
 	 (when verbose? 
-	   (send-message irc channel "It's taking too long to find the title. I'm giving up.")))))
-    (when verbose? (send-message irc channel "Which page?"))))
+	   (send-message irc bot channel "It's taking too long to find the title. I'm giving up.")))))
+    (when verbose? (send-message irc bot channel "Which page?"))))
 
 (defplugin
   (:add-hook :on-message

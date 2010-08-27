@@ -2,8 +2,7 @@
   (:refer-clojure :exclude [extend])
   (:require [irclj.irclj :as ircb])
   (:use sexpbot.respond
-	clj-time.core)
-  )
+	clj-time.core))
 
 (def running-timers (atom {}))
 
@@ -21,22 +20,22 @@
   (:timers 
    "Prints a list of the currently running timers. Execute in PM if you want a full list."
    ["timers"] 
-   [{:keys [irc nick channel args]}]
+   [{:keys [irc bot nick channel args]}]
    (let [timers (map compose-timer (vals @running-timers))]
      (if (> (count timers) 0)
        (if-let [n-to-show (first args)]
-	 (doseq [timer (take n-to-show timers)] (send-message irc channel timer))
+	 (doseq [timer (take n-to-show timers)] (send-message irc bot channel timer))
 	 (do
 	   (doseq [timer (take 3 timers)] 
-	     (send-message irc channel timer))
-	   (when (> (count timers) 3) (send-message irc channel "and more..."))))
-       (send-message irc channel "No timers are currently running."))))
+	     (send-message irc bot channel timer))
+	   (when (> (count timers) 3) (send-message irc bot channel "and more..."))))
+       (send-message irc bot channel "No timers are currently running."))))
 
   (:timer 
    "Create's a timer. You specify the time you want it to run in a 00:00:00 format, and a message
    to print once the timer has run. Once the timer completes, the message will be printed."
    ["timer"] 
-   [{:keys [irc channel args]}]
+   [{:keys [irc bot channel args]}]
    (.start 
     (Thread. 
      (fn []
@@ -51,5 +50,5 @@
 	 (Thread/sleep (* fint 1000))
 	 (if (= (second args) "/me") 
 	   (ircb/send-action irc channel (apply str (interpose " " (nnext args))))
-	   (send-message irc channel text))
+	   (send-message irc bot channel text))
          (swap! running-timers dissoc timer-name)))))))

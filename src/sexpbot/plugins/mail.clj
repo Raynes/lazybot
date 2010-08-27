@@ -3,8 +3,7 @@
   (:require [irclj.irclj :as ircb])
   (:use [sexpbot respond info]
 	[clj-time core format]
-	clj-config.core)
-  )
+	clj-config.core))
 
 (def mailfile (str sexpdir "/mail.clj"))
 
@@ -63,7 +62,7 @@
   (:mail 
    "Send somebody a message. Takes a nickname and a message to send. Will alert the person with a notice."
    ["mail"]
-   [{:keys [irc channel nick args irc]}]
+   [{:keys [irc bot channel nick args irc]}]
    (if (seq args)
      (let [lower-user (.toLowerCase (first args))]
        (if (and (not (.contains lower-user "serv"))
@@ -71,6 +70,6 @@
 	  (do
 	    (new-message nick lower-user 
 			 (->> args rest (interpose " ") (apply str)))
-	    (send-message irc channel "Message saved."))
-	  (send-message irc channel "You can't message the unmessageable.")))
+	    (send-message irc bot channel "Message saved."))
+	  (send-message irc bot channel "You can't message the unmessageable.")))
      (get-messages irc nick))))

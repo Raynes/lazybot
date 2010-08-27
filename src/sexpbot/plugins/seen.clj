@@ -2,8 +2,7 @@
   (:refer-clojure :exclude [extend])
   (:use [sexpbot respond info]
 	[clj-time core format]
-	stupiddb.core)
-  )
+	stupiddb.core))
 
 (def seenfile (str sexpdir "/seen.db"))
 (def db (db-init seenfile 1800))
@@ -40,9 +39,9 @@
   (:seen 
    "Checks to see when the person you specify was last seen."
    ["seen"] 
-   [{:keys [irc nick channel args]}]
+   [{:keys [irc bot nick channel args]}]
    (if-let [{:keys [time chan doing nick]} (get-seen (first args) (:server @irc))]
-     (send-message irc channel (str nick " was last seen " doing (when-not (= doing "quitting") " on ") 
-					 chan " " time " minutes ago."))
-     (send-message irc channel (str "I have never seen " (first args) "."))))
+     (send-message irc bot channel (str nick " was last seen " doing (when-not (= doing "quitting") " on ") 
+                                        chan " " time " minutes ago."))
+     (send-message irc bot channel (str "I have never seen " (first args) "."))))
   (:cleanup (fn [] (db-close db))))

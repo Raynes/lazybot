@@ -3,8 +3,7 @@
 	[clj-config.core :only [get-key]]
 	[clojure-http.client :only [add-query-params]])
   (:require [clojure-http.resourcefully :as res]
-	    [org.danlarkin.json :as json]
-	    )
+	    [org.danlarkin.json :as json])
   (:import java.net.URI))
 
 (def wordnik-key (get-key :wordnik-key info-file))
@@ -23,8 +22,8 @@
   (:dict 
    "Takes a word and look's up it's definition via the Wordnik dictionary API." 
    ["dict"] 
-   [{:keys [irc channel nick args]}]
-   (send-message irc channel 
+   [{:keys [irc bot channel nick args]}]
+   (send-message irc bot channel 
 		      (str nick ": " 
 			   (let [[text part] (lookup-def (first args))]
 			     (if (seq text) (str part ": " text) "Word not found."))))))

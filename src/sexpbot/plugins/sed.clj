@@ -6,7 +6,9 @@
 (def prepends (:prepends (read-config info-file)))
 (def message-map (atom {}))
 
-(defn- format-msg [irc nick channel] (send-message irc channel (str nick ": Format is sed [-<user name>] s/<regexp>/<replacement>/ Try $help sed")))
+(defn- format-msg [irc bot nick channel]
+  (send-message irc bot channel (str nick ": Format is sed [-<user name>] s/<regexp>/<replacement>/ Try $help sed")))
+
 (defn- conj-args [args]
   (->> args
        (interpose " ")
@@ -16,7 +18,7 @@
   (try
     (.replaceAll string (str "(?i)" regexp) replacement)))
 
-(defn sed [irc channel nick args verbose?]
+(defn sed [irc bot channel nick args verbose?]
   (let [user-to (or (second (re-find #"^[\s]*-([\w]+)" (.trim (conj-args args)))) "")
 	margs (or (second (re-find #"[\s]*(s/[^/]+/[^/]*/)$" (.trim (conj-args args)))) "")
 	
@@ -32,20 +34,20 @@
 			      (not-empty (rest (re-find #"^s/([^/]+)/([^/]*)/" margs)))
 			      nil)]
     (cond
-     (empty? last-in) (send-message irc channel "No one said anything yet!")
-     (not-any? seq [regexp replacement]) (format-msg irc nick channel)
+     (empty? last-in) (send-message irc bot channel "No one said anything yet!")
+     (not-any? seq [regexp replacement]) (format-msg irc bot nick channel)
      :else (try
 	     (let [orig-msg last-in
 		   new-msg (sed* last-in regexp replacement)]
-	       (when-not (= orig-msg new-msg) (send-message irc channel new-msg)))
-	     (catch Exception _ (when verbose? (format-msg irc nick channel)))))))
+	       (when-not (= orig-msg new-msg) (send-message irc bot channel new-msg)))
+	     (catch Exception _ (when verbose? (format-msg irc bot nick channel)))))))
 
 
 (defplugin
   (:add-hook :on-message
-	     (fn [{:keys [irc nick message channel] :as irc-map}]
+	     (fn [{:keys [irc bot nick message channel] :as irc-map}]
 	       (when (not-empty (re-find #"^s/([^/]+)/([^/]*)/" message))
-		 (sed irc channel nick [(str "-" nick) message] false))
+		 (sed irc bot channel nick [(str "-" nick) message] false))
 	       
 	       (when (and (not= nick (:name @irc))
 			  (not= (take 4 message) (str (first prepends) "sed")))
@@ -58,5 +60,5 @@ If the specified user isn't found, it will default to the last thing said in the
 Example Usage: sed -boredomist s/[aeiou]/#/
 Shorthand : s/[aeiou]/#/"
    ["sed"]
-   [{:keys [irc channel args nick] :as irc-map}] (sed irc channel nick args true)))
+   [{:keys [irc bot channel args nick] :as irc-map}] (sed irc bot channel nick args true)))
 

@@ -58,7 +58,7 @@
 
 (defplugin
   (:add-hook :on-message
-             (fn [{:keys [irc channel message]}]
+             (fn [{:keys [irc bot channel message]}]
                (.start
                 (Thread.
                  (fn []
@@ -69,9 +69,4 @@
                            (swap! many inc)
                            (send-message irc channel (execute-text (apply str (drop 2 message))))
                            (finally (swap! many dec))))
-                       (send-message irc channel "Too much is happening at once. Wait until other operations cease."))))))))
-  (:eval
-   "Old. Use => now. It's a hook, so it can evaluate anything."
-   [\( "eval"]
-   [{:keys [irc channel]}]
-   (send-message irc channel "This command is old. Use -> now. It's a hook, so it can evaluate anything, even stuff that doesn't start with parentheses.")))
+                       (send-message irc bot channel "Too much is happening at once. Wait until other operations cease.")))))))))

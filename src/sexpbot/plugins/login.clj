@@ -1,46 +1,46 @@
 (ns sexpbot.plugins.login
   (:use [sexpbot respond info]
-	[clj-config.core :only [read-config]])
-  )
+	[clj-config.core :only [read-config]]))
 
-(defn check-pass-login [user pass irc]
-  (let [userconf ((:users ((read-config info-file) (:server @irc))) user)]
+(defn check-pass-login [user pass server bot]
+  (let [userconf ((:users ((read-config info-file) server)) user)]
     (when (= pass (:pass userconf)) 
-      (dosync (alter irc assoc-in [:logged-in (:server @irc) user] (userconf :privs))))))
+      (dosync (alter bot assoc-in [:logged-in server user] (userconf :privs))))))
 
-(defn logged-in? [irc user]
-  (when (seq (:logged-in @irc))
-    (some #{user} (keys ((:logged-in @irc) (:server @irc))))))
+(defn logged-in? [server bot user]
+  (when (seq (:logged-in @bot))
+    (some #{user} (keys ((:logged-in @bot) server)))))
 
 (defplugin
   (:add-hook :on-quit
-	     (fn [{:keys [irc nick]}] (when (logged-in? irc nick)
-					(dosync (alter irc update-in [:logged-in (:server @irc)]
-						       dissoc nick)))))
+	     (fn [{:keys [irc bot nick]}]
+               (when (logged-in? (:server @irc) bot nick)
+                 (dosync (alter bot update-in [:logged-in (:server @irc)]
+                                dissoc nick)))))
 
   (:login 
    "Best executed via PM. Give it your password, and it will log you in."
    ["login"] 
-   [{:keys [irc nick channel args]}]
-   (if (check-pass-login nick (first args) irc)
-     (send-message irc channel "You've been logged in.")
-     (send-message irc channel "Username and password combination do not match.")))
+   [{:keys [irc bot nick channel args]}]
+   (if (check-pass-login nick (first args) (:server @irc) bot)
+     (send-message irc bot channel "You've been logged in.")
+     (send-message irc bot channel "Username and password combination do not match.")))
   
   (:logout 
    "Logs you out."
    ["logout"] 
-   [{:keys [irc nick channel]}]
-   (dosync (alter irc update-in [:logged-in (:server @irc)] dissoc nick)
-	   (send-message irc channel "You've been logged out.")))
+   [{:keys [irc bot nick channel]}]
+   (dosync (alter bot update-in [:logged-in (:server @irc)] dissoc nick)
+	   (send-message irc bot channel "You've been logged out.")))
 
    (:privs
    "Finds your privs"
    ["privs"]
-   [{:keys [irc channel nick]}]
+   [{:keys [irc bot channel nick]}]
    (do
-     (send-message irc channel 
-			(str nick ": You are a"
-			     (if (not= :admin (:privs ((:users ((read-config info-file) (:server @irc))) nick)))
-			       " regular user."
-			       (str "n admin; you are " 
-				    (if (logged-in? irc nick) "logged in." "not logged in!"))))))))
+     (send-message irc bot channel 
+                   (str nick ": You are a"
+                        (if (not= :admin (:privs ((:users ((read-config info-file) (:server @irc))) nick)))
+                          " regular user."
+                          (str "n admin; you are " 
+                               (if (logged-in? (:server @irc) bot nick) "logged in." "not logged in!"))))))))

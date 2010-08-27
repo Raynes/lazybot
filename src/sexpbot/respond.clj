@@ -45,8 +45,8 @@
      (cmds command) (cmds command)
      (some (comp map? val) cmds) (res command))))
 
-(defn find-docs [irc command]
-  (:doc (find-command (:commands @irc) command (first command))))
+(defn find-docs [bot command]
+  (:doc (find-command (:commands @bot) command (first command))))
 
 (defn cmd-respond [{:keys [command first bot]} & _] (:cmd (find-command (:commands @bot) command first)))
 

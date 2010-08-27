@@ -1,6 +1,5 @@
 (ns sexpbot.plugins.spellcheck
-  (:use [sexpbot respond])
-  )
+  (:use [sexpbot respond]))
 
 ;;;;; Thanks to Rich Hickey for this implementation of Norvig's Spelling Corrector 
 ;;;;; I've made a few modifications to improve formatting and such, but it's all him.
@@ -38,5 +37,5 @@
   (:scheck 
    "Spell checks a word for you."
    ["scheck"]
-   [{:keys [irc channel args nick]}]
-   (send-message irc channel (str nick ": " (-> args first (correct *nwords*))))))
+   [{:keys [irc bot channel args nick]}]
+   (send-message irc bot channel (str nick ": " (-> args first (correct *nwords*))))))

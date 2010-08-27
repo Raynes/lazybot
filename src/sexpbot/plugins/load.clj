@@ -5,33 +5,33 @@
   (:load
    "Load a plugin. ADMIN ONLY!"
    ["load"]
-   [{:keys [irc nick channel args] :as irc-map}]
-   (if-admin nick irc-map
+   [{:keys [irc bot nick channel args] :as irc-map}]
+   (if-admin nick irc-map bot
 	     (if (true? (->> args first (loadmod irc)))
-	       (send-message irc channel "Loaded.")
-	       (send-message irc channel (str "Module " (first args) " not found.")))))
+	       (send-message irc bot channel "Loaded.")
+	       (send-message irc bot channel (str "Module " (first args) " not found.")))))
   
   (:unload
    "Unload a plugin. ADMIN ONLY!"
    ["unload"]
-   [{:keys [irc nick channel args] :as irc-map}]
-   (if-admin nick irc-map
-	     (if ((:modules @irc) (-> args first keyword))
+   [{:keys [irc bot nick channel args] :as irc-map}]
+   (if-admin nick irc-map bot
+	     (if ((:modules @bot) (-> args first keyword))
 	       (do 
-		 ((((:modules @irc) (-> args first keyword)) :unload))
-		 (send-message irc channel "Unloaded."))
-	       (send-message irc channel (str "Module " (first args) " not found.")))))
+		 ((((:modules @bot) (-> args first keyword)) :unload))
+		 (send-message irc bot channel "Unloaded."))
+	       (send-message irc bot channel (str "Module " (first args) " not found.")))))
 
   (:loaded
    "Lists all the plugins that are currently loaded. ADMIN ONLY!"
    ["loaded?"]
-   [{:keys [irc nick channel args] :as irc-map}]
-   (if-admin nick irc-map
-	     (send-message irc channel 
-				(->> (:commands @irc) (filter (comp map? second)) (into {}) keys str str))))
+   [{:keys [irc bot nick channel args] :as irc-map}]
+   (if-admin nick irc-map bot
+	     (send-message irc bot channel 
+                           (->> (:commands @bot) (filter (comp map? second)) (into {}) keys str str))))
   
   (:reload
    "Reloads all plugins. ADMIN ONLY!"
    ["reload"]
-   [{:keys [irc channel nick ] :as irc-map}]
-   (if-admin nick irc-map (apply reload-all! (vals @bots)))))
+   [{:keys [irc channel nick bot] :as irc-map}]
+   (if-admin nick irc-map bot (apply reload-all! (vals @bots)))))

@@ -3,8 +3,7 @@
 	[clj-config.core]
 	[clojure-http.client :only [add-query-params]])
   (:require [org.danlarkin.json :as json]
-	    [clojure-http.resourcefully :as res]
-	    )
+	    [clojure-http.resourcefully :as res])
   (:import java.net.URI))
 
 
@@ -41,10 +40,10 @@
    (= site "dottk") (dot-tk url)
    :else "Service is not supported"))
 
-(defn shorten [{:keys [irc channel nick args]} site]
+(defn shorten [{:keys [irc bot channel nick args]} site]
   (if-let [url (first args)]
-    (send-message irc channel (str nick ": " (shorten-url url site)))
-    (send-message irc channel "You didn't specify a URL!")))
+    (send-message irc bot channel (str nick ": " (shorten-url url site)))
+    (send-message irc bot channel "You didn't specify a URL!")))
 
 (defplugin
   (:bit-ly
