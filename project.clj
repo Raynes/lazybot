@@ -9,7 +9,7 @@
 		 [clj-sandbox "0.4.2-SNAPSHOT"]
 		 [clojure-http-client "1.1.0-SNAPSHOT"]
 		 [irclj "0.3.0-SNAPSHOT"]
-		; [walton "0.5.0"]
+                 [congomongo "0.1.3-SNAPSHOT"]
 		 [stupiddb "0.3.1"]
 		 [clj-config "0.1.0-SNAPSHOT"]
                  [clj-github "1.0.0-SNAPSHOT"]]

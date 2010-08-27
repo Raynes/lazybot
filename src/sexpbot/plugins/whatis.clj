@@ -1,13 +1,6 @@
 (ns sexpbot.plugins.whatis
-  (:use [sexpbot respond info utilities]
-	clj-config.core
-	stupiddb.core)
-  
-  (:import java.io.File))
-
-(def whatis (str (System/getProperty "user.home") "/.sexpbot/whatis.db"))
-
-(def db (db-init whatis 10))
+  (:use [sexpbot respond]
+        [somnium.congomongo :only [fetch fetch-one insert! destroy!]]))
 
 (defplugin 
   (:learn 
@@ -18,35 +11,29 @@
    (let [[subject & is] args
 	 is-s (apply str (interpose " " is))]
      (do
-       (db-assoc db subject is-s)
+       (destroy! :whatis {:subject subject})
+       (insert! :whatis {:subject subject :is is-s})
        (send-message irc bot channel "My memory is more powerful than M-x butterfly. I wont forget it."))))
    
    (:whatis 
     "Pass it a key, and it will tell you what is at the key in the database."
     ["whatis"]
     [{:keys [irc bot channel args]}]
-    (let [result (->> args first (db-get db))]
-      (if result
-	(send-message irc bot channel (str (first args) " = " result))
-	(send-message irc bot channel (str (first args) " does not exist in my database.")))))
+    (if-let [result (fetch-one :whatis :where {:subject (first args)})]
+      (send-message irc bot channel (str (first args) " = " (:is result)))
+      (send-message irc bot channel (str (first args) " does not exist in my database."))))
    
    (:forget 
     "Forgets the value of a key."
     ["forget"] 
     [{:keys [irc bot channel args]}]
-    (let [subject (first args)]
-      (if (db-get db subject) 
-	(do (db-dissoc db subject)
-	    (send-message irc bot channel (str subject " is removed. RIP.")))
-	(send-message irc bot channel (str subject " is not in my database.")))))
+    (do (destroy! :whatis {:subject (first args)})
+      (send-message irc bot channel (str "If " (first args) " was there before, it isn't anymore. R.I.P."))))
 
    (:rwhatis 
     "Gets a random value from the database."
     ["rwhatis"] 
     [{:keys [irc bot channel]}]
-    (let [whatmap (read-config whatis)
-	  key (nth (keys whatmap) (rand-int (count whatmap)))]
+    (let [rand-subject (rand-nth (fetch :whatis))]
       (send-message irc bot channel
-			 (str key " = " (whatmap key)))))
-   
-   (:cleanup (fn [] (db-close db))))
+                    (str (:subject rand-subject) " = " (:is rand-subject))))))
