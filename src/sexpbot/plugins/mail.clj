@@ -56,8 +56,8 @@
   (:getmessages 
    "Request that your messages be sent you via PM. Executing this command will delete all your messages."
    ["getmessages" "getmail" "mymail"] 
-   [{:keys [irc nick]}]
-   (get-messages irc nick))
+   [{:keys [irc bot nick]}]
+   (get-messages irc bot nick))
 
   (:mail 
    "Send somebody a message. Takes a nickname and a message to send. Will alert the person with a notice."
@@ -72,4 +72,4 @@
 			 (->> args rest (interpose " ") (apply str)))
 	    (send-message irc bot channel "Message saved."))
 	  (send-message irc bot channel "You can't message the unmessageable.")))
-     (get-messages irc nick))))
+     (get-messages irc bot nick))))
