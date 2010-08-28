@@ -3,35 +3,31 @@
   (:require [irclj.irclj :as ircb])
   (:use [sexpbot respond info]
 	[clj-time core format]
-	clj-config.core))
-
-(def mailfile (str sexpdir "/mail.clj"))
+        [somnium.congomongo :only [fetch fetch-one insert! destroy!]]))
 
 (def alerted (atom {}))
 
 (defn new-message [from to text]
-  (let [messages (read-config mailfile)
-	time (unparse (formatters :date-time-no-ms) (now))] 
-    (write-config (assoc messages to (conj (messages to) {:from from 
-							  :message text
-							  :timestamp time}))
-		  mailfile)))
+  (let [time (unparse (formatters :date-time-no-ms) (now))] 
+    (insert! :mail {:to to
+                    :from from 
+                    :message text
+                    :timestamp time})))
 
 (defn compose-message [{:keys [from message timestamp]}]
   (str "From: " from ", Time: " timestamp ", Text: " message))
 
-(defn get-messages* [user]
-  (let [messages (read-config mailfile)
-	mlist (map compose-message (messages user))]
-    (remove-key user mailfile)
+(defn fetch-messages [user]
+  (let [mlist (doall (map compose-message (fetch :mail :where {:to user})))]
+    (destroy! :mail {:to user})
     mlist))
 
 (defn count-messages [user]
-  (count ((read-config mailfile) user)))
+  (count (fetch :mail :where {:to user})))
 
 (defn alert-time? [user]
   (if-let [usertime (@alerted (.toLowerCase user))]
-    (< 30 (-> usertime (interval (now)) in-secs))
+    (< 300 (-> usertime (interval (now)) in-secs))
     true))
 
 (defn mail-alert
@@ -45,7 +41,7 @@
 
 (defn get-messages [irc bot nick]
   (let [lower-nick (.toLowerCase nick)]
-    (if-let [messages (seq (get-messages* lower-nick))]
+    (if-let [messages (seq (fetch-messages lower-nick))]
       (doseq [message messages] (send-message irc bot lower-nick message))
       (send-message irc bot nick "You have no messages."))))
 
@@ -66,7 +62,7 @@
    (if (seq args)
      (let [lower-user (.toLowerCase (first args))]
        (if (and (not (.contains lower-user "serv"))
-		(not= lower-user (.toLowerCase (:bot-name ((read-config info-file) (:server @irc))))))
+		(not= lower-user (.toLowerCase (:name @irc))))
 	  (do
 	    (new-message nick lower-user 
 			 (->> args rest (interpose " ") (apply str)))
