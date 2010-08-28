@@ -10,7 +10,6 @@
 		 [clojure-http-client "1.1.0-SNAPSHOT"]
 		 [irclj "0.3.0-SNAPSHOT"]
                  [congomongo "0.1.3-SNAPSHOT"]
-		 [stupiddb "0.3.1"]
 		 [clj-config "0.1.0-SNAPSHOT"]
                  [clj-github "1.0.0-SNAPSHOT"]]
   :dev-dependencies [[swank-clojure "1.2.1"]])
