@@ -1,10 +1,13 @@
 (ns sexpbot.core
   (:use [sexpbot respond info [load :only [initial-hooks]]]
 	[clj-config.core :only [read-config]]
-	[clojure.stacktrace :only [root-cause]])
+	[clojure.stacktrace :only [root-cause]]
+        [somnium.congomongo :only [mongo!]])
   (:require [org.danlarkin.json :as json]
 	    [irclj.irclj :as ircb])
   (:import [java.io File FileReader]))
+
+(mongo! :db "sexpbot")
 
 (def bots (atom {}))
 
