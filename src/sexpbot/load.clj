@@ -14,13 +14,16 @@
              :on-quit []
              :on-join []}})
 
+(defn reload-config [bot]
+  (dosync (alter bot assoc :config (read-config info-file))))
+
 (defn require-plugins []
   (doseq [plug ((read-config info-file) :plugins)]
     (let [prefix (str "sexpbot.plugins." plug)]
       (require (symbol prefix) :reload))))
 
 (defn load-plugins [server refzors]
-  (let [info (read-config info-file)
+  (let [info (:config @refzors)
 	plugins-to-load (intersection (:plugins info) (:plugins (info server)))]
     (doseq [plug plugins-to-load]
       (let [prefix (str "sexpbot.plugins." plug)]
@@ -29,7 +32,7 @@
 (defn load-modules
   "Loads all of the modules in the IRC's :module map in another thread."
   [server refzors]
-  (doseq [plug (:plugins ((read-config info-file) server))]
+  (doseq [plug (:plugins ((:config @refzors) server))]
     (.start (Thread. (fn [] (loadmod refzors plug))))))
 
 (defn reload-all!
@@ -40,9 +43,11 @@
   [& bots]
   (doseq [[_ bot] bots]
     (dosync
-     (alter bot assoc :hooks initial-hooks :commands {})
      (doseq [cfn (map :cleanup (vals (:modules @bot)))] (cfn))
-     (alter bot assoc :modules {})))
+     (alter bot assoc
+            :modules {} :config (read-config info-file)
+            :hooks initial-hooks :commands {}
+            :configs {})))
   (use 'sexpbot.respond :reload)
   (require-plugins)
   (doseq [[server bot] bots]
