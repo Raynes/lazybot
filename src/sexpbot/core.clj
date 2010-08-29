@@ -11,14 +11,13 @@
 
 (def bots (atom {}))
 
-(def info (read-config info-file))
-(def prepend (:prepend info))
+(def initial-info (read-config info-file))
 
 (defn call-all [{bot :bot :as ircm} hook-key]
   (doseq [hook (pull-hooks bot hook-key)] (hook ircm)))
 
 (defn make-callbacks []
-  (let [refzors (ref {:hooks initial-hooks :commands {}})]
+  (let [refzors (ref {:hooks initial-hooks :commands {} :config initial-info :configs {}})]
     [(into {}
            (map (fn [key] [key (fn [irc-map] (call-all (assoc irc-map :bot refzors) key))])
                 [:on-any :on-message :on-quit :on-join]))
@@ -28,7 +27,7 @@
   (ircb/create-irc {:name name :password pass :server server :fnmap fnmap}))
 
 (defn make-bot [server] 
-  (let [bot-config info
+  (let [bot-config (read-config info-file)
 	name (:bot-name (bot-config server))
 	pass (:bot-password (bot-config server))
 	channels (:channels (bot-config server))
