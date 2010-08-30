@@ -15,13 +15,14 @@
 		    (whitelist 
 		     (function-matcher '*out* 'println 'print 'pr 'prn 'var 'print-doc 'doc 'throw
                                        'def)
-		     (class-matcher java.io.StringWriter java.net.URL java.net.URI))))
+		     (class-matcher java.io.StringWriter java.net.URL java.net.URI
+                                    java.util.TimeZone))))
 
 (def my-obj-tester
      (extend-tester default-obj-tester
 		    (whitelist
 		     (class-matcher java.io.StringWriter String Byte Character StrictMath StringBuffer
-				    java.net.URL java.net.URI))))
+				    java.net.URL java.net.URI java.util.TimeZone))))
 
 (def newdefn '(defmacro defn [name & body] `(def ~name (fn ~name ~@body))))
 
