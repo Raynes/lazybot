@@ -1,10 +1,9 @@
 (ns sexpbot.plugins.embedded
-  (:use [sexpbot info respond]
-        [clj-config.core :only [get-key]]))
+  (:use [sexpbot respond]))
 
 (defplugin
   (:add-hook :on-message
-             (fn [{message :message :as irc-map}]
+             (fn [{:keys [message bot] :as irc-map}]
                (doseq [x (reverse (re-seq #"\$#(.*?)#\$" message))]
-                 (->> x second (str (first (get-key :prepends info-file)))
+                 (->> x second (-> @bot :config :prepends first str)
                       (assoc irc-map :message) try-handle)))))

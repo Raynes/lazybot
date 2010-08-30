@@ -1,6 +1,5 @@
 (ns sexpbot.respond
-  (:use [sexpbot info [utilities :only [thunk-timeout]]]
-	[clj-config.core :only [read-config get-key]])
+  (:use [sexpbot.utilities :only [thunk-timeout]])
   (:require [irclj.irclj :as ircb])
   (:import java.util.concurrent.TimeoutException))
 

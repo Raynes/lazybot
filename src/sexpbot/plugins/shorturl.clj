@@ -1,15 +1,9 @@
 (ns sexpbot.plugins.shorturl
-  (:use [sexpbot respond info]
-	[clj-config.core]
-	[clojure-http.client :only [add-query-params]])
+  (:use [sexpbot respond ]
+        [clojure-http.client :only [add-query-params]])
   (:require [org.danlarkin.json :as json]
 	    [clojure-http.resourcefully :as res])
   (:import java.net.URI))
-
-
-(def bitkey (-> :bitly-key (get-key info-file)))
-(def login (-> :bitly-login (get-key info-file)))
-(def prepend (:prepend (read-config info-file)))
 
 (defn grab-url [js]
   (-> js :results vals first :shortUrl))
@@ -17,7 +11,7 @@
 (defn is-gd [url]
   (-> (res/get (add-query-params "http://is.gd/api.php" {"longurl" url})) :body-seq first))
   
-(defn bit-ly [url]
+(defn bit-ly [url login bitkey]
   (grab-url (json/decode-from-str 
 	     (->> (res/get (add-query-params "http://api.bit.ly/shorten"
 					     {"login" login 
@@ -33,16 +27,16 @@
 	:body-seq (apply str))
    0 15))
 
-(defn shorten-url [url site]
+(defn shorten-url [url bot site]
   (cond
-   (= site "bitly") (bit-ly url)
+   (= site "bitly") (bit-ly url (:bitly-login (:config @bot)) (:bitly-key (:config @bot)))
    (= site "isgd") (is-gd url)
    (= site "dottk") (dot-tk url)
    :else "Service is not supported"))
 
 (defn shorten [{:keys [irc bot channel nick args]} site]
   (if-let [url (first args)]
-    (send-message irc bot channel (str nick ": " (shorten-url url site)))
+    (send-message irc bot channel (str nick ": " (shorten-url url bot site)))
     (send-message irc bot channel "You didn't specify a URL!")))
 
 (defplugin
