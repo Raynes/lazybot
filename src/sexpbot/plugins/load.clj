@@ -1,6 +1,9 @@
 (ns sexpbot.plugins.load
   (:use [sexpbot respond load core]))
 
+(defn extract-bots []
+  (map (fn [[server {bot :bot}]] [server bot]) @bots))
+
 (defplugin
   (:load
    "Load a plugin. ADMIN ONLY!"
@@ -34,4 +37,16 @@
    "Reloads all plugins. ADMIN ONLY!"
    ["reload"]
    [{:keys [irc bot channel nick bot] :as irc-map}]
-   (if-admin nick irc-map bot (apply reload-all! (map (fn [[server {bot :bot}]] [server bot]) @bots)))))
+   (if-admin nick irc-map bot
+             (do
+               (dosync (apply reload-all! (extract-bots)))
+               (send-message irc bot channel "Reloaded successfully."))))
+
+  (:reload-config
+   "Reloads configuration. ADMIN ONLY!"
+   ["reload-config"]
+   [{:keys [irc bot nick channel] :as irc-map}]
+   (if-admin nick irc-map bot
+             (do
+               (apply reload-config! (extract-bots))
+               (send-message irc bot channel "Reloaded successfully.")))))
