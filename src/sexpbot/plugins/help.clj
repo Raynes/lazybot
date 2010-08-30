@@ -1,12 +1,7 @@
 ;; Written by Erik (boredomist)
 (ns sexpbot.plugins.help
   (:use [sexpbot respond info]
-	[clj-config.core :only [read-config]]
         [somnium.congomongo :only [fetch fetch-one insert! destroy!]]))
-
-(let [info (read-config info-file)]
-  (def admin-add? (:admin-add? info))
-  (def admin-rm? (:admin-rm? info)))
 
 (defplugin
   (:addtopic
@@ -16,7 +11,8 @@
    (let [[topic & content] args
 	 content-s (->> content
                         (interpose " ")
-                        (apply str))]
+                        (apply str))
+	 admin-add? (:addmin-add? (:config @bot))]
      (cond
       (fetch-one :help :where {:topic topic}) (send-message irc bot channel "Topic already exists!")
       (or (empty? topic) (empty? content)) (send-message irc bot channel "Neither topic nor content can be empty!")
@@ -33,7 +29,8 @@
    "Removes a topic from the help DB. You may need to be an admin to do this"
    ["rmtopic"]
    [{:keys [irc bot nick channel args] :as ircm}]
-   (let [topic (first args)]
+   (let [topic (first args)
+	 admin-rm? (:admin-rm? (:config @bot))]
      (if (fetch-one :help :where {:topic topic})
        (letfn [(destroy-and-reply
                 [topic]
