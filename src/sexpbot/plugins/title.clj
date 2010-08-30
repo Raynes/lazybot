@@ -1,8 +1,7 @@
 ;; The result of a team effort between programble and Rayne.
 (ns sexpbot.plugins.title
   (:use [sexpbot info respond utilities]
-	[clojure.contrib [string :only [ltrim]] [io :only [reader]]]
-	[clj-config.core :only [read-config]])
+	[clojure.contrib [string :only [ltrim]] [io :only [reader]]])
   (:import java.util.concurrent.TimeoutException
 	   org.apache.commons.lang.StringEscapeUtils))
 
@@ -28,10 +27,10 @@
 	:else (recur (conj acc (first lines)) (rest lines)))))
    (catch java.lang.Exception e nil)))
 
-(defn url-blacklist-words [irc] (:url-blacklist ((read-config info-file) (:server @irc))))
+(defn url-blacklist-words [irc bot] (:url-blacklist ((:config @bot) (:server @irc))))
 
-(defn url-check [irc url]
-  (some #(.contains url %) (url-blacklist-words irc)))
+(defn url-check [irc bot url]
+  (some #(.contains url %) (url-blacklist-words irc bot)))
 
 (defn is-blacklisted? [[match-this not-this] s]
   (let [lower-s (.toLowerCase s)
@@ -42,22 +41,22 @@
 
 (defn strip-tilde [s] (apply str (remove #(= \~ %) s)))
 
-(defn check-blacklist [server user]
-  (let [blacklist (:user-ignore-url-blacklist ((read-config info-file) server))]
+(defn check-blacklist [server user bot]
+  (let [blacklist (:user-ignore-url-blacklist ((:config @bot) server))]
     (some (comp not nil?) (map 
 			   #(is-blacklisted? % (strip-tilde user)) 
 			   blacklist))))
 
 (defn title [{:keys [irc nick bot user channel]} links & {verbose? :verbose? :or {verbose? false}}]
   (if (or (and verbose? (seq links))
-	  (and (not (check-blacklist (:server @irc) user))
-	       (not ((:channel-catch-blacklist ((read-config info-file) (:server @irc))) channel))))
+	  (and (not (check-blacklist (:server @irc) user bot))
+	       (not ((:channel-catch-blacklist ((:config @bot) (:server @irc))) channel))))
     (doseq [link (take 1 links)]
       (try
        (thunk-timeout #(let [url (add-url-prefix link)
 			     page (slurp-or-default url)
 			     match (second page)]
-			 (if (and (seq page) (seq match) (not (url-check irc url)))
+			 (if (and (seq page) (seq match) (not (url-check irc bot url)))
 			   (send-message irc bot channel
 					      (str "\"" 
 						   (ltrim 
@@ -73,8 +72,8 @@
 
 (defplugin
   (:add-hook :on-message
-	     (fn [{:keys [irc nick channel message] :as irc-map}]
-	       (let [info (read-config info-file)
+	     (fn [{:keys [irc bot nick channel message] :as irc-map}]
+	       (let [info (:config @bot)
 		     get-links (fn [s] (->> s (re-seq #"(http://|www\.)[^ ]+") (apply concat) (take-nth 2)))]
 		 (when (not ((:user-blacklist (info (:server @irc))) nick))
 		   (let [prepend (:prepends info)

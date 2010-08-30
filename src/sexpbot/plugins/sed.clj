@@ -1,9 +1,7 @@
 (ns sexpbot.plugins.sed
   (:use [sexpbot respond info]
-	clj-config.core)
-  )
+	clj-config.core))
 
-(def prepends (:prepends (read-config info-file)))
 (def message-map (atom {}))
 
 (defn- format-msg [irc bot nick channel]
@@ -46,13 +44,14 @@
 (defplugin
   (:add-hook :on-message
 	     (fn [{:keys [irc bot nick message channel] :as irc-map}]
-	       (when (not-empty (re-find #"^s/([^/]+)/([^/]*)/" message))
-		 (sed irc bot channel nick [(str "-" nick) message] false))
+	       (let [prepends (:prepends (:config @bot))]
+		 (when (not-empty (re-find #"^s/([^/]+)/([^/]*)/" message))
+		   (sed irc bot channel nick [(str "-" nick) message] false))
 	       
-	       (when (and (not= nick (:name @irc))
-			  (not= (take 4 message) (str (first prepends) "sed")))
-		 (swap! message-map assoc-in [irc channel nick] message)
-		 (swap! message-map assoc-in [irc channel :channel-last] message))))
+		 (when (and (not= nick (:name @irc))
+			    (not= (take 4 message) (str (first prepends) "sed")))
+		   (swap! message-map assoc-in [irc channel nick] message)
+		   (swap! message-map assoc-in [irc channel :channel-last] message)))))
   
   (:sed
    "Simple find and replace. Usage: sed [-<user name>] s/<regexp>/<replacement>/
