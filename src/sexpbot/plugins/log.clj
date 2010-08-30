@@ -17,7 +17,7 @@
   (when-not (and (:log-writers @bot) ((:log-writers @bot) channel))
     (if channel
       (create-log-file channel bot irc)
-      (create-log-file (:server @irc) irc)))
+      (create-log-file (:server @irc) bot irc)))
   (binding [*out* ((:log-writers @bot) (if channel channel (:server @irc)))]
     (println raw-message)
     (flush)))
