@@ -52,15 +52,15 @@
 
 (defmulti respond cmd-respond)
 
-(defn full-prepend [s]
-  ((get-key :prepends info-file) s))
+(defn full-prepend [config s]
+  ((:prepends config) s))
 
 (defn m-starts-with [m s]
   (some identity (map #(.startsWith m %) s)))
 
-(defn split-args [s]
+(defn split-args [config s]
   (let [[prepend command & args] (.split s " ")
-        is-long-pre (full-prepend prepend)]
+        is-long-pre (full-prepend config prepend)]
     {:command (if is-long-pre
                 command
                 (apply str (rest prepend)))
@@ -74,14 +74,14 @@
    (Thread.
     (fn []
       (let [bot-map (assoc irc-map :privs (get-priv (:logged-in @bot) nick))
-	    conf (read-config info-file)]
+	    conf (:config @bot)]
 	(when (m-starts-with message (:prepends conf))
 	  (if (< @running (:max-operations conf))
 	    (do
 	      (swap! running inc)
 	      (try
 		(thunk-timeout
-		 #(-> bot-map (into (split-args message)) respond)
+		 #(-> bot-map (into (split-args conf message)) respond)
 		 30)
 		(catch TimeoutException _ (send-message irc channel "Execution timed out."))
 		(catch Exception e (.printStackTrace e))

@@ -1,9 +1,8 @@
 (ns sexpbot.plugins.login
-  (:use [sexpbot respond info]
-	[clj-config.core :only [read-config]]))
+  (:use [sexpbot respond]))
 
 (defn check-pass-login [user pass server bot]
-  (let [userconf ((:users ((read-config info-file) server)) user)]
+  (let [userconf ((:users ((:config @bot) server)) user)]
     (when (= pass (:pass userconf)) 
       (dosync (alter bot assoc-in [:logged-in server user] (userconf :privs))))))
 
@@ -40,7 +39,7 @@
    (do
      (send-message irc bot channel 
                    (str nick ": You are a"
-                        (if (not= :admin (:privs ((:users ((read-config info-file) (:server @irc))) nick)))
+                        (if (not= :admin (:privs ((:users ((:config @bot) (:server @irc))) nick)))
                           " regular user."
                           (str "n admin; you are " 
                                (if (logged-in? (:server @irc) bot nick) "logged in." "not logged in!"))))))))

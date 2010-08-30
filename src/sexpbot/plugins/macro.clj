@@ -8,7 +8,7 @@
 	     (fn [{:keys [irc bot nick message channel] :as irc-map}]
 	       (let [macro-body (:macro (fetch-one :macro :where {:macro-name (.trim message)}))]
 		 (when (not-empty macro-body)
-		   (if (some identity (map #(.startsWith macro-body %) (:prepends (read-config info-file))))
+		   (if (some identity (map #(.startsWith macro-body %) (:prepends (:config @bot))))
 		     (try-handle (assoc irc-map :message macro-body))
 		     (send-message irc bot channel macro-body))))))
 			  
