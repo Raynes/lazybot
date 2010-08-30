@@ -35,6 +35,12 @@
   (doseq [plug (:plugins ((:config @refzors) server))]
     (.start (Thread. (fn [] (loadmod refzors plug))))))
 
+(defn reload-config!
+  "Reloads the bot's configs. Must be ran in a transaction."
+  [& bots]
+  (doseq [[_ bot] bots]
+    (alter bot assoc :config (read-config info-file))))
+
 (defn reload-all!
   "A clever function to reload everything when running sexpbot from SLIME.
   Do not try to reload anything individually. It doesn't work because of the
@@ -45,9 +51,9 @@
     (dosync
      (doseq [cfn (map :cleanup (vals (:modules @bot)))] (cfn))
      (alter bot assoc
-            :modules {} :config (read-config info-file)
-            :hooks initial-hooks :commands {}
-            :configs {})))
+            :modules {} :hooks initial-hooks
+            :commands {} :configs {})
+     (reload-config bot)))
   (use 'sexpbot.respond :reload)
   (require-plugins)
   (doseq [[server bot] bots]
