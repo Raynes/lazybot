@@ -5,7 +5,7 @@
 (def message-map (atom {}))
 
 (defn- format-msg [irc bot nick channel]
-  (send-message irc bot channel (str nick ": Format is sed [-<user name>] s/<regexp>/<replacement>/ Try $help sed")))
+  (send-message irc bot channel (str nick ": Format is sed [-<user name>] s/<regexp>/<replacement>/ Try <prefix>help sed")))
 
 (defn- conj-args [args]
   (->> args
