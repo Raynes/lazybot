@@ -1,25 +1,24 @@
 (ns sexpbot.plugins.log
-  (:use [sexpbot info respond]
-	clj-config.core
+  (:use [sexpbot respond]
 	[clojure.contrib.io :only [writer]])
   (:import (java.io File FileOutputStream)))
 
-(defn create-log-file [chan irc]
+(defn create-log-file [chan bot irc]
   (let [logdir (File. (str sexpdir "/logs"))
 	file (File. (str logdir "/" (:server @irc) "-" chan ".ilog"))]
     (when-not (.exists logdir)
       (.mkdir logdir))
     (when-not (.exists file)
       (.createNewFile file))
-    (dosync (alter irc assoc-in [:log-writers chan] (writer (FileOutputStream. file true))))))
+    (dosync (alter bot assoc-in [:log-writers chan] (writer (FileOutputStream. file true))))))
 
-(defn write-log [{:keys [raw-message channel irc]}]
-  (when (:log (read-config info-file)))
-  (when-not (and (:log-writers @irc) ((:log-writers @irc) channel))
+(defn write-log [{:keys [raw-message bot channel irc]}]
+  (when (:log (:config @bot)))
+  (when-not (and (:log-writers @bot) ((:log-writers @bot) channel))
     (if channel
-      (create-log-file channel irc)
+      (create-log-file channel bot irc)
       (create-log-file (:server @irc) irc)))
-  (binding [*out* ((:log-writers @irc) (if channel channel (:server @irc)))]
+  (binding [*out* ((:log-writers @bot) (if channel channel (:server @irc)))]
     (println raw-message)
     (flush)))
 
