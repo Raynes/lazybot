@@ -39,7 +39,7 @@
    [{:keys [irc bot channel nick bot] :as irc-map}]
    (if-admin nick irc-map bot
              (do
-               (dosync (apply reload-all! (extract-bots)))
+               (apply reload-all! (extract-bots))
                (send-message irc bot channel "Reloaded successfully."))))
 
   (:reload-config
@@ -48,5 +48,5 @@
    [{:keys [irc bot nick channel] :as irc-map}]
    (if-admin nick irc-map bot
              (do
-               (apply reload-config! (extract-bots))
+               (dosync (apply reload-config! (extract-bots)))
                (send-message irc bot channel "Reloaded successfully.")))))
