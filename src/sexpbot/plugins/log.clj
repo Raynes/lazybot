@@ -1,5 +1,5 @@
 (ns sexpbot.plugins.log
-  (:use [sexpbot respond]
+  (:use [sexpbot respond info]
 	[clojure.contrib.io :only [writer]])
   (:import (java.io File FileOutputStream)))
 
