@@ -1,0 +1,1 @@
+java -XX:ReservedCodeCacheSize=6m -XX:MinHeapFreeRatio=40 -Xms10m -Xmx40m -cp lib/*:src/ clojure.main -e "(use 'sexpbot.run)"
