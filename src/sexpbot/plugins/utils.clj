@@ -30,7 +30,7 @@
 			     \- (minus (now) (hours n))
 			     (now)))
 			 (now)))]
-     (send-message irc channel bot (str nick ": The time is now " time))))
+     (send-message irc bot channel (str nick ": The time is now " time))))
 
   (:join 
    "Joins a channel. ADMIN ONLY."
