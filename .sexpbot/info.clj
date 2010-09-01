@@ -18,11 +18,11 @@
 		     :url-blacklist #{} ; URL title scraper will look for these words in URLs and not use them if they appear.
 		     :user-ignore-url-blacklist [["bot" "ters"]] ; A series of "match this" but "not this" pairs.}
 		     :plugins #{#_"dictionary" "lmgtfy" "google" "translate" "eball" "utils" "leet" "eval" "login"
-				"weather" "brainfuck" "whatis" "shorturl" "spellcheck" "dynamic" #_"walton" "haskell"
+				"weather" "brainfuck" "whatis" "shorturl" "dynamic" "haskell"
 				"mail" "timer" "fortune" "rss" "title" "operator" "seen" "sed" "help" "status" "log"
                                 "load" "embedded" "git"}} ; A series of "match this" but "not this" pairs.
  :plugins #{#_"dictionary" "lmgtfy" "google" "translate" "eball" "utils" "leet" "eval" "login"
-	    "weather" "brainfuck" "whatis" "shorturl" "spellcheck" "dynamic" #_"walton" "haskell"
+	    "weather" "brainfuck" "whatis" "shorturl" "dynamic" "haskell"
 	    "mail" "timer" "fortune" "rss" "title" "operator" "seen" "sed" "help" "status" "log"
             "load" "embedded" "git"}}
 
