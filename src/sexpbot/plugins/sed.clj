@@ -37,7 +37,7 @@
      :else (try
 	     (let [orig-msg last-in
 		   new-msg (sed* last-in regexp replacement)]
-	       (when-not (= orig-msg new-msg) (send-message irc bot channel new-msg)))
+	       (when-not (= orig-msg new-msg) (send-message irc bot channel (str "<" user-to "> " new-msg))))
 	     (catch Exception _ (when verbose? (format-msg irc bot nick channel)))))))
 
 
@@ -55,7 +55,7 @@
   
   (:sed
    "Simple find and replace. Usage: sed [-<user name>] s/<regexp>/<replacement>/
-If the specified user isn't found, it will default to the last thing said in the channel.
+If the specified user isn't found, it will default to the last thing said in the channel. 
 Example Usage: sed -boredomist s/[aeiou]/#/
 Shorthand : s/[aeiou]/#/"
    ["sed"]
