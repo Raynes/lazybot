@@ -110,7 +110,7 @@
    "Prints an amusing message."
    ["kill"]
    [{:keys [irc bot channel]}]
-   (send-message irc bot channel "IT WITH FIRE. FOR GREAT JUSTICE!"))
+   (send-message irc bot channel "KILL IT WITH FIRE!"))
 
   (:gist 
    "Gists it's arguments."
