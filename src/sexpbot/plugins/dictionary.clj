@@ -1,8 +1,8 @@
 (ns sexpbot.plugins.dictionary
   (:use [sexpbot respond]
-	[clojure-http.client :only [add-query-params]])
-  (:require [clojure-http.resourcefully :as res]
-	    [org.danlarkin.json :as json])
+	[clojure-http.client :only [add-query-params]]
+        [clojure.contrib.json :only [read-json]])
+  (:require [clojure-http.resourcefully :as res])
   (:import java.net.URI))
 
 (defn extract-stuff [js]
@@ -13,7 +13,7 @@
   (-> (res/get
        (add-query-params (str "http://api.wordnik.com/api/word.json/" word "/definitions") {"count" "1"})
        {"api_key" key})
-      :body-seq first json/decode-from-str first extract-stuff))
+      :body-seq first read-json first extract-stuff))
 
 (defplugin 
   (:dict 

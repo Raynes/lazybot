@@ -1,8 +1,8 @@
 (ns sexpbot.plugins.shorturl
-  (:use [sexpbot respond ]
+  (:use [sexpbot respond]
+        [clojure.contrib.json :only [read-json]]
         [clojure-http.client :only [add-query-params]])
-  (:require [org.danlarkin.json :as json]
-	    [clojure-http.resourcefully :as res])
+  (:require [clojure-http.resourcefully :as res])
   (:import java.net.URI))
 
 (defn grab-url [js]
@@ -12,7 +12,7 @@
   (-> (res/get (add-query-params "http://is.gd/api.php" {"longurl" url})) :body-seq first))
   
 (defn bit-ly [url login bitkey]
-  (grab-url (json/decode-from-str 
+  (grab-url (read-json 
 	     (->> (res/get (add-query-params "http://api.bit.ly/shorten"
 					     {"login" login 
                                               "apiKey" bitkey

@@ -1,8 +1,8 @@
 (ns sexpbot.plugins.haskell
   (:use [sexpbot respond]
+        [clojure.contrib.json :only [read-json]]
 	[clojure-http.client :only [add-query-params]])
-  (:require [org.danlarkin.json :as json]
-	    [clojure-http.resourcefully :as res]))
+  (:require [clojure-http.resourcefully :as res]))
 
 (def tryurl "http://tryhaskell.org/haskell.json")
 
@@ -13,7 +13,7 @@
   (->> (res/get (add-query-params tryurl {"method" "eval" "expr" expr})) 
        :body-seq
        first
-       json/decode-from-str
+       read-json
        cull
        (apply str)))
 

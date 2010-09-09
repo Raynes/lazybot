@@ -1,14 +1,14 @@
 (ns sexpbot.plugins.translate
-  (:use [sexpbot respond utilities])
-  (:require [org.danlarkin.json :as json]
-	    [clojure-http.resourcefully :as res])
+  (:use [sexpbot respond utilities]
+        [clojure.contrib.json :only [read-json]])
+  (:require [clojure-http.resourcefully :as res])
   (:import org.apache.commons.lang.StringEscapeUtils))
 
 (defn translate [lang1 lang2 text]
   (-> (res/get 
        "http://ajax.googleapis.com/ajax/services/language/translate"
        {} {"v" "1.0" "q" text "langpair" (str lang1 "|" lang2)})
-      :body-seq first json/decode-from-str))
+      :body-seq first read-json))
 
 (defplugin
   (:translate
