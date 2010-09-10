@@ -55,7 +55,7 @@
      (let [user-to-rape (if (= (first args) "*") 
                           (->> (ircb/get-names irc channel) drop-modes stringify)
                           (first args))]
-       (ircb/send-action irc bot channel (str "raepz " user-to-rape ".")))))
+       (ircb/send-action irc channel (str "raepz " user-to-rape ".")))))
 
   (:cmd 
    "Flips a coin."
