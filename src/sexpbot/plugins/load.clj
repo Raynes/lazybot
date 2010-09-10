@@ -5,48 +5,48 @@
   (map (fn [[server {bot :bot}]] [server bot]) @bots))
 
 (defplugin
-  (:load
+  (:cmd
    "Load a plugin. ADMIN ONLY!"
-   ["load"]
-   [{:keys [irc bot nick channel args] :as irc-map}]
-   (if-admin nick irc-map bot
-	     (if (true? (->> args first (loadmod irc)))
-	       (send-message irc bot channel "Loaded.")
-	       (send-message irc bot channel (str "Module " (first args) " not found.")))))
+   #{"load"}
+   (fn [{:keys [irc bot nick channel args] :as irc-map}]
+     (if-admin nick irc-map bot
+               (if (true? (->> args first (safe-load-plugin bot)))
+                 (send-message irc bot channel "Loaded.")
+                 (send-message irc bot channel (str "Module " (first args) " not found."))))))
   
-  (:unload
+  (:cmd
    "Unload a plugin. ADMIN ONLY!"
-   ["unload"]
-   [{:keys [irc bot nick channel args] :as irc-map}]
-   (if-admin nick irc-map bot
-	     (if ((:modules @bot) (-> args first keyword))
-	       (do 
-		 ((((:modules @bot) (-> args first keyword)) :unload))
-		 (send-message irc bot channel "Unloaded."))
-	       (send-message irc bot channel (str "Module " (first args) " not found.")))))
+   #{"unload"}
+   (fn [{:keys [irc bot nick channel args] :as irc-map}]
+     (if-admin nick irc-map bot
+               (if ((:modules @bot) (first args))
+                 (do 
+                   (dosync (alter bot update-in [:modules] dissoc (first args)))
+                   (send-message irc bot channel "Unloaded."))
+                 (send-message irc bot channel (str "Module " (first args) " not found."))))))
 
-  (:loaded
+  (:cmd
    "Lists all the plugins that are currently loaded. ADMIN ONLY!"
-   ["loaded?"]
-   [{:keys [irc bot nick channel args] :as irc-map}]
-   (if-admin nick irc-map bot
-	     (send-message irc bot channel 
-                           (->> (:commands @bot) (filter (comp map? second)) (into {}) keys str str))))
+   #{"loaded?"}
+   (fn [{:keys [irc bot nick channel args] :as irc-map}]
+     (if-admin nick irc-map bot
+               (send-message irc bot channel 
+                             (apply str (interpose " " (keys (:modules @bot))))))))
   
-  (:reload
+  (:cmd
    "Reloads all plugins. ADMIN ONLY!"
-   ["reload"]
-   [{:keys [irc bot channel nick bot] :as irc-map}]
-   (if-admin nick irc-map bot
-             (do
-               (apply reload-all! (extract-bots))
-               (send-message irc bot channel "Reloaded successfully."))))
+   #{"reload"}
+   (fn [{:keys [irc bot channel nick bot] :as irc-map}]
+     (if-admin nick irc-map bot
+               (do
+                 (apply reload-all (extract-bots))
+                 (send-message irc bot channel "Reloaded successfully.")))))
 
-  (:reload-config
+  (:cmd
    "Reloads configuration. ADMIN ONLY!"
-   ["reload-config"]
-   [{:keys [irc bot nick channel] :as irc-map}]
-   (if-admin nick irc-map bot
-             (do
-               (dosync (apply reload-config! (extract-bots)))
-               (send-message irc bot channel "Reloaded successfully.")))))
+   #{"reload-config"}
+   (fn [{:keys [irc bot nick channel] :as irc-map}]
+     (if-admin nick irc-map bot
+               (do
+                 (dosync (apply reload-config (extract-bots)))
+                 (send-message irc bot channel "Reloaded successfully."))))))
