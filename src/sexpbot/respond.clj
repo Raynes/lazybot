@@ -15,7 +15,7 @@
       cs)))
 
 (defn pull-hooks [bot hook-key]
-  (hook-key (apply merge-with concat (vals (:hooks @bot)))))
+  (hook-key (apply merge-with concat (map :hooks (vals (:modules @bot))))))
 
 (defn call-message-hooks [irc bot channel s]
   (apply nil-comp irc bot channel s (pull-hooks bot :on-send-message)))
@@ -37,19 +37,14 @@
        ~@body
        (send-message irc# ~bot (:channel ~irc) (str ~user ": You aren't an admin!")))))
 
-(defn find-command [cmds command first]
-  (let [res (apply merge (remove keyword? (vals cmds)))]
-    (cond
-     (res first) (res first)
-     (cmds command) (cmds command)
-     (some (comp map? val) cmds) (res command))))
+(defn find-command [modules command]
+  (some #(when ((:triggers %) command) %) (apply concat (map :commands (vals modules)))))
 
 (defn find-docs [bot command]
-  (:doc (find-command (:commands @bot) command (first command))))
+  (:doc (find-command (:modules @bot) command)))
 
-(defn cmd-respond [{:keys [command first bot]} & _] (:cmd (find-command (:commands @bot) command first)))
-
-(defmulti respond cmd-respond)
+(defn respond [{:keys [command bot]}]
+  (or (:fn (find-command (:modules @bot) command)) (constantly nil)))
 
 (defn full-prepend [config s]
   ((:prepends config) s))
@@ -63,7 +58,6 @@
     {:command (if is-long-pre
                 command
                 (apply str (rest prepend)))
-     :first (if is-long-pre (first command) (first (rest prepend)))
      :args (if is-long-pre args (when command (conj args command)))}))
 
 (def- running (atom 0))
@@ -79,8 +73,9 @@
 	    (do
 	      (swap! running inc)
 	      (try
+                (println "intry")
 		(thunk-timeout
-		 #(-> bot-map (into (split-args conf message)) respond)
+		 #((respond (into bot-map (split-args conf message))) irc-map)
 		 30)
 		(catch TimeoutException _ (send-message irc channel "Execution timed out."))
 		(catch Exception e (.printStackTrace e))
@@ -92,25 +87,14 @@
 ;; unfamiliar concepts.
 (defmacro defplugin [& body]
   (let [clean-fn (if-let [cfn (seq (filter #(= :cleanup (first %)) body))] (second (first cfn)) `(fn [] nil))
-	[hook-fns methods] ((juxt filter remove) #(= :add-hook (first %)) (remove #(= :cleanup (first %)) body))
-	cmd-list (into {} (for [[cmdkey docs words] methods word words] [word {:cmd cmdkey :doc docs}]))
-	hook-list (apply merge-with concat (for [[_ hook-this hook-fn] hook-fns] {hook-this [hook-fn]}))]
-    `(do
-       ~@(for [[cmdkey docs words & method-stuff] methods]
-	   `(defmethod respond ~cmdkey ~@method-stuff))
-       (let [pns# *ns*]
-	 (defn ~'load-this-plugin [bot#]
-	   (let [m-name# (keyword (last (.split (str pns#) "\\.")))]
-	     (dosync
-	      (alter bot# assoc-in [:modules m-name#]
-		     {:load (fn [] (dosync (alter bot# assoc-in [:commands m-name#] ~cmd-list)
-					   (alter bot# assoc-in [:hooks m-name#] ~hook-list)
-                                           (alter bot# assoc-in [:configs m-name#] {})))
-		      :unload (fn [] (dosync (alter bot# update-in [:commands] dissoc m-name#)
-					     (alter bot# update-in [:hooks] dissoc m-name#)
-                                             (alter bot# update-in [:configs] dissoc m-name#)))
-		      :cleanup ~clean-fn}))))))))
-
-; Disabled for now. Will make this a configuration option in a little while.
-(defmethod respond :default [{:keys [irc channel]}]
-           #_(send-message irc channel "Command not found. No entiendo lo que estás diciendo."))
+        [hook-fns cmd-fns] ((juxt filter remove) #(= :hook (first %)) (remove #(= :cleanup (first %)) body))
+        hook-list (apply merge-with concat (for [[_ hook-this hook-fn] hook-fns] {hook-this [hook-fn]}))
+        cmd-list (into [] (for [[_ docs triggers cmd-fn] cmd-fns] {:triggers triggers :doc docs :fn cmd-fn}))]
+    `(let [pns# *ns*]
+       (defn ~'load-this-plugin [bot#]
+         (let [m-name# (keyword (last (.split (str pns#) "\\.")))]
+           (dosync
+            (alter bot# assoc-in [:modules m-name#]
+                   {:commands ~cmd-list
+                    :hooks ~hook-list
+                    :cleanup ~clean-fn})))))))

@@ -17,7 +17,7 @@
   (doseq [hook (pull-hooks bot hook-key)] (hook ircm)))
 
 (defn make-callbacks []
-  (let [refzors (ref {:hooks initial-hooks :commands {} :config initial-info :configs {}})]
+  (let [refzors (ref {:modules {:internal {:hooks initial-hooks}} :config initial-info})]
     [(into {}
            (map (fn [key] [key (fn [irc-map] (call-all (assoc irc-map :bot refzors) key))])
                 [:on-any :on-message :on-quit :on-join]))
