@@ -54,5 +54,4 @@
      (reload-config bot)))
   (require-plugins)
   (doseq [[server bot] bots]
-    (load-plugins server bot)
-    (prn bot)))
+    (load-plugins server bot)))
