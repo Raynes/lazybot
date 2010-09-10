@@ -42,22 +42,23 @@
 
 
 (defplugin
-  (:add-hook :on-message
-	     (fn [{:keys [irc bot nick message channel] :as irc-map}]
-	       (let [prepends (:prepends (:config @bot))]
-		 (when (not-empty (re-find #"^s/([^/]+)/([^/]*)/" message))
-		   (sed irc bot channel nick [(str "-" nick) message] false))
-	       
-		 (when (and (not= nick (:name @irc))
-			    (not= (take 4 message) (str (first prepends) "sed")))
-		   (swap! message-map assoc-in [irc channel nick] message)
-		   (swap! message-map assoc-in [irc channel :channel-last] message)))))
+  (:hook
+   :on-message
+   (fn [{:keys [irc bot nick message channel] :as irc-map}]
+     (let [prepends (:prepends (:config @bot))]
+       (when (not-empty (re-find #"^s/([^/]+)/([^/]*)/" message))
+         (sed irc bot channel nick [(str "-" nick) message] false))
+       
+       (when (and (not= nick (:name @irc))
+                  (not= (take 4 message) (str (first prepends) "sed")))
+         (swap! message-map assoc-in [irc channel nick] message)
+         (swap! message-map assoc-in [irc channel :channel-last] message)))))
   
-  (:sed
+  (:cmd
    "Simple find and replace. Usage: sed [-<user name>] s/<regexp>/<replacement>/
 If the specified user isn't found, it will default to the last thing said in the channel. 
 Example Usage: sed -boredomist s/[aeiou]/#/
 Shorthand : s/[aeiou]/#/"
-   ["sed"]
-   [{:keys [irc bot channel args nick] :as irc-map}] (sed irc bot channel nick args true)))
+   #{"sed"}
+   (fn [{:keys [irc bot channel args nick] :as irc-map}] (sed irc bot channel nick args true))))
 

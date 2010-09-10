@@ -58,16 +58,17 @@
 (def many (atom 0))
 
 (defplugin
-  (:add-hook :on-message
-             (fn [{:keys [irc bot channel message]}]
-               (.start
-                (Thread.
-                 (fn []
-                   (when (.startsWith message "->")
-                     (if (< @many 3)
-                       (do
-                         (try
-                           (swap! many inc)
-                           (send-message irc bot channel (execute-text (apply str (drop 2 message))))
-                           (finally (swap! many dec))))
-                       (send-message irc bot channel "Too much is happening at once. Wait until other operations cease.")))))))))
+  (:hook
+   :on-message
+   (fn [{:keys [irc bot channel message]}]
+     (.start
+      (Thread.
+       (fn []
+         (when (.startsWith message "->")
+           (if (< @many 3)
+             (do
+               (try
+                 (swap! many inc)
+                 (send-message irc bot channel (execute-text (apply str (drop 2 message))))
+                 (finally (swap! many dec))))
+             (send-message irc bot channel "Too much is happening at once. Wait until other operations cease.")))))))))

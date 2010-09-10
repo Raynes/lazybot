@@ -6,21 +6,21 @@
         [somnium.congomongo :only [fetch fetch-one insert! destroy!]]))
 
 (defplugin
-  (:fortune 
+  (:cmd
    "Tells you what your fortune is. :>"
-   ["fortune"] 
-   [{:keys [irc bot channel args]}]
-   (let [db (fetch :fortune)]
-     (if (zero? (count db))
-       (send-message irc bot channel "I have no fortune cookies. Please feed me some!")
-       (send-message irc bot channel (:fortune (rand-nth db))))))
+   #{"fortune"} 
+   (fn [{:keys [irc bot channel args]}]
+     (let [db (fetch :fortune)]
+       (if (zero? (count db))
+         (send-message irc bot channel "I have no fortune cookies. Please feed me some!")
+         (send-message irc bot channel (:fortune (rand-nth db)))))))
 
-  (:addfortune 
+  (:cmd
    "Adds a fortune to the fortune database."
-   ["addfortune"] 
-   [{:keys [irc bot channel args]}]
-   (if (seq args)
-     (do
-       (insert! :fortune {:fortune (->> args (interpose " ") (apply str))})
-       (send-message irc bot channel "Fortune cookie eaten."))
-     (send-message irc bot channel "An invisible fortune cookie?"))))
+   #{"addfortune"} 
+   (fn [{:keys [irc bot channel args]}]
+     (if (seq args)
+       (do
+         (insert! :fortune {:fortune (->> args (interpose " ") (apply str))})
+         (send-message irc bot channel "Fortune cookie eaten."))
+       (send-message irc bot channel "An invisible fortune cookie?")))))

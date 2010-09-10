@@ -40,21 +40,21 @@
     (send-message irc bot channel "You didn't specify a URL!")))
 
 (defplugin
-  (:bit-ly
+  (:cmd
    "Gets a shortened URL from bit.ly"
-   ["bitly" "bit-ly" "bit.ly"]
-   [irc-map]
-   (shorten irc-map "bitly"))
+   #{"bitly" "bit-ly" "bit.ly"}
+   (fn [irc-map]
+     (shorten irc-map "bitly")))
   
-   (:is-gd
+   (:cmd
     "Gets a shortened URL from isgd"
-    ["is-gd" "is.gd" "isgd"]
-    [irc-map]
-    (shorten irc-map "isgd"))
+    #{"is-gd" "is.gd" "isgd"}
+    (fn [irc-map]
+      (shorten irc-map "isgd")))
    
-   (:dot-tk
+   (:cmd
     "Gets a shortened URL from dottk"
-    ["dottk" ".tk" "dot-tk"]
-    [irc-map]
-    (shorten irc-map "dottk")))
+    #{"dottk" ".tk" "dot-tk"}
+    (fn [irc-map]
+      (shorten irc-map "dottk"))))
 		 

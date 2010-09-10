@@ -71,19 +71,20 @@
     (when verbose? (send-message irc bot channel "Which page?"))))
 
 (defplugin
-  (:add-hook :on-message
-	     (fn [{:keys [irc bot nick channel message] :as irc-map}]
-	       (let [info (:config @bot)
-		     get-links (fn [s] (->> s (re-seq #"(http://|www\.)[^ ]+") (apply concat) (take-nth 2)))]
-		 (when (not ((:user-blacklist (info (:server @irc))) nick))
-		   (let [prepend (:prepends info)
-			 links (get-links message)
-			 title-links? (and (not (m-starts-with message (:prepends info))) 
-					   (:catch-links? (info (:server @irc)))
-					   (seq links))]
-		     (when title-links?
-		       (title irc-map links)))))))
-
-  (:title 
+  (:hook
+   :on-message
+   (fn [{:keys [irc bot nick channel message] :as irc-map}]
+     (let [info (:config @bot)
+           get-links (fn [s] (->> s (re-seq #"(http://|www\.)[^ ]+") (apply concat) (take-nth 2)))]
+       (when (not ((:user-blacklist (info (:server @irc))) nick))
+         (let [prepend (:prepends info)
+               links (get-links message)
+               title-links? (and (not (m-starts-with message (:prepends info))) 
+                                 (:catch-links? (info (:server @irc)))
+                                 (seq links))]
+           (when title-links?
+             (title irc-map links)))))))
+  
+  (:cmd 
    "Gets the title of a web page. Takes a link. This is verbose, and prints error messages."
-   ["title"] [irc-map] (title irc-map (:args irc-map) :verbose? true)))
+   #{"title"} (fn [irc-map] (title irc-map (:args irc-map) :verbose? true))))

@@ -1,6 +1,5 @@
 (ns sexpbot.plugins.dynamic
-  (:use [sexpbot respond])
-  )
+  (:use [sexpbot respond]))
 
 (def char-map (apply hash-map (interleave (range 1 28) "abcdefghijklmnopqrstuvwxyz ")))
 
@@ -25,10 +24,10 @@
        (apply str)))
 
 (defplugin 
-  (:dytostr 
+  (:cmd
    "Converts a dynamic string to a English string."
-   ["dy2str" "dytostr"]
-   [{:keys [irc bot channel args]}]
-   (if-not (seq (.trim (apply str (interpose " "  args))))
-     (send-message irc bot channel "No dynamic string given!")
-     (send-message irc bot channel (dynamic-to-str (first args))))))
+   #{"dy2str" "dytostr"}
+   (fn [{:keys [irc bot channel args]}]
+     (if-not (seq (.trim (apply str (interpose " "  args))))
+       (send-message irc bot channel "No dynamic string given!")
+       (send-message irc bot channel (dynamic-to-str (first args)))))))

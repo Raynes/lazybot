@@ -46,26 +46,26 @@
       (send-message irc bot nick "You have no messages."))))
 
 (defplugin
-  (:add-hook :on-message (fn [irc-map] (mail-alert irc-map)))
-  (:add-hook :on-join (fn [irc-map] (mail-alert irc-map)))
+  (:hook :on-message (fn [irc-map] (mail-alert irc-map)))
+  (:hook :on-join (fn [irc-map] (mail-alert irc-map)))
   
-  (:getmessages 
+  (:cmd 
    "Request that your messages be sent you via PM. Executing this command will delete all your messages."
-   ["getmessages" "getmail" "mymail"] 
-   [{:keys [irc bot nick]}]
-   (get-messages irc bot nick))
+   #{"getmessages" "getmail" "mymail"} 
+   (fn [{:keys [irc bot nick]}]
+     (get-messages irc bot nick)))
 
-  (:mail 
+  (:cmd 
    "Send somebody a message. Takes a nickname and a message to send. Will alert the person with a notice."
-   ["mail"]
-   [{:keys [irc bot channel nick args irc]}]
-   (if (seq args)
-     (let [lower-user (.toLowerCase (first args))]
-       (if (and (not (.contains lower-user "serv"))
-		(not= lower-user (.toLowerCase (:name @irc))))
-	  (do
-	    (new-message nick lower-user 
-			 (->> args rest (interpose " ") (apply str)))
-	    (send-message irc bot channel "Message saved."))
-	  (send-message irc bot channel "You can't message the unmessageable.")))
-     (get-messages irc bot nick))))
+   #{"mail"}
+   (fn [{:keys [irc bot channel nick args irc]}]
+     (if (seq args)
+       (let [lower-user (.toLowerCase (first args))]
+         (if (and (not (.contains lower-user "serv"))
+                  (not= lower-user (.toLowerCase (:name @irc))))
+           (do
+             (new-message nick lower-user 
+                          (->> args rest (interpose " ") (apply str)))
+             (send-message irc bot channel "Message saved."))
+           (send-message irc bot channel "You can't message the unmessageable.")))
+       (get-messages irc bot nick)))))

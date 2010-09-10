@@ -16,11 +16,11 @@
       :body-seq first read-json first extract-stuff))
 
 (defplugin 
-  (:dict 
+  (:cmd
    "Takes a word and look's up it's definition via the Wordnik dictionary API." 
-   ["dict"] 
-   [{:keys [irc bot channel nick args]}]
-   (send-message irc bot channel 
-		      (str nick ": " 
-			   (let [[text part] (lookup-def (:wordnik-key (:config @bot)) (first args))]
-			     (if (seq text) (str part ": " text) "Word not found."))))))
+   #{"dict"} 
+   (fn [{:keys [irc bot channel nick args]}]
+     (send-message irc bot channel 
+                   (str nick ": " 
+                        (let [[text part] (lookup-def (:wordnik-key (:config @bot)) (first args))]
+                          (if (seq text) (str part ": " text) "Word not found.")))))))

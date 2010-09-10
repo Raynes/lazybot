@@ -1,7 +1,6 @@
 (ns sexpbot.plugins.git
   (:use [sexpbot respond]
-	clojure.java.shell)
-  )
+	clojure.java.shell))
 
 (defn git-pull []
   (let [out (sh "git" "pull")]
@@ -10,9 +9,9 @@
       (out :out))))
 
 (defplugin
-  (:gitpull
+  (:cmd
    "Updates sexpbot from git (must be admin)"
-   ["gitpull"]
-   [{:keys [irc bot channel nick args] :as ircm}]
-   (if-admin nick ircm bot
-     (send-message irc bot channel (git-pull)))))
+   #{"gitpull"}
+   (fn [{:keys [irc bot channel nick args] :as ircm}]
+     (if-admin nick ircm bot
+               (send-message irc bot channel (git-pull))))))

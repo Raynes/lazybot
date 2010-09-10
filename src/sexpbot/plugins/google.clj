@@ -26,21 +26,20 @@
       (send-message irc bot channel url))))
 
 (defplugin
-  (:google 
+  (:cmd
    "Searches google for whatever you ask it to, and displays the first result and the estimated
    number of results found."
-   ["google"] 
-   [args]
-   (handle-search args))
+   #{"google"} 
+   #'handle-search)
 
-   (:wiki 
+   (:cmd
     "Searches wikipedia via google."
-    ["wiki"] 
-    [args]
-    (handle-search (assoc args :args (conj (:args args) "site:en.wikipedia.org"))))
+    #{"wiki"}
+    (fn [args]
+      (handle-search (assoc args :args (conj (:args args) "site:en.wikipedia.org")))))
 
-   (:ed 
+   (:cmd
     "Searches encyclopediadramtica via google."
-    ["ed"] 
-    [args]
-    (handle-search (assoc args :args (conj (:args args) "site:encyclopediadramatica.com")))))
+    #{"ed"} 
+    (fn [args]
+      (handle-search (assoc args :args (conj (:args args) "site:encyclopediadramatica.com"))))))

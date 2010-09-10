@@ -24,9 +24,9 @@
       "Very doubtful."])
 
 (defplugin
-  (:8ball 
+  (:cmd
    "Ask the magic eight ball a question."
-   ["8ball"] 
-   [{:keys [irc bot nick channel]}]
-   (let [answer (rand-int 20)]
-     (send-message irc bot channel (str nick ": " (nth responses answer))))))
+   #{"8ball"} 
+   (fn [{:keys [irc bot nick channel]}]
+     (let [answer (rand-int 20)]
+       (send-message irc bot channel (str nick ": " (nth responses answer)))))))

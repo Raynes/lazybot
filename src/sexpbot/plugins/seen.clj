@@ -26,18 +26,18 @@
 (defn put-seen [{:keys [nick channel irc]} doing] (tack-time nick (:server @irc) channel doing))
 
 (defplugin
-  (:add-hook :on-message
-	     (fn [irc-map] (put-seen irc-map "talking")))
-  (:add-hook :on-join 
-	     (fn [irc-map] (put-seen irc-map "joining")))
-  (:add-hook :on-quit
-	     (fn [irc-map] (put-seen irc-map "quitting")))
+  (:hook :on-message
+         (fn [irc-map] (put-seen irc-map "talking")))
+  (:hook :on-join 
+         (fn [irc-map] (put-seen irc-map "joining")))
+  (:hook :on-quit
+         (fn [irc-map] (put-seen irc-map "quitting")))
   
-  (:seen 
+  (:cmd
    "Checks to see when the person you specify was last seen."
-   ["seen"] 
-   [{:keys [irc bot nick channel args]}]
-   (if-let [{:keys [time chan doing nick]} (get-seen (first args) (:server @irc))]
-     (send-message irc bot channel (str nick " was last seen " doing (when-not (= doing "quitting") " on ") 
-                                        chan " " time " minutes ago."))
-     (send-message irc bot channel (str "I have never seen " (first args) ".")))))
+   #{"seen"} 
+   (fn [{:keys [irc bot nick channel args]}]
+     (if-let [{:keys [time chan doing nick]} (get-seen (first args) (:server @irc))]
+       (send-message irc bot channel (str nick " was last seen " doing (when-not (= doing "quitting") " on ") 
+                                          chan " " time " minutes ago."))
+       (send-message irc bot channel (str "I have never seen " (first args) "."))))))

@@ -1,6 +1,5 @@
 (ns sexpbot.plugins.brainfuck
-  (:use sexpbot.respond)
-  )
+  (:use sexpbot.respond))
 ;;; From Rosettacode ;;;
 (def *input*)
  
@@ -82,13 +81,13 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (defplugin
-  (:bf 
+  (:cmd
    "Executes brainfuck."
-   ["bf"] 
-   [{:keys [irc bot channel args]}]
-   (let [[bf & input] args]
-     (doseq [x (-> bf 
-		   (compile-and-run input) 
-		   with-out-str 
-		   (#(.split % "\n")))]
-       (send-message irc bot channel x)))))
+   #{"bf"} 
+   (fn [{:keys [irc bot channel args]}]
+     (let [[bf & input] args]
+       (doseq [x (-> bf 
+                     (compile-and-run input) 
+                     with-out-str 
+                     (#(.split % "\n")))]
+         (send-message irc bot channel x))))))

@@ -23,11 +23,11 @@
   (-> url xml/parse zip/xml-zip cull))
 
 (defplugin
-  (:rss 
+  (:cmd
    "Get's the first three results from an RSS or Atom feed."
-   ["rss" "atom"] 
-   [{:keys [irc bot channel args]}]
-   (try
-    (doseq [[title link] (pull-feed (first args))]
-      (send-message irc bot channel (str title " -- " link)))
-    (catch Exception _ (send-message irc channel "Feed is unreadable.")))))
+   #{"rss" "atom"} 
+   (fn [{:keys [irc bot channel args]}]
+     (try
+       (doseq [[title link] (pull-feed (first args))]
+         (send-message irc bot channel (str title " -- " link)))
+       (catch Exception _ (send-message irc channel "Feed is unreadable."))))))

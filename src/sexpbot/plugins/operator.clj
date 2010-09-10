@@ -1,53 +1,52 @@
 (ns sexpbot.plugins.operator
   (:use [sexpbot respond])
-  (:require [irclj.irclj :as ircb])
-  )
+  (:require [irclj.irclj :as ircb]))
 
 (defplugin
-  (:op 
+  (:cmd
    "Sets the person you specify as operator. ADMIN ONLY."
-   ["op"] 
-   [{:keys [irc bot nick channel args] :as irc-map}]
-   (if-admin nick irc-map bot (ircb/set-mode irc channel "+o" (first args))))
+   #{"op"} 
+   (fn [{:keys [irc bot nick channel args] :as irc-map}]
+     (if-admin nick irc-map bot (ircb/set-mode irc channel "+o" (first args)))))
   
-  (:deop 
+  (:cmd
    "Deops the person you specify. ADMIN ONLY."
-   ["deop"] 
-   [{:keys [irc bot nick channel args] :as irc-map}]
-   (if-admin nick irc-map bot (ircb/set-mode irc channel  "-o" (first args))))
+   #{"deop"} 
+   (fn [{:keys [irc bot nick channel args] :as irc-map}]
+     (if-admin nick irc-map bot (ircb/set-mode irc channel  "-o" (first args)))))
 
-  (:kick 
+  (:cmd
    "Kicks the person you specify. ADMIN ONLY."
-   ["kick"] 
-   [{:keys [irc bot nick channel args] :as irc-map}]
-   (if-admin nick irc-map bot (ircb/kick irc channel (first args) :reason (apply str (rest args)))))
+   #{"kick"} 
+   (fn [{:keys [irc bot nick channel args] :as irc-map}]
+     (if-admin nick irc-map bot (ircb/kick irc channel (first args) :reason (apply str (rest args))))))
 
-  (:settopic 
+  (:cmd 
    "Set's the channel's topic. ADMIN ONLY."
-   ["settopic"]
-   [{:keys [irc bot nick channel args] :as irc-map}]
-   (if-admin nick irc-map bot (ircb/set-topic irc channel (apply str (interpose " " args)))))
+   #{"settopic"}
+   (fn [{:keys [irc bot nick channel args] :as irc-map}]
+     (if-admin nick irc-map bot (ircb/set-topic irc channel (apply str (interpose " " args))))))
 
-  (:ban 
+  (:cmd 
    "Ban's whatever you specify. ADMIN ONLY."
-   ["ban"]
-   [{:keys [irc bot nick channel args] :as irc-map}]
-   (if-admin nick irc-map bot (ircb/set-mode irc channel "+b" (first args))))
+   #{"ban"}
+   (fn [{:keys [irc bot nick channel args] :as irc-map}]
+     (if-admin nick irc-map bot (ircb/set-mode irc channel "+b" (first args)))))
 
-  (:unban 
+  (:cmd 
    "Unban's whatever you specify. ADMIN ONLY."
-   ["unban"]
-   [{:keys [irc bot nick channel args] :as irc-map}]
-   (if-admin nick irc-map bot (ircb/set-mode irc channel "-b" (first args))))
+   #{"unban"}
+   (fn [{:keys [irc bot nick channel args] :as irc-map}]
+     (if-admin nick irc-map bot (ircb/set-mode irc channel "-b" (first args)))))
 
-  (:voice 
+  (:cmd 
    "Voices the person you specify. ADMIN 0NLY."
-   ["voice"] 
-   [{:keys [irc bot channel nick args] :as irc-map}]
-   (if-admin nick irc-map bot (ircb/set-mode irc channel "+v" (first args))))
+   #{"voice"} 
+   (fn [{:keys [irc bot channel nick args] :as irc-map}]
+     (if-admin nick irc-map bot (ircb/set-mode irc channel "+v" (first args)))))
 
-  (:devoice 
+  (:cmd 
    "Devoices the person you specify. ADMIN ONLY."
-   ["devoice"]
-   [{:keys [irc bot channel nick args] :as irc-map}]
-   (if-admin nick irc-map bot (ircb/set-mode irc channel "-v" (first args)))))
+   #{"devoice"}
+   (fn [{:keys [irc bot channel nick args] :as irc-map}]
+     (if-admin nick irc-map bot (ircb/set-mode irc channel "-v" (first args))))))

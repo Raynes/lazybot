@@ -23,4 +23,4 @@
     (flush)))
 
 (defplugin
-  (:add-hook :on-any write-log))
+  (:hook :on-any write-log))

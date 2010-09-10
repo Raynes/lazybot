@@ -22,13 +22,13 @@
   (->> s (#(.toLowerCase %)) (map char-to-leet) (apply str)))
 
 (defplugin
-  (:elite 
+  (:cmd 
    "Takes words and replaces them with their leetspeak alternatives." 
-   ["elite"] 
-   [{:keys [irc bot channel args]}]
-   (send-message irc bot channel 
-		      (->> args 
-			   (interpose " ")
-			   (apply str)
-			   (#(.toLowerCase %))
-			   leetspeek))))
+   #{"elite"} 
+   (fn [{:keys [irc bot channel args]}]
+     (send-message irc bot channel 
+                   (->> args 
+                        (interpose " ")
+                        (apply str)
+                        (#(.toLowerCase %))
+                        leetspeek)))))
