@@ -11,7 +11,7 @@
 
 (def bots (atom {}))
 
-(def initial-info (read-config info-file))
+(defonce initial-info (read-config info-file))
 
 (defn call-all [{bot :bot :as ircm} hook-key]
   (doseq [hook (pull-hooks bot hook-key)] (hook ircm)))

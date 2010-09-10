@@ -35,7 +35,7 @@
     (doseq [plug plugins-to-load]
       (load-plugin refzors plug))))
 
-(defn reload-config
+(defn reload-configs
   "Reloads the bot's configs. Must be ran in a transaction."
   [& bots]
   (doseq [[_ bot] bots]
@@ -50,7 +50,9 @@
   (doseq [[_ bot] bots]
     (dosync
      (alter bot dissoc :modules)
+     (alter bot assoc-in [:modules :internal :hooks] initial-hooks)
      (reload-config bot)))
   (require-plugins)
   (doseq [[server bot] bots]
-    (load-plugins server bot)))
+    (load-plugins server bot)
+    (prn bot)))

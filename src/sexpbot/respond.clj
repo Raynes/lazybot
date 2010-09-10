@@ -73,10 +73,8 @@
 	    (do
 	      (swap! running inc)
 	      (try
-                (println "intry")
-		(thunk-timeout
-		 #((respond (into bot-map (split-args conf message))) irc-map)
-		 30)
+                (let [n-bmap (into bot-map (split-args conf message))]
+                  (thunk-timeout #((respond n-bmap) n-bmap) 30))
 		(catch TimeoutException _ (send-message irc channel "Execution timed out."))
 		(catch Exception e (.printStackTrace e))
 		(finally (swap! running dec))))
