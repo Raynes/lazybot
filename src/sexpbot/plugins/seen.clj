@@ -8,6 +8,7 @@
   "Takes a nick and updates the seen database with that nick and the current time."
   [nick server channel doing]
   (let [lower-nick (.toLowerCase nick)]
+    (destroy! :seen {:nick nick :server server})
     (insert! :seen
              {:server server
               :time (unparse (formatters :date-time) (now)) 
