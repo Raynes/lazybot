@@ -34,7 +34,7 @@
 
   (:cmd 
    "Joins a channel. ADMIN ONLY."
-   #{"join"} 
+   #{"join"}
    (fn [{:keys [irc bot channel nick args] :as irc-map}]
      (if-admin nick irc-map bot
                (ircb/join-chan irc (first args)))))
