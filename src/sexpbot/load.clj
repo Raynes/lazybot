@@ -48,6 +48,7 @@
   when the bot was first loaded."
   [& bots]
   (doseq [[_ bot] bots]
+    (doseq [{cfn :cleanup} (:modules @bot)] (when cfn (cfn)))
     (dosync
      (alter bot dissoc :modules)
      (alter bot assoc-in [:modules :internal :hooks] initial-hooks)
