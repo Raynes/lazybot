@@ -15,7 +15,10 @@
 (defn compare-view [owner repo before after]
   (is-gd (str "http://github.com/" owner "/" repo "/compare/" before "..." after)))
 
-(defn take-five-vec [aseq] (into [] (take 5 aseq)))
+(defn format-vec [v]
+  (apply str
+         (filter identity ["[" (apply str (interpose ", " (take 5 v)))
+                           (when (> (count v) 5) "...") "]"])))
 
 (defn notify-chan [irc bot chan commit]
   (send-message
@@ -23,11 +26,11 @@
    (apply str
           (filter identity ["\u0002" (-> commit :author :name) "\u0002: "
                             (when-let [added (seq (:added commit))]
-                              (str "\u0002Added:\u0002 " (take-five-vec added) ". "))
+                              (str "\u0002Added:\u0002 " (format-vec added) ". "))
                             (when-let [modified (seq (:modified commit))]
-                              (str "\u0002Modified:\u0002 " (take-five-vec modified) ". "))
+                              (str "\u0002Modified:\u0002 " (format-vec modified) ". "))
                             (when-let [removed (seq (:removed commit))]
-                              (str "\u0002Removed:\u0002 " (take-five-vec removed) ". "))
+                              (str "\u0002Removed:\u0002 " (format-vec removed) ". "))
                             "\u0002With message:\u0002 " (:message commit)]))))
 
 (defn handler [req]
