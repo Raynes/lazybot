@@ -80,19 +80,35 @@
 		(finally (swap! running dec))))
 	    (send-message irc channel "Too much is happening at once. Wait until other operations cease."))))))))
 
-;; Thanks to mmarczyk, Chousuke, and most of all cgrand for the help writing this macro.
-;; It's nice to know that you have people like them around when it comes time to face
-;; unfamiliar concepts.
+(defn merge-with-conj [& args]
+  (apply merge-with #(if (vector? %) (conj % %2) (conj [] % %2)) args))
+
+(defn parse-fns [body]
+  (apply merge-with-conj
+         (for [[one two three four] body]
+           (case
+            one
+            :cmd {:cmd {:docs two :triggers three :fn four}}
+            :hook {:hook {two three}}
+            :cleanup {:cleanup two}
+            :init {:init two}))))
+
+(defn if-seq-error [fn-type possible-seq]
+  (if (seq possible-seq)
+    (throw (Exception. (str "Only one " fn-type " function allowed.")))
+    possible-seq))
+
 (defmacro defplugin [& body]
-  (let [clean-fn (if-let [cfn (seq (filter #(= :cleanup (first %)) body))] (second (first cfn)) `(fn [] nil))
-        [hook-fns cmd-fns] ((juxt filter remove) #(= :hook (first %)) (remove #(= :cleanup (first %)) body))
-        hook-list (apply merge-with concat (for [[_ hook-this hook-fn] hook-fns] {hook-this [hook-fn]}))
-        cmd-list (into [] (for [[_ docs triggers cmd-fn] cmd-fns] {:triggers triggers :doc docs :fn cmd-fn}))]
+  (let [{:keys [cmd hook cleanup init]} (parse-fns body)
+        scmd (if (map? cmd) [cmd] cmd)]
     `(let [pns# *ns*]
        (defn ~'load-this-plugin [bot#]
+         (when ~init ((if-seq-error ~init) bot#))
          (let [m-name# (keyword (last (.split (str pns#) "\\.")))]
            (dosync
             (alter bot# assoc-in [:modules m-name#]
-                   {:commands ~cmd-list
-                    :hooks ~hook-list
-                    :cleanup ~clean-fn})))))))
+                   {:commands ~scmd
+                    :hooks (into {}
+                                 (map (fn [[k# v#]] (if (vector? v#) [k# v#] [k# [v#]]))
+                                      (apply merge-with-conj (if (vector? ~hook) ~hook [~hook]))))
+                    :cleanup (if-seq-error "cleanup" ~cleanup)})))))))
