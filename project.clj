@@ -11,5 +11,6 @@
                  [congomongo "0.1.3-SNAPSHOT"]
 		 [clj-config "0.1.0-SNAPSHOT"]
                  [clj-github "1.0.0-SNAPSHOT"]
-                 [aleph "0.1.1-SNAPSHOT"]]
+                 [net.cgrand/moustache "1.0.0-SNAPSHOT"]
+                 [ring/ring-jetty-adapter "0.2.5"]]
   :dev-dependencies [[swank-clojure "1.2.1"]])
