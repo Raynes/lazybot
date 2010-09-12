@@ -6,4 +6,4 @@
 (doseq [server (:servers initial-info)]
   (let [[irc refzors] (make-bot server)]
     (swap! bots assoc server {:irc irc :bot refzors})
-    (load-plugins (:server @irc) refzors)))
+    (load-plugins irc refzors)))

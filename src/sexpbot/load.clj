@@ -16,8 +16,8 @@
 (defn require-plugin [plugin]
   (require (symbol (str "sexpbot.plugins." plugin)) :reload))
 
-(defn load-plugin [refzors plugin]
-  ((resolve (symbol (str (str "sexpbot.plugins." plugin) "/load-this-plugin"))) refzors))
+(defn load-plugin [irc refzors plugin]
+  ((resolve (symbol (str (str "sexpbot.plugins." plugin) "/load-this-plugin"))) irc refzors))
 
 (defn require-plugins []
   (doseq [plug ((read-config info-file) :plugins)]
@@ -29,11 +29,11 @@
     true
     (catch Exception e false)))
 
-(defn load-plugins [server refzors]
+(defn load-plugins [irc refzors]
   (let [info (:config @refzors)
-	plugins-to-load (intersection (:plugins info) (:plugins (info server)))]
+	plugins-to-load (intersection (:plugins info) (:plugins (info (:server @irc))))]
     (doseq [plug plugins-to-load]
-      (load-plugin refzors plug))))
+      (load-plugin irc refzors plug))))
 
 (defn reload-configs
   "Reloads the bot's configs. Must be ran in a transaction."
@@ -47,12 +47,13 @@
   of plugins. This makes sure everything is reset to the way it was
   when the bot was first loaded."
   [& bots]
-  (doseq [[_ bot] bots]
-    (doseq [{cfn :cleanup} (:modules @bot)] (when cfn (cfn)))
+  (doseq [{bot :bot} bots]
+    (doseq [{:keys [cleanup]} (vals (:modules @bot))]
+      (when cleanup (cleanup)))
     (dosync
      (alter bot dissoc :modules)
      (alter bot assoc-in [:modules :internal :hooks] initial-hooks)
      (reload-config bot)))
   (require-plugins)
-  (doseq [[server bot] bots]
-    (load-plugins server bot)))
+  (doseq [{:keys [bot irc]} bots]
+    (load-plugins irc bot)))

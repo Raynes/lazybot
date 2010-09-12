@@ -94,7 +94,7 @@
             :init {:init two}))))
 
 (defn if-seq-error [fn-type possible-seq]
-  (if (seq possible-seq)
+  (if (and (not (fn? possible-seq)) (seq possible-seq))
     (throw (Exception. (str "Only one " fn-type " function allowed.")))
     possible-seq))
 
@@ -102,8 +102,8 @@
   (let [{:keys [cmd hook cleanup init]} (parse-fns body)
         scmd (if (map? cmd) [cmd] cmd)]
     `(let [pns# *ns*]
-       (defn ~'load-this-plugin [bot#]
-         (when ~init ((if-seq-error ~init) bot#))
+       (defn ~'load-this-plugin [irc# bot#]
+         (when ~init ((if-seq-error "init" ~init) irc# bot#))
          (let [m-name# (keyword (last (.split (str pns#) "\\.")))]
            (dosync
             (alter bot# assoc-in [:modules m-name#]
