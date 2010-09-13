@@ -1,9 +1,6 @@
 (ns sexpbot.run
-  (:use [sexpbot core load]))
+  (:use [sexpbot core]))
 
 (require-plugins)
 
-(doseq [server (:servers initial-info)]
-  (let [[irc refzors] (make-bot server)]
-    (swap! bots assoc server {:irc irc :bot refzors})
-    (load-plugins irc refzors)))
+(doseq [server (:servers initial-info)] (connect-bot server))

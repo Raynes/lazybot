@@ -1,5 +1,5 @@
 (ns sexpbot.plugins.load
-  (:use [sexpbot respond load core]))
+  (:use [sexpbot respond core]))
 
 (defplugin
   (:cmd
@@ -38,6 +38,11 @@
                (do
                  (apply reload-all (vals @bots))
                  (send-message irc bot channel "Reloaded successfully.")))))
+
+  (:cmd
+   "Connect the bot to a server specified in your configuration. ADMIN ONLY!"
+   #{"reconnect" "connect"}
+   (fn [{:keys [irc bot args]}] (connect-bot (first args))))
 
   (:cmd
    "Reloads configuration. ADMIN ONLY!"
