@@ -38,7 +38,6 @@
         (read-json ((:form-params req) "payload"))
         config (:commits (grab-config))]
     (when payload
-      (prn payload)
       (when-let [conf (config (:url repository))]
         (doseq [[server channels] conf]
           (let [{:keys [irc bot]} (@bots server)
