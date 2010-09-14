@@ -4,7 +4,8 @@
         ring.adapter.jetty
         ring.middleware.params
         net.cgrand.moustache
-        clojure.contrib.json))
+        clojure.contrib.json)
+  (:import java.net.InetAddress))
 
 (def bots (atom {}))
 
@@ -35,31 +36,32 @@
                       "\u0002With message:\u0002 " (:message commit)])))
 
 (defn handler [req]
-  (let [{:keys [before repository commits after] :as payload}
-        (read-json ((:form-params req) "payload"))
-        config (:commits (grab-config))]
-    (when payload
-      (when-let [conf (config (:url repository))]
-        (doseq [[server channels] conf]
-          (let [{:keys [irc bot]} (@bots server)
-                owner (-> repository :owner :name)
-                name (:name repository)]
-            (doseq [chan channels]
-              (send-message
-               irc bot chan
-               (str "\u0002" owner "/" name "\u0002"
-                    ": " (count commits) " new commit(s). Compare view at <"
-                    (compare-view owner name before after) ">. "
-                    (:open_issues repository) " open issues remain."))
-              (doseq [commit (take 3 commits)]
-                (notify-chan irc bot chan commit))))))))
+  (when (.endsWith (.getCanonicalHostName (InetAddress/getByName (:remote-addr req))) "github.com")
+    (let [{:keys [before repository commits after] :as payload}
+          (read-json ((:form-params req) "payload"))
+          config (:commits (grab-config))]
+      (when payload
+        (when-let [conf (config (:url repository))]
+          (doseq [[server channels] conf]
+            (let [{:keys [irc bot]} (@bots server)
+                  owner (-> repository :owner :name)
+                  name (:name repository)]
+              (doseq [chan channels]
+                (send-message
+                 irc bot chan
+                 (str "\u0002" owner "/" name "\u0002"
+                      ": " (count commits) " new commit(s). Compare view at <"
+                      (compare-view owner name before after) ">. "
+                      (:open_issues repository) " open issues remain."))
+                (doseq [commit (take 3 commits)]
+                  (notify-chan irc bot chan commit)))))))))
   {:status  200
    :headers {"Content-Type" "text/html"}
    :body    "These boots are made for walkin' and that's just what they'll do."})
 
 (def routes (app wrap-params :post handler))
 
-(def server (run-jetty #'routes {:port 8080 :join? false}))
+(def server (run-jetty #'routes {:port 8081 :join? false}))
 
 (defplugin
   (:init
