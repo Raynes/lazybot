@@ -49,7 +49,8 @@
                irc bot chan
                (str "\u0002" owner "/" name "\u0002"
                     ": " (count commits) " new commit(s). Compare view at <"
-                    (compare-view owner name before after) ">."))
+                    (compare-view owner name before after) ">. "
+                    (:open_issues repository) " open issues remain."))
               (doseq [commit (take 3 commits)]
                 (notify-chan irc bot chan commit))))))))
   {:status  200
