@@ -2,7 +2,8 @@
   (:use [sexpbot utilities info respond]
 	[clj-github.gists :only [new-gist]]
 	clj-config.core
-	[clj-time [core :only [plus minus now interval in-secs hours]] [format :only [unparse formatters]]])
+	[clj-time [core :only [plus minus now interval in-secs hours]] [format :only [unparse formatters]]]
+        [clojure.java.shell :only [sh]])
   (:require [irclj.irclj :as ircb])
   (:import java.net.InetAddress))
 
@@ -181,4 +182,15 @@
   (:cmd
    "I'd do you."
    #{"would"}
-   (fn [{:keys [irc bot channel]}] (send-message irc bot channel "I'd do him. Hard."))))
+   (fn [{:keys [irc bot channel]}] (send-message irc bot channel "I'd do him. Hard.")))
+
+  (:cmd
+   "Executes a shell command and displays the STDOUT"
+   #{"shell"}
+   (fn [{:keys [irc bot nick channel args] :as irc-map}]
+     (if-admin
+      nick irc-map bot
+      (send-message
+       irc bot channel
+       (->> args rest (interpose " ") (apply str) (sh (first args)) :out
+            (take 200) (apply str) (#(.replace % "\n" " "))))))))
