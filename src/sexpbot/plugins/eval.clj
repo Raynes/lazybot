@@ -15,7 +15,7 @@
 		    (whitelist 
 		     (function-matcher '*out* 'println 'print 'pr 'prn 'var 'print-doc 'doc 'throw
                                        'def)
-                     (namespace-matcher clojure.string)
+                     (namespace-matcher 'clojure.string)
 		     (class-matcher java.io.StringWriter java.net.URL java.net.URI
                                     java.util.TimeZone))))
 
