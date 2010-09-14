@@ -15,6 +15,7 @@
 		    (whitelist 
 		     (function-matcher '*out* 'println 'print 'pr 'prn 'var 'print-doc 'doc 'throw
                                        'def)
+                     (namespace-matcher clojure.string)
 		     (class-matcher java.io.StringWriter java.net.URL java.net.URI
                                     java.util.TimeZone))))
 
@@ -24,13 +25,10 @@
 		     (class-matcher java.io.StringWriter String Byte Character StrictMath StringBuffer
 				    java.net.URL java.net.URI java.util.TimeZone))))
 
-(def newdefn '(defmacro defn [name & body] `(def ~name (fn ~name ~@body))))
-
 (def sc (stringify-sandbox (new-sandbox-compiler :tester sandbox-tester 
 						 :timeout 10000 
 					  	 :object-tester my-obj-tester
-                                                 :remember-state 5
-                                                 :initial [newdefn])))
+                                                 :remember-state 5)))
 
 (def cap 200)
 
