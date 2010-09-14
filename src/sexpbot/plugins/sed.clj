@@ -32,8 +32,8 @@
 			      (not-empty (rest (re-find #"^s/([^/]+)/([^/]*)/" margs)))
 			      nil)]
     (cond
-     (and (not verbose?) (empty? last-in)) (send-message irc bot channel "No one said anything yet!")
-     (and (not verbose?) (not-any? seq [regexp replacement])) (format-msg irc bot nick channel)
+     (and verbose? (empty? last-in)) (send-message irc bot channel "No one said anything yet!")
+     (and verbose? (not-any? seq [regexp replacement])) (format-msg irc bot nick channel)
      :else (try
 	     (let [orig-msg last-in
 		   new-msg (sed* last-in regexp replacement)]
