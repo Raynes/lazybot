@@ -12,7 +12,7 @@
 
 (def bots (atom {}))
 
-(defonce initial-info (read-config info-file))
+(defonce initial-info (eval (read-config info-file)))
 
 (defn call-all [{bot :bot :as ircm} hook-key]
   (doseq [hook (pull-hooks bot hook-key)] (hook ircm)))
@@ -33,7 +33,7 @@
   (ircb/create-irc {:name name :password pass :server server :fnmap fnmap}))
 
 (defn make-bot [server] 
-  (let [bot-config (read-config info-file)
+  (let [bot-config (eval (read-config info-file))
 	name (:bot-name (bot-config server))
 	pass (:bot-password (bot-config server))
 	channels (:channels (bot-config server))
@@ -41,10 +41,10 @@
 	irc (ircb/connect (make-bot-run name pass server fnmap) :channels channels :identify-after-secs 3)]
     [irc refzors]))
 
-(def all-plugins (:plugins (read-config info-file)))
+(def all-plugins (:plugins (eval (read-config info-file))))
 
 (defn reload-config [bot]
-  (alter bot assoc :config (read-config info-file)))
+  (alter bot assoc :config (eval (read-config info-file))))
 
 (defn require-plugin [plugin]
   (require (symbol (str "sexpbot.plugins." plugin)) :reload))
@@ -53,7 +53,7 @@
   ((resolve (symbol (str (str "sexpbot.plugins." plugin) "/load-this-plugin"))) irc refzors))
 
 (defn require-plugins []
-  (doseq [plug ((read-config info-file) :plugins)]
+  (doseq [plug ((eval (read-config info-file)) :plugins)]
     (require-plugin plug)))
 
 (defn safe-load-plugin [refzors plugin]
