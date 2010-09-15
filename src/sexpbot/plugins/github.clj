@@ -13,9 +13,6 @@
 
 (defn grab-config [] (-> @bots vals first :bot deref :config))
 
-(defn compare-view [owner repo before after]
-  (is-gd (str "http://github.com/" owner "/" repo "/compare/" before "..." after)))
-
 (defn filter-false-str [s]
   (apply str (filter identity s)))
 
@@ -37,7 +34,7 @@
 
 (defn handler [req]
   (when (.endsWith (.getCanonicalHostName (InetAddress/getByName (:remote-addr req))) "github.com")
-    (let [{:keys [before repository commits after] :as payload}
+    (let [{:keys [before repository commits after compare ref] :as payload}
           (read-json ((:form-params req) "payload"))
           config (:commits (grab-config))]
       (when payload
@@ -50,9 +47,9 @@
                 (send-message
                  irc bot chan
                  (str "\u0002" owner "/" name "\u0002"
-                      ": " (count commits) " new commit(s). Compare view at <"
-                      (compare-view owner name before after) ">. "
-                      (:open_issues repository) " open issues remain."))
+                      ": " (count commits) " new commit(s) on branch " (last (.split ref "/"))
+                      ". Compare view at <" (is-gd compare) ">. " (:open_issues repository)
+                      " open issues remain."))
                 (doseq [commit (take 3 commits)]
                   (notify-chan irc bot chan commit)))))))))
   {:status  200
@@ -61,7 +58,7 @@
 
 (def routes (app wrap-params :post handler))
 
-(def server (run-jetty #'routes {:port 8081 :join? false}))
+(def server (run-jetty #'routes {:port 8080 :join? false}))
 
 (defplugin
   (:init
