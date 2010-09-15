@@ -33,25 +33,24 @@
                       "\u0002With message:\u0002 " (:message commit)])))
 
 (defn handler [req]
-  (when (.endsWith (.getCanonicalHostName (InetAddress/getByName (:remote-addr req))) "github.com")
-    (let [{:keys [before repository commits after compare ref] :as payload}
-          (read-json ((:form-params req) "payload"))
-          config (:commits (grab-config))]
-      (when payload
-        (when-let [conf (config (:url repository))]
-          (doseq [[server channels] conf]
-            (let [{:keys [irc bot]} (@bots server)
-                  owner (-> repository :owner :name)
-                  name (:name repository)]
-              (doseq [chan channels]
-                (send-message
-                 irc bot chan
-                 (str "\u0002" owner "/" name "\u0002"
-                      ": " (count commits) " new commit(s) on branch " (last (.split ref "/"))
-                      ". Compare view at <" (is-gd compare) ">. " (:open_issues repository)
-                      " open issues remain."))
-                (doseq [commit (take 3 commits)]
-                  (notify-chan irc bot chan commit)))))))))
+  (let [{:keys [before repository commits after compare ref] :as payload}
+        (read-json ((:form-params req) "payload"))
+        config (:commits (grab-config))]
+    (when payload
+      (when-let [conf (config (:url repository))]
+        (doseq [[server channels] conf]
+          (let [{:keys [irc bot]} (@bots server)
+                owner (-> repository :owner :name)
+                name (:name repository)]
+            (doseq [chan channels]
+              (send-message
+               irc bot chan
+               (str "\u0002" owner "/" name "\u0002"
+                    ": " (count commits) " new commit(s) on branch " (last (.split ref "/"))
+                    ". Compare view at <" (is-gd compare) ">. " (:open_issues repository)
+                    " open issues remain."))
+              (doseq [commit (take 3 commits)]
+                (notify-chan irc bot chan commit))))))))
   {:status  200
    :headers {"Content-Type" "text/html"}
    :body    "These boots are made for walkin' and that's just what they'll do."})
