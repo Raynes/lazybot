@@ -14,7 +14,7 @@
      (extend-tester secure-tester 
 		    (whitelist 
 		     (function-matcher '*out* 'println 'print 'pr 'prn 'var 'print-doc 'doc 'throw
-                                       'def 'promise 'deliver)
+                                       'def 'promise 'deliver 'future-call)
                      (namespace-matcher 'clojure.string)
 		     (class-matcher java.io.StringWriter java.net.URL java.net.URI
                                     java.util.TimeZone java.lang.System))))
