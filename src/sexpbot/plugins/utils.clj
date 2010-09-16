@@ -177,7 +177,7 @@
    "Huggles your best fwiendz."
    #{"huggle"}
    (fn [{:keys [irc bot channel args]}]
-     (ircb/send-action irc bot channel (str "Hugglez " (first args) ". I lubs yous."))))
+     (ircb/send-action irc channel (str "Hugglez " (first args) ". I lubs yous."))))
 
   (:cmd
    "I'd do you."
