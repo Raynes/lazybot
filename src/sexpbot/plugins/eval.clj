@@ -14,7 +14,7 @@
      (extend-tester secure-tester 
 		    (whitelist 
 		     (function-matcher '*out* 'println 'print 'pr 'prn 'var 'print-doc 'doc 'throw
-                                       'def 'nanoTime)
+                                       'def 'promise 'deliver)
                      (namespace-matcher 'clojure.string)
 		     (class-matcher java.io.StringWriter java.net.URL java.net.URI
                                     java.util.TimeZone java.lang.System))))
@@ -45,10 +45,11 @@
 
 (defn execute-text [txt]
   (try
-   (with-open [writer (StringWriter.)]
-     (let [res (pr-str ((sc txt) {'*out* writer}))
-           replaced (.replaceAll (str writer) "\n" " ")]
-       (str "=> " (trim (str replaced (when (= last \space) " ") res)))))
+    (with-open [writer (StringWriter.)]
+      (binding [doc (fn [] 0)]
+        (let [res (pr-str ((sc txt) {'*out* writer}))
+              replaced (.replaceAll (str writer) "\n" " ")]
+          (str "=> " (trim (str replaced (when (= last \space) " ") res))))))
    (catch TimeoutException _ "Execution Timed Out!")
    (catch SecurityException e (str (root-cause e)))
    (catch Exception e (str (root-cause e)))))
