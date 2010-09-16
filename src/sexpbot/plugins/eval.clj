@@ -14,16 +14,16 @@
      (extend-tester secure-tester 
 		    (whitelist 
 		     (function-matcher '*out* 'println 'print 'pr 'prn 'var 'print-doc 'doc 'throw
-                                       'def)
+                                       'def 'nanoTime)
                      (namespace-matcher 'clojure.string)
 		     (class-matcher java.io.StringWriter java.net.URL java.net.URI
-                                    java.util.TimeZone))))
+                                    java.util.TimeZone java.lang.System))))
 
 (def my-obj-tester
      (extend-tester default-obj-tester
 		    (whitelist
 		     (class-matcher java.io.StringWriter String Byte Character StrictMath StringBuffer
-				    java.net.URL java.net.URI java.util.TimeZone))))
+				    java.net.URL java.net.URI java.util.TimeZone java.lang.System))))
 
 (def sc (stringify-sandbox (new-sandbox-compiler :tester sandbox-tester 
 						 :timeout 10000 
