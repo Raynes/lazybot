@@ -30,7 +30,7 @@
 					  	 :object-tester my-obj-tester
                                                  :remember-state 5)))
 
-(def cap 200)
+(def cap 300)
 
 (defn trim [s]
   (let [res (apply str (take cap s))
