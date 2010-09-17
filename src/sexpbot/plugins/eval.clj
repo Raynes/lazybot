@@ -55,7 +55,7 @@
    `(sfmsg "Syntax Symbol" (syntax-symbol-anchor '~s))
    :else
    `(let [m# (-> ~s var meta)
-          formatted# (str (:arglists m#) "; " (.replaceAll (:doc m#) "\\s+" " "))]
+          formatted# (when (:doc m#) (str (:arglists m#) "; " (.replaceAll (:doc m#) "\\s+" " ")))]
       (if (:macro m#) (str "Macro " formatted#) formatted#))))
 
 (defn execute-text [txt]
