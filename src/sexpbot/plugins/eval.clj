@@ -13,8 +13,9 @@
      (extend-tester secure-tester 
 		    (whitelist 
 		     (function-matcher '*out* 'println 'print 'pr 'prn 'var 'print-doc 'doc 'throw
-                                       'def 'promise 'deliver 'future-call)
-                     (namespace-matcher 'clojure.string)
+                                       'def 'defn 'promise 'deliver 'future-call 'special-form-anchor
+                                       'syntax-symbol-anchor 'sfmsg)
+                     (namespace-matcher 'clojure.string 'clojure.repl)
 		     (class-matcher java.io.StringWriter java.net.URL java.net.URI
                                     java.util.TimeZone java.lang.System))))
 
@@ -44,10 +45,24 @@
 
 (defmacro defn2 [name & body] `(def ~name (fn ~name ~@body)))
 
+(defn sfmsg [t anchor] (str t ": Please see http://clojure.org/special_forms#" anchor))
+
+(defmacro pretty-doc [s]
+  (cond
+   (special-form-anchor `~s)
+   `(sfmsg "Special Form" (special-form-anchor '~s))
+   (syntax-symbol-anchor `~s)
+   `(sfmsg "Syntax Symbol" (syntax-symbol-anchor '~s))
+   :else
+   `(let [m# (-> ~s var meta)
+          formatted# (str (:arglists m#) "; " (.replaceAll (:doc m#) "\\s+" " "))]
+      (if (:macro m#) (str "Macro " formatted#) formatted#))))
+
 (defn execute-text [txt]
   (try
     (with-open [writer (StringWriter.)]
-      (binding [defn #'defn2]
+      (binding [defn #'defn2
+                doc #'pretty-doc]
         (let [res (pr-str ((sc txt) {'*out* writer}))
               replaced (.replaceAll (str writer) "\n" " ")]
           (str "\u27F9 " (trim (str replaced (when (= last \space) " ") res))))))
