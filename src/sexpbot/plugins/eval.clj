@@ -14,7 +14,7 @@
 		    (whitelist 
 		     (function-matcher '*out* 'println 'print 'pr 'prn 'var 'print-doc 'doc 'throw
                                        'def 'defn 'promise 'deliver 'future-call 'special-form-anchor
-                                       'syntax-symbol-anchor 'sfmsg)
+                                       'syntax-symbol-anchor 'sfmsg 'unquote)
                      (namespace-matcher 'clojure.string 'clojure.repl)
 		     (class-matcher java.io.StringWriter java.net.URL java.net.URI
                                     java.util.TimeZone java.lang.System))))
