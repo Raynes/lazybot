@@ -4,7 +4,6 @@
 	[net.licenser.sandbox tester matcher]
 	sexpbot.respond
 	[clj-github.gists :only [new-gist]])
-  
   (:import java.io.StringWriter
 	   java.util.concurrent.TimeoutException))
 
@@ -43,12 +42,15 @@
                (catch java.io.IOException _ nil))))
       res)))
 
+(defmacro defn2 [name & body] `(def ~name (fn ~name ~@body)))
+
 (defn execute-text [txt]
   (try
     (with-open [writer (StringWriter.)]
-      (let [res (pr-str ((sc txt) {'*out* writer}))
-            replaced (.replaceAll (str writer) "\n" " ")]
-        (str "=> " (trim (str replaced (when (= last \space) " ") res)))))
+      (binding [defn #'defn2]
+        (let [res (pr-str ((sc txt) {'*out* writer}))
+              replaced (.replaceAll (str writer) "\n" " ")]
+          (str "\u27F9 " (trim (str replaced (when (= last \space) " ") res))))))
    (catch TimeoutException _ "Execution Timed Out!")
    (catch SecurityException e (str (root-cause e)))
    (catch Exception e (str (root-cause e)))))
