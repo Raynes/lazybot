@@ -79,11 +79,13 @@
      (.start
       (Thread.
        (fn []
-         (when (.startsWith message "->")
-           (if (< @many 3)
-             (do
-               (try
-                 (swap! many inc)
-                 (send-message irc bot channel (execute-text (apply str (drop 2 message))))
-                 (finally (swap! many dec))))
-             (send-message irc bot channel "Too much is happening at once. Wait until other operations cease.")))))))))
+         (if-let [evalp (-> @bot :config :eval-prefixes)]
+           (when-let [prefix (some #(when (.startsWith message %) %) evalp)]
+             (if (< @many 3)
+               (do
+                 (try
+                   (swap! many inc)
+                   (send-message irc bot channel (execute-text (apply str (drop (count prefix) message))))
+                   (finally (swap! many dec))))
+               (send-message irc bot channel "Too much is happening at once. Wait until other operations cease.")))
+           (throw (Exception. "Dude, you didn't set :eval-prefixes. I can't configure myself!")))))))))

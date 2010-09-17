@@ -6,6 +6,7 @@
  :max-operations 3 ; The maximum number of operations that can be running at any given time.
  :admin-add? true  ; only admins can add help topics
  :admin-rm? true   ; only admins can remove help topics
+ :eval-prepends ["->"] ; for the eval plugin
  "irc.freenode.net" {:channels ["#tempchan"]
 		     :bot-name "sexpbot-test"
 		     :bot-password nil
