@@ -58,4 +58,4 @@
   (:init
    (fn [irc bot]
      (swap! bots assoc (:server @irc) {:irc irc :bot bot})))
-  (:routes (POST "/" req (handler req))))
+  (:routes (POST "/commits" req (handler req))))
