@@ -80,10 +80,6 @@
 		(finally (swap! running dec))))
 	    (send-message irc channel "Too much is happening at once. Wait until other operations cease."))))))))
 
-(defn print-and-return [x]
-  (prn x)
-  x)
-
 (defn merge-with-conj [& args]
   (apply merge-with #(if (vector? %) (conj % %2) (conj [] % %2)) args))
 
