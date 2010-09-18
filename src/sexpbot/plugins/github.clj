@@ -1,9 +1,7 @@
 (ns sexpbot.plugins.github
   (:use sexpbot.respond
         [sexpbot.plugins.shorturl :only [is-gd]]
-        ring.adapter.jetty
-        ring.middleware.params
-        net.cgrand.moustache
+        [compojure.core :only [POST]]
         clojure.contrib.json)
   (:import java.net.InetAddress))
 
@@ -54,16 +52,10 @@
                       " open issues remain."))
                 (doseq [commit (take 3 commits)]
                   (notify-chan irc bot chan commit)))))))))
-  {:status  200
-   :headers {"Content-Type" "text/html"}
-   :body    "These boots are made for walkin' and that's just what they'll do."})
-
-(def routes (app wrap-params :post handler))
-
-(def server (run-jetty #'routes {:port 8080 :join? false}))
+  "These boots are made for walkin' and that's just what they'll do.")
 
 (defplugin
   (:init
    (fn [irc bot]
      (swap! bots assoc (:server @irc) {:irc irc :bot bot})))
-  (:cleanup #(.stop server)))
+  (:routes (POST "/" req (handler req))))

@@ -3,7 +3,10 @@
 	[clj-config.core :only [read-config]]
 	[clojure.stacktrace :only [root-cause]]
         [somnium.congomongo :only [mongo!]]
-        [clojure.set :only [intersection]])
+        [clojure.set :only [intersection]]
+        [compojure.core :only [routes]]
+        ring.middleware.params
+        ring.adapter.jetty)
   (:require [org.danlarkin.json :as json]
 	    [irclj.irclj :as ircb])
   (:import [java.io File FileReader]))
@@ -80,19 +83,29 @@
     (dosync (reload-config refzors))
     (load-plugins irc refzors)))
 
+(defn extract-routes [bots]
+  (filter identity (apply concat (map #(->> % :bot deref :modules vals (map :routes)) bots))))
+
+(def sroutes nil)
+
+(defn route [rs]
+  (alter-var-root #'sexpbot.core/sroutes (constantly (apply routes rs))))
+
 (defn reload-all
   "A clever function to reload everything when running sexpbot from SLIME.
   Do not try to reload anything individually. It doesn't work because of the nature
   of plugins. This makes sure everything is reset to the way it was
   when the bot was first loaded."
   [& bots]
-  (doseq [{bot :bot} bots]
+  (require-plugins)
+  (route (extract-routes bots))
+  (doseq [{:keys [irc bot]} bots]
     (doseq [{:keys [cleanup]} (vals (:modules @bot))]
       (when cleanup (cleanup)))
     (dosync
      (alter bot dissoc :modules)
      (alter bot assoc-in [:modules :internal :hooks] initial-hooks)
-     (reload-config bot)))
-  (require-plugins)
-  (doseq [{:keys [bot irc]} bots]
+     (reload-config bot))
     (load-plugins irc bot)))
+
+(defonce server (run-jetty #'sexpbot.core/sroutes {:port 8080 :join? false}))

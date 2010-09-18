@@ -80,6 +80,10 @@
 		(finally (swap! running dec))))
 	    (send-message irc channel "Too much is happening at once. Wait until other operations cease."))))))))
 
+(defn print-and-return [x]
+  (prn x)
+  x)
+
 (defn merge-with-conj [& args]
   (apply merge-with #(if (vector? %) (conj % %2) (conj [] % %2)) args))
 
@@ -91,7 +95,8 @@
             :cmd {:cmd {:docs two :triggers three :fn four}}
             :hook {:hook {two three}}
             :cleanup {:cleanup two}
-            :init {:init two}))))
+            :init {:init two}
+            :routes {:routes two}))))
 
 (defn if-seq-error [fn-type possible-seq]
   (if (and (not (fn? possible-seq)) (seq possible-seq))
@@ -99,7 +104,7 @@
     possible-seq))
 
 (defmacro defplugin [& body]
-  (let [{:keys [cmd hook cleanup init]} (parse-fns body)
+  (let [{:keys [cmd hook cleanup init routes]} (parse-fns body)
         scmd (if (map? cmd) [cmd] cmd)]
     `(let [pns# *ns*]
        (defn ~'load-this-plugin [irc# bot#]
@@ -111,4 +116,5 @@
                     :hooks (into {}
                                  (map (fn [[k# v#]] (if (vector? v#) [k# v#] [k# [v#]]))
                                       (apply merge-with-conj (if (vector? ~hook) ~hook [~hook]))))
-                    :cleanup (if-seq-error "cleanup" ~cleanup)})))))))
+                    :cleanup (if-seq-error "cleanup" ~cleanup)
+                    :routes ~routes})))))))
