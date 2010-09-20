@@ -46,6 +46,8 @@
 
 (def all-plugins (:plugins (eval (read-config info-file))))
 
+(def servers-port (:servers-port (eval (read-config info-file))))
+
 (defn reload-config [bot]
   (alter bot assoc :config (eval (read-config info-file))))
 
@@ -108,4 +110,4 @@
      (reload-config bot))
     (load-plugins irc bot)))
 
-(defonce server (run-jetty #'sexpbot.core/sroutes {:port 8080 :join? false}))
+(defonce server (run-jetty #'sexpbot.core/sroutes {:port servers-port :join? false}))
