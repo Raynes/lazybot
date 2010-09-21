@@ -7,8 +7,6 @@
  :admin-add? true  ; only admins can add help topics
  :admin-rm? true   ; only admins can remove help topics
  :eval-prepends ["->"] ; for the eval plugin
- :notifo {"Push.ly"    ; For the notifo plugin  {Application {Label {server [chans]}}}
-          {"DM - @sexpbot-test" {"irc.freenode.net" ["#tempchan"]}}}
  "irc.freenode.net" {:channels ["#tempchan"]
 		     :bot-name "sexpbot-test"
 		     :bot-password nil
