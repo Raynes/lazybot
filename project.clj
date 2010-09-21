@@ -12,5 +12,6 @@
 		 [clj-config "0.1.0-SNAPSHOT"]
                  [clj-github "1.0.0-SNAPSHOT"]
                  [compojure "0.4.1"]
-                 [ring/ring-jetty-adapter "0.2.5"]]
+                 [ring/ring-jetty-adapter "0.2.5"]
+                 [org.danlarkin/clojure-json "1.1"]]
   :dev-dependencies [[swank-clojure "1.2.1"]])
