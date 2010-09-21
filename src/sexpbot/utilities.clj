@@ -1,7 +1,6 @@
 (ns sexpbot.utilities
   (:use sexpbot.info)
-  (:require [org.danlarkin.json :as json]
-	    [clojure.contrib.io :as io])
+  (:require [clojure.contrib.io :as io])
   (:import [java.io File FileReader]
 	   [java.util.concurrent FutureTask TimeUnit TimeoutException]))
 

@@ -7,8 +7,7 @@
         [compojure.core :only [routes]]
         ring.middleware.params
         ring.adapter.jetty)
-  (:require [org.danlarkin.json :as json]
-	    [irclj.irclj :as ircb])
+  (:require [irclj.irclj :as ircb])
   (:import [java.io File FileReader]))
 
 (mongo! :db "sexpbot")

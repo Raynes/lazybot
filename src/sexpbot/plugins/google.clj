@@ -1,15 +1,14 @@
 (ns sexpbot.plugins.google
   (:use [sexpbot respond]
-	[clojure-http.client :only [add-query-params]])
-  (:require [org.danlarkin.json :as json]
-	    [clojure-http.resourcefully :as res]
-	    )
+	[clojure-http.client :only [add-query-params]]
+        [clojure.contrib.json :only [read-json]])
+  (:require [clojure-http.resourcefully :as res])
   (:import org.apache.commons.lang.StringEscapeUtils))
 
 (defn google [term]
   (-> (res/get (add-query-params "http://ajax.googleapis.com/ajax/services/search/web"
 				 {"v" "1.0" "q" term}))
-      :body-seq first json/decode-from-str))
+      :body-seq first read-json))
 
 (defn cull [result-set]
   [(:estimatedResultCount (:cursor (:responseData result-set)))
@@ -22,7 +21,7 @@
 	  title (:titleNoFormatting res-map)
 	  url (:url res-map)]
       (send-message irc bot channel (StringEscapeUtils/unescapeHtml 
-				      (str "First out of " res-count " results is: " title)))
+                                     (str "First out of " res-count " results is: " title)))
       (send-message irc bot channel url))))
 
 (defplugin
@@ -31,15 +30,15 @@
    number of results found."
    #{"google"} 
    #'handle-search)
-
-   (:cmd
-    "Searches wikipedia via google."
-    #{"wiki"}
-    (fn [args]
-      (handle-search (assoc args :args (conj (:args args) "site:en.wikipedia.org")))))
-
-   (:cmd
-    "Searches encyclopediadramtica via google."
-    #{"ed"} 
-    (fn [args]
-      (handle-search (assoc args :args (conj (:args args) "site:encyclopediadramatica.com"))))))
+  
+  (:cmd
+   "Searches wikipedia via google."
+   #{"wiki"}
+   (fn [args]
+     (handle-search (assoc args :args (conj (:args args) "site:en.wikipedia.org")))))
+  
+  (:cmd
+   "Searches encyclopediadramtica via google."
+   #{"ed"} 
+   (fn [args]
+     (handle-search (assoc args :args (conj (:args args) "site:encyclopediadramatica.com"))))))
