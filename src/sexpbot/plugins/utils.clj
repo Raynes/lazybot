@@ -34,12 +34,12 @@
        (send-message irc bot channel (str nick ": The time is now " time)))))
 
   (:cmd 
-   "Joins a channel. ADMIN ONLY."
+   "Joins a channel. Takes a channel and an optional password. ADMIN ONLY."
    #{"join"}
    (fn [{:keys [irc bot channel nick args] :as irc-map}]
      (if-admin nick irc-map bot
-               (ircb/join-chan irc (first args)))))
-   
+               (ircb/join-chan irc (first args) (last args)))))
+
   (:cmd
    "Parts a channel. Takes a channel and a part message. ADMIN ONLY." 
    #{"part"} 
