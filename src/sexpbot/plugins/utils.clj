@@ -118,7 +118,8 @@
    #{"gist"} 
    (fn [{:keys [irc bot channel nick args]}]
      (send-message irc bot channel (str nick ": http://gist.github.com/" 
-                                        (:repo (new-gist (first args) 
+                                        (:repo (new-gist {}
+                                                         (first args) 
                                                          (->> args rest (interpose " ") (apply str)))))))
 
   ;(:dumpcmds

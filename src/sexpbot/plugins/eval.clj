@@ -39,7 +39,7 @@
       (str res "... "
            (when (> (count s) cap)
              (try
-               (str "http://gist.github.com/" (:repo (new-gist "output.clj" s)))
+               (str "http://gist.github.com/" (:repo (new-gist {} "output.clj" s)))
                (catch java.io.IOException _ nil))))
       res)))
 

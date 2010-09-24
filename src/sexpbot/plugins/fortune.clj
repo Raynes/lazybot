@@ -2,7 +2,6 @@
 ; Licensed under the EPL
 (ns sexpbot.plugins.fortune
   (:use [sexpbot respond info]
-        [clj-github.gists :only [new-gist]]
         [somnium.congomongo :only [fetch fetch-one insert! destroy!]]))
 
 (defplugin
