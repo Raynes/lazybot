@@ -75,10 +75,10 @@
 	      (try
                 (let [n-bmap (into bot-map (split-args conf message))]
                   (thunk-timeout #((respond n-bmap) n-bmap) 30))
-		(catch TimeoutException _ (send-message irc channel "Execution timed out."))
+		(catch TimeoutException _ (send-message irc bot channel "Execution timed out."))
 		(catch Exception e (.printStackTrace e))
 		(finally (swap! running dec))))
-	    (send-message irc channel "Too much is happening at once. Wait until other operations cease."))))))))
+	    (send-message irc bot channel "Too much is happening at once. Wait until other operations cease."))))))))
 
 (defn merge-with-conj [& args]
   (apply merge-with #(if (vector? %) (conj % %2) (conj [] % %2)) args))
