@@ -2,7 +2,8 @@
   (:refer-clojure :exclude [extend])
   (:use [sexpbot respond info]
 	[clj-time core format]
-	[somnium.congomongo :only [fetch fetch-one insert! destroy!]]))
+	[somnium.congomongo :only [fetch fetch-one insert! destroy!]]
+    [clojure.string :only [join]]))
 
 (defn tack-time
   "Takes a nick and updates the seen database with that nick and the current time."
@@ -26,6 +27,15 @@
 
 (defn put-seen [{:keys [nick channel irc]} doing] (tack-time nick (:server @irc) channel doing))
 
+(defn decorate [num label]
+  (when-not (zero? num)
+    (str num " " label (if (> num 1) "s" ""))))
+
+(defn format-time [minutes]
+  (join " and " (keep identity (map decorate
+                                    ((juxt quot rem) minutes 60)
+                                    ["hour" "minute"]))))
+
 (defplugin
   (:hook :on-message
          (fn [irc-map] (put-seen irc-map "talking")))
@@ -38,7 +48,8 @@
    "Checks to see when the person you specify was last seen."
    #{"seen"} 
    (fn [{:keys [irc bot nick channel args]}]
-     (if-let [{:keys [time chan doing nick]} (get-seen (first args) (:server @irc))]
+     (if-let [{:keys [time chan doing nick]}
+              (get-seen (first args) (:server @irc))]
        (send-message irc bot channel (str nick " was last seen " doing (when-not (= doing "quitting") " on ") 
-                                          chan " " time " minutes ago."))
+                                          chan " " (format-time time) " ago."))
        (send-message irc bot channel (str "I have never seen " (first args) "."))))))
