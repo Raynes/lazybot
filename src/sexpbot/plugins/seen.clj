@@ -28,13 +28,15 @@
 (defn put-seen [{:keys [nick channel irc]} doing] (tack-time nick (:server @irc) channel doing))
 
 (defn decorate [num label]
-  (when-not (zero? num)
+  (when (> num 0)
     (str num " " label (if (> num 1) "s" ""))))
 
 (defn format-time [minutes]
-  (join " and " (keep identity (map decorate
-                                    ((juxt quot rem) minutes 60)
-                                    ["hour" "minute"]))))
+  (if (= minutes 0)
+    "0 minutes"
+    (join " and " (keep identity (map decorate
+                                      ((juxt quot rem) minutes 60)
+                                      ["hour" "minute"])))))
 
 (defplugin
   (:hook :on-message
