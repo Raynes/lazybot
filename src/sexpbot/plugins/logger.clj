@@ -10,8 +10,9 @@
    :on-message
    (fn [{:keys [irc bot nick channel message]}]
      (let [config (:config @bot)
-           server (:server @irc)]
-       (if (get-in config [server :log channel])
+           server (:server @irc)
+           channel (apply str (rest channel))]
+       (if (get-in config [server :log ])
          (let [log-dir  (file (:log-dir (config server)) server channel)
                date     (unparse (formatters :date) (now))
                time     (unparse (formatters :time) (now))
