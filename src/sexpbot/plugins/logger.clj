@@ -8,7 +8,7 @@
 (defplugin
   (:hook
    :on-message
-   (fn [{:keys [irc bot nick channel message]}]
+   (fn [{:keys [irc bot nick channel message action?]}]
      (let [config (:config @bot)
            server (:server @irc)
            last-channel (apply str (remove #(= % \#) channel))]
@@ -19,5 +19,7 @@
                log-file (file log-dir (str date ".txt"))]
            (.mkdirs log-dir)
            (spit log-file
-                 (format "[%s]: %s: %s\n" time nick message)
+                 (if action?
+                   (format "[%s]: *%s %s\n" time nick message)
+                   (format "[%s]: %s: %s\n" time nick message))
                  :append true)))))))
