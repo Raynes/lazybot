@@ -11,7 +11,7 @@
    (fn [{:keys [irc bot nick channel message]}]
      (let [config (:config @bot)
            server (:server @irc)
-           last-channel (apply str (rest channel))]
+           last-channel (apply str (remove #(= % \#) channel))]
        (if (get-in config [server :log channel])
          (let [log-dir  (file (:log-dir (config server)) server last-channel)
                date     (unparse (formatters :date) (now))
