@@ -41,7 +41,7 @@
   (some #(when ((:triggers %) command) %) (apply concat (map :commands (vals modules)))))
 
 (defn find-docs [bot command]
-  (:doc (find-command (:modules @bot) command)))
+  (:docs (find-command (:modules @bot) command)))
 
 (defn respond [{:keys [command bot]}]
   (or (:fn (find-command (:modules @bot) command)) (constantly nil)))
