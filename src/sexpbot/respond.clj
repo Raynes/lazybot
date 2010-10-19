@@ -7,22 +7,24 @@
   (concat (list 'def (with-meta name (assoc (meta name) :private true))) value))
 
 ;; I'm sleepy, so I'm using loop. Don't judge me. Fuck off.
-(defn nil-comp [irc bot channel s & fns]
+(defn nil-comp [irc bot channel s action? & fns]
   (loop [cs s f fns]
     (if (seq f)
-      (when-let [new-s ((first f) @irc @bot channel cs)]
-        (recur new-s (rest fns)))
+      (when-let [new-s ((first f) irc bot channel cs action?)]
+        (recur new-s (next f)))
       cs)))
 
 (defn pull-hooks [bot hook-key]
   (hook-key (apply merge-with concat (map :hooks (vals (:modules @bot))))))
 
-(defn call-message-hooks [irc bot channel s]
-  (apply nil-comp irc bot channel s (pull-hooks bot :on-send-message)))
+(defn call-message-hooks [irc bot channel s action?]
+  (apply nil-comp irc bot channel s action? (pull-hooks bot :on-send-message)))
 
-(defn send-message [irc bot channel s]
-  (if-let [result (call-message-hooks irc bot channel s)]
-    (do (ircb/send-message irc channel result)
+(defn send-message [irc bot channel s & {action? :action?}]
+  (if-let [result (call-message-hooks irc bot channel s action?)]
+    (do (if action?
+          (ircb/send-action irc channel result)
+          (ircb/send-message irc channel result))
         :success)
     :failure))
 
