@@ -9,7 +9,6 @@
      (future
       (when (= nick (:name @irc))
         (Thread/sleep 3000))
-      (println (keys (get-in @irc [:channels channel :users])))
       (let [user-count (count (keys (get-in @irc [:channels channel :users])))
             max (:max (fetch-one :max :where {:channel channel}))]
         (println user-count)
