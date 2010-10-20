@@ -11,7 +11,6 @@
         (Thread/sleep 3000))
       (let [user-count (count (keys (get-in @irc [:channels channel :users])))
             max (:max (fetch-one :max :where {:channel channel}))]
-        (println user-count)
         (when (or (not max) (> user-count max))
           (destroy! :max {:channel channel})
           (insert! :max {:channel channel :max user-count}))))))
