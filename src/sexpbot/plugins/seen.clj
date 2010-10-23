@@ -18,7 +18,7 @@
               :nick nick})))
 
 (defn get-seen
-  "Get's the last-seen for a nick."
+  "Gets the last-seen for a nick."
   [nick server]
   (when-let [seen-map (fetch-one :seen :where {:nick nick :server server})]
     (assoc seen-map :time (in-minutes 
@@ -27,16 +27,36 @@
 
 (defn put-seen [{:keys [nick channel irc]} doing] (tack-time nick (:server @irc) channel doing))
 
+;; This is a bit ugly. Each entry in the table describes how many of the labelled unit
+;; it takes to constitute the next-largest unit. It can't be a map because order matters.
+(def time-units
+     [['second 1]      ; change to 60 if you ever want to show seconds
+      ['minute 60]
+      ['hour 24]
+      ['day 7]
+      ['week Integer/MAX_VALUE]]) ; Extend if you want month/year/whatever
+
 (defn decorate [num label]
   (when (> num 0)
     (str num " " label (if (> num 1) "s" ""))))
 
+;; Run through each time unit, finding mod and quotient of the time left.
+;; Track the number of minutes left to work on, and the list of decorated values.
+;; Note that we build it back-to-front so that larger units end up on the left.
+(defn compute-units [minutes]
+  (second
+   (reduce (fn [[time-left units-so-far] [name ratio]]
+             (let [[time-left r] ((juxt quot rem) time-left ratio)]
+               [time-left (cons (decorate r name)
+                                units-so-far)]))
+           [minutes ()] ; Start with no labels, and all the minutes
+           time-units)))
+
+;; Now drop out the nil labels, and glue it all together
 (defn format-time [minutes]
   (if (= minutes 0)
     "0 minutes"
-    (join " and " (keep identity (map decorate
-                                      ((juxt quot rem) minutes 60)
-                                      ["hour" "minute"])))))
+    (join ", " (keep identity (compute-units minutes)))))
 
 (defplugin
   (:hook :on-message
