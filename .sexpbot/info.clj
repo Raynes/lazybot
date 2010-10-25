@@ -14,18 +14,17 @@
 		     :users {"JohnDoe" {:pass "iliekpie", :privs :admin}
 			     "JaneDoe" {:pass "ohai", :privs :admin}}
 		     :user-blacklist #{"Meowzorz"}
-		     :log false ; set to true if you want logs of this server.
 		     :catch-links? {true} ; Should only be enabled if the title plugin is activated below.
 		     :channel-catch-blacklist #{} ; Channels in which URL title scraper is to be disabled.
 		     :url-blacklist #{} ; URL title scraper will look for these words in URLs and not use them if they appear.
 		     :user-ignore-url-blacklist [["bot" "ters"]] ; A series of "match this" but "not this" pairs.}
 		     :plugins #{#_"dictionary" "lmgtfy" "google" "translate" "eball" "utils" "leet" "eval" "login"
 				"weather" "brainfuck" "whatis" "shorturl" "dynamic" "haskell"
-				"mail" "timer" "fortune" "rss" "title" "operator" "seen" "sed" "help" "status" "log"
+				"mail" "timer" "fortune" "rss" "title" "operator" "seen" "sed" "help" "status"
                                 "load" "embedded"}} ; A series of "match this" but "not this" pairs.
  :plugins #{#_"dictionary" "lmgtfy" "google" "translate" "eball" "utils" "leet" "eval" "login"
 	    "weather" "brainfuck" "whatis" "shorturl" "dynamic" "haskell"
-	    "mail" "timer" "fortune" "rss" "title" "operator" "seen" "sed" "help" "status" "log"
+	    "mail" "timer" "fortune" "rss" "title" "operator" "seen" "sed" "help" "status"
             "load" "embedded"}}
 
 ; users is a series of username to password and privileges.
