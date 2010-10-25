@@ -7,7 +7,7 @@
 		 [org.clojars.rayne/clj-time "0.1.0-SNAPSHOT"]
 		 [org.clojars.rayne/clj-sandbox "0.4.2-SNAPSHOT"]
 		 [clojure-http-client "1.1.0-SNAPSHOT"]
-		 [irclj "0.3.0-SNAPSHOT"]
+		 [irclj "0.4.0-SNAPSHOT"]
                  [congomongo "0.1.3-SNAPSHOT"]
 		 [clj-config "0.1.0-SNAPSHOT"]
                  [clj-github "1.0.0-SNAPSHOT"]
