@@ -56,10 +56,11 @@
 (defn format-time [minutes]
   (if (= minutes 0)
     "0 minutes"
-    (join ", " (->> (compute-units minutes)
-                    (drop-while nil?)
-                    (take 2) ; If a high-order thing like week is nonzero, don't bother with hours
-                    (remove nil?)))))
+    (->> (compute-units minutes)
+         (drop-while nil?)
+         (take 2) ; If a high-order thing like week is nonzero, don't bother with hours
+         (remove nil?)
+         (join ", "))))
 
 (defplugin
   (:hook :on-message
