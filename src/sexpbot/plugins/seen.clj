@@ -56,7 +56,7 @@
 (defn format-time [minutes]
   (if (= minutes 0)
     "0 minutes"
-    (join ", " (keep identity (compute-units minutes))))
+    (join ", " (keep identity (compute-units minutes)))))
 
 (defplugin
   (:hook :on-message
