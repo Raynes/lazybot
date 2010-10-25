@@ -30,11 +30,11 @@
 ;; This is a bit ugly. Each entry in the table describes how many of the labelled unit
 ;; it takes to constitute the next-largest unit. It can't be a map because order matters.
 (def time-units
-     '[[second 1] ; change to 60 if you ever want to show seconds
-       [minute 60]
-       [hour 24]
-       [day 7]
-       [week Integer/MAX_VALUE]]) ; Extend if you want month/year/whatever
+     [['second 1]      ; change to 60 if you ever want to show seconds
+      ['minute 60]
+      ['hour 24]
+      ['day 7]
+      ['week Integer/MAX_VALUE]]) ; Extend if you want month/year/whatever
 
 (defn decorate [num label]
   (when (> num 0)
