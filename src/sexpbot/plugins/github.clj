@@ -15,8 +15,8 @@
   (apply str (filter identity s)))
 
 (defn format-vec [v]
-  (filter-false-str ["[" (apply str (interpose ", " (take 5 v)))
-                     (when (> (count v) 5) "...") "]"]))
+  (filter-false-str ["[" (apply str (interpose ", " (take 3 v)))
+                     (when (> (count v) 3) "...") "]"]))
 
 (defn notify-chan [irc bot chan commit]
   (send-message
