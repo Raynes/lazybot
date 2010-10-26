@@ -3,8 +3,7 @@
 	[sexpbot.plugins.shorturl :only [shorten-url]])
   (:require [clojure.xml :as xml]
 	    [clojure.zip :as zip]
-	    [clojure.contrib.zip-filter.xml :as zf]
-	    ))
+	    [clojure.contrib.zip-filter.xml :as zf]))
 
 (defn cull [zipper]
   (let [items (take 3 (zf/xml-> zipper :channel :item))

@@ -40,7 +40,6 @@
 	       (when-not (= orig-msg new-msg) (send-message irc bot channel (str "<" user-to "> " new-msg))))
 	     (catch Exception _ (when verbose? (format-msg irc bot nick channel)))))))
 
-
 (defplugin
   (:hook
    :on-message

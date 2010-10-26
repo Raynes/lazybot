@@ -3,8 +3,7 @@
 	[clojure.contrib.str-utils :only [re-sub]])
   (:require [clojure.xml :as xml]
 	    [clojure.zip :as zip]
-	    [clojure.contrib.zip-filter.xml :as zf]
-	    )
+	    [clojure.contrib.zip-filter.xml :as zf])
   (:import [org.apache.commons.lang StringEscapeUtils]))
 
 (def forecasturl "http://api.wunderground.com/auto/wui/geo/ForecastXML/index.xml?query=")
