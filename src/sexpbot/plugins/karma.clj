@@ -22,17 +22,25 @@
         user-map (fetch-one :karma :where {:nick lower-nick :server server :channel channel})]
     (if (not-empty user-map)
       (:karma user-map)
-      1)))
+      0)))
 
 (defn- put-karma [{:keys [channel irc]} nick karma] (set-karma nick (:server @irc) channel karma))
 
+(def limit (atom {}))
+
 (defn- change-karma
   [snick new-karma {:keys [nick irc bot channel] :as irc-map}]
-  (if (= nick snick)
-    (send-message irc bot channel "You can't adjust your own karma.")
-    (do
-      (put-karma irc-map snick new-karma)
-      (send-message irc bot channel (str "=> " new-karma)))))
+  (let [current (get-in @limit [nick snick])]
+    (cond
+     (= nick snick) (send-message irc bot channel "You can't adjust your own karma.")
+     (= 3 current)
+     (send-message irc bot channel
+                   "Do I smell abuse? Wait a while before modifying that persons karma again.")
+     :else (do
+             (put-karma irc-map snick new-karma)
+             (swap! limit update-in [nick snick] #(if (nil? %) 1 (inc %)))
+             (future (Thread/sleep 300000) (swap! limit update-in [nick snick] dec))
+             (send-message irc bot channel (str "=> " new-karma))))))
 
 (defplugin
   (:hook :on-message
