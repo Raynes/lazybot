@@ -8,7 +8,7 @@ This is not a totally one-man effort. I have all sorts of people from the Clojur
 
 ## Usage
 
-Several of this bot's plugins require that you have MongoDB installed and running. The plugins that currently do are mail, whatis, macro, seen, help, and fortune. You can find some quickstart guides for setting up MongoDB here: http://www.mongodb.org/display/DOCS/Quickstart. It's usually pretty painless and fast.
+Several of this bot's plugins require that you have MongoDB installed and running. The plugins that currently do are mail, whatis, macro, seen, help, fortune and karma. You can find some quickstart guides for setting up MongoDB here: http://www.mongodb.org/display/DOCS/Quickstart. It's usually pretty painless and fast.
 
 As for what OSes this bot actually runs on: I have no clue. I've seen it run on several Ubuntu distros, but nobody (that I know of) has yet to venture into the world of sexpbot-on-windows or mac. If you do, please let me know how it goes.
 
