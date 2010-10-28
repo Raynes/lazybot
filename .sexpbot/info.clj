@@ -15,7 +15,7 @@
 		     :bot-name "sexpbot-test"
 		     :bot-password nil
 		     :users {"JohnDoe" {:pass "iliekpie", :privs :admin}
-			     "JaneDoe" {:pass "ohai", :privs :admin}}
+                     "JaneDoe" {:pass "ohai", :privs :admin}}
 		     :user-blacklist #{"Meowzorz"}
 		     :catch-links? {true} ; Should only be enabled if the title plugin is activated below.
 		     :channel-catch-blacklist #{} ; Channels in which URL title scraper is to be disabled.
