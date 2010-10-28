@@ -6,7 +6,10 @@
  :max-operations 3 ; The maximum number of operations that can be running at any given time.
  :admin-add? true  ; only admins can add help topics
  :admin-rm? true   ; only admins can remove help topics
- :eval-prepends ["->"] ; for the eval plugin
+ :eval-prefixes {:defaults ["->" "." ","] ; prefixes in any channel
+                 ;; list of prefixes NOT to use in certain channels
+                 "#tempchan" ["->"]       ; turn this off for testing
+                 "#clojure" [","]}        ; let clojurebot have this one
  :servers-port 8080    ; port for plugins that require webserver
  "irc.freenode.net" {:channels ["#tempchan"]
 		     :bot-name "sexpbot-test"
