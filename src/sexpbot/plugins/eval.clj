@@ -72,6 +72,28 @@
 
 (def many (atom 0))
 
+(defn- eval-config-settings [bot]
+  (let [config-setting (-> @bot :config (get :eval-prefixes
+                                             {:defaults #{}}))]
+    (if (vector? config-setting)
+      {:defaults (set config-setting)}      ; backwards compatible
+      config-setting)))
+
+(defn- default-prefixes [bot]
+  (:defaults (eval-config-settings bot)))
+
+(defn- eval-exceptions [bot channel]
+  (set (get (eval-config-settings bot)
+            channel
+            [])))
+
+(defn- what-to-eval [bot channel message]
+  (let [candidates (default-prefixes bot)
+        exceptions (eval-exceptions bot channel)
+        prefixes (remove exceptions candidates)]
+    (when-let [match (first (filter #(.startsWith message %) prefixes))]
+      (apply str (drop (count match) message)))))
+
 (defplugin
   (:hook
    :on-message
@@ -80,12 +102,12 @@
       (Thread.
        (fn []
          (if-let [evalp (-> @bot :config :eval-prefixes)]
-           (when-let [prefix (some #(when (.startsWith message %) %) evalp)]
+           (when-let [sexp (what-to-eval bot channel message)]
              (if (< @many 3)
                (do
                  (try
                    (swap! many inc)
-                   (send-message irc bot channel (execute-text (apply str (drop (count prefix) message))))
+                   (send-message irc bot channel (execute-text sexp))
                    (finally (swap! many dec))))
                (send-message irc bot channel "Too much is happening at once. Wait until other operations cease.")))
            (throw (Exception. "Dude, you didn't set :eval-prefixes. I can't configure myself!")))))))))
