@@ -42,7 +42,7 @@
    "Gets the forecast for a location. Can take a zipcode, or a City, State combination."
    #{"fcst"}
    (fn [{:keys [irc bot channel nick args]}]
-     (let [[date [today tonight :as a]] (->> args (interpose " ") get-fcst)
+     (let [[date [tonight today :as a]] (->> args (interpose " ") get-fcst)
            conditions (if (string? today) today a)]
        (if (seq date)
          (do

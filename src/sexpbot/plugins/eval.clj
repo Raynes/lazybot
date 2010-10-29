@@ -12,6 +12,12 @@
 (enable-security-manager)
 
 (def sandbox-tester
+     (new-tester
+      (whitelist)
+      (blacklist
+       (function-matcher 'alter-var-root 'intern 'def 'eval 'catch 'load-string 'load-reader 'clojure.core/addMethod))))
+
+#_(def sandbox-tester
      (extend-tester secure-tester 
 		    (whitelist 
 		     (function-matcher '*out* 'println 'print 'pr 'prn 'var 'print-doc 'doc 'throw
@@ -23,9 +29,7 @@
 
 (def my-obj-tester
      (extend-tester default-obj-tester
-		    (whitelist
-		     (class-matcher java.io.StringWriter String Byte Character StrictMath StringBuffer
-				    java.net.URL java.net.URI java.util.TimeZone java.lang.System))))
+		    (whitelist)))
 
 (def sc (stringify-sandbox (new-sandbox-compiler :tester sandbox-tester 
 						 :timeout 10000 
@@ -45,7 +49,7 @@
                (catch java.io.IOException _ nil))))
       res)))
 
-(defmacro defn2 [name & body] `(def ~name (fn ~name ~@body)))
+;(defmacro defn2 [name & body] `(def ~name (fn ~name ~@body)))
 
 (defn sfmsg [t anchor] (str t ": Please see http://clojure.org/special_forms#" anchor))
 
@@ -63,8 +67,7 @@
 (defn execute-text [txt]
   (try
     (with-open [writer (StringWriter.)]
-      (binding [defn #'defn2
-                doc #'pretty-doc]
+      (binding [doc #'pretty-doc]
         (let [res (pr-str ((sc txt) {'*out* writer}))
               replaced (.replaceAll (str writer) "\n" " ")]
           (str "\u27F9 " (trim (str replaced (when (= last \space) " ") res))))))

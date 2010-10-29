@@ -1,9 +1,9 @@
 (ns sexpbot.plugins.login
   (:use [sexpbot respond]))
 
-(defn check-pass-login [user pass server bot]
+(defn check-login [user mask pass server bot]
   (let [userconf ((:users ((:config @bot) server)) user)]
-    (when (= pass (:pass userconf)) 
+    (when (or (= mask (:host userconf)) (= pass (:pass userconf))) 
       (dosync (alter bot assoc-in [:logged-in server user] (userconf :privs))))))
 
 (defn logged-in? [server bot user]
@@ -20,10 +20,10 @@
   (:cmd 
    "Best executed via PM. Give it your password, and it will log you in."
    #{"login"}
-   (fn [{:keys [irc bot nick channel args]}]
-     (if (check-pass-login nick (first args) (:server @irc) bot)
+   (fn [{:keys [irc bot nick hmask channel args]}]
+     (if (check-login nick hmask (first args) (:server @irc) bot)
        (send-message irc bot channel "You've been logged in.")
-       (send-message irc bot channel "Username and password combination do not match."))))
+       (send-message irc bot channel "Username and password combination/hostmask do not match."))))
   
   (:cmd
    "Logs you out."
