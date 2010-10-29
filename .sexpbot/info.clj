@@ -6,7 +6,8 @@
  :max-operations 3 ; The maximum number of operations that can be running at any given time.
  :admin-add? true  ; only admins can add help topics
  :admin-rm? true   ; only admins can remove help topics
- :eval-prefixes {:defaults ["->" "." ","] ; prefixes in any channel
+ :eval-prefixes {:defaults ["->" "." "," ; prefixes in any channel
+                            #"&\|(.*?)\|&"] ; stuff like &|this|&
                  ;; list of prefixes NOT to use in certain channels
                  "#tempchan" ["->"]       ; turn this off for testing
                  "#clojure" [","]}        ; let clojurebot have this one

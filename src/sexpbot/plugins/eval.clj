@@ -3,9 +3,11 @@
 	clojure.stacktrace
 	[net.licenser.sandbox tester matcher]
 	sexpbot.respond
-	[clj-github.gists :only [new-gist]])
+	[clj-github.gists :only [new-gist]]
+    [clojure.string :only [join]])
   (:import java.io.StringWriter
-	   java.util.concurrent.TimeoutException))
+           java.util.concurrent.TimeoutException
+           (java.util.regex Pattern)))
 
 (enable-security-manager)
 
@@ -72,6 +74,25 @@
 
 (def many (atom 0))
 
+(defmulti find-eval-request
+  "Search a target string for eval requests.
+Return a seq of strings to be evaluated. Usually this will be either nil or a one-element list, but it's possible for users to request evaluation of multiple forms with embedded specifiers, in which case it will be longer."
+  {:arglists '([matcher target])}
+  (comp class first list))
+
+(defmethod find-eval-request String
+  ([search target]
+     (when (.startsWith target search)
+       [(apply str (drop (count search) target))])))
+
+(defmethod find-eval-request Pattern
+  ([pattern target]
+     (let [m (re-matcher pattern target)]
+       (->> (repeatedly #(re-find m))
+            (take-while identity)
+            (map second)
+            seq))))
+
 (defn- eval-config-settings [bot]
   (let [config-setting (-> @bot :config (get :eval-prefixes
                                              {:defaults #{}}))]
@@ -90,9 +111,19 @@
 (defn- what-to-eval [bot channel message]
   (let [candidates (default-prefixes bot)
         exceptions (eval-exceptions bot channel)
-        prefixes (remove exceptions candidates)]
-    (when-let [match (first (filter #(.startsWith message %) prefixes))]
-      (apply str (drop (count match) message)))))
+        patterns (remove exceptions candidates)]
+    (first (keep #(find-eval-request % message)
+                 patterns))))
+
+(def max-embedded-forms 5)
+
+(defn- eval-forms [[form1 form2 :as forms]]
+  (take max-embedded-forms
+        (if-not form2
+          [(execute-text form1)]
+          (map (fn [f]
+                 (str f (execute-text f)))
+               forms))))
 
 (defplugin
   (:hook
@@ -102,12 +133,13 @@
       (Thread.
        (fn []
          (if-let [evalp (-> @bot :config :eval-prefixes)]
-           (when-let [sexp (what-to-eval bot channel message)]
+           (when-let [sexps (what-to-eval bot channel message)]
              (if (< @many 3)
                (do
                  (try
                    (swap! many inc)
-                   (send-message irc bot channel (execute-text sexp))
+                   (doseq [sexp (eval-forms sexps)]
+                     (send-message irc bot channel sexp))
                    (finally (swap! many dec))))
                (send-message irc bot channel "Too much is happening at once. Wait until other operations cease.")))
            (throw (Exception. "Dude, you didn't set :eval-prefixes. I can't configure myself!")))))))))
