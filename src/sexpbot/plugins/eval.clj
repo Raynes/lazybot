@@ -118,7 +118,7 @@ Return a seq of strings to be evaluated. Usually this will be either nil or a on
     (first (keep #(find-eval-request % message)
                  patterns))))
 
-(def max-embedded-forms 5)
+(def max-embedded-forms 3)
 
 (defn- eval-forms [[form1 form2 :as forms]]
   (take max-embedded-forms
