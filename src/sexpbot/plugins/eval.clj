@@ -125,7 +125,11 @@ Return a seq of strings to be evaluated. Usually this will be either nil or a on
         (if-not form2
           [(execute-text form1)]
           (map (fn [f]
-                 (str f (execute-text f)))
+                 (str
+                  (let [trimmed (apply str (take 40 f))]
+                    (if (> (count f) 40)
+                      (str trimmed "... ")
+                      trimmed)) " " (execute-text f)))
                forms))))
 
 (defplugin
