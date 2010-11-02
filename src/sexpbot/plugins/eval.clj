@@ -3,8 +3,7 @@
 	clojure.stacktrace
 	[net.licenser.sandbox tester matcher]
 	sexpbot.respond
-	[clj-github.gists :only [new-gist]]
-    [clojure.string :only [join]])
+	[clj-github.gists :only [new-gist]])
   (:import java.io.StringWriter
            java.util.concurrent.TimeoutException
            (java.util.regex Pattern)))
@@ -106,6 +105,17 @@ Return a seq of strings to be evaluated. Usually this will be either nil or a on
 (defn- default-prefixes [bot]
   (:defaults (eval-config-settings bot)))
 
+;; Make sure Pattern objects show up first
+(defn- pattern-comparator [a b]
+  (let [ac (class a)
+	bc (class b)]
+    (if (= (= ac Pattern)
+	   (= bc Pattern))
+      (compare (str a) (str b))
+      (if (= ac Pattern)
+	-1
+	1))))
+
 (defn- eval-exceptions [bot channel]
   (set (get (eval-config-settings bot)
             channel
@@ -114,7 +124,8 @@ Return a seq of strings to be evaluated. Usually this will be either nil or a on
 (defn- what-to-eval [bot channel message]
   (let [candidates (default-prefixes bot)
         exceptions (eval-exceptions bot channel)
-        patterns (remove exceptions candidates)]
+        patterns (sort pattern-comparator
+		       (remove exceptions candidates))]
     (first (keep #(find-eval-request % message)
                  patterns))))
 
