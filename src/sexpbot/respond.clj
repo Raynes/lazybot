@@ -1,5 +1,5 @@
 (ns sexpbot.respond
-  (:use [sexpbot.utilities :only [thunk-timeout]])
+  (:use [sexpbot.utilities :only [thunk-timeout capped-inc!]])
   (:require [irclj.irclj :as ircb])
   (:import java.util.concurrent.TimeoutException))
 
@@ -82,15 +82,13 @@
       (let [bot-map (assoc irc-map :privs (get-priv (:logged-in @bot) nick))
 	    conf (:config @bot)]
 	(when (m-starts-with message (:prepends conf))
-	  (if (< @running (:max-operations conf))
-	    (do
-	      (swap! running inc)
-	      (try
-                (let [n-bmap (into bot-map (split-args conf message))]
-                  (thunk-timeout #((respond n-bmap) n-bmap) 30))
-		(catch TimeoutException _ (send-message irc bot channel "Execution timed out."))
-		(catch Exception e (.printStackTrace e))
-		(finally (swap! running dec))))
+	  (if (capped-inc! running (:max-operations conf))
+	    (try
+	      (let [n-bmap (into bot-map (split-args conf message))]
+		(thunk-timeout #((respond n-bmap) n-bmap) 30))
+	      (catch TimeoutException _ (send-message irc bot channel "Execution timed out."))
+	      (catch Exception e (.printStackTrace e))
+	      (finally (swap! running dec)))
 	    (send-message irc bot channel "Too much is happening at once. Wait until other operations cease."))))))))
 
 (defn merge-with-conj [& args]
