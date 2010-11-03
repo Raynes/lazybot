@@ -6,24 +6,10 @@
 (defmacro def- [name & value]
   (concat (list 'def (with-meta name (assoc (meta name) :private true))) value))
 
-;; This version wastes a little time scanning through fns even after the
-;; final is known to be nil, and won't work with infinite sequences of fns.
-;; But I think it's a lot clearer and more idiomatic.
 (defn nil-comp [irc bot channel s action? & fns]
   (reduce #(when %1
              (%2 irc bot channel %1 action?))
           s fns))
-
-;; Adjusted this version to use destructuring at least; with the cryptic
-;; variable names it took me a while to figure out what was going on, but
-;; this version should work identically to the previous. Uncomment if you
-;; like it better.
-#_(defn nil-comp [irc bot channel s action? & fns]
-  (loop [cs s [f & fs] fns]
-    (if f
-      (when-let [cs (f irc bot channel cs action?)]
-        (recur cs fs))
-      cs)))
 
 (defn pull-hooks [bot hook-key]
   (hook-key (apply merge-with concat (map :hooks (vals (:modules @bot))))))
