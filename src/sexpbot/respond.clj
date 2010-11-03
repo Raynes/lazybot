@@ -59,22 +59,25 @@
                 (apply str (rest prepend)))
      :args (if is-long-pre args (when command (conj args command)))}))
 
-(def- running (atom 0))
-
 (defn try-handle [{:keys [nick channel irc bot message] :as irc-map}]
   (.start
    (Thread.
     (fn []
       (let [bot-map (assoc irc-map :privs (get-priv (:logged-in @bot) nick))
-	    conf (:config @bot)]
+	    conf (:config @bot)
+	    max-ops (:max-operations conf)]
 	(when (m-starts-with message (:prepends conf))
-	  (if (capped-inc! running (:max-operations conf))
+	  (if (dosync
+	       (let [permitted (< (get-in @bot [:config :pending-ops]) max-ops)]
+		 (when permitted
+		   (alter bot update-in [:config :pending-ops] inc))))
 	    (try
-	      (let [n-bmap (into bot-map (split-args conf message))]
-		(thunk-timeout #((respond n-bmap) n-bmap) 30))
-	      (catch TimeoutException _ (send-message irc bot channel "Execution timed out."))
-	      (catch Exception e (.printStackTrace e))
-	      (finally (swap! running dec)))
+		 (let [n-bmap (into bot-map (split-args conf message))]
+		   (thunk-timeout #((respond n-bmap) n-bmap) 30))
+		 (catch TimeoutException _ (send-message irc bot channel "Execution timed out."))
+		 (catch Exception e (.printStackTrace e))
+		 (finally (dosync
+			   (alter bot update-in [:config :pending-ops] dec))))
 	    (send-message irc bot channel "Too much is happening at once. Wait until other operations cease."))))))))
 
 (defn merge-with-conj [& args]
