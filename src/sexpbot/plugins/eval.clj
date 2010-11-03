@@ -15,7 +15,9 @@
      (new-tester
       (whitelist)
       (blacklist
-       (function-matcher 'alter-var-root 'intern 'def 'eval 'catch 'load-string 'load-reader 'clojure.core/addMethod))))
+       (function-matcher 'alter-var-root 'intern 'def 'eval 'catch
+                         'load-string 'load-reader 'clojure.core/addMethod
+                         'ns-resolve))))
 
 #_(def sandbox-tester
      (extend-tester secure-tester 
