@@ -1,5 +1,5 @@
 (ns sexpbot.respond
-  (:use [sexpbot.utilities :only [thunk-timeout capped-inc!]])
+  (:use [sexpbot.utilities :only [thunk-timeout]])
   (:require [irclj.irclj :as ircb])
   (:import java.util.concurrent.TimeoutException))
 
