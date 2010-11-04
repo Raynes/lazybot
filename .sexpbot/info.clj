@@ -4,6 +4,7 @@
  :bitly-key ""	  ; API key and login above needed for URL shortening.
  :wordnik-key ""  ; API key needed for dictionary access.
  :max-operations 3 ; The maximum number of operations that can be running at any given time.
+ :pending-ops 0 ; The number of operations running right now
  :admin-add? true  ; only admins can add help topics
  :admin-rm? true   ; only admins can remove help topics
  :eval-prefixes {:defaults ["->" "." "," ; prefixes in any channel
