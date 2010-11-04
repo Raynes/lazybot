@@ -68,16 +68,17 @@
 	    max-ops (:max-operations conf)]
 	(when (m-starts-with message (:prepends conf))
 	  (if (dosync
-	       (let [permitted (< (get-in @bot [:config :pending-ops]) max-ops)]
+	       (let [pending (:pending-ops @bot)
+                     permitted (< pending max-ops)]
 		 (when permitted
-		   (alter bot update-in [:config :pending-ops] inc))))
+		   (alter bot assoc :pending-ops (inc pending)))))
 	    (try
 		 (let [n-bmap (into bot-map (split-args conf message))]
 		   (thunk-timeout #((respond n-bmap) n-bmap) 30))
 		 (catch TimeoutException _ (send-message irc bot channel "Execution timed out."))
 		 (catch Exception e (.printStackTrace e))
 		 (finally (dosync
-			   (alter bot update-in [:config :pending-ops] dec))))
+			   (alter bot assoc :pending-ops (dec (:pending-ops @bot))))))
 	    (send-message irc bot channel "Too much is happening at once. Wait until other operations cease."))))))))
 
 (defn merge-with-conj [& args]

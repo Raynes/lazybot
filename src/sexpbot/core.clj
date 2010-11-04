@@ -25,7 +25,7 @@
       :on-join []})
 
 (defn make-callbacks []
-  (let [refzors (ref {:modules {:internal {:hooks initial-hooks}} :config initial-info})]
+  (let [refzors (ref {:modules {:internal {:hooks initial-hooks}} :config initial-info :pending-ops 0})]
     [(into {}
            (map (fn [key] [key (fn [irc-map] (call-all (assoc irc-map :bot refzors) key))])
                 [:on-any :on-message :on-quit :on-join]))
