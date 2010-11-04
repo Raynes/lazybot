@@ -1,4 +1,4 @@
-(ns sexpbot.plugins.eval
+(ns sexpbot.plugins.clojure
   (:use net.licenser.sandbox
 	clojure.stacktrace
 	[net.licenser.sandbox tester matcher]
