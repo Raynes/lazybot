@@ -177,5 +177,5 @@ Return a seq of strings to be evaluated. Usually this will be either nil or a on
    #{"source"}
    (fn [{:keys [irc bot channel args]}]
      (if-let [line-url (get-line-url (first args))]
-       (send-message irc bot channel line-url)
+       (send-message irc bot channel (str (first args)  " is " line-url))
        (send-message irc bot channel "Source not found.")))))
