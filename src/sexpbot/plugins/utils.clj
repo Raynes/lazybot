@@ -53,10 +53,7 @@
    "Rapes a person you specify."
    #{"rape"} 
    (fn [{:keys [args bot irc channel]}]
-     (let [user-to-rape (if (= (first args) "*") 
-                          (->> (ircb/get-names irc channel) drop-modes stringify)
-                          (first args))]
-       (ircb/send-action irc channel (str "raepz " user-to-rape ".")))))
+     (ircb/send-action irc channel (str "raepz " (first args) "."))))
 
   (:cmd 
    "Flips a coin."
