@@ -3,7 +3,8 @@
 	clojure.stacktrace
 	[net.licenser.sandbox tester matcher]
 	sexpbot.respond
-	[clj-github.gists :only [new-gist]])
+	[clj-github.gists :only [new-gist]]
+        [sexpbot.plugins.shorturl :only [is-gd]])
   (:import java.io.StringWriter
            java.util.concurrent.TimeoutException
            (java.util.regex Pattern)))
@@ -39,20 +40,27 @@
 
 (def cap 300)
 
-(defn trim [s]
+(defn trim [user expression s]
   (let [res (apply str (take cap s))
 	rescount (count res)]
     (if (= rescount cap) 
       (str res "... "
            (when (> (count s) cap)
              (try
-               (str "http://gist.github.com/" (:repo (new-gist {} "output.clj" s)))
+               (str "http://gist.github.com/"
+                    (:repo (new-gist {} "output.clj"
+                                     (str "<" user "> " expression "\n<sexpbot> \u27F9 " s))))
                (catch java.io.IOException _ nil))))
       res)))
 
 ;(defmacro defn2 [name & body] `(def ~name (fn ~name ~@body)))
 
 (defn sfmsg [t anchor] (str t ": Please see http://clojure.org/special_forms#" anchor))
+
+(defn get-line-url [s]
+  (when-let [line (try (-> s symbol resolve meta :line) (catch Exception _ nil))]
+    (is-gd
+     (str "https://github.com/clojure/clojure/blob/1.2.x/src/clj/clojure/core.clj#L" line))))
 
 (defmacro pretty-doc [s]
   (cond
@@ -65,13 +73,13 @@
           formatted# (when (:doc m#) (str (:arglists m#) "; " (.replaceAll (:doc m#) "\\s+" " ")))]
       (if (:macro m#) (str "Macro " formatted#) formatted#))))
 
-(defn execute-text [txt]
+(defn execute-text [user txt]
   (try
     (with-open [writer (StringWriter.)]
       (binding [doc #'pretty-doc]
         (let [res (pr-str ((sc txt) {'*out* writer}))
               replaced (.replaceAll (str writer) "\n" " ")]
-          (str "\u27F9 " (trim (str replaced (when (= last \space) " ") res))))))
+          (str "\u27F9 " (trim user txt (str replaced (when (= last \space) " ") res))))))
    (catch TimeoutException _ "Execution Timed Out!")
    (catch SecurityException e (str (root-cause e)))
    (catch Exception e (str (root-cause e)))))
@@ -133,22 +141,22 @@ Return a seq of strings to be evaluated. Usually this will be either nil or a on
 
 (def max-embedded-forms 3)
 
-(defn- eval-forms [[form1 form2 :as forms]]
+(defn- eval-forms [user [form1 form2 :as forms]]
   (take max-embedded-forms
         (if-not form2
-          [(execute-text form1)]
+          [(execute-text user form1)]
           (map (fn [f]
                  (str
                   (let [trimmed (apply str (take 40 f))]
                     (if (> (count f) 40)
                       (str trimmed "... ")
-                      trimmed)) " " (execute-text f)))
+                      trimmed)) " " (execute-text user f)))
                forms))))
 
 (defplugin
   (:hook
    :on-message
-   (fn [{:keys [irc bot channel message]}]
+   (fn [{:keys [irc bot nick channel message]}]
      (.start
       (Thread.
        (fn []
@@ -158,8 +166,16 @@ Return a seq of strings to be evaluated. Usually this will be either nil or a on
                (do
                  (try
                    (swap! many inc)
-                   (doseq [sexp (eval-forms sexps)]
+                   (doseq [sexp (eval-forms nick sexps)]
                      (send-message irc bot channel sexp))
                    (finally (swap! many dec))))
                (send-message irc bot channel "Too much is happening at once. Wait until other operations cease.")))
-           (throw (Exception. "Dude, you didn't set :eval-prefixes. I can't configure myself!")))))))))
+           (throw (Exception. "Dude, you didn't set :eval-prefixes. I can't configure myself!"))))))))
+
+  (:cmd
+   "Link to the source code of a Clojure function or macro."
+   #{"source"}
+   (fn [{:keys [irc bot channel args]}]
+     (if-let [line-url (get-line-url (first args))]
+       (send-message irc bot channel line-url)
+       (send-message irc bot channel "Source not found.")))))
