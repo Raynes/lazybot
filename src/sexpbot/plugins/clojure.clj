@@ -3,8 +3,9 @@
 	clojure.stacktrace
 	[net.licenser.sandbox tester matcher]
 	sexpbot.respond
-	[clj-github.gists :only [new-gist]]
-        [sexpbot.plugins.shorturl :only [is-gd]])
+    [sexpbot.plugins.shorturl :only [is-gd]]
+    [clj-github.gists :only [new-gist]])
+  (:require [clojure.string :as string :only [replace]])
   (:import java.io.StringWriter
            java.util.concurrent.TimeoutException
            (java.util.regex Pattern)))
@@ -38,9 +39,12 @@
 					  	 :object-tester my-obj-tester
                                                  :remember-state 5)))
 
+(defn word-wrap [s]
+  (string/replace s #"(.{50,70}[])}\"]*)\s+" "$1\n"))
+
 (def cap 300)
 
-(defn trim [user expression s]
+(defn trim [bot-name user expression s]
   (let [res (apply str (take cap s))
 	rescount (count res)]
     (if (= rescount cap) 
@@ -49,7 +53,7 @@
              (try
                (str "http://gist.github.com/"
                     (:repo (new-gist {} "output.clj"
-                                     (str "<" user "> " expression "\n<sexpbot> \u27F9 " s))))
+                                     (word-wrap (str "<" user "> " expression "\n<" bot-name "> \u27F9 " s)))))
                (catch java.io.IOException _ nil))))
       res)))
 
@@ -73,13 +77,13 @@
           formatted# (when (:doc m#) (str (:arglists m#) "; " (.replaceAll (:doc m#) "\\s+" " ")))]
       (if (:macro m#) (str "Macro " formatted#) formatted#))))
 
-(defn execute-text [user txt]
+(defn execute-text [bot-name user txt]
   (try
     (with-open [writer (StringWriter.)]
       (binding [doc #'pretty-doc]
         (let [res (pr-str ((sc txt) {'*out* writer}))
               replaced (.replaceAll (str writer) "\n" " ")]
-          (str "\u27F9 " (trim user txt (str replaced (when (= last \space) " ") res))))))
+          (str "\u27F9 " (trim bot-name user txt (str replaced (when (= last \space) " ") res))))))
    (catch TimeoutException _ "Execution Timed Out!")
    (catch SecurityException e (str (root-cause e)))
    (catch Exception e (str (root-cause e)))))
@@ -141,10 +145,10 @@ Return a seq of strings to be evaluated. Usually this will be either nil or a on
 
 (def max-embedded-forms 3)
 
-(defn- eval-forms [user [form1 form2 :as forms]]
+(defn- eval-forms [bot-name user [form1 form2 :as forms]]
   (take max-embedded-forms
         (if-not form2
-          [(execute-text user form1)]
+          [(execute-text bot-name user form1)]
           (map (fn [f]
                  (str
                   (let [trimmed (apply str (take 40 f))]
@@ -166,7 +170,7 @@ Return a seq of strings to be evaluated. Usually this will be either nil or a on
                (do
                  (try
                    (swap! many inc)
-                   (doseq [sexp (eval-forms nick sexps)]
+                   (doseq [sexp (eval-forms (:name @irc) nick sexps)]
                      (send-message irc bot channel sexp))
                    (finally (swap! many dec))))
                (send-message irc bot channel "Too much is happening at once. Wait until other operations cease.")))
