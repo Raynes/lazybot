@@ -62,9 +62,14 @@
 (defn sfmsg [t anchor] (str t ": Please see http://clojure.org/special_forms#" anchor))
 
 (defn get-line-url [s]
-  (when-let [line (try (-> s symbol resolve meta :line) (catch Exception _ nil))]
-    (is-gd
-     (str "https://github.com/clojure/clojure/blob/1.2.x/src/clj/clojure/core.clj#L" line))))
+  (let [s-meta (try (-> s symbol resolve meta) (catch Exception _ nil))
+        ns-str (str (:ns s-meta))]
+    (when-let [line (:line s-meta)]
+      (is-gd
+       (if-not (= "clojure.core" ns-str)
+         (str "https://github.com/clojure/clojure-contrib/tree/1.2.x/src/main/clojure/"
+              (:file s-meta) "#L" line)
+         (str "https://github.com/clojure/clojure/blob/1.2.x/src/clj/clojure/core.clj#L" line))))))
 
 (defmacro pretty-doc [s]
   (cond
