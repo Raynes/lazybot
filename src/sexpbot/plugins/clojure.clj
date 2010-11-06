@@ -158,7 +158,7 @@ Return a seq of strings to be evaluated. Usually this will be either nil or a on
                   (let [trimmed (apply str (take 40 f))]
                     (if (> (count f) 40)
                       (str trimmed "... ")
-                      trimmed)) " " (execute-text user f)))
+                      trimmed)) " " (execute-text bot-name user f)))
                forms))))
 
 (defplugin
