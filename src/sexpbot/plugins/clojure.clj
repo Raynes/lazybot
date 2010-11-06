@@ -90,7 +90,6 @@
               replaced (.replaceAll (str writer) "\n" " ")]
           (str "\u27F9 " (trim bot-name user txt (str replaced (when (= last \space) " ") res))))))
    (catch TimeoutException _ "Execution Timed Out!")
-   (catch SecurityException e (str (root-cause e)))
    (catch Exception e (str (root-cause e)))))
 
 (def many (atom 0))
