@@ -1,6 +1,6 @@
 (ns sexpbot.plugins.markov
   (:use sexpbot.respond)
-  (:require [clojure.string :as string :only [join]])
+  (:require [clojure.string :as string :only [join split replace]])
   (:import))
 
 ;; Stolen from:
@@ -21,8 +21,9 @@
                   (and (>= rval lb) (< rval ub)) i
                   :else (recur ub (+ i 1)))))))))
 
-;; Kinda annoying to type out all the time
-(def ^{:arglists '([f])} ! complement)
+;;; Things that are just annoying to type out all the time
+(def ^{:arglists (:arglists (meta #'complement))}
+  ! complement)
 
 (defn verify [pred x]
   (when (pred x)
@@ -31,15 +32,12 @@
 (defn trim-seq [s]
   (take-while identity s))
 
+;;; tuneable parameters
 (def topic-weight 3)
+(def min-topic-word-length 4)
+(def topics-to-track 50)
 
-(defn current-topics [bot irc channel]
-  ;; TODO: This is just a stub for dev/testing
-  (set (map str
-            '[clojure
-              macros
-              cheesecake])))
-
+;;; Storage and manipulation of the actual map
 (defn vocabulary [bot irc channel]
   ;; TODO: Stubbed
   {::start-sentence {"clojure" 3
@@ -53,6 +51,14 @@
    "favorite" {"language" 1}
    "language" {"is" 1}})
 
+(defn current-topics [bot irc channel]
+  ;; TODO: This is just a stub for dev/testing
+  (set (map str
+            '[clojure
+              macros
+              cheesecake])))
+
+;;; Sentence-creation section
 (defn interest-in [topics]
   (fn [[word weight]]
     [word (* weight
@@ -76,6 +82,52 @@
             (string/join " "))
        "."))
 
+;;; Parsing section
+(defn word-char? [c]
+  (or (Character/isLetterOrDigit c)
+      ((set "_-*'") c)))
+
+(defn sentence-terminator? [c]
+  ((set ".?!:;") c))
+
+(defn whitespace? [c]
+  (or (Character/isWhitespace c)
+      ((set "\\,+/<>|{}()[]\"") c)))
+
+(defn ignore? [c]
+  (not-any? #(%1 c) [word-char? sentence-terminator? whitespace?]))
+
+(defn replace-with
+  "Scans a seq of characters and/or keywords, replacing contiguous groups of
+  objects satisfying pred with the result of (repl seq-of-objects). If repl is
+  not a (fn) object, it is used as a literal replacement object."
+  [pred repl elts]
+  (let [repl (if (fn? repl)
+               repl
+               (constantly [repl]))]
+    (->> elts
+         (partition-by #(boolean (pred %)))
+         (mapcat (fn [[x :as item]]
+                   (if (pred x)
+                     (repl item)
+                     item))))))
+
+(defn tokenize
+  "Take an input string and split it into a seq of sentences. Each sentence will
+  be further split into a seq of words."
+  [msg]
+  (->> msg
+       .toLowerCase
+       (remove ignore?) ; will also convert from str to char seq
+       (replace-with whitespace? ::word-sep) ; placeholder while working with
+                                             ; chars instead of strs
+       (replace-with sentence-terminator? ::sentence-sep)
+       (replace-with char? #(vector (apply str %)))
+       (replace-with #{::word-sep} (constantly nil))
+       (partition-by #{::sentence-sep})
+       (remove #(every? keyword? %))))
+
+;;; Plugin mumbo-jumbo
 (defplugin
   (:hook
    :on-message
