@@ -106,20 +106,8 @@
 ;; TODO This needs to be localized per-irc, maybe per-channel; it should also be
 ;; persisted to mongo, but I need some usage data to figure out what the
 ;; retention policy should be.
-(def global-vocabulary (atom {::start-sentence {"clojure" 3
-                                                "my" 1}
-                              "clojure" {"is" 4
-                                         ::end-sentence 1}
-                              "is" {"awesome" 7
-                                    "clojure" 1}
-                              "awesome" {::end-sentence 1}
-                              "my" {"favorite" 1}
-                              "favorite" {"language" 1}
-                              "language" {"is" 1}}))
-(def global-topics (atom (map str
-                              '[clojure
-                                macros
-                                cheesecake])))
+(def global-vocabulary (atom {}))
+(def global-topics (atom (list)))
 
 (defn vocabulary [bot irc channel]
   @global-vocabulary)
@@ -132,11 +120,15 @@
 
 (defn update-topics! [bot irc channel tokens]
   (swap! global-topics (comp #(take topics-to-track %)
-                             #(apply concat %1 %2))
+                             distinct
+                             (partial remove
+                                      (comp #(> min-topic-word-length %)
+                                            count))
+                             #(into %1 (apply reverse %2)))
          tokens))
 
 (defn learn-message [bot irc channel msg]
-  (println 'learning msg)
+  ;;  (println 'learning msg)
   (let [tokens (tokenize msg)]
     (update-vocab! bot irc channel tokens)
     (update-topics! bot irc channel tokens)))
@@ -163,7 +155,7 @@
             rest
             trim-seq
             (string/join " ")
-            and-print)
+            #_and-print)
        "."))
 
 ;;; Plugin mumbo-jumbo
