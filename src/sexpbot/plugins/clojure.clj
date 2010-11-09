@@ -1,7 +1,6 @@
 (ns sexpbot.plugins.clojure
-  (:use net.licenser.sandbox
-	clojure.stacktrace
-	[net.licenser.sandbox tester matcher]
+  (:use clojure.stacktrace
+	[clojail core testers]
 	sexpbot.respond
     [sexpbot.plugins.shorturl :only [is-gd]]
     [clj-github.gists :only [new-gist]])
@@ -10,34 +9,7 @@
            java.util.concurrent.TimeoutException
            (java.util.regex Pattern)))
 
-(enable-security-manager)
-
-(def sandbox-tester
-     (new-tester
-      (whitelist)
-      (blacklist
-       (function-matcher 'alter-var-root 'intern 'def 'eval 'catch
-                         'load-string 'load-reader 'clojure.core/addMethod
-                         'ns-resolve))))
-
-#_(def sandbox-tester
-     (extend-tester secure-tester 
-		    (whitelist 
-		     (function-matcher '*out* 'println 'print 'pr 'prn 'var 'print-doc 'doc 'throw
-                                       'def 'defn 'promise 'deliver 'future-call 'special-form-anchor
-                                       'syntax-symbol-anchor 'sfmsg 'unquote)
-                     (namespace-matcher 'clojure.string 'clojure.repl)
-		     (class-matcher java.io.StringWriter java.net.URL java.net.URI
-                                    java.util.TimeZone java.lang.System))))
-
-(def my-obj-tester
-     (extend-tester default-obj-tester
-		    (whitelist)))
-
-(def sc (stringify-sandbox (new-sandbox-compiler :tester sandbox-tester 
-						 :timeout 10000 
-					  	 :object-tester my-obj-tester
-                                                 :remember-state 5)))
+(def sb (sandbox secure-tester))
 
 (defn word-wrap [s]
   (string/replace s #"(.{50,70}[])}\"]*)\s+" "$1\n"))
@@ -85,10 +57,9 @@
 (defn execute-text [bot-name user txt]
   (try
     (with-open [writer (StringWriter.)]
-      (binding [doc #'pretty-doc]
-        (let [res (pr-str ((sc txt) {'*out* writer}))
-              replaced (.replaceAll (str writer) "\n" " ")]
-          (str "\u27F9 " (trim bot-name user txt (str replaced (when (= last \space) " ") res))))))
+      (let [res (pr-str (sb (read-string txt) {#'*out* writer #'doc #'pretty-doc}))
+            replaced (.replaceAll (str writer) "\n" " ")]
+        (str "\u27F9 " (trim bot-name user txt (str replaced (when (= last \space) " ") res)))))
    (catch TimeoutException _ "Execution Timed Out!")
    (catch Exception e (str (root-cause e)))))
 
