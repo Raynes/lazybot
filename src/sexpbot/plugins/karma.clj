@@ -2,24 +2,22 @@
 ; Licensed under the EPL
 
 (ns sexpbot.plugins.karma
-  (:refer-clojure :exclude [extend])
   (:use [sexpbot respond info]
+        [sexpbot.utilities :only [keywordize]]
 	[somnium.congomongo :only [fetch-one insert! destroy!]]))
 
 (defn- set-karma
   [nick server channel karma]
-  (let [nick (.toLowerCase nick)]
-    (destroy! :karma {:nick nick :server server :channel channel})
-    (insert! :karma
-             {:server server
-              :channel channel 
-              :karma karma
-              :nick nick})))
+  (let [nick (.toLowerCase nick)
+        attrs (keywordize [nick server channel])]
+    (destroy! :karma attrs)
+    (insert! :karma (assoc attrs :karma karma))))
 
 (defn- get-karma
   [nick server channel]
   (let [nick (.toLowerCase nick)
-        user-map (fetch-one :karma :where {:nick nick :server server :channel channel})]
+        user-map (fetch-one :karma
+                            :where (keywordize [nick server channel]))]
     (get user-map :karma 0)))
 
 (defn- put-karma [{:keys [channel irc]} nick karma]
@@ -36,6 +34,7 @@
            (cond
             (= nick snick) ["You can't adjust your own karma."]
             (= current 3) ["Do I smell abuse? Wait a while before modifying that person's karma again."]
+            (= current new-karma) ["You want me to leave karma the same? Fine, I will."]
             :else [(str "\u27F9 " new-karma)
                    (alter limit update-in [nick snick] (fnil inc 0))])))]
     (when apply

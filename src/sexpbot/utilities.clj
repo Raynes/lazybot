@@ -13,6 +13,10 @@
 	  (-> file slurp read-string)
 	  nil)))
 
+(defmacro keywordize [vars]
+  (into {} (map (juxt keyword identity)
+                vars)))
+
 ;;;;;; From clojurebot's sandbox.clj, adapted for my code. ;;;;;;
 (defn thunk-timeout [thunk seconds]
       (let [task (FutureTask. thunk)
