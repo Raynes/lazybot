@@ -16,7 +16,7 @@ IMPORTANT: If you load the eval plugin, you must rename and move "example.policy
 
 ## Commands
 
-Unfortunately, I've yet to compile a list of commands. However, sexpbot has a help system. You can get help with individual commands by using `<prefix>help <command>`.
+The current list of commands is maintained at https://github.com/Raynes/sexpbot/wiki/Commands, and you can find help on any particular command with $help <command> (eg $help fcst).
 
 ## License
 
