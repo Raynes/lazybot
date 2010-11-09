@@ -1,6 +1,8 @@
 (ns sexpbot.plugins.markov
-  (:use sexpbot.respond)
-  (:require [clojure.string :as string :only [join split replace]])
+  (:use sexpbot.respond
+        [sexpbot.utilities :only [keywordize]])
+  (:require [clojure.string :as string :only [join split replace]]
+            [somnium.congomongo :as mongo :only [insert! update! fetch-one]])
   (:import))
 
 ;; Stolen from:
@@ -88,9 +90,9 @@
 
 (defn links-in [sentence]
   (partition 2 1
-             (concat [::start-sentence]
+             (concat [:start-sentence]
                      sentence
-                     [::end-sentence])))
+                     [:end-sentence])))
 
 (defn learn [vocabulary links]
   (reduce (fn [vocab link]
@@ -98,25 +100,38 @@
           vocabulary
           links))
 
-(defn look-and-learn [vocabulary tokens]
-  (learn vocabulary (mapcat links-in tokens)))
-
 ;;; Storage and manipulation of the actual map
 
-;; TODO This needs to be localized per-irc, maybe per-channel; it should also be
-;; persisted to mongo, but I need some usage data to figure out what the
-;; retention policy should be.
-(def global-vocabulary (atom {}))
 (def global-topics (atom (list)))
 
+(defn mongo-vocab [irc channel]
+  (fn [word]
+    (or (mongo/fetch-one :markov :where
+                         {:chan (keywordize [irc channel])
+                          :word word})
+        {:word word :links {}})))
+
 (defn vocabulary [bot irc channel]
-  @global-vocabulary)
+  (mongo-vocab (:server @irc) channel))
 
 (defn current-topics [bot irc channel]
   @global-topics)
 
 (defn update-vocab! [bot irc channel tokens]
-  (swap! global-vocabulary look-and-learn tokens))
+  (let [vocab (vocabulary bot irc channel)
+        irc (:server @irc)
+        chan (keywordize [irc channel])
+        chain (mapcat links-in tokens)
+        db-links (map vocab (distinct (map first chain)))
+        _ (println db-links)
+        entries (into {} (map (juxt :word :links) db-links))
+        _ (println entries)        
+        links (learn entries chain)]
+    (doseq [{word :word :as link} db-links]
+      (mongo/update! :markov
+                     (or link {})
+                     (assoc (keywordize [word chan])
+                       :links (get links word {}))))))
 
 (defn update-topics! [bot irc channel tokens]
   (swap! global-topics (comp #(take topics-to-track %)
@@ -128,7 +143,6 @@
          tokens))
 
 (defn learn-message [bot irc channel msg]
-  ;;  (println 'learning msg)
   (let [tokens (tokenize msg)]
     (update-vocab! bot irc channel tokens)
     (update-topics! bot irc channel tokens)))
@@ -136,21 +150,24 @@
 ;;; Sentence-creation section
 (defn interest-in [topics]
   (fn [[word weight]]
+    (println word weight)
     [word (* weight
              (if (some #{word} topics)
                topic-weight
                1))]))
 
 (defn pick-word [vocabulary topics word]
-  (let [nexts (get vocabulary word)
+  (let [{nexts :links} (vocabulary word)
+        _ (println nexts)
         [words freqs] (apply map vector (map (interest-in topics) nexts))
         topical-freqs (map (interest-in topics) freqs)
         idx (roulette-wheel freqs)
         res (nth words idx)]
-    (verify (! #{::end-sentence}) res)))
+    (when (verify (! #{:end-sentence}) res)
+      (string/replace res #":" ""))))   ; lol haxxx
 
 (defn build-sentence [vocabulary topics]
-  (str (->> ::start-sentence
+  (str (->> :start-sentence
             (iterate #(pick-word vocabulary topics %))
             rest
             trim-seq
@@ -173,7 +190,6 @@
    "Say something that seems to reflect what the channel is talking about."
    #{"markov"}
    (fn [{:keys [irc bot channel]}]
-     ;; TODO - do something.
      (send-message irc bot channel (apply build-sentence
                                           (map #(% irc bot channel)
                                                [vocabulary current-topics]))))))
