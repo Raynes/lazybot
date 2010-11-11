@@ -2,7 +2,7 @@
   (:use sexpbot.respond
         [sexpbot.utilities :only [keywordize]])
   (:require [clojure.string :as string :only [join split replace]]
-            [somnium.congomongo :as mongo :only [insert! update! fetch-one]])
+            [somnium.congomongo :as mongo :only [insert! destroy! fetch-one]])
   (:import))
 
 ;; Stolen from:
@@ -34,14 +34,33 @@
 (defn trim-seq [s]
   (take-while identity s))
 
-(defn and-print [val]
-  (println val)
-  val)
+(defmacro and-print
+  "A useful debugging tool when you can't figure out what's going on:
+  wrap a form with and-print, and the form will be printed alongside
+  its result. The result will still be passed along."
+  [val]
+  `(let [x# ~val]
+     (println '~val "is" x#)
+     x#))
+
+(defn transform-if
+  ([pred f]
+     (transform-if pred f identity))
+  ([pred f f-not]
+     (fn [x]
+       (if (pred x) (f x) (f-not x)))))
+
+(def make-str (transform-if keyword? name str))
+(def make-kw keyword)
+(def make-int (transform-if string? #(Integer/parseInt %)))
 
 ;;; tuneable parameters
 (def topic-weight 3)
 (def min-topic-word-length 4)
 (def topics-to-track 50)
+
+(def start-sentence "##START##")
+(def end-sentence "##END##")
 
 ;;; Parsing section
 (defn word-char? [c]
@@ -90,12 +109,29 @@
 
 (defn links-in [sentence]
   (partition 2 1
-             (concat [:start-sentence]
+             (concat [start-sentence]
                      sentence
-                     [:end-sentence])))
+                     [end-sentence])))
+
+(defn kv-munge [kf vf]
+  (fn [link-map]
+    (into {} (for [[k v] link-map]
+               [(kf k) (vf v)]))))
+
+(defn mongoize [x] {:pre [(every? string? (map first x))
+                          (every? integer? (map second x))]
+                    :post [(every? keyword? (map first %))
+                           (every? integer? (map second %))]}
+  ((kv-munge make-kw make-str) x))
+
+(defn demongoize [x] {:pre [(every? keyword? (map first x))]
+                      :post [(every? string? (map first %))
+                             (every? integer? (map second %))]}
+  ((kv-munge make-str make-int) x))
 
 (defn learn [vocabulary links]
-  (reduce (fn [vocab link]
+  (reduce (fn [vocab link] {:pre [(every? string? link)
+                                  (seq link)]}
             (update-in vocab link (fnil inc 0)))
           vocabulary
           links))
@@ -106,10 +142,12 @@
 
 (defn mongo-vocab [irc channel]
   (fn [word]
-    (or (mongo/fetch-one :markov :where
-                         {:chan (keywordize [irc channel])
-                          :word word})
-        {:word word :links {}})))
+    (let [res (mongo/fetch-one :markov :where
+                               {:chan (keywordize [irc channel])
+                                :word (make-str word)})]
+      (if (seq res)
+        (update-in res [:links] demongoize)
+        res))))
 
 (defn vocabulary [bot irc channel]
   (mongo-vocab (:server @irc) channel))
@@ -123,15 +161,16 @@
         chan (keywordize [irc channel])
         chain (mapcat links-in tokens)
         db-links (map vocab (distinct (map first chain)))
-        _ (println db-links)
-        entries (into {} (map (juxt :word :links) db-links))
-        _ (println entries)        
+        entries (into {} (filter first
+                                 (map (juxt :word :links)
+                                      db-links)))
         links (learn entries chain)]
-    (doseq [{word :word :as link} db-links]
-      (mongo/update! :markov
-                     (or link {})
-                     (assoc (keywordize [word chan])
-                       :links (get links word {}))))))
+    (doseq [word (keep first links)]
+      (let [links (get links word)
+            key (keywordize [chan word])]
+        (mongo/destroy! :markov key)
+        (mongo/insert! :markov
+                       (assoc key :links links))))))
 
 (defn update-topics! [bot irc channel tokens]
   (swap! global-topics (comp #(take topics-to-track %)
@@ -150,7 +189,6 @@
 ;;; Sentence-creation section
 (defn interest-in [topics]
   (fn [[word weight]]
-    (println word weight)
     [word (* weight
              (if (some #{word} topics)
                topic-weight
@@ -158,21 +196,18 @@
 
 (defn pick-word [vocabulary topics word]
   (let [{nexts :links} (vocabulary word)
-        _ (println nexts)
         [words freqs] (apply map vector (map (interest-in topics) nexts))
         topical-freqs (map (interest-in topics) freqs)
         idx (roulette-wheel freqs)
         res (nth words idx)]
-    (when (verify (! #{:end-sentence}) res)
-      (string/replace res #":" ""))))   ; lol haxxx
+    (verify (! #{end-sentence}) res)))
 
 (defn build-sentence [vocabulary topics]
-  (str (->> :start-sentence
+  (str (->> start-sentence
             (iterate #(pick-word vocabulary topics %))
             rest
             trim-seq
-            (string/join " ")
-            #_and-print)
+            (string/join " "))
        "."))
 
 ;;; Plugin mumbo-jumbo
