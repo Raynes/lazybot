@@ -17,11 +17,12 @@
 (defn call-message-hooks [irc bot channel s action?]
   (apply nil-comp irc bot channel s action? (pull-hooks bot :on-send-message)))
 
-(defn send-message [irc bot channel s & {action? :action?}]
+(defn send-message [irc bot channel s & {:keys [action? notice?]}]
   (if-let [result (call-message-hooks irc bot channel s action?)]
-    (do (if action?
-          (ircb/send-action irc channel result)
-          (ircb/send-message irc channel result))
+    (do (cond
+         action? (ircb/send-action irc channel result)
+         notice? (ircb/send-notice irc channel result)
+         :else (ircb/send-message irc channel result))
         :success)
     :failure))
 
