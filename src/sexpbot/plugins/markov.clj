@@ -224,7 +224,7 @@
   (:cmd
    "Say something that seems to reflect what the channel is talking about."
    #{"markov"}
-   (fn [{:keys [irc bot channel]}]
+   (fn [{:keys [bot irc channel]}]
      (send-message irc bot channel (apply build-sentence
-                                          (map #(% irc bot channel)
+                                          (map #(% bot irc channel)
                                                [vocabulary current-topics]))))))
