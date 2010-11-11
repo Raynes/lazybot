@@ -14,7 +14,7 @@
                             (- (System/currentTimeMillis)
                                (:time ping))
                             "ms")))
-       (when-let [[_ to] (re-find #"^(\w+).{1,2}ping!?$" message)]
+       (when-let [[_ to] (re-find #"^([^ ]+).{2}ping!?$" message)]
          (insert! :ping {:from nick
                          :to to
                          :time (System/currentTimeMillis)})))))
