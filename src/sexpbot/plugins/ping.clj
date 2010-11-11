@@ -13,6 +13,7 @@
   (:hook :on-message
      (fn [{:keys [irc bot channel nick message]}]
        (when-let [ping (@pings nick)]
+         (swap! pings dissoc nick)
          (send-message irc bot (:from ping)
                        (str nick " is available, "
                             (in-secs (interval (parse basic (:time ping)) (now)))
