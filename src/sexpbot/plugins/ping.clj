@@ -2,10 +2,7 @@
 ; Licensed under the EPL
 (ns sexpbot.plugins.ping
   (:refer-clojure :exclude [extend])
-  (:use sexpbot.respond
-        [clj-time core format]))
-
-(def basic (formatters :basic-date-time))
+  (:use sexpbot.respond [clj-time core]))
 
 (def pings (atom {}))
 
@@ -16,8 +13,8 @@
          (swap! pings dissoc nick)
          (send-message irc bot (:from ping)
                        (str nick " is available, "
-                            (in-secs (interval (parse basic (:time ping)) (now)))
+                            (in-secs (interval (:time ping) (now)))
                             " seconds since your ping.")
                        :notice? true))
        (when-let [[_ to] (re-find #"^([^ ]+).{2}ping!?$" message)]
-         (swap! pings assoc to {:from nick :to to :time (unparse basic (now))})))))
+         (swap! pings assoc to {:from nick :time (now)})))))
