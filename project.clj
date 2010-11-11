@@ -5,7 +5,7 @@
 		 [commons-lang/commons-lang "2.5"]
 		 [commons-io/commons-io "1.4"]
 		 [org.clojars.rayne/clj-time "0.1.0-SNAPSHOT"]
-		 [org.clojars.rayne/clj-sandbox "0.4.2-SNAPSHOT"]
+                 [clojail "0.1.0-SNAPSHOT"]
 		 [clojure-http-client "1.1.0-SNAPSHOT"]
 		 [irclj "0.4.0-SNAPSHOT"]
                  [congomongo "0.1.3-SNAPSHOT"]
