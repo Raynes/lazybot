@@ -27,11 +27,11 @@
 		     :plugins #{#_"dictionary" "lmgtfy" "google" "translate" "eball" "utils" "leet" "eval" "login"
 				"weather" "brainfuck" "whatis" "shorturl" "dynamic" "haskell"
 				"mail" "timer" "fortune" "rss" "title" "operator" "seen" "sed" "help" "status"
-                                "load" "embedded" "karma"}} ; A series of "match this" but "not this" pairs.
+                                "load" "embedded" "karma" "markov"}} ; A series of "match this" but "not this" pairs.
  :plugins #{#_"dictionary" "lmgtfy" "google" "translate" "eball" "utils" "leet" "eval" "login"
 	    "weather" "brainfuck" "whatis" "shorturl" "dynamic" "haskell"
 	    "mail" "timer" "fortune" "rss" "title" "operator" "seen" "sed" "help" "status"
-            "load" "embedded" "karma"}}
+            "load" "embedded" "karma" "markov"}}
 
 ; users is a series of username to password and privileges.
 ; plugins is a list of plugins to load at startup.
