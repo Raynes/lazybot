@@ -38,14 +38,17 @@ not necessary in the result."
      (let [[before after] (split-str-at cap s)]
        (if-not (seq after)
          before
-         (let [url (try
-                     (str "http://gist.github.com/"
-                          (:repo (new-gist {} name
-                                           (word-wrap (str gist-prefix s)))))
-                     (catch java.io.IOException _ "failed to gist"))]
-           (str (s/take
-                 (- cap (count gist-note) (count url)) s)
-                gist-note url))))))
+         (let [note (str gist-note
+                         (try
+                           (->> s
+                                (str gist-prefix)
+                                word-wrap
+                                (new-gist {} name)
+                                :repo
+                                (str "http://gist.github.com/"))
+                           (catch java.io.IOException _ "failed to gist")))]
+           (str (s/take (- cap (count note)) s)
+                note))))))
 
 (extend nil Read-JSON-From {:read-json-from (constantly nil)})
 
