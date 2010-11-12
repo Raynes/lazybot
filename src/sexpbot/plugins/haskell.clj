@@ -3,7 +3,7 @@
         [clojure.contrib.json :only [read-json]]
 	[clojure-http.client :only [add-query-params]]
         [clojure.java.shell :only [sh]]
-        [clj-github.gists :only [new-gist]])
+        [sexpbot.plugins.github :only [trim-with-gist]])
   (:require [clojure-http.resourcefully :as res]))
 
 (def tryurl "http://tryhaskell.org/haskell.json")
@@ -11,18 +11,10 @@
 (defn cull [js]
   (if-let [result (seq (:result js))] result (:error js)))
 
-(def cap 250)
+(def cap 300)
 
 (defn trim [s]
-  (let [res (apply str (take cap s))
-	rescount (count res)]
-    (if (= rescount cap) 
-      (str res "... "
-           (when (> (count s) cap)
-             (try
-               (str "http://gist.github.com/" (:repo (new-gist {} "output.clj" s)))
-               (catch java.io.IOException _ nil))))
-      res)))
+  (trim-with-gist cap "output.hs" s))
 
 (defn eval-haskell [expr]
   (->> (res/get (add-query-params tryurl {"method" "eval" "expr" expr})) 
