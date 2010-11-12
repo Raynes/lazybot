@@ -10,9 +10,14 @@ Several of this bot's plugins require that you have MongoDB installed and runnin
 
 As for what OSes this bot actually runs on: I have no clue. I've seen it run on several Ubuntu distros, but nobody (that I know of) has yet to venture into the world of sexpbot-on-windows or mac. If you do, please let me know how it goes.
 
-Right now, there are no distributions, so the easiest way to run the bot is to clone the repository. Install leiningen or cake and do 'lein deps' or 'cake deps' to install the project's dependencies into the lib/ directory Edit .sexpbot/info.clj to put the servers and other information the bot needs to have in there, get MongoDB running, and then run ./sexpbot. After you run the bot the first time, you'll have to edit configuration in ~/.sexpbot/info.clj.
+Right now, there are no distributions, so the easiest way to run the bot is to clone the repository. Install leiningen or cake and do 'lein deps' or 'cake deps' to install the project's dependencies into the lib/ directory. Edit .sexpbot/info.clj to put the servers and other information the bot needs to have in there, get MongoDB running, and then run ./sexpbot. After you run the bot the first time, you'll have to edit configuration in ~/.sexpbot/info.clj.
 
-IMPORTANT: If you load the eval plugin, you must rename and move "example.policy" to "~/.java.policy" to avoid some troublesome security errors!
+You can also run `lein uberjar` or `cake uberjar` which will create a standalone jar file for you to use to run the bot. You can just do java -jar jarfile to run it.
+
+Sexpbot has some basic background functionality. In order to use you, you must have sexpbot uberjar'd. Create a file with any name. This will be your log file, where all the output from the bot is put. Next, rename sexpbot-<version>-standalone.jar to sexpbot.jar (this step will become unnecessary soon). After that, run `java -jar sexpbot.jar --background --logpath /path/to/your/logfile`. sexpbot will then start up and pump logs into the log file. Note however that this is NOT daemon functionality. If you start the bot this way, in order to kill him, you'll have to use the admin-only `die` command from the utils plugin, or look up the process id and kill him the low-level way. I may add full daemon functionality eventually, but this will suffice for now.
+
+IMPORTANT: If you load the clojure plugin, you must rename and move "example.policy" to "~/.java.policy" to avoid some troublesome security errors!
+
 
 ## Commands
 
