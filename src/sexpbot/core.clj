@@ -5,8 +5,7 @@
         [somnium.congomongo :only [mongo!]]
         [clojure.set :only [intersection]]
         [compojure.core :only [routes]]
-        ring.middleware.params
-        ring.adapter.jetty)
+        ring.middleware.params)
   (:require [irclj.irclj :as ircb])
   (:import [java.io File FileReader]))
 
@@ -109,5 +108,3 @@
      (alter bot assoc-in [:modules :internal :hooks] initial-hooks)
      (reload-config bot))
     (load-plugins irc bot)))
-
-(defonce server (run-jetty #'sexpbot.core/sroutes {:port servers-port :join? false}))
