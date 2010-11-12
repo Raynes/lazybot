@@ -1,10 +1,12 @@
 (ns sexpbot.plugins.utils
   (:use [sexpbot utilities info respond]
 	[clj-github.gists :only [new-gist]]
+        [sexpbot.plugins.github :only [trim-with-gist]]
 	clj-config.core
 	[clj-time [core :only [plus minus now interval in-secs hours]] [format :only [unparse formatters]]]
         [clojure.java.shell :only [sh]])
-  (:require [irclj.irclj :as ircb])
+  (:require [irclj.irclj :as ircb]
+            [clojure.contrib.string :as s])
   (:import java.net.InetAddress))
 
 (def known-prefixes
@@ -190,11 +192,8 @@
       nick irc-map bot
       (send-message
        irc bot channel
-       (->> args rest (interpose " ") (apply str) (sh (first args)) :out
-            (take 200) (apply str) (#(.replace % "\n" " ")))))))
-
-  (:cmd
-   "Kills the bot violently."
-   #{"die"}
-   (fn [{:keys [irc bot nick] :as irc-map}]
-     (if-admin nick irc-map bot (System/exit 0)))))
+       (let [cmd (s/join " " args)]
+         (->> cmd
+              (sh "bash" "-c") :out
+              (s/replace-re #"\s+" " ")
+              (trim-with-gist cmd))))))))

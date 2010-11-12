@@ -3,7 +3,7 @@
 	[clojail core testers]
 	sexpbot.respond
     [sexpbot.plugins.shorturl :only [is-gd]]
-    [clj-github.gists :only [new-gist]])
+    [sexpbot.plugins.github :only [trim-with-gist]])
   (:require [clojure.string :as string :only [replace]])
   (:import java.io.StringWriter
            java.util.concurrent.TimeoutException
@@ -11,23 +11,14 @@
 
 (def sb (sandbox secure-tester))
 
-(defn word-wrap [s]
-  (string/replace s #"(.{50,70}[])}\"]*)\s+" "$1\n"))
-
 (def cap 300)
 
 (defn trim [bot-name user expression s]
-  (let [res (apply str (take cap s))
-	rescount (count res)]
-    (if (= rescount cap) 
-      (str res "... "
-           (when (> (count s) cap)
-             (try
-               (str "http://gist.github.com/"
-                    (:repo (new-gist {} "output.clj"
-                                     (word-wrap (str "<" user "> " expression "\n<" bot-name "> \u27F9 " s)))))
-               (catch java.io.IOException _ nil))))
-      res)))
+  (trim-with-gist
+    cap
+    "result.clj" 
+    (str "<" user "> " expression "\n<" bot-name "> \u27F9 ")
+    s))
 
 ;(defmacro defn2 [name & body] `(def ~name (fn ~name ~@body)))
 

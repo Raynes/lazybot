@@ -2,25 +2,64 @@
   (:use sexpbot.respond
         [sexpbot.plugins.shorturl :only [is-gd]]
         [compojure.core :only [POST]]
-        [clojure.string :only [join]]
+        [clj-github.gists :only [new-gist]]
         clojure.contrib.json)
+  (:require [clojure.contrib.string :as s])
   (:import java.net.InetAddress))
 
 (def bots (atom {}))
 
-(extend nil Read-JSON-From {:read-json-from (fn [& _] nil)})
+(defn word-wrap [str]
+  (s/replace-re #"(.{50,70}[])}\"]*)\s+" "$1\n" str))
+
+(defn split-str-at [len s]
+  (map #(apply str %)
+       ((juxt take drop) len s)))
+
+(def gist-note "... ")
+(def default-cap 300)
+
+(defn trim-with-gist
+  "Trims the input string to a maximum of cap characters; if any
+trimming is done, then a gist will be created to hold the entire
+string, and the returned string will end with a link to that
+gist. Prepends gist-prefix to the gist (if applicable), but not to the
+result string - use this to give the gist additional context that is
+not necessary in the result."
+  ([s]
+     (trim-with-gist default-cap "result.clj" "" s))
+  ([opt s]
+     (if (number? opt)
+       (trim-with-gist opt "result.clj" "" s)
+       (trim-with-gist default-cap opt "" s)))
+  ([cap name s]
+     (trim-with-gist cap name "" s))
+  ([cap name gist-prefix s]
+     (let [[before after] (split-str-at cap s)]
+       (if-not (seq after)
+         before
+         (let [url (try
+                     (str "http://gist.github.com/"
+                          (:repo (new-gist {} name
+                                           (word-wrap (str gist-prefix s)))))
+                     (catch java.io.IOException _ "failed to gist"))]
+           (str (s/take
+                 (- cap (count gist-note) (count url)) s)
+                gist-note url))))))
+
+(extend nil Read-JSON-From {:read-json-from (constantly nil)})
 
 (defn grab-config [] (-> @bots vals first :bot deref :config))
 
 (defn format-vec [v]
   (let [[show hide] (split-at 3 v)]
-    (join "" ["[" (join ", " show)
+    (s/join "" ["[" (s/join ", " show)
               (when (seq hide) "...") "]"])))
 
 (defn notify-chan [irc bot chan commit]
   (send-message
    irc bot chan
-   (join "" ["\u0002" (-> commit :author :name) "\u0002: "
+   (s/join "" ["\u0002" (-> commit :author :name) "\u0002: "
              (when-let [added (seq (:added commit))]
                (str "\u0002Added:\u0002 " (format-vec added) ". "))
              (when-let [modified (seq (:modified commit))]
