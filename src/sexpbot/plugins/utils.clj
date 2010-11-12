@@ -191,4 +191,10 @@
       (send-message
        irc bot channel
        (->> args rest (interpose " ") (apply str) (sh (first args)) :out
-            (take 200) (apply str) (#(.replace % "\n" " "))))))))
+            (take 200) (apply str) (#(.replace % "\n" " ")))))))
+
+  (:cmd
+   "Kills the bot violently."
+   #{"die"}
+   (fn [{:keys [irc bot nick] :as irc-map}]
+     (if-admin nick irc-map bot (System/exit 0)))))
