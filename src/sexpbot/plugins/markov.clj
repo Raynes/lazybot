@@ -1,7 +1,7 @@
 (ns sexpbot.plugins.markov
   (:use sexpbot.respond
         [sexpbot.utilities :only [keywordize]])
-  (:require [clojure.string :as string :only [join split replace]]
+  (:require [clojure.contrib.string :as s :only [capitalize join]]
             [somnium.congomongo :as mongo :only [insert! destroy! fetch-one]])
   (:import))
 
@@ -31,7 +31,8 @@
   (when (pred x)
     x))
 
-(defn trim-seq [s]
+(defn trim-seq "Trim a sequence at the first falsey element"
+  [s]
   (take-while identity s))
 
 (defmacro and-print
@@ -44,12 +45,16 @@
      x#))
 
 (defn transform-if
+  "Returns a function that tests pred against its argument. If the result
+is true, return (f arg); otherwise, return (f-not arg) (defaults to
+identity)."
   ([pred f]
      (transform-if pred f identity))
   ([pred f f-not]
      (fn [x]
        (if (pred x) (f x) (f-not x)))))
 
+;; coerce objects to various types
 (def make-str (transform-if keyword? name str))
 (def make-kw keyword)
 (def make-int (transform-if string? #(Integer/parseInt %)))
@@ -59,6 +64,11 @@
 (def min-topic-word-length 4)
 (def topics-to-track 50)
 
+;;; Constants to account for mongo making it impossible to tell keywords
+;;; from strings. These can be more or less anything, but should not be any
+;;; string that could be returned from tokenize, and they should not be
+;;; changed without completely wiping the database - null pointer
+;;; exceptions are likely to occur otherwise
 (def start-sentence "##START##")
 (def end-sentence "##END##")
 
@@ -92,44 +102,60 @@
                      (repl item)
                      item))))))
 
+;; TODO: Pretty sure this is a lot less messy if I split by sentence first.
 (defn tokenize
-  "Take an input string and split it into a seq of sentences. Each sentence will
-   be further split into a seq of words."
+  "Take an input string and split it into a seq of sentences. Each sentence
+   will be further split into a seq of words."
   [msg]
   (->> msg
        .toLowerCase
-       (remove ignore?)                 ; will also convert from str to char seq
-       (replace-with whitespace? ::word-sep) ; placeholder while working with
-                                        ; chars instead of strs
+       (remove ignore?)            ; will also convert from str to char seq
+       (replace-with whitespace? ::word-sep) ; placeholder while working
+                                             ; with chars instead of strs
        (replace-with sentence-terminator? ::sentence-sep)
        (replace-with char? #(vector (apply str %)))
        (replace-with #{::word-sep} (constantly nil))
        (partition-by #{::sentence-sep})
        (remove #(every? keyword? %))))
 
-(defn links-in [sentence]
+(defn links-in
+  "Returns a seq of the touching pairs in a tokenized sentence, with
+  special start and end markers added."  [sentence]
   (partition 2 1
              (concat [start-sentence]
                      sentence
                      [end-sentence])))
 
-(defn kv-munge [kf vf]
+(defn kv-munge
+  "Returns a function that operates on a link-map by applying kf and vf to
+  each link in the tree."
+  [kf vf]
   (fn [link-map]
     (into {} (for [[k v] link-map]
                [(kf k) (vf v)]))))
 
-(defn mongoize [x] {:pre [(every? string? (map first x))
+(defn mongoize
+  "Convert a link map to the same format mongo uses. Will throw an
+  exception if the supplied link map is not recognizable as a map."
+  [x]
+  {:pre [(every? string? (map first x))
                           (every? integer? (map second x))]
                     :post [(every? keyword? (map first %))
                            (every? integer? (map second %))]}
   ((kv-munge make-kw make-str) x))
 
-(defn demongoize [x] {:pre [(every? keyword? (map first x))]
-                      :post [(every? string? (map first %))
-                             (every? integer? (map second %))]}
+(defn demongoize
+  "Convert a link map from mongo's keyword/string hybrid format to a
+strings-only format for easier processing. Fails loudly if the supplied
+link map is not in mongo format."
+  [x] {:pre [(every? keyword? (map first x))]
+       :post [(every? string? (map first %))
+              (every? integer? (map second %))]}
   ((kv-munge make-str make-int) x))
 
-(defn learn [vocabulary links]
+(defn learn
+  "Absorb a set of word pairs and add them to the supplied vocabulary."
+  [vocabulary links]
   (reduce (fn [vocab link] {:pre [(every? string? link)
                                   (seq link)]}
             (update-in vocab link (fnil inc 0)))
@@ -140,7 +166,10 @@
 
 (def global-topics (atom (list)))
 
-(defn mongo-vocab [irc channel]
+(defn mongo-vocab
+  "Create a function that looks up its argument in the mongo database
+  corresponding to the supplied channel. See also vocabulary."
+  [irc channel]
   (fn [word]
     (let [res (mongo/fetch-one :markov :where
                                {:chan (keywordize [irc channel])
@@ -149,21 +178,28 @@
         (update-in res [:links] demongoize)
         res))))
 
-(defn vocabulary [bot irc channel]
+(defn vocabulary
+  "Look up the vocabulary function for the supplied context. A vocabulary
+  function should accept a single string argument, and return a map of
+  {word, frequency} pairs. Maintainers (ha, I wish) should call this
+  more-abstract function in preference to the lower-level vocab functions
+  like mongo-vocab, as this allows better pluggability."
+  [bot irc channel]
   (mongo-vocab (:server @irc) channel))
 
 (defn current-topics [bot irc channel]
   @global-topics)
 
-(defn update-vocab! [bot irc channel tokens]
+(defn update-vocab!
+  "Instruct the bot to learn a tokenized message."
+  [bot irc channel tokens]
   (let [vocab (vocabulary bot irc channel)
         irc (:server @irc)
         chan (keywordize [irc channel])
         chain (mapcat links-in tokens)
         db-links (map vocab (distinct (map first chain)))
-        entries (into {} (filter first
-                                 (map (juxt :word :links)
-                                      db-links)))
+        entries (into {} (filter first (map (juxt :word :links)
+                                            db-links)))
         links (learn entries chain)]
     (doseq [word (keep first links)]
       (let [links (get links word)
@@ -181,7 +217,10 @@
                              #(into %1 (reverse (apply concat %2))))
          tokens))
 
-(defn learn-message [bot irc channel msg]
+(defn learn-message
+  "Tell the bot it has received a message that it should tokenize, learn,
+  and note as containing things the channel is currently 'interested in'."
+  [bot irc channel msg]
   (let [tokens (tokenize msg)]
     (update-vocab! bot irc channel tokens)
     (update-topics! bot irc channel tokens)))
@@ -194,7 +233,12 @@
                topic-weight
                1))]))
 
-(defn pick-word [vocabulary topics word]
+(defn pick-word
+  "Given a vocabulary, a list of current interests, and a previous word,
+  select the word to say next. Selects randomly from among all words it's
+  ever seen after this one, giving preference to words used most often in
+  this context, and to words that are currently topics of interest."
+  [vocabulary topics word]
   (let [{nexts :links} (vocabulary word)
         [words freqs] (apply map vector (map (interest-in topics) nexts))
         topical-freqs (map (interest-in topics) freqs)
@@ -202,12 +246,15 @@
         res (nth words idx)]
     (verify (! #{end-sentence}) res)))
 
-(defn build-sentence [vocabulary topics]
+(defn build-sentence
+  "Construct a sentence at random with the given vocabulary "
+  [vocabulary topics]
   (str (->> start-sentence
             (iterate #(pick-word vocabulary topics %))
             rest
             trim-seq
-            (string/join " "))
+            (s/join " ")
+            s/capitalize)
        "."))
 
 ;;; Plugin mumbo-jumbo
