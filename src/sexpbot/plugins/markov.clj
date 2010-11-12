@@ -178,7 +178,7 @@
                              (partial remove
                                       (comp #(> min-topic-word-length %)
                                             count))
-                             #(into %1 (apply reverse %2)))
+                             #(into %1 (reverse (apply concat %2))))
          tokens))
 
 (defn learn-message [bot irc channel msg]
