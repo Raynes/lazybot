@@ -1,20 +1,31 @@
 ; Written by Pepijn de Vos <pepijndevos@gmail.com>
 ; Licensed under the EPL
 (ns sexpbot.plugins.ping
-  (:refer-clojure :exclude [extend])
-  (:use sexpbot.respond [clj-time core]))
+  (:use sexpbot.respond
+        [sexpbot.utilities :only [format-time]]))
 
-(def pings (atom {}))
+(def pings (ref {}))
+
+(defn notify-pingers [{:keys [irc bot]} nick]
+  (doseq [[who when] (dosync
+                      (when-let [pingers (@pings nick)]
+                        (alter pings dissoc nick)
+                        pingers))]
+    (let [what (str nick " is available, "
+                    (format-time (- (System/currentTimeMillis) when))
+                    " after your ping.")]
+      (io! (send-message irc bot who what :notice? true)))))
+
+(defn scan-ping-request [message from]
+  (when-let [[_ to] (re-find #"^([^ ]+).{2}ping.?$" message)]
+    (dosync
+     (alter pings update-in [to]
+            assoc
+            from (System/currentTimeMillis)))))
 
 (defplugin
-  (:hook :on-message
-     (fn [{:keys [irc bot channel nick message]}]
-       (when-let [ping (@pings nick)]
-         (swap! pings dissoc nick)
-         (send-message irc bot (:from ping)
-                       (str nick " is available, "
-                            (in-secs (interval (:time ping) (now)))
-                            " seconds since your ping.")
-                       :notice? true))
-       (when-let [[_ to] (re-find #"^([^ ]+).{2}ping!?$" message)]
-         (swap! pings assoc to {:from nick :time (now)})))))
+  (:hook
+   :on-message
+   (fn [{:keys [nick message] :as args}]
+     (notify-pingers args nick)
+     (scan-ping-request message nick))))
