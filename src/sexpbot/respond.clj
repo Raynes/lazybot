@@ -52,12 +52,15 @@
 (defn m-starts-with [m s]
   (some identity (map #(.startsWith m %) s)))
 
-(defn split-args [config s]
+(defn split-args [config s pm?]
   (let [[prepend command & args] (.split s " ")
-        is-long-pre (full-prepend config prepend)]
-    {:command (if is-long-pre
-                command
-                (apply str (rest prepend)))
+        is-long-pre (full-prepend config prepend)
+        prefix (or (full-prepend config prepend)
+                   (->> prepend first str (full-prepend config)))]
+    {:command (cond
+               is-long-pre command
+               prefix (apply str (rest prepend))
+               pm? prepend)
      :args (if is-long-pre args (when command (conj args command)))}))
 
 (defn is-command?
@@ -71,15 +74,16 @@
     (fn []
       (let [bot-map (assoc irc-map :privs (get-priv (:logged-in @bot) nick))
 	    conf (:config @bot)
-	    max-ops (:max-operations conf)]
-	(when (is-command? message bot)
+	    max-ops (:max-operations conf)
+            pm? (= nick channel)]
+	(when (or (is-command? message bot) pm?)
 	  (if (dosync
 	       (let [pending (:pending-ops @bot)
                      permitted (< pending max-ops)]
 		 (when permitted
 		   (alter bot assoc :pending-ops (inc pending)))))
 	    (try
-		 (let [n-bmap (into bot-map (split-args conf message))]
+		 (let [n-bmap (into bot-map (split-args conf message pm?))]
 		   (thunk-timeout #((respond n-bmap) n-bmap) 30))
 		 (catch TimeoutException _ (send-message irc bot channel "Execution timed out."))
 		 (catch Exception e (.printStackTrace e))
