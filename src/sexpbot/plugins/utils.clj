@@ -6,7 +6,7 @@
 	[clj-time [core :only [plus minus now interval in-secs hours]] [format :only [unparse formatters]]]
         [clojure.java.shell :only [sh]])
   (:require [irclj.irclj :as ircb]
-            [clojure.contrib.string :as s])
+            [clojure.string :as s])
   (:import java.net.InetAddress))
 
 (def known-prefixes
@@ -193,7 +193,6 @@
       (send-message
        irc bot channel
        (let [cmd (s/join " " args)]
-         (->> cmd
-              (sh "bash" "-c") :out
-              (s/replace-re #"\s+" " ")
-              (trim-with-gist cmd))))))))
+         (trim-with-gist cmd
+           (s/replace
+            (:out (sh "bash" "-c" cmd)) #"\s+" " "))))))))
