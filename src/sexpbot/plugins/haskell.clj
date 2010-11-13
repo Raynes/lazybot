@@ -17,7 +17,7 @@
   (trim-with-gist cap "output.hs" s))
 
 (defn eval-haskell [expr]
-  (->> (res/get (add-query-params tryurl {"method" "eval" "expr" expr})) 
+  (->> (res/get (add-query-params tryurl {"method" "eval" "expr" expr}))
        :body-seq
        first
        read-json
@@ -27,24 +27,32 @@
 (defn mueval [expr]
   (:out (sh "mueval" "-e" expr)))
 
+(defn ghc-type [expr]
+  (->> expr (str ":t ") (sh "ghc" "-e") :out (str "Type: ")))
+
+(defn heval-cmd
+  "Build a function suitable for use as a plugin's :cmd key, using the specified haskell evaluation function."
+  [evaluator]
+  (fn [{:keys [irc bot channel args]}]
+    (->> args
+         (interpose " ")
+         (apply str)
+         evaluator
+         (str "\u27F9")
+         (send-message irc bot channel))))
+
 (defplugin
   (:cmd
    "Evaluates some Haskell code. Doesn't print error messages and uses the TryHaskell API."
    #{"tryhaskell"} 
-   (fn [{:keys [irc bot channel args]}]
-     (send-message irc bot channel (trim (str "=> " (eval-haskell (apply str (interpose " " args))))))))
+   (heval-cmd eval-haskell))
 
   (:cmd
    "Evaluates Haskell code with mueval."
    #{"heval" "he"}
-   (fn [{:keys [irc bot channel args]}]
-     (let [result (mueval (apply str (interpose " " args)))]
-       (send-message irc bot channel
-                     (str "\u27F9 " (trim (if (> 200 (count result)) result (str result "..."))))))))
+   (heval-cmd mueval))
 
   (:cmd
    "Gets the type of an expression via GHC's :t."
    #{"htype" "ht"}
-   (fn [{:keys [irc bot channel args]}]
-     (send-message irc bot channel
-                   (str "Type: " (->> args (interpose " ") (apply str) (str ":t ") (sh "ghc" "-e") :out))))))
+   (heval-cmd ghc-type)))
