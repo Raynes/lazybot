@@ -60,6 +60,11 @@
                 (apply str (rest prepend)))
      :args (if is-long-pre args (when command (conj args command)))}))
 
+(defn is-command?
+  "Tests whether or not a message begins with a prepend."
+  [message bot]
+  (m-starts-with message (-> @bot :config :prepends)))
+
 (defn try-handle [{:keys [nick channel irc bot message] :as irc-map}]
   (.start
    (Thread.
@@ -67,7 +72,7 @@
       (let [bot-map (assoc irc-map :privs (get-priv (:logged-in @bot) nick))
 	    conf (:config @bot)
 	    max-ops (:max-operations conf)]
-	(when (m-starts-with message (:prepends conf))
+	(when (is-command? message bot)
 	  (if (dosync
 	       (let [pending (:pending-ops @bot)
                      permitted (< pending max-ops)]
