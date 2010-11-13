@@ -1,5 +1,5 @@
 (ns sexpbot.plugins.status
-  (:use [sexpbot respond]))
+  (:use [sexpbot plugin]))
 
 (def statusmsg-map (atom {}))
 

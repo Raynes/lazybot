@@ -1,5 +1,5 @@
 (ns sexpbot.plugins.google
-  (:use [sexpbot respond]
+  (:use [sexpbot plugin]
 	[clojure-http.client :only [add-query-params]]
         [clojure.contrib.json :only [read-json]])
   (:require [clojure-http.resourcefully :as res])

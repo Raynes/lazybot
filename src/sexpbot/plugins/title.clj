@@ -1,6 +1,6 @@
 ;; The result of a team effort between programble and Rayne.
 (ns sexpbot.plugins.title
-  (:use [sexpbot info respond utilities]
+  (:use [sexpbot info plugin utilities]
 	[clojure.contrib [string :only [ltrim]] [io :only [reader]]])
   (:import java.util.concurrent.TimeoutException
 	   org.apache.commons.lang.StringEscapeUtils))

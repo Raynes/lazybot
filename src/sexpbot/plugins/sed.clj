@@ -1,5 +1,5 @@
 (ns sexpbot.plugins.sed
-  (:use [sexpbot respond info]
+  (:use [sexpbot plugin info]
         clj-config.core
         [clojure.string :only [join]]))
 

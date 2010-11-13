@@ -2,7 +2,7 @@
 ; Licensed under the EPL
 
 (ns sexpbot.plugins.karma
-  (:use [sexpbot respond info]
+  (:use [sexpbot plugin info]
         [sexpbot.utilities :only [keywordize]]
 	[somnium.congomongo :only [fetch-one insert! destroy!]]))
 

@@ -1,5 +1,5 @@
 (ns sexpbot.plugins.login
-  (:use [sexpbot respond]))
+  (:use [sexpbot plugin]))
 
 (defn check-login [user mask pass server bot]
   (let [userconf ((:users ((:config @bot) server)) user)]

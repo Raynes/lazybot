@@ -1,4 +1,4 @@
-(ns sexpbot.respond
+(ns sexpbot.plugin
   (:use [sexpbot.utilities :only [thunk-timeout]])
   (:require [irclj.irclj :as ircb])
   (:import java.util.concurrent.TimeoutException))

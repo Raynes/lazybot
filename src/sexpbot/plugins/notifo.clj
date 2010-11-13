@@ -12,7 +12,7 @@
 ; * Enjoy
 
 (ns sexpbot.plugins.notifo
-  (:use sexpbot.respond
+  (:use sexpbot.plugin
         [compojure.core :only [POST]]))
 
 (def bots (atom {}))

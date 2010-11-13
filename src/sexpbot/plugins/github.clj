@@ -1,5 +1,5 @@
 (ns sexpbot.plugins.github
-  (:use sexpbot.respond
+  (:use sexpbot.plugin
         [sexpbot.plugins.shorturl :only [is-gd]]
         [compojure.core :only [POST]]
         clojure.contrib.json)

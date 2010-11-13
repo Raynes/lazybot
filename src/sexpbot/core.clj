@@ -1,5 +1,5 @@
 (ns sexpbot.core
-  (:use [sexpbot respond info]
+  (:use [sexpbot plugin info]
 	[clj-config.core :only [read-config]]
 	[clojure.stacktrace :only [root-cause]]
         [somnium.congomongo :only [mongo!]]
@@ -98,7 +98,7 @@
   when the bot was first loaded."
   [& bots]
   (require-plugins)
-  (require 'sexpbot.respond :reload)
+  (require 'sexpbot.plugin :reload)
   (route (extract-routes bots))
   (doseq [{:keys [irc bot]} bots]
     (doseq [{:keys [cleanup]} (vals (:modules @bot))]

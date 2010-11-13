@@ -1,5 +1,5 @@
 (ns sexpbot.plugins.seen
-  (:use [sexpbot respond info]
+  (:use [sexpbot plugin info]
         [sexpbot.utilities :only [format-time]]
 	[somnium.congomongo :only [fetch fetch-one insert! destroy!]]
         [clojure.string :only [join]]))

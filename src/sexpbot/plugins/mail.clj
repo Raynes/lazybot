@@ -1,7 +1,7 @@
 (ns sexpbot.plugins.mail
   (:refer-clojure :exclude [extend])
   (:require [irclj.irclj :as ircb])
-  (:use [sexpbot respond info]
+  (:use [sexpbot plugin info]
 	[clj-time core format]
         [somnium.congomongo :only [fetch fetch-one insert! destroy!]]))
 

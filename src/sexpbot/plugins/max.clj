@@ -1,5 +1,5 @@
 (ns sexpbot.plugins.max
-  (:use sexpbot.respond
+  (:use sexpbot.plugin
         [somnium.congomongo :only [fetch-one insert! destroy!]]))
 
 (defplugin

@@ -1,5 +1,5 @@
 (ns sexpbot.plugins.markov
-  (:use sexpbot.respond
+  (:use sexpbot.plugin
         [sexpbot.utilities :only [keywordize]])
   (:require [clojure.contrib.string :as s :only [capitalize join]]
             [somnium.congomongo :as mongo :only [insert! destroy! fetch-one]])

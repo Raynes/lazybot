@@ -1,5 +1,5 @@
 (ns sexpbot.plugins.macro
-  (:use [sexpbot respond info]
+  (:use [sexpbot plugin info]
 	clj-config.core
         [somnium.congomongo :only [fetch fetch-one insert! destroy!]]))
 

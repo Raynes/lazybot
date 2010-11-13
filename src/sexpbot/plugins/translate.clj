@@ -1,5 +1,5 @@
 (ns sexpbot.plugins.translate
-  (:use [sexpbot respond utilities]
+  (:use [sexpbot plugin utilities]
         [clojure.contrib.json :only [read-json]])
   (:require [clojure-http.resourcefully :as res])
   (:import org.apache.commons.lang.StringEscapeUtils))

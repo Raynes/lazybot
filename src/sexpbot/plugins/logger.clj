@@ -1,5 +1,5 @@
 (ns sexpbot.plugins.logger
-  (:use [sexpbot respond]
+  (:use [sexpbot plugin]
         [clj-time.core :only [now from-time-zone time-zone-for-offset]]
         [clj-time.format :only [unparse formatters]]
         [clojure.java.io :only [file]])

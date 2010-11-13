@@ -1,5 +1,5 @@
 (ns sexpbot.plugins.load
-  (:use [sexpbot respond core]))
+  (:use [sexpbot plugin core]))
 
 (defplugin
   (:cmd
