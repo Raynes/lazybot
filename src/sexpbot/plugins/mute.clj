@@ -4,7 +4,7 @@
 (defplugin
   (:hook
    :on-send-message
-   (fn [_ bot channel s action?] (when (not (some #(= channel %) (-> @bot :configs :mute :channels))) s)))
+   (fn [_ bot channel s action?] (when-not (some #{channel} (-> @bot :configs :mute :channels)) s)))
 
   (:cmd
    "Mutes the bot for the channel that this function is executed in."
