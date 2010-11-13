@@ -3,7 +3,7 @@
         [clojure.contrib.json :only [read-json]]
 	[clojure-http.client :only [add-query-params]]
         [clojure.java.shell :only [sh]]
-        [sexpbot.plugins.github :only [trim-with-gist]])
+        [sexpbot.gist :only [trim-with-gist]])
   (:require [clojure-http.resourcefully :as res]))
 
 (def tryurl "http://tryhaskell.org/haskell.json")

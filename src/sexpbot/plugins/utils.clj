@@ -1,7 +1,7 @@
 (ns sexpbot.plugins.utils
   (:use [sexpbot utilities info respond]
 	[clj-github.gists :only [new-gist]]
-        [sexpbot.plugins.github :only [trim-with-gist]]
+        [sexpbot.gist :only [trim-with-gist]]
 	clj-config.core
 	[clj-time [core :only [plus minus now interval in-secs hours]] [format :only [unparse formatters]]]
         [clojure.java.shell :only [sh]])

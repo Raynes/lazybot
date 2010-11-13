@@ -3,7 +3,7 @@
 	[clojail core testers]
 	sexpbot.respond
     [sexpbot.plugins.shorturl :only [is-gd]]
-    [sexpbot.plugins.github :only [trim-with-gist]])
+    [sexpbot.gist :only [trim-with-gist]])
   (:require [clojure.string :as string :only [replace]])
   (:import java.io.StringWriter
            java.util.concurrent.TimeoutException
