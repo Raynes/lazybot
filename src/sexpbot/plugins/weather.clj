@@ -1,5 +1,5 @@
 (ns sexpbot.plugins.weather
-  (:use [sexpbot respond]
+  (:use [sexpbot registry]
 	[clojure.contrib.str-utils :only [re-sub]])
   (:require [clojure.xml :as xml]
 	    [clojure.zip :as zip]

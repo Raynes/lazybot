@@ -1,5 +1,5 @@
 (ns sexpbot.plugins.whatis
-  (:use [sexpbot respond]
+  (:use [sexpbot registry]
         [somnium.congomongo :only [fetch fetch-one insert! destroy!]]))
 
 (defplugin 

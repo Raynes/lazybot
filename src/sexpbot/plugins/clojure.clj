@@ -1,7 +1,7 @@
 (ns sexpbot.plugins.clojure
   (:use clojure.stacktrace
 	[clojail core testers]
-	sexpbot.respond
+	sexpbot.registry
     [sexpbot.plugins.shorturl :only [is-gd]]
     [sexpbot.gist :only [trim-with-gist]])
   (:require [clojure.string :as string :only [replace]])

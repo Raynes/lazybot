@@ -1,5 +1,5 @@
 (ns sexpbot.plugins.haskell
-  (:use [sexpbot respond]
+  (:use [sexpbot registry]
         [clojure.contrib.json :only [read-json]]
 	[clojure-http.client :only [add-query-params]]
         [clojure.java.shell :only [sh]]

@@ -1,5 +1,5 @@
 (ns sexpbot.plugins.mute
-  (:use sexpbot.respond))
+  (:use sexpbot.registry))
 
 (defplugin
   (:hook

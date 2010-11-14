@@ -1,5 +1,5 @@
 (ns sexpbot.plugins.shorturl
-  (:use [sexpbot respond]
+  (:use [sexpbot registry]
         [clojure.contrib.json :only [read-json]]
         [clojure-http.client :only [add-query-params]])
   (:require [clojure-http.resourcefully :as res])

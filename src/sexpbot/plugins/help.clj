@@ -1,6 +1,6 @@
 ;; Written by Erik (boredomist)
 (ns sexpbot.plugins.help
-  (:use [sexpbot respond info]
+  (:use [sexpbot registry info]
         [somnium.congomongo :only [fetch fetch-one insert! destroy!]]))
 
 (defplugin

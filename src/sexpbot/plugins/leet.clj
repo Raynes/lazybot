@@ -1,5 +1,5 @@
 (ns sexpbot.plugins.leet
-  (:use sexpbot.respond))
+  (:use sexpbot.registry))
 
 (defn char-to-leet [c]
   (condp = c

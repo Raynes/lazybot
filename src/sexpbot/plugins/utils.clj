@@ -1,5 +1,5 @@
 (ns sexpbot.plugins.utils
-  (:use [sexpbot utilities info respond]
+  (:use [sexpbot utilities info registry]
 	[clj-github.gists :only [new-gist]]
         [sexpbot.gist :only [trim-with-gist]]
 	clj-config.core

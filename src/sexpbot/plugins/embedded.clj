@@ -1,5 +1,5 @@
 (ns sexpbot.plugins.embedded
-  (:use [sexpbot respond]))
+  (:use [sexpbot registry]))
 
 (defplugin
   (:hook

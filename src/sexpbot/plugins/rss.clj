@@ -1,5 +1,5 @@
 (ns sexpbot.plugins.rss
-  (:use sexpbot.respond
+  (:use sexpbot.registry
 	[sexpbot.plugins.shorturl :only [shorten-url]])
   (:require [clojure.xml :as xml]
 	    [clojure.zip :as zip]

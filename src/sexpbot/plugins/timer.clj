@@ -1,7 +1,7 @@
 (ns sexpbot.plugins.timer
   (:refer-clojure :exclude [extend])
   (:require [irclj.irclj :as ircb])
-  (:use sexpbot.respond
+  (:use sexpbot.registry
 	clj-time.core))
 
 (def running-timers (atom {}))
