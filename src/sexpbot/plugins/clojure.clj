@@ -36,20 +36,21 @@
 
 (defmacro pretty-doc [s]
   (cond
-   (special-form-anchor `~s)
+   (special-form-anchor s)
    `(sfmsg "Special Form" (special-form-anchor '~s))
-   (syntax-symbol-anchor `~s)
+   (syntax-symbol-anchor s)
    `(sfmsg "Syntax Symbol" (syntax-symbol-anchor '~s))
    :else
-   `(let [m# (-> ~s var meta)
-          formatted# (when (:doc m#) (str (:arglists m#) "; " (.replaceAll (:doc m#) "\\s+" " ")))]
-      (if (:macro m#) (str "Macro " formatted#) formatted#))))
+   `(let [[a# m# d#] (-> ~s var meta ((juxt :arglists :macro :doc)))
+          d# (when d#
+               (string/replace d# #"\s+" " "))]
+      (str (when m# "Macro ") a# "; " d#))))
 
 (defn execute-text [bot-name user txt]
   (try
     (with-open [writer (StringWriter.)]
       (let [res (pr-str (sb (read-string txt) {#'*out* writer #'doc #'pretty-doc}))
-            replaced (.replaceAll (str writer) "\n" " ")]
+            replaced (string/replace (str writer) "\n" " ")]
         (str "\u27F9 " (trim bot-name user txt (str replaced (when (= last \space) " ") res)))))
    (catch TimeoutException _ "Execution Timed Out!")
    (catch Exception e (str (root-cause e)))))

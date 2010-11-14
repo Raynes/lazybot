@@ -265,12 +265,12 @@ link map is not in mongo format."
    :on-message
    (fn [{:keys [irc bot nick channel message]}]
      (when-not (or (= nick (:name irc))
-                   (pos? (.indexOf message "markov")))
+                   (is-command? message bot))
        (learn-message bot irc channel message))))
 
   (:cmd
    "Say something that seems to reflect what the channel is talking about."
-   #{"markov"}
+   #{"markov" "thoughts?"}
    (fn [{:keys [bot irc channel]}]
      (send-message irc bot channel (apply build-sentence
                                           (map #(% bot irc channel)
