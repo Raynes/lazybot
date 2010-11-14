@@ -34,7 +34,7 @@
   `(let [irc# (:irc ~irc)]
      (if (and (seq (:logged-in @~bot))
               (= :admin (get-priv ((:logged-in @~bot) (:server @irc#)) ~user)))
-       ~@body
+       (do ~@body)
        (send-message irc# ~bot (:channel ~irc) (str ~user ": You aren't an admin!")))))
 
 (defn find-command [modules command]
