@@ -1,9 +1,8 @@
 (ns sexpbot.plugins.markov
   (:use sexpbot.registry
-        [sexpbot.utilities :only [keywordize]])
+        [sexpbot.utilities :only [keywordize verify transform-if]])
   (:require [clojure.contrib.string :as s :only [capitalize join]]
-            [somnium.congomongo :as mongo :only [insert! destroy! fetch-one]])
-  (:import))
+            [somnium.congomongo :as mongo :only [insert! destroy! fetch-one]]))
 
 ;; Stolen from:
 ;; http://github.com/liebke/incanter/blob/master/modules/incanter-core/src/incanter/distributions.clj,
@@ -27,10 +26,6 @@
 (def ^{:arglists (:arglists (meta #'complement))}
   ! complement)
 
-(defn verify [pred x]
-  (when (pred x)
-    x))
-
 (defn trim-seq "Trim a sequence at the first falsey element"
   [s]
   (take-while identity s))
@@ -43,16 +38,6 @@
   `(let [x# ~val]
      (println '~val "is" x#)
      x#))
-
-(defn transform-if
-  "Returns a function that tests pred against its argument. If the result
-is true, return (f arg); otherwise, return (f-not arg) (defaults to
-identity)."
-  ([pred f]
-     (transform-if pred f identity))
-  ([pred f f-not]
-     (fn [x]
-       (if (pred x) (f x) (f-not x)))))
 
 ;; coerce objects to various types
 (def make-str (transform-if keyword? name str))

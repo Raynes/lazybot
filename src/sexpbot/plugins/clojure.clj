@@ -2,6 +2,7 @@
   (:use clojure.stacktrace
 	[clojail core testers]
 	sexpbot.registry
+        [sexpbot.utilities :only [verify transform-if]]
     [sexpbot.plugins.shorturl :only [is-gd]]
     [sexpbot.gist :only [trim-with-gist]])
   (:require [clojure.string :as string :only [replace]])
@@ -57,6 +58,14 @@
 
 (def many (atom 0))
 
+(defn first-object [s]
+  (when (seq s)
+    (binding [*read-eval* false]
+      (try
+        ((transform-if coll? pr-str (constantly nil))
+         (read-string s))
+        (catch Exception _)))))
+
 (defmulti find-eval-request
   "Search a target string for eval requests.
 Return a seq of strings to be evaluated. Usually this will be either nil or a one-element list, but it's possible for users to request evaluation of multiple forms with embedded specifiers, in which case it will be longer."
@@ -70,11 +79,9 @@ Return a seq of strings to be evaluated. Usually this will be either nil or a on
 
 (defmethod find-eval-request Pattern
   ([pattern target]
-     (let [m (re-matcher pattern target)]
-       (->> (repeatedly #(re-find m))
-            (take-while identity)
-            (map second)
-            seq))))
+     (->> (re-seq pattern target)
+          (keep (comp first-object second))
+          seq)))
 
 (defn- eval-config-settings [bot]
   (let [config-setting (-> @bot :config (get :eval-prefixes

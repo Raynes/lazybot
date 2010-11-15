@@ -5,8 +5,8 @@
   (:import [java.io File FileReader]
 	   [java.util.concurrent FutureTask TimeUnit TimeoutException]))
 
-(defn stringify [coll]
-  (apply str (interpose " " coll)))
+;; support legacy code, written before (join) was invented
+(def stringify string/join)
 
 (defn if-exists-read [file]
   (into {} 
@@ -14,9 +14,29 @@
 	  (-> file slurp read-string)
 	  nil)))
 
-(defmacro keywordize [vars]
+(defmacro keywordize
+  "Create a map in which, for each symbol S in vars, (keyword S) is a
+  key mapping to the value of S in the current scope."
+  [vars]
   (into {} (map (juxt keyword identity)
                 vars)))
+
+(defn verify
+  "Return x, unless (pred x) is logical false, in which case return nil."
+  [pred x]
+  (when (pred x)
+    x))
+
+(defn transform-if
+  "Returns a function that tests pred against its argument. If the result
+is true, return (f arg); otherwise, return (f-not arg) (defaults to
+identity)."
+  ([pred f]
+     (fn [x]
+       (if (pred x) (f x) x)))
+  ([pred f f-not]
+     (fn [x]
+       (if (pred x) (f x) (f-not x)))))
 
 ;; This is a bit ugly. Each entry in the table describes how many of the
 ;; labelled unit it takes to constitute the next-largest unit. It can't be
