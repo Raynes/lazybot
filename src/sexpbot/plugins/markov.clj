@@ -71,7 +71,7 @@
       ((set "_-*'") c)))
 
 (defn sentence-terminator? [c]
-  ((set ".?!:;") c))
+  ((set ".?!;") c))
 
 (defn whitespace? [c]
   (or (Character/isWhitespace c)
