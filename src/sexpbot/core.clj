@@ -98,7 +98,7 @@
   when the bot was first loaded."
   [& bots]
   (require-plugins)
-  (require 'sexpbot.registry :reload)
+  (require '[sexpbot registry utilities] :reload)
   (route (extract-routes bots))
   (doseq [{:keys [irc bot]} bots]
     (doseq [{:keys [cleanup]} (vals (:modules @bot))]
