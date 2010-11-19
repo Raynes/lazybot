@@ -6,7 +6,7 @@
         [clojure.set :only [intersection]]
         [compojure.core :only [routes]]
         ring.middleware.params)
-  (:require [irclj.irclj :as ircb])
+  (:require [irclj.core :as ircb])
   (:import [java.io File FileReader]))
 
 (mongo! :db "sexpbot")
