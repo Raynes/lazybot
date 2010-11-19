@@ -1,6 +1,6 @@
 (ns sexpbot.registry
   (:use [sexpbot.utilities :only [thunk-timeout]])
-  (:require [irclj.irclj :as ircb])
+  (:require [irclj.core :as ircb])
   (:import java.util.concurrent.TimeoutException))
 
 (defmacro def- [name & value]
