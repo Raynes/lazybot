@@ -30,6 +30,14 @@
   [s]
   (take-while identity s))
 
+(defn is-private? [channel]
+  (not= \# (first channel)))
+
+(defn db-name [channel]
+  (if (is-private? channel)
+    "pmdb"
+    channel))
+
 (defmacro and-print
   "A useful debugging tool when you can't figure out what's going on:
   wrap a form with and-print, and the form will be printed alongside
@@ -251,12 +259,12 @@ link map is not in mongo format."
    (fn [{:keys [irc bot nick channel message]}]
      (when-not (or (= nick (:name irc))
                    (is-command? message bot))
-       (learn-message bot irc channel message))))
+       (learn-message bot irc (db-name channel) message))))
 
   (:cmd
    "Say something that seems to reflect what the channel is talking about."
    #{"markov" "thoughts?"}
    (fn [{:keys [bot irc channel]}]
      (send-message irc bot channel (apply build-sentence
-                                          (map #(% bot irc channel)
+                                          (map #(% bot irc (db-name channel))
                                                [vocabulary current-topics]))))))
