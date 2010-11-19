@@ -1,6 +1,6 @@
 (ns sexpbot.plugins.operator
   (:use [sexpbot registry])
-  (:require [irclj.irclj :as ircb]))
+  (:require [irclj.core :as ircb]))
 
 (defplugin
   (:cmd

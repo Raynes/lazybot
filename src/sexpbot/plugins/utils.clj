@@ -5,7 +5,7 @@
 	clj-config.core
 	[clj-time [core :only [plus minus now interval in-secs hours]] [format :only [unparse formatters]]]
         [clojure.java.shell :only [sh]])
-  (:require [irclj.irclj :as ircb]
+  (:require [irclj.core :as ircb]
             [clojure.string :as s])
   (:import java.net.InetAddress))
 
@@ -55,7 +55,7 @@
    "Rapes a person you specify."
    #{"rape"} 
    (fn [{:keys [args bot irc channel]}]
-     (ircb/send-action irc channel (str "raepz " (first args) "."))))
+     (send-message irc bot channel (str "raepz " (first args) ".") :action? true)))
 
   (:cmd 
    "Flips a coin."
@@ -177,7 +177,7 @@
    "Huggles your best fwiendz."
    #{"huggle"}
    (fn [{:keys [irc bot channel args]}]
-     (ircb/send-action irc channel (str "Hugglez " (first args) ". I lubs yous."))))
+     (send-message irc bot channel (str "Hugglez " (first args) ". I lubs yous.") :action? true)))
 
   (:cmd
    "I'd do you."

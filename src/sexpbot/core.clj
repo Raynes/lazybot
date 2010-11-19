@@ -97,8 +97,9 @@
   of plugins. This makes sure everything is reset to the way it was
   when the bot was first loaded."
   [& bots]
+  (require 'sexpbot.registry :reload)
+  (require 'sexpbot.utilities :reload)
   (require-plugins)
-  (require '[sexpbot registry utilities] :reload)
   (route (extract-routes bots))
   (doseq [{:keys [irc bot]} bots]
     (doseq [{:keys [cleanup]} (vals (:modules @bot))]
