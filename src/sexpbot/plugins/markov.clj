@@ -2,7 +2,8 @@
   (:use sexpbot.registry
         [sexpbot.utilities :only [keywordize verify transform-if]])
   (:require [clojure.contrib.string :as s :only [capitalize join]]
-            [somnium.congomongo :as mongo :only [insert! destroy! fetch-one]]))
+            [somnium.congomongo :as mongo :only [insert! destroy! fetch-one]])
+  (:import java.util.regex.Pattern))
 
 ;; Stolen from:
 ;; http://github.com/liebke/incanter/blob/master/modules/incanter-core/src/incanter/distributions.clj,
@@ -30,6 +31,14 @@
   [s]
   (take-while identity s))
 
+(defn is-private? [channel]
+  (not= \# (first channel)))
+
+(defn db-name [channel]
+  (if (is-private? channel)
+    "pmdb"
+    channel))
+
 (defmacro and-print
   "A useful debugging tool when you can't figure out what's going on:
   wrap a form with and-print, and the form will be printed alongside
@@ -45,7 +54,7 @@
 (def make-int (transform-if string? #(Integer/parseInt %)))
 
 ;;; tuneable parameters
-(def topic-weight 3)
+(def topic-weight 3/2)
 (def min-topic-word-length 4)
 (def topics-to-track 50)
 
@@ -56,21 +65,33 @@
 ;;; exceptions are likely to occur otherwise
 (def start-sentence "##START##")
 (def end-sentence "##END##")
+(def break-token "##COMMA##")
 
 ;;; Parsing section
 (defn word-char? [c]
-  (or (Character/isLetterOrDigit c)
-      ((set "_-*'") c)))
+  (and (char? c)
+       (or (Character/isLetterOrDigit c)
+           ((set "_-*'") c))))
+
+(def break-str ",;:")
+(def break-re (Pattern/compile (str "\\s*([" break-str "]+)")))
+(def break-set (set break-str))
+(def break-seq (seq break-str))
+(defn rand-break [& _] (rand-nth break-seq))
+
+(def semantic-break? break-set)
 
 (defn sentence-terminator? [c]
-  ((set ".?!:;") c))
+  ((set ".?!") c))
 
 (defn whitespace? [c]
-  (or (Character/isWhitespace c)
-      ((set "\\,+/<>|{}()[]\"") c)))
+  (and (char? c)
+       (or (Character/isWhitespace c)
+           ((set "\\+/<>|{}()[]\"") c))))
 
 (defn ignore? [c]
-  (not-any? #(%1 c) [word-char? sentence-terminator? whitespace?]))
+  (not-any? #(% c)
+            [word-char? semantic-break? sentence-terminator? whitespace?]))
 
 (defn replace-with
   "Scans a seq of characters and/or keywords, replacing contiguous groups of
@@ -87,7 +108,6 @@
                      (repl item)
                      item))))))
 
-;; TODO: Pretty sure this is a lot less messy if I split by sentence first.
 (defn tokenize
   "Take an input string and split it into a seq of sentences. Each sentence
    will be further split into a seq of words."
@@ -95,11 +115,12 @@
   (->> msg
        .toLowerCase
        (remove ignore?)            ; will also convert from str to char seq
-       (replace-with whitespace? ::word-sep) ; placeholder while working
-                                             ; with chars instead of strs
+       (replace-with semantic-break? ::break)
        (replace-with sentence-terminator? ::sentence-sep)
+       (replace-with whitespace? ::word-sep)
        (replace-with char? #(vector (apply str %)))
        (replace-with #{::word-sep} (constantly nil))
+       (replace-with #{::break} (constantly [break-token]))
        (partition-by #{::sentence-sep})
        (remove #(every? keyword? %))))
 
@@ -211,6 +232,10 @@ link map is not in mongo format."
     (update-topics! bot irc channel tokens)))
 
 ;;; Sentence-creation section
+
+(defn squish-breaks [str]
+  (s/replace-re break-re "$1" str))
+
 (defn interest-in [topics]
   (fn [[word weight]]
     [word (* weight
@@ -238,9 +263,22 @@ link map is not in mongo format."
             (iterate #(pick-word vocabulary topics %))
             rest
             trim-seq
+            (map (transform-if #{break-token}
+                               rand-break))
             (s/join " ")
+            squish-breaks
             s/capitalize)
        "."))
+
+(defn learn-url
+  "Fetch the contents of a URL and learn it as if it had been pasted directly to the current channel. Admin only."
+  [{:keys [bot irc nick channel] :as irc-map} url]
+  (if-admin
+   nick irc-map bot
+   (str "I'd love to read " url ", but amalloy won't teach me how :(")))
+
+(defn trim-addressee [msg]
+  (s/replace-re #"^\S+:" "" msg))
 
 ;;; Plugin mumbo-jumbo
 
@@ -251,12 +289,20 @@ link map is not in mongo format."
    (fn [{:keys [irc bot nick channel message]}]
      (when-not (or (= nick (:name irc))
                    (is-command? message bot))
-       (learn-message bot irc channel message))))
+       (learn-message bot irc (db-name channel) (trim-addressee message)))))
 
   (:cmd
    "Say something that seems to reflect what the channel is talking about."
    #{"markov" "thoughts?"}
-   (fn [{:keys [bot irc channel]}]
-     (send-message irc bot channel (apply build-sentence
-                                          (map #(% bot irc channel)
-                                               [vocabulary current-topics]))))))
+   (fn [{:keys [bot irc channel args] :as irc-map}]
+     (send-message irc bot channel
+                   (if-let [sub-cmd (first args)]
+                     (let [sub-args (rest args)]
+                       (case sub-cmd
+                             "url" (s/join ";"
+                                           (for [url sub-args]
+                                             (learn-url irc-map url)))
+                             (str "I don't understand " sub-cmd)))
+                     (apply build-sentence
+                            (map #(% bot irc (db-name channel))
+                                 [vocabulary current-topics])))))))
