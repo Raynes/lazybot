@@ -8,12 +8,13 @@
         :off nil
         :-v :verbose
         :? old-mode
-        (when (nil? old-mode) ; toggle
+        (when-not old-mode              ; toggle
           :on)))
 
 (defn debug-mode-str [mode]
-  (or (name mode)
-      "off"))
+  (if mode
+    (name mode)
+    "off"))
 
 (def debug-keypath [:configs :debug-mode])
 
@@ -35,7 +36,8 @@
    "Evaluate code in an un-sandboxed context. Prints the result to stdout, does not send it to any irc channel."
    #{"deval"}
    (fn [{:keys [irc bot nick channel args] :as irc-map}]
-     (when (get-in @bot debug-keypath) (if-admin
-       nick irc-map bot
-       (let [code (string/join " " args)]
-         (println (str code " evaluates to:\n" (eval (read-string code))))))))))
+     (when (get-in @bot debug-keypath)
+       (if-admin
+        nick irc-map bot
+        (let [code (string/join " " args)]
+          (println (str code " evaluates to:\n" (eval (read-string code))))))))))
