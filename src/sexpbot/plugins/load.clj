@@ -42,13 +42,4 @@
   (:cmd
    "Connect the bot to a server specified in your configuration. ADMIN ONLY!"
    #{"reconnect" "connect"}
-   (fn [{:keys [irc bot args]}] (connect-bot (first args))))
-
-  (:cmd
-   "Reloads configuration. ADMIN ONLY!"
-   #{"reload-config"}
-   (fn [{:keys [irc bot nick channel] :as irc-map}]
-     (if-admin nick irc-map bot
-               (do
-                 (dosync (apply reload-config (map (fn [[server {bot :bot}]] [server bot]) @bots)))
-                 (send-message irc bot channel "Reloaded successfully."))))))
+   (fn [{:keys [irc bot args]}] (connect-bot (first args)))))
