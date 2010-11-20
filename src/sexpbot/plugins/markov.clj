@@ -30,6 +30,14 @@
   [s]
   (take-while identity s))
 
+(defn is-private? [channel]
+  (not= \# (first channel)))
+
+(defn db-name [channel]
+  (if (is-private? channel)
+    "pmdb"
+    channel))
+
 (defmacro and-print
   "A useful debugging tool when you can't figure out what's going on:
   wrap a form with and-print, and the form will be printed alongside
@@ -45,7 +53,7 @@
 (def make-int (transform-if string? #(Integer/parseInt %)))
 
 ;;; tuneable parameters
-(def topic-weight 3)
+(def topic-weight 3/2)
 (def min-topic-word-length 4)
 (def topics-to-track 50)
 
@@ -63,7 +71,7 @@
       ((set "_-*'") c)))
 
 (defn sentence-terminator? [c]
-  ((set ".?!:;") c))
+  ((set ".?!;") c))
 
 (defn whitespace? [c]
   (or (Character/isWhitespace c)
@@ -242,6 +250,13 @@ link map is not in mongo format."
             s/capitalize)
        "."))
 
+(defn learn-url
+  "Fetch the contents of a URL and learn it as if it had been pasted directly to the current channel. Admin only."
+  [{:keys [bot irc nick channel] :as irc-map} url]
+  (if-admin
+   nick irc-map bot
+   (str "I'd love to read " url ", but amalloy won't teach me how :(")))
+
 ;;; Plugin mumbo-jumbo
 
 ;; TODO add forms of address other than $markov, eg "sexpbot: thoughts?"
@@ -251,12 +266,20 @@ link map is not in mongo format."
    (fn [{:keys [irc bot nick channel message]}]
      (when-not (or (= nick (:name irc))
                    (is-command? message bot))
-       (learn-message bot irc channel message))))
+       (learn-message bot irc (db-name channel) message))))
 
   (:cmd
    "Say something that seems to reflect what the channel is talking about."
    #{"markov" "thoughts?"}
-   (fn [{:keys [bot irc channel]}]
-     (send-message irc bot channel (apply build-sentence
-                                          (map #(% bot irc channel)
-                                               [vocabulary current-topics]))))))
+   (fn [{:keys [bot irc channel args] :as irc-map}]
+     (send-message irc bot channel
+                   (if-let [sub-cmd (first args)]
+                     (let [sub-args (rest args)]
+                       (case sub-cmd
+                             "url" (s/join ";"
+                                           (for [url sub-args]
+                                             (learn-url irc-map url)))
+                             (str "I don't understand " sub-cmd)))
+                     (apply build-sentence
+                            (map #(% bot irc (db-name channel))
+                                 [vocabulary current-topics])))))))
