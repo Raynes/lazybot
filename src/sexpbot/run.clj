@@ -17,5 +17,5 @@
         (alter-var-root #'*err* (fn [& _] write))
         (defonce server (run-jetty #'sexpbot.core/sroutes {:port servers-port :join? false}))
         (require-plugins)
-        (doseq [server (:servers initial-info)] (connect-bot server))
+        (doseq [serv (:servers initial-info)] (connect-bot serv))
         (route (extract-routes (vals @bots)))))))

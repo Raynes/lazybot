@@ -1,6 +1,5 @@
 (ns sexpbot.plugins.timer
   (:refer-clojure :exclude [extend])
-  (:require [irclj.irclj :as ircb])
   (:use sexpbot.registry
 	clj-time.core))
 
@@ -56,6 +55,6 @@
         (Thread/sleep (* fint 1000))
         (when (@running-timers n-timers)
           (if (= (second args) "/me") 
-            (ircb/send-action irc channel (apply str (interpose " " (nnext args))))
+            (send-message irc bot channel (apply str (interpose " " (nnext args))) :action? true)
             (send-message irc bot channel text)))
         (swap! running-timers dissoc n-timers))))))

@@ -7,7 +7,7 @@
    #{"load"}
    (fn [{:keys [irc bot nick channel args] :as irc-map}]
      (if-admin nick irc-map bot
-               (if (true? (->> args first (safe-load-plugin bot)))
+               (if (->> args first (safe-load-plugin irc bot))
                  (send-message irc bot channel "Loaded.")
                  (send-message irc bot channel (str "Module " (first args) " not found."))))))
   
@@ -16,9 +16,9 @@
    #{"unload"}
    (fn [{:keys [irc bot nick channel args] :as irc-map}]
      (if-admin nick irc-map bot
-               (if ((:modules @bot) (first args))
+               (if ((:modules @bot) (keyword (first args)))
                  (do 
-                   (dosync (alter bot update-in [:modules] dissoc (first args)))
+                   (dosync (alter bot update-in [:modules] dissoc (keyword (first args))))
                    (send-message irc bot channel "Unloaded."))
                  (send-message irc bot channel (str "Module " (first args) " not found."))))))
 
@@ -28,7 +28,7 @@
    (fn [{:keys [irc bot nick channel args] :as irc-map}]
      (if-admin nick irc-map bot
                (send-message irc bot channel 
-                             (apply str (interpose " " (keys (:modules @bot))))))))
+                             (apply str (interpose " " (sort (keys (:modules @bot)))))))))
   
   (:cmd
    "Reloads all plugins. ADMIN ONLY!"
@@ -42,13 +42,4 @@
   (:cmd
    "Connect the bot to a server specified in your configuration. ADMIN ONLY!"
    #{"reconnect" "connect"}
-   (fn [{:keys [irc bot args]}] (connect-bot (first args))))
-
-  (:cmd
-   "Reloads configuration. ADMIN ONLY!"
-   #{"reload-config"}
-   (fn [{:keys [irc bot nick channel] :as irc-map}]
-     (if-admin nick irc-map bot
-               (do
-                 (dosync (apply reload-config (map (fn [[server {bot :bot}]] [server bot]) @bots)))
-                 (send-message irc bot channel "Reloaded successfully."))))))
+   (fn [{:keys [irc bot args]}] (connect-bot (first args)))))

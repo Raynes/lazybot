@@ -1,6 +1,5 @@
 (ns sexpbot.plugins.mail
   (:refer-clojure :exclude [extend])
-  (:require [irclj.irclj :as ircb])
   (:use [sexpbot registry info]
 	[clj-time core format]
         [somnium.congomongo :only [fetch fetch-one insert! destroy!]]))
@@ -31,12 +30,15 @@
     true))
 
 (defn mail-alert
-  [{:keys [irc channel nick]}]
+  [{:keys [irc channel nick bot]}]
   (let [lower-nick (.toLowerCase nick)
 	nmess (count-messages lower-nick)]
     (when (and (> nmess 0) (alert-time? lower-nick))
-      (ircb/send-notice irc nick (str nick ": You have " nmess 
-				      " new message(s). Try the mymail or mail commands without any arguments to see them. This also works via PM."))
+      (send-message
+       irc bot nick
+       (str nick ": You have " nmess 
+            " new message(s). Try the mymail or mail commands without any arguments to see them. This also works via PM.")
+       :notice? true)
       (swap! alerted assoc lower-nick (now)))))
 
 (defn get-messages [irc bot nick]
