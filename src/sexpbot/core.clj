@@ -53,15 +53,15 @@
   (require (symbol (str "sexpbot.plugins." plugin)) :reload))
 
 (defn load-plugin [irc refzors plugin]
-  ((resolve (symbol (str (str "sexpbot.plugins." plugin) "/load-this-plugin"))) irc refzors))
+  ((resolve (symbol (str "sexpbot.plugins." plugin "/load-this-plugin"))) irc refzors))
 
 (defn require-plugins []
   (doseq [plug ((eval (read-config info-file)) :plugins)]
     (require-plugin plug)))
 
-(defn safe-load-plugin [refzors plugin]
+(defn safe-load-plugin [irc refzors plugin]
   (try
-    (load-plugin refzors plugin)
+    (load-plugin irc refzors plugin)
     true
     (catch Exception e false)))
 
