@@ -6,36 +6,37 @@
 (defmacro def- [name & value]
   (concat (list 'def (with-meta name (assoc (meta name) :private true))) value))
 
-(defn nil-comp [irc bot channel s action? & fns]
+(defn nil-comp [com bot channel s action? & fns]
   (reduce #(when %1
-             (%2 irc bot channel %1 action?))
+             (%2 com bot channel %1 action?))
           s fns))
 
 (defn pull-hooks [bot hook-key]
   (hook-key (apply merge-with concat (map :hooks (vals (:modules @bot))))))
 
-(defn call-message-hooks [irc bot channel s action?]
-  (apply nil-comp irc bot channel s action? (pull-hooks bot :on-send-message)))
+(defn call-message-hooks [com bot channel s action?]
+  (apply nil-comp com bot channel s action? (pull-hooks bot :on-send-message)))
 
-(defn send-message [irc bot channel s & {:keys [action? notice?]}]
-  (if-let [result (call-message-hooks irc bot channel s action?)]
-    (do (cond
-         action? (ircb/send-action irc channel result)
-         notice? (ircb/send-notice irc channel result)
-         :else (ircb/send-message irc channel result))
-        :success)
-    :failure))
+(defmulti send-message (fn [m & rest] (-> m :bot deref :protocol)))
+
+(defmethod send-message "irc"
+  [{:keys [com bot channel]} s & {:keys [action? notice?]}]
+  (if-let [result (call-message-hooks com bot channel s action?)]
+    (cond
+     action? (ircb/send-action com channel result)
+     notice? (ircb/send-notice com channel result)
+     :else (ircb/send-message com channel result))))
 
 (defn get-priv [logged-in user]
   (if (and (seq logged-in) (-> user logged-in (= :admin))) :admin :noadmin))
 
 (defmacro if-admin
-  [user irc bot & body]
-  `(let [irc# (:irc ~irc)]
+  [user full bot & body]
+  `(let [com# (:com ~full)]
      (if (and (seq (:logged-in @~bot))
-              (= :admin (get-priv ((:logged-in @~bot) (:server @irc#)) ~user)))
+              (= :admin (get-priv ((:logged-in @~bot) (:server @com#)) ~user)))
        (do ~@body)
-       (send-message irc# ~bot (:channel ~irc) (str ~user ": You aren't an admin!")))))
+       (send-message ~full (str ~user ": You aren't an admin!")))))
 
 (defn find-command [modules command]
   (some #(when ((:triggers %) command) %) (apply concat (map :commands (vals modules)))))
@@ -68,11 +69,11 @@
   [message bot]
   (m-starts-with message (-> @bot :config :prepends)))
 
-(defn try-handle [{:keys [nick channel irc bot message] :as irc-map}]
+(defn try-handle [{:keys [nick channel com bot message] :as com-map}]
   (.start
    (Thread.
     (fn []
-      (let [bot-map (assoc irc-map :privs (get-priv (:logged-in @bot) nick))
+      (let [bot-map (assoc com-map :privs (get-priv (:logged-in @bot) nick))
 	    conf (:config @bot)
 	    max-ops (:max-operations conf)
             pm? (= nick channel)]
@@ -85,11 +86,11 @@
 	    (try
 		 (let [n-bmap (into bot-map (split-args conf message pm?))]
 		   (thunk-timeout #((respond n-bmap) n-bmap) 30))
-		 (catch TimeoutException _ (send-message irc bot channel "Execution timed out."))
+		 (catch TimeoutException _ (send-message com-map "Execution timed out."))
 		 (catch Exception e (.printStackTrace e))
 		 (finally (dosync
 			   (alter bot assoc :pending-ops (dec (:pending-ops @bot))))))
-	    (send-message irc bot channel "Too much is happening at once. Wait until other operations cease."))))))))
+	    (send-message com-map "Too much is happening at once. Wait until other operations cease."))))))))
 
 (defn merge-with-conj [& args]
   (apply merge-with #(if (vector? %) (conj % %2) (conj [] % %2)) args))
@@ -114,8 +115,8 @@
   (let [{:keys [cmd hook cleanup init routes]} (parse-fns body)
         scmd (if (map? cmd) [cmd] cmd)]
     `(let [pns# *ns*]
-       (defn ~'load-this-plugin [irc# bot#]
-         (when ~init ((if-seq-error "init" ~init) irc# bot#))
+       (defn ~'load-this-plugin [com# bot#]
+         (when ~init ((if-seq-error "init" ~init) com# bot#))
          (let [m-name# (keyword (last (.split (str pns#) "\\.")))]
            (dosync
             (alter bot# assoc-in [:modules m-name#]

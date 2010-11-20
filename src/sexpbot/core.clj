@@ -24,9 +24,13 @@
       :on-join []})
 
 (defn make-callbacks []
-  (let [refzors (ref {:modules {:internal {:hooks initial-hooks}} :config initial-info :pending-ops 0})]
+  (let [refzors (ref {:protocol "irc" :modules {:internal {:hooks initial-hooks}} :config initial-info :pending-ops 0})]
     [(into {}
-           (map (fn [key] [key (fn [irc-map] (call-all (assoc irc-map :bot refzors) key))])
+           (map (fn [key]
+                  [key
+                   (fn [irc-map]
+                     (call-all (dissoc (assoc irc-map :bot refzors :com (:irc irc-map)) :irc)
+                               key))])
                 [:on-any :on-message :on-quit :on-join]))
      refzors]))
 
@@ -79,7 +83,7 @@
 
 (defn connect-bot [server]
   (let [[irc refzors] (make-bot server)]
-    (swap! bots assoc server {:irc irc :bot refzors})
+    (swap! bots assoc server {:com irc :bot refzors})
     (dosync (reload-config refzors))
     (load-plugins irc refzors)))
 
