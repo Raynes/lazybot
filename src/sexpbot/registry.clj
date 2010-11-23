@@ -17,7 +17,8 @@
 (defn call-message-hooks [com bot channel s action?]
   (apply nil-comp com bot channel s action? (pull-hooks bot :on-send-message)))
 
-(defmulti send-message (fn [m & rest] (-> m :bot deref :protocol)))
+(defmulti send-message (fn [m & rest] (-> m :bot
+                                          deref :protocol)))
 
 (defmethod send-message "irc"
   [{:keys [com bot channel]} s & {:keys [action? notice?]}]
@@ -84,12 +85,13 @@
 		 (when permitted
 		   (alter bot assoc :pending-ops (inc pending)))))
 	    (try
-		 (let [n-bmap (into bot-map (split-args conf message pm?))]
-		   (thunk-timeout #((respond n-bmap) n-bmap) 30))
-		 (catch TimeoutException _ (send-message com-map "Execution timed out."))
-		 (catch Exception e (.printStackTrace e))
-		 (finally (dosync
-			   (alter bot assoc :pending-ops (dec (:pending-ops @bot))))))
+              (let [n-bmap (into bot-map (split-args conf message pm?))]
+                (thunk-timeout #((respond n-bmap) n-bmap) 30))
+              (catch TimeoutException _ (send-message com-map "Execution timed out."))
+              (catch Exception e (.printStackTrace e))
+              (finally
+               (dosync
+                (alter bot assoc :pending-ops (dec (:pending-ops @bot))))))
 	    (send-message com-map "Too much is happening at once. Wait until other operations cease."))))))))
 
 (defn merge-with-conj [& args]
