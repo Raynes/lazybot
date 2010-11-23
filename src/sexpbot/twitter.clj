@@ -19,12 +19,16 @@
 (defn get-mentions [token token-secret]
   (twitter/with-oauth
     consumer token token-secret
-    (into #{} (twitter/mentions))))
+    (set (twitter/mentions))))
 
 (defn drop-name [s] (apply str (interpose " " (rest (.split s " ")))))
 
 (defn format-log [{{user :screen_name} :user text :text}]
   (str user ": " text))
+
+(defn mentions [com]
+  (let [{:keys [token token-secret]} com]
+    (get-mentions token token-secret)))
 
 (defn twitter-loop [_]
   (let [{:keys [token token-secret]} (fetch-one :twitter)
@@ -34,28 +38,26 @@
                   :modules {:internal {:hooks initial-hooks}}
                   :config initial-info
                   :pending-ops 0})
-        stale-mentions (atom (get-mentions (:token @com) (:token-secret @com)))]
-    (.start
-     (Thread.
-      (fn []
-        (while true
-          (Thread/sleep 120000)
-          (let [mentions (difference (get-mentions (:token @com) (:token-secret @com)) @stale-mentions)]
-            (doseq [mention mentions]
-              (swap! stale-mentions conj mention)
-              (println "Received tweet:" (:text mention))
-              (call-all {:bot bot
-                         :com com
-                         :nick (-> mention :user :screen_name)
-                         :message (drop-name (:text mention))}
-                        :on-message)))))))
+        stale-mentions (atom (mentions @com))]
+    (future
+      (while true
+        (Thread/sleep 120000)
+        (let [mentions (difference (mentions @com) @stale-mentions)]
+          (doseq [mention mentions]
+            (swap! stale-mentions conj mention)
+            (println "Received tweet: " (:text mention))
+            (call-all {:bot bot
+                       :com com
+                       :nick (-> mention :user :screen_name)
+                       :message (drop-name (:text mention))}
+                      :on-message)))))
     [com bot]))
 
 (defmethod send-message "twitter"
   [{:keys [com bot nick]} s]
   (let [{:keys [token token-secret consumer]} @com
         msg (str "@" nick " " s)]
-    (println "Sending tweet:" msg)
+    (println "Sending tweet: " msg)
     (twitter/with-oauth consumer token token-secret
       (twitter/update-status msg))))
 
