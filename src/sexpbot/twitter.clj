@@ -38,19 +38,21 @@
                   :modules {:internal {:hooks initial-hooks}}
                   :config initial-info
                   :pending-ops 0})]
-    (future ; looping forever, in case it's not clear
-      (loop [stale-mentions (mentions @com)]
-        (Thread/sleep 120000)
-        (let [mentions (mentions @com)
-              new-mentions (difference mentions stale-mentions)]
-          (doseq [{text :text :as mention} new-mentions]
-            (println "Received tweet: " text)
-            (call-all {:bot bot
-                       :com com
-                       :nick (-> mention :user :screen_name)
-                       :message (drop-name text)}
-                      :on-message))
-          (recur mentions))))
+    (.start
+     (Thread.
+      (fn []
+        (loop [stale-mentions (mentions @com)]
+          (Thread/sleep 120000)
+          (let [mentions (mentions @com)
+                new-mentions (difference mentions stale-mentions)]
+            (doseq [{text :text :as mention} new-mentions]
+              (println "Received tweet: " text)
+              (call-all {:bot bot
+                         :com com
+                         :nick (-> mention :user :screen_name)
+                         :message (drop-name text)}
+                        :on-message))
+            (recur mentions))))))
     [com bot]))
 
 (defmethod send-message "twitter"
