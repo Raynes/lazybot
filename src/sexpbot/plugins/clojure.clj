@@ -135,20 +135,18 @@ Return a seq of strings to be evaluated. Usually this will be either nil or a on
   (:hook
    :on-message
    (fn [{:keys [irc bot nick channel message]}]
-     (.start
-      (Thread.
-       (fn []
-         (if-let [evalp (-> @bot :config :eval-prefixes)]
-           (when-let [sexps (what-to-eval bot channel message)]
-             (if (< @many 3)
-               (do
-                 (try
-                   (swap! many inc)
-                   (doseq [sexp (eval-forms (:name @irc) nick sexps)]
-                     (send-message irc bot channel sexp))
-                   (finally (swap! many dec))))
-               (send-message irc bot channel "Too much is happening at once. Wait until other operations cease.")))
-           (throw (Exception. "Dude, you didn't set :eval-prefixes. I can't configure myself!"))))))))
+     (on-thread
+      (if-let [evalp (-> @bot :config :eval-prefixes)]
+        (when-let [sexps (what-to-eval bot channel message)]
+          (if (< @many 3)
+            (do
+              (try
+                (swap! many inc)
+                (doseq [sexp (eval-forms (:name @irc) nick sexps)]
+                  (send-message irc bot channel sexp))
+                (finally (swap! many dec))))
+            (send-message irc bot channel "Too much is happening at once. Wait until other operations cease.")))
+        (throw (Exception. "Dude, you didn't set :eval-prefixes. I can't configure myself!"))))))
 
   (:cmd
    "Link to the source code of a Clojure function or macro."
