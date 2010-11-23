@@ -1,7 +1,7 @@
 (ns sexpbot.twitter
   (:use [clojure.set :only [difference]]
         [clj-config.core :only [read-config]]
-        [sexpbot core [info :only [info-file]] [registry :only [send-message]]]
+        [sexpbot core [info :only [info-file]] [registry :only [send-message]] [utilities :only [keywordize]]]
         [somnium.congomongo :only [insert! fetch-one]])
   (:require [oauth.client :as oauth]
             twitter))
@@ -37,20 +37,20 @@
         bot (ref {:protocol "twitter"
                   :modules {:internal {:hooks initial-hooks}}
                   :config initial-info
-                  :pending-ops 0})
-        stale-mentions (atom (mentions @com))]
-    (future
-      (while true
+                  :pending-ops 0})]
+    (future ; looping forever, in case it's not clear
+      (loop [stale-mentions (mentions @com)]
         (Thread/sleep 120000)
-        (let [mentions (difference (mentions @com) @stale-mentions)]
-          (doseq [mention mentions]
-            (swap! stale-mentions conj mention)
-            (println "Received tweet: " (:text mention))
+        (let [mentions (mentions @com)
+              new-mentions (difference mentions stale-mentions)]
+          (doseq [{text :text :as mention} new-mentions]
+            (println "Received tweet: " text)
             (call-all {:bot bot
                        :com com
                        :nick (-> mention :user :screen_name)
-                       :message (drop-name (:text mention))}
-                      :on-message)))))
+                       :message (drop-name text)}
+                      :on-message))
+          (recur mentions))))
     [com bot]))
 
 (defmethod send-message "twitter"
@@ -71,8 +71,9 @@
       (println "Go to this url to approve the application:"
                (oauth/user-approval-uri consumer (:oauth_token request-token)))
       (println "Type in the PIN that twitter gives you and press enter.")
-      (let [{:keys [oauth_token oauth_token_secret]}
+      (let [{token :oauth_token,
+             token-secret :oauth_token_secret}
             (oauth/access-token consumer request-token (read-line))]
-        (insert! :twitter {:token oauth_token :token-secret oauth_token_secret}))
+        (insert! :twitter (keywordize [token token-secret])))
       (println "All done! Have a nice day."))))
 
