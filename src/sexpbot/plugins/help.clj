@@ -1,6 +1,7 @@
 ;; Written by Erik (boredomist)
 (ns sexpbot.plugins.help
   (:use [sexpbot registry info]
+        [clojure.string :only [join]]
         [somnium.congomongo :only [fetch fetch-one insert! destroy!]]))
 
 (defplugin
@@ -9,9 +10,7 @@
    #{"addtopic"}
    (fn [{:keys [bot nick args] :as com-m}]
      (let [[topic & content] args
-           content-s (->> content
-                          (interpose " ")
-                          (apply str))
+           content-s (join " " content)
            admin-add? (:addmin-add? (:config @bot))]
        (cond
         (fetch-one :help :where {:topic topic}) (send-message com-m "Topic already exists!")
@@ -46,14 +45,12 @@
    "Get help with commands and stuff."
    #{"help"}
    (fn [{:keys [bot nick args] :as com-m}]
-     (let [help-msg (apply
-                     str 
-                     (interpose
-                      " " 
-                      (filter
-                       seq 
-                       (.split 
-                        (apply str (remove #(= \newline %) (find-docs bot (first args)))) " "))))]
+     (let [help-msg (join
+                     " "
+                     (filter
+                      seq 
+                      (.split 
+                       (apply str (remove #(= \newline %) (find-docs bot (first args)))) " ")))]
        (if-not (seq help-msg)
          (let [topic (first args)
                content (fetch-one :help :where {:topic topic})]
@@ -70,5 +67,4 @@
      (send-message com-m (str "I know about these topics: "
                                         (->> (fetch :help)
                                              (map :topic)
-                                             (interpose " ")
-                                             (apply str)))))))
+                                             (join " ")))))))
