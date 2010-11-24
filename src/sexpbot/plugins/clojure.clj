@@ -2,7 +2,7 @@
   (:use clojure.stacktrace
 	[clojail core testers]
 	sexpbot.registry
-        [sexpbot.utilities :only [verify transform-if]]
+        [sexpbot.utilities :only [verify transform-if on-thread]]
     [sexpbot.plugins.shorturl :only [is-gd]]
     [sexpbot.gist :only [trim-with-gist]])
   (:require [clojure.string :as string :only [replace]])
