@@ -1,5 +1,5 @@
 (ns sexpbot.registry
-  (:use [sexpbot.utilities :only [thunk-timeout]])
+  (:use [sexpbot.utilities :only [thunk-timeout on-thread]])
   (:require [irclj.core :as ircb])
   (:import java.util.concurrent.TimeoutException))
 
