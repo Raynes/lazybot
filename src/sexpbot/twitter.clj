@@ -1,5 +1,5 @@
 (ns sexpbot.twitter
-  (:use [clojure.set :only [difference]]
+  (:use [clojure [string :only [join]] [set :only [difference]]]
         [clj-config.core :only [read-config]]
         [sexpbot
          core
@@ -25,7 +25,7 @@
     consumer token token-secret
     (set (twitter/mentions))))
 
-(defn drop-name [s] (apply str (interpose " " (rest (.split s " ")))))
+(defn drop-name [s] (join " " (rest (.split s " "))))
 
 (defn format-log [{{user :screen_name} :user text :text}]
   (str user ": " text))
