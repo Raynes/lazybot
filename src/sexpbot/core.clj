@@ -19,12 +19,12 @@
   (doseq [hook (pull-hooks bot hook-key)] (hook ircm)))
 
 (def initial-hooks
-     {:on-message [(fn [irc-map] (try-handle irc-map))]
+     {:on-message [{:fn (fn [irc-map] (try-handle irc-map))}]
       :on-quit []
       :on-join []})
 
 (defn make-callbacks []
-  (let [refzors (ref {:protocol "irc" :modules {:internal {:hooks initial-hooks}} :config initial-info :pending-ops 0})]
+  (let [refzors (ref {:protocol :irc :modules {:internal {:hooks initial-hooks}} :config initial-info :pending-ops 0})]
     [(into {}
            (map
             (fn [key]
