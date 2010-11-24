@@ -1,7 +1,11 @@
 (ns sexpbot.twitter
   (:use [clojure.set :only [difference]]
         [clj-config.core :only [read-config]]
-        [sexpbot core [info :only [info-file]] [registry :only [send-message]] [utilities :only [keywordize on-thread]]]
+        [sexpbot
+         core
+         [info :only [info-file]]
+         [registry :only [send-message]]
+         [utilities :only [keywordize on-thread]]]
         [somnium.congomongo :only [insert! fetch-one]])
   (:require [oauth.client :as oauth]
             twitter))
