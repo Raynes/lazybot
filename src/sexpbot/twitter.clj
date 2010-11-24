@@ -16,7 +16,7 @@
                             "http://twitter.com/oauth/authorize"
                             :hmac-sha1)))
 
-(defn get-mentions [token token-secret]
+(defn get-mentions [{:keys [token token-secret]}]
   (twitter/with-oauth
     consumer token token-secret
     (set (twitter/mentions))))
@@ -26,22 +26,18 @@
 (defn format-log [{{user :screen_name} :user text :text}]
   (str user ": " text))
 
-(defn mentions [com]
-  (let [{:keys [token token-secret]} com]
-    (get-mentions token token-secret)))
-
 (defn twitter-loop [_]
   (let [{:keys [token token-secret]} (fetch-one :twitter)
         com (ref {:token token :token-secret token-secret :consumer consumer
                   :server :twitter :name (:bot-name twitter-info)})
-        bot (ref {:protocol "twitter"
+        bot (ref {:protocol :twitter
                   :modules {:internal {:hooks initial-hooks}}
                   :config initial-info
                   :pending-ops 0})]
     (on-thread
-     (loop [stale-mentions (mentions @com)]
-       (Thread/sleep 120000)
-       (let [mentions (mentions @com)
+     (loop [stale-mentions (get-mentions @com)]
+       (Thread/sleep (or (:interval twitter-info) 120000))
+       (let [mentions (get-mentions @com)
              new-mentions (difference mentions stale-mentions)]
          (doseq [{text :text :as mention} new-mentions]
            (println "Received tweet: " text)
@@ -53,7 +49,7 @@
          (recur mentions))))
     [com bot]))
 
-(defmethod send-message "twitter"
+(defmethod send-message :twitter
   [{:keys [com bot nick]} s]
   (let [{:keys [token token-secret consumer]} @com
         msg (str "@" nick " " s)]
