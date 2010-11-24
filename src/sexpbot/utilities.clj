@@ -74,6 +74,13 @@ identity)."
          (remove nil?)
          (string/join " and "))))
 
+(defmacro on-thread
+  "Run the body in an anonymous, new thread. Very much like
+  clojure.core/future, but with Java's default error-handling
+  semantics instead of those of (future)."
+  [& body]
+  `(.start (Thread. (fn [] ~@body))))
+
 ;;;;;; From clojurebot's sandbox.clj, adapted for my code. ;;;;;;
 (defn thunk-timeout [thunk seconds]
       (let [task (FutureTask. thunk)

@@ -69,27 +69,25 @@
   (m-starts-with message (-> @bot :config :prepends)))
 
 (defn try-handle [{:keys [nick channel irc bot message] :as irc-map}]
-  (.start
-   (Thread.
-    (fn []
-      (let [bot-map (assoc irc-map :privs (get-priv (:logged-in @bot) nick))
-	    conf (:config @bot)
-	    max-ops (:max-operations conf)
-            pm? (= nick channel)]
-	(when (or (is-command? message bot) pm?)
-	  (if (dosync
-	       (let [pending (:pending-ops @bot)
-                     permitted (< pending max-ops)]
-		 (when permitted
-		   (alter bot assoc :pending-ops (inc pending)))))
-	    (try
-		 (let [n-bmap (into bot-map (split-args conf message pm?))]
-		   (thunk-timeout #((respond n-bmap) n-bmap) 30))
-		 (catch TimeoutException _ (send-message irc bot channel "Execution timed out."))
-		 (catch Exception e (.printStackTrace e))
-		 (finally (dosync
-			   (alter bot assoc :pending-ops (dec (:pending-ops @bot))))))
-	    (send-message irc bot channel "Too much is happening at once. Wait until other operations cease."))))))))
+  (on-thread
+   (let [bot-map (assoc irc-map :privs (get-priv (:logged-in @bot) nick))
+         conf (:config @bot)
+         max-ops (:max-operations conf)
+         pm? (= nick channel)]
+     (when (or (is-command? message bot) pm?)
+       (if (dosync
+            (let [pending (:pending-ops @bot)
+                  permitted (< pending max-ops)]
+              (when permitted
+                (alter bot assoc :pending-ops (inc pending)))))
+         (try
+           (let [n-bmap (into bot-map (split-args conf message pm?))]
+             (thunk-timeout #((respond n-bmap) n-bmap) 30))
+           (catch TimeoutException _ (send-message irc bot channel "Execution timed out."))
+           (catch Exception e (.printStackTrace e))
+           (finally (dosync
+                     (alter bot assoc :pending-ops (dec (:pending-ops @bot))))))
+         (send-message irc bot channel "Too much is happening at once. Wait until other operations cease."))))))
 
 (defn merge-with-conj [& args]
   (apply merge-with #(if (vector? %) (conj % %2) (conj [] % %2)) args))
