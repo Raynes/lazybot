@@ -9,7 +9,8 @@
          [gist :only [trim-with-gist]]]
         [somnium.congomongo :only [insert! fetch-one]])
   (:require [oauth.client :as oauth]
-            twitter))
+            twitter)
+  (:import org.apache.commons.lang.StringEscapeUtils))
 
 (def twitter-info (:twitter initial-info))
 
@@ -44,28 +45,34 @@
        (Thread/sleep (or (:interval twitter-info) 120000))
        (let [mentions (get-mentions @com)
              new-mentions (difference mentions stale-mentions)]
-         (doseq [{text :text :as mention} new-mentions]
-           (println "Received tweet:" text)
-           (call-all (let [nick (-> mention :user :screen_name)]
-                       {:bot bot :com com :nick nick :channel nick :message (drop-name) text})
-                     :on-message))
+         (doseq [{raw-text :text :as mention} new-mentions]
+           (let [text (StringEscapeUtils/unescapeHtml raw-text)
+                 nick (-> mention :user :screen_name)]
+             (println (str "Received tweet from " nick ": " text))
+             (call-all {:bot bot :com com :nick nick
+                        :channel nick :message (drop-name text)}
+                       :on-message)))
          (recur mentions))))
     [com bot]))
 
 (defmethod send-message :twitter
-  [{:keys [com bot nick]} s]
-  (let [{:keys [token token-secret consumer]} @com
-        msg (trim-with-gist 140 "result.clj" (str "@" nick " " s))]
+  [{:keys [com bot nick message]} s]
+  (let [{:keys [token token-secret consumer name]} @com
+        msg (trim-with-gist
+              140
+              "result.clj"
+              (str "@" nick " " message "\n@" name ": \u27F9 ")
+              (str "@" nick " " s))]
     (println "Sending tweet:" msg)
     (when-let [dupe (:id
                      (some
                       #(and (= msg (:text %)) %)
-                      (twitter/user-timeline :screen-name (:name @com))))]
+                      (twitter/user-timeline :screen-name name)))]
       (println "Duplicate tweet found. Destroying it.")
       (twitter/with-oauth consumer token token-secret
         (twitter/destroy-status dupe)))
     (twitter/with-oauth consumer token token-secret
-      (twitter/update-status msg))))
+      (twitter/update-status (StringEscapeUtils/escapeHtml msg)))))
 
 (defn setup-twitter []
   (println "Hi! I'm sexpbot! Shall we set up twitter support? We shall!")
