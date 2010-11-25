@@ -47,12 +47,16 @@
                (string/replace d# #"\s+" " "))]
       (str (when m# "Macro ") a# "; " d#))))
 
-(defn execute-text [bot-name user txt]
+(defn execute-text [bot-name user txt protocol]
   (try
     (with-open [writer (StringWriter.)]
       (let [res (pr-str (sb (read-string txt) {#'*out* writer #'doc #'pretty-doc}))
-            replaced (string/replace (str writer) "\n" " ")]
-        (str "\u27F9 " (trim bot-name user txt (str replaced (when (= last \space) " ") res)))))
+            replaced (string/replace (str writer) "\n" " ")
+            twitter? (= protocol :twitter)]
+        (str (when-not twitter? "\u27F9 ")
+             (if twitter?
+               res
+               (trim bot-name user txt (str replaced (when (= last \space) " ") res))))))
    (catch TimeoutException _ "Execution Timed Out!")
    (catch Exception e (str (root-cause e)))))
 
@@ -119,22 +123,22 @@ Return a seq of strings to be evaluated. Usually this will be either nil or a on
 
 (def max-embedded-forms 3)
 
-(defn- eval-forms [bot-name user [form1 form2 :as forms]]
+(defn- eval-forms [bot-name user protocol [form1 form2 :as forms]]
   (take max-embedded-forms
         (if-not form2
-          [(execute-text bot-name user form1)]
+          [(execute-text bot-name user form1 protocol)]
           (map (fn [f]
                  (str
                   (let [trimmed (apply str (take 40 f))]
                     (if (> (count f) 40)
                       (str trimmed "... ")
-                      trimmed)) " " (execute-text bot-name user f)))
+                      trimmed)) " " (execute-text bot-name user f protocol)))
                forms))))
 
 (defplugin
   (:hook
    :on-message
-   (fn [{:keys [irc bot nick channel message]}]
+   (fn [{:keys [com bot nick channel message] :as com-m}]
      (on-thread
       (if-let [evalp (-> @bot :config :eval-prefixes)]
         (when-let [sexps (what-to-eval bot channel message)]
@@ -142,16 +146,16 @@ Return a seq of strings to be evaluated. Usually this will be either nil or a on
             (do
               (try
                 (swap! many inc)
-                (doseq [sexp (eval-forms (:name @irc) nick sexps)]
-                  (send-message irc bot channel sexp))
+                (doseq [sexp (eval-forms (:name @com) nick (:protocol @bot) sexps)]
+                  (send-message com-m sexp))
                 (finally (swap! many dec))))
-            (send-message irc bot channel "Too much is happening at once. Wait until other operations cease.")))
+            (send-message com-m "Too much is happening at once. Wait until other operations cease.")))
         (throw (Exception. "Dude, you didn't set :eval-prefixes. I can't configure myself!"))))))
 
   (:cmd
    "Link to the source code of a Clojure function or macro."
    #{"source"}
-   (fn [{:keys [irc bot channel args]}]
+   (fn [{:keys [com bot channel args] :as com-m}]
      (if-let [line-url (get-line-url (first args))]
-       (send-message irc bot channel (str (first args)  " is " line-url))
-       (send-message irc bot channel "Source not found.")))))
+       (send-message com-m (str (first args)  " is " line-url))
+       (send-message com-m "Source not found.")))))
