@@ -18,8 +18,6 @@
    (fn [[k v]] (equal-nil proto (:protocol v)))
    s))
 
-(defn and-print [x] (prn x) x)
-
 (defn pull-hooks [bot hook-key]
   (map :fn
        (hook-key
