@@ -58,6 +58,13 @@
   (let [{:keys [token token-secret consumer]} @com
         msg (str "@" nick " " s)]
     (println "Sending tweet: " msg)
+    (when-let [dupe (:id
+                     (some
+                      #(and (= msg (:text %)) %)
+                      (twitter/user-timeline :screen-name (:name @com))))]
+      (println "Duplicate tweet found. Destroying it.")
+      (twitter/with-oauth consumer token token-secret
+        (twitter/destroy-status dupe)))
     (twitter/with-oauth consumer token token-secret
       (twitter/update-status msg))))
 
