@@ -31,7 +31,8 @@
       (set (twitter/mentions)))
     (catch Exception e
       (println "An error occured while trying to get mentions:")
-      (print-stack-trace e))))
+      (print-stack-trace e)
+      #{})))
 
 (defn drop-name [s] (join " " (rest (.split s " "))))
 
