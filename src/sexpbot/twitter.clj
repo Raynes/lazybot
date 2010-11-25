@@ -1,5 +1,7 @@
 (ns sexpbot.twitter
-  (:use [clojure [string :only [join]] [set :only [difference]]]
+  (:use [clojure
+         [string :only [join]] [set :only [difference]]
+         [stacktrace :only [print-stack-trace]]]
         [clj-config.core :only [read-config]]
         [sexpbot
          core
@@ -23,9 +25,13 @@
                             :hmac-sha1)))
 
 (defn get-mentions [{:keys [token token-secret]}]
-  (twitter/with-oauth
-    consumer token token-secret
-    (set (twitter/mentions))))
+  (try
+    (twitter/with-oauth
+      consumer token token-secret
+      (set (twitter/mentions)))
+    (catch Exception e
+      (println "An error occured while trying to get mentions:")
+      (print-stack-trace e))))
 
 (defn drop-name [s] (join " " (rest (.split s " "))))
 
@@ -69,10 +75,18 @@
                       #(and (= msg (:text %)) %)
                       (twitter/user-timeline :screen-name name)))]
       (println "Duplicate tweet found. Destroying it.")
+      (try
+        (twitter/with-oauth consumer token token-secret
+          (twitter/destroy-status dupe))
+        (catch Exception e
+          (println "An error occurred while trying to destroy a tweet:")
+          (print-stack-trace e))))
+    (try
       (twitter/with-oauth consumer token token-secret
-        (twitter/destroy-status dupe)))
-    (twitter/with-oauth consumer token token-secret
-      (twitter/update-status (StringEscapeUtils/escapeHtml msg)))))
+        (twitter/update-status (StringEscapeUtils/escapeHtml msg)))
+      (catch Exception e
+        (println "An error occurred while trying to update your status:")
+        (print-stack-trace e)))))
 
 (defn setup-twitter []
   (println "Hi! I'm sexpbot! Shall we set up twitter support? We shall!")
