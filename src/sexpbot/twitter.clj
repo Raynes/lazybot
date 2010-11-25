@@ -5,7 +5,8 @@
          core
          [info :only [info-file]]
          [registry :only [send-message]]
-         [utilities :only [keywordize on-thread]]]
+         [utilities :only [keywordize on-thread]]
+         [gist :only [trim-with-gist]]]
         [somnium.congomongo :only [insert! fetch-one]])
   (:require [oauth.client :as oauth]
             twitter))
@@ -45,10 +46,8 @@
              new-mentions (difference mentions stale-mentions)]
          (doseq [{text :text :as mention} new-mentions]
            (println "Received tweet:" text)
-           (call-all {:bot bot
-                      :com com
-                      :nick (-> mention :user :screen_name)
-                      :message (drop-name text)}
+           (call-all (let [nick (-> mention :user :screen_name)]
+                       {:bot bot :com com :nick nick :channel nick :message (drop-name) text})
                      :on-message))
          (recur mentions))))
     [com bot]))
@@ -56,7 +55,7 @@
 (defmethod send-message :twitter
   [{:keys [com bot nick]} s]
   (let [{:keys [token token-secret consumer]} @com
-        msg (str "@" nick " " s)]
+        msg (trim-with-gist 140 "result.clj" (str "@" nick " " s))]
     (println "Sending tweet:" msg)
     (when-let [dupe (:id
                      (some
