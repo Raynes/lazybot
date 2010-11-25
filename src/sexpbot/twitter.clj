@@ -44,7 +44,7 @@
        (let [mentions (get-mentions @com)
              new-mentions (difference mentions stale-mentions)]
          (doseq [{text :text :as mention} new-mentions]
-           (println "Received tweet: " text)
+           (println "Received tweet:" text)
            (call-all {:bot bot
                       :com com
                       :nick (-> mention :user :screen_name)
@@ -57,7 +57,7 @@
   [{:keys [com bot nick]} s]
   (let [{:keys [token token-secret consumer]} @com
         msg (str "@" nick " " s)]
-    (println "Sending tweet: " msg)
+    (println "Sending tweet:" msg)
     (when-let [dupe (:id
                      (some
                       #(and (= msg (:text %)) %)
