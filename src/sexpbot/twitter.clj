@@ -80,7 +80,7 @@
               140
               "result.clj"
               (str "@" nick " " message "\n@" name ": \u27F9 ")
-              (str "@" nick " " s))]
+              s)]
     (println "Sending tweet:" msg)
     (when-let [dupe (:id
                      (some
