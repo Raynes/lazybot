@@ -2,6 +2,7 @@
   (:use [clojure
          [string :only [join]] [set :only [difference]]
          [stacktrace :only [print-stack-trace]]]
+        clojure.contrib.logging
         [clj-config.core :only [read-config]]
         [sexpbot
          core
@@ -13,6 +14,16 @@
   (:require [oauth.client :as oauth]
             twitter)
   (:import org.apache.commons.lang.StringEscapeUtils))
+
+(defn set-log-level! [level]
+  "Sets the root logger's level, and the level of all of its Handlers, to level.
+   Level should be one of the constants defined in java.util.logging.Level."
+  (let [logger (.getLogger (impl-get-log ""))]
+    (.setLevel logger level)
+    (doseq [handler (.getHandlers logger)]
+      (. handler setLevel level))))
+
+(set-log-level! java.util.logging.Level/OFF)
 
 (def twitter-info (:twitter initial-info))
 
