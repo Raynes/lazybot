@@ -52,11 +52,12 @@
     (with-open [writer (StringWriter.)]
       (let [res (pr-str (sb (read-string txt) {#'*out* writer #'doc #'pretty-doc}))
             replaced (string/replace (str writer) "\n" " ")
+            result (str replaced (when (= last \space) " ") res)
             twitter? (= protocol :twitter)]
         (str (when-not twitter? "\u27F9 ")
              (if twitter?
-               res
-               (trim bot-name user txt (str replaced (when (= last \space) " ") res))))))
+               result
+               (trim bot-name user txt result)))))
    (catch TimeoutException _ "Execution Timed Out!")
    (catch Exception e (str (root-cause e)))))
 
