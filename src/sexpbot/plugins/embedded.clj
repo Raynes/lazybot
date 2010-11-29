@@ -1,7 +1,7 @@
 (ns sexpbot.plugins.embedded
   (:use [sexpbot registry]))
 
-(defplugin
+(defplugin :irc
   (:hook
    :on-message
    (fn [{:keys [message bot] :as irc-map}]

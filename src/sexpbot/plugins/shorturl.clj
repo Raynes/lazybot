@@ -34,10 +34,10 @@
    (= site "dottk") (dot-tk url)
    :else "Service is not supported"))
 
-(defn shorten [{:keys [irc bot channel nick args]} site]
+(defn shorten [{:keys [bot channel nick args] :as com-m} site]
   (if-let [url (first args)]
-    (send-message irc bot channel (str nick ": " (shorten-url url bot site)))
-    (send-message irc bot channel "You didn't specify a URL!")))
+    (send-message com-m (str nick ": " (shorten-url url bot site)))
+    (send-message com-m "You didn't specify a URL!")))
 
 (defplugin
   (:cmd

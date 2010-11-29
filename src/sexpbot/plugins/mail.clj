@@ -30,44 +30,45 @@
     true))
 
 (defn mail-alert
-  [{:keys [irc channel nick bot]}]
+  [{:keys [nick bot] :as com-m}]
   (let [lower-nick (.toLowerCase nick)
 	nmess (count-messages lower-nick)]
     (when (and (> nmess 0) (alert-time? lower-nick))
       (send-message
-       irc bot nick
-       (str nick ": You have " nmess 
-            " new message(s). Try the mymail or mail commands without any arguments to see them. This also works via PM.")
+       com-m
+       (prefix
+        bot nick "You have " nmess 
+        " new message(s). Try the mymail or mail commands without any arguments to see them. This also works via PM.")
        :notice? true)
       (swap! alerted assoc lower-nick (now)))))
 
-(defn get-messages [irc bot nick]
+(defn get-messages [{:keys [nick] :as com-m}]
   (let [lower-nick (.toLowerCase nick)]
     (if-let [messages (seq (fetch-messages lower-nick))]
-      (doseq [message messages] (send-message irc bot lower-nick message))
-      (send-message irc bot nick "You have no messages."))))
+      (doseq [message messages] (send-message (assoc com-m :nick lower-nick) message))
+      (send-message com-m "You have no messages."))))
 
 (defplugin
-  (:hook :on-message (fn [irc-map] (mail-alert irc-map)))
-  (:hook :on-join (fn [irc-map] (mail-alert irc-map)))
+  (:hook :on-message #'mail-alert)
+  (:hook :on-join #'mail-alert)
   
-  (:cmd 
+  (:cmd
    "Request that your messages be sent you via PM. Executing this command will delete all your messages."
-   #{"getmessages" "getmail" "mymail"} 
-   (fn [{:keys [irc bot nick]}]
-     (get-messages irc bot nick)))
+   #{"getmessages" "getmail" "mymail"}
+   :irc
+   #'get-messages)
 
   (:cmd 
    "Send somebody a message. Takes a nickname and a message to send. Will alert the person with a notice."
    #{"mail"}
-   (fn [{:keys [irc bot channel nick args irc]}]
+   :irc
+   (fn [{:keys [com nick args irc] :as com-m}]
      (if (seq args)
        (let [lower-user (.toLowerCase (first args))]
          (if (and (not (.contains lower-user "serv"))
-                  (not= lower-user (.toLowerCase (:name @irc))))
+                  (not= lower-user (.toLowerCase (:name @com))))
            (do
-             (new-message nick lower-user 
-                          (->> args rest (interpose " ") (apply str)))
-             (send-message irc bot channel "Message saved."))
-           (send-message irc bot channel "You can't message the unmessageable.")))
-       (get-messages irc bot nick)))))
+             (new-message nick lower-user (->> args rest (interpose " ") (apply str)))
+             (send-message com-m "Message saved."))
+           (send-message com-m "You can't message the unmessageable.")))
+       (get-messages com-m)))))

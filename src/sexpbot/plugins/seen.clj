@@ -25,9 +25,9 @@
   (when-let [seen-map (fetch-one :seen :where {:nick nick :server server})]
     (update-in seen-map [:time] #(- (now) %))))
 
-(defn put-seen [{:keys [nick channel irc]} doing] (tack-time nick (:server @irc) channel doing))
+(defn put-seen [{:keys [nick channel com]} doing] (tack-time nick (:server @com) channel doing))
 
-(defplugin
+(defplugin :irc
   (:hook :on-message
          (fn [irc-map] (put-seen irc-map "talking")))
   (:hook :on-join 
@@ -38,11 +38,11 @@
   (:cmd
    "Checks to see when the person you specify was last seen."
    #{"seen"} 
-   (fn [{:keys [irc bot channel args]}]
+   (fn [{:keys [com bot channel args] :as com-m}]
      (let [[who] args]
-       (send-message irc bot channel
+       (send-message com-m
                      (if-let [{:keys [time chan doing]}
-                              (get-seen who (:server @irc))]
+                              (get-seen who (:server @com))]
        
                        (str who " was last seen " doing
                             (when-not (= doing "quitting") " on ") 

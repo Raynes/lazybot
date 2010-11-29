@@ -12,34 +12,37 @@
 
 (defplugin
   (:hook :on-quit
-         (fn [{:keys [irc bot nick]}]
-           (when (logged-in? (:server @irc) bot nick)
-             (dosync (alter bot update-in [:logged-in (:server @irc)]
+         (fn [{:keys [com bot nick]}]
+           (when (logged-in? (:server @com) bot nick)
+             (dosync (alter bot update-in [:logged-in (:server @com)]
                             dissoc nick)))))
 
   (:cmd 
    "Best executed via PM. Give it your password, and it will log you in."
    #{"login"}
-   (fn [{:keys [irc bot nick hmask channel args]}]
-     (if (check-login nick hmask (first args) (:server @irc) bot)
-       (send-message irc bot channel "You've been logged in.")
-       (send-message irc bot channel "Username and password combination/hostmask do not match."))))
+   (fn [{:keys [com bot nick hmask channel args] :as com-m}]
+     (if (check-login nick hmask (first args) (:server @com) bot)
+       (send-message com-m "You've been logged in.")
+       (send-message com-m "Username and password combination/hostmask do not match."))))
   
   (:cmd
    "Logs you out."
    #{"logout"}
-   (fn [{:keys [irc bot nick channel]}]
-     (dosync (alter bot update-in [:logged-in (:server @irc)] dissoc nick)
-             (send-message irc bot channel "You've been logged out."))))
+   (fn [{:keys [com bot nick] :as com-m}]
+     (dosync (alter bot update-in [:logged-in (:server @com)] dissoc nick)
+             (send-message com-m "You've been logged out."))))
 
    (:cmd
     "Finds your privs"
     #{"privs"}
-    (fn [{:keys [irc bot channel nick]}]
+    (fn [{:keys [com bot channel nick] :as com-m}]
       (do
-        (send-message irc bot channel 
-                      (str nick ": You are a"
-                           (if (not= :admin (:privs ((:users ((:config @bot) (:server @irc))) nick)))
-                             " regular user."
-                             (str "n admin; you are " 
-                                  (if (logged-in? (:server @irc) bot nick) "logged in." "not logged in!")))))))))
+        (send-message
+         com-m
+         (str nick ": You are a"
+              (if (not= :admin (:privs ((:users ((:config @bot) (:server @com))) nick)))
+                " regular user."
+                (str "n admin; you are " 
+                     (if (logged-in? (:server @com) bot nick)
+                       "logged in."
+                       "not logged in!")))))))))

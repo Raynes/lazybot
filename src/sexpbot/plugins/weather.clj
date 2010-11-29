@@ -41,14 +41,14 @@
   (:cmd
    "Gets the forecast for a location. Can take a zipcode, or a City, State combination."
    #{"fcst"}
-   (fn [{:keys [irc bot channel nick args]}]
-     (let [[date [tonight today :as a]] (->> args (interpose " ") get-fcst)
+   (fn [{:keys [bot channel nick args] :as com-m}]
+     (let [[date [today tonight :as a]] (->> args (interpose " ") get-fcst)
            conditions (if (string? today) today a)]
        (if (seq date)
          (do
-           (send-message irc bot channel (str nick ": " date))
-           (send-message irc bot channel (str nick ": TODAY: " conditions))
+           (send-message com-m (prefix bot nick ": " date))
+           (send-message com-m (prefix bot nick ": TODAY: " conditions))
            (when (string? today)
-             (send-message irc bot channel (str nick ": TONIGHT: " tonight))))
-         (send-message irc bot channel (str nick ": Location not found!")))))))
+             (send-message com-m (prefix bot nick ": TONIGHT: " tonight))))
+         (send-message com-m (prefix bot nick ": Location not found!")))))))
 

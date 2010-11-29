@@ -44,6 +44,7 @@
   (:cmd
    "Get help with commands and stuff."
    #{"help"}
+   :irc
    (fn [{:keys [bot nick args] :as com-m}]
      (let [help-msg (join
                      " "

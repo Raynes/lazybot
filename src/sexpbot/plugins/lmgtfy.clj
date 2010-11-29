@@ -9,10 +9,10 @@
    "Constructs a lmgtfy URL. If you attach @ nick at the end, it will direct it towards
    the person named by nick."
    #{"lmgtfy"}
-   (fn [{:keys [irc bot channel args]}]
+   (fn [{:keys [bot args] :as com-m}]
      (if (not (seq args))
-       (send-message irc bot channel "http://www.lmgtfy.com")
+       (send-message com-m "http://www.lmgtfy.com")
        (if (some #(= "@" %) args)
          (let [[url-from user-to] (split-with #(not= "@" %) args)]
-           (send-message irc bot channel (str (last user-to) ": " (create-url url-from))))
-         (send-message irc bot channel (create-url args)))))))
+           (send-message com-m (str (last user-to) ": " (create-url url-from))))
+         (send-message com-m (create-url args)))))))

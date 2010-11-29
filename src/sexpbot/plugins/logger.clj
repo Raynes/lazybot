@@ -12,9 +12,9 @@
     [(unparse (formatters :date) time)
      (unparse (formatters :hour-minute-second) time)]))
 
-(defn log-message [{:keys [irc bot nick channel message action?]}]
+(defn log-message [{:keys [com bot nick channel message action?]}]
   (let [config (:config @bot)
-        server (:server @irc)
+        server (:server @com)
         last-channel (apply str (remove #(= % \#) channel))]
     (if (get-in config [server :log channel])
       (let [[date time] (date-time config)
@@ -27,14 +27,11 @@
                 (format "[%s] %s: %s\n" time nick message))
               :append true)))))
 
-(defplugin
-  (:hook
-   :on-message
-   (fn [irc]
-     (log-message irc)))
+(defplugin :irc
+  (:hook :on-message #'log-message)
   (:hook
    :on-send-message
-   (fn [irc bot channel message action?]
-     (log-message {:irc irc :bot bot :channel channel :message message
-                   :nick (:name @irc) :action? action?})
+   (fn [com bot channel message action?]
+     (log-message {:com com :bot bot :channel channel :message message
+                   :nick (:name @com) :action? action?})
      message)))

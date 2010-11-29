@@ -23,7 +23,7 @@
             assoc
             from (System/currentTimeMillis)))))
 
-(defplugin
+(defplugin :irc
   (:hook
    :on-message
    (fn [{:keys [nick message] :as args}]

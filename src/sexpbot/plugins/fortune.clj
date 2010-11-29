@@ -8,18 +8,18 @@
   (:cmd
    "Tells you what your fortune is. :>"
    #{"fortune"} 
-   (fn [{:keys [irc bot channel args]}]
+   (fn [com-m]
      (let [db (fetch :fortune)]
        (if (zero? (count db))
-         (send-message irc bot channel "I have no fortune cookies. Please feed me some!")
-         (send-message irc bot channel (:fortune (rand-nth db)))))))
+         (send-message com-m "I have no fortune cookies. Please feed me some!")
+         (send-message com-m (:fortune (rand-nth db)))))))
 
   (:cmd
    "Adds a fortune to the fortune database."
    #{"addfortune"} 
-   (fn [{:keys [irc bot channel args]}]
+   (fn [{:keys [args] :as com-m}]
      (if (seq args)
        (do
          (insert! :fortune {:fortune (->> args (interpose " ") (apply str))})
-         (send-message irc bot channel "Fortune cookie eaten."))
-       (send-message irc bot channel "An invisible fortune cookie?")))))
+         (send-message com-m "Fortune cookie eaten."))
+       (send-message com-m "An invisible fortune cookie?")))))

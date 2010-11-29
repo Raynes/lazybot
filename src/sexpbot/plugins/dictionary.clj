@@ -20,8 +20,8 @@
   (:cmd
    "Takes a word and look's up it's definition via the Wordnik dictionary API." 
    #{"dict"} 
-   (fn [{:keys [irc bot channel nick args]}]
-     (send-message irc bot channel 
-                   (str nick ": " 
+   (fn [{:keys [bot channel nick args]:as com-m}]
+     (send-message com-m 
+                   (prefix bot nick 
                         (let [[text part] (lookup-def (:wordnik-key (:config @bot)) (first args))]
                           (if (seq text) (str part ": " text) "Word not found.")))))))

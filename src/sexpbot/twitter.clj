@@ -7,7 +7,7 @@
         [sexpbot
          core
          [info :only [info-file]]
-         [registry :only [send-message]]
+         [registry :only [send-message prefix]]
          [utilities :only [keywordize on-thread]]
          [gist :only [trim-with-gist]]]
         [somnium.congomongo :only [insert! fetch-one]])
@@ -100,10 +100,13 @@
         (println "An error occurred while trying to update your status:")
         (print-stack-trace e)))))
 
+(defmethod prefix :twitter [bot nick & s] s)
+
 (defn setup-twitter []
   (println "Hi! I'm sexpbot! Shall we set up twitter support? We shall!")
   (println "Have you set up a twitter application for sexpbot at"
-           "http://twitter.com/oauth_clients/new yet? y/n")
+           "http://twitter.com/oauth_clients/new, and configured sexpbot with"
+           "Your consumer keys and such? y/n")
   (when (= (read-line) "y")
     (println "Alright. Fetching a request token...")
     (let [request-token (oauth/request-token consumer)]

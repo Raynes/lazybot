@@ -26,11 +26,12 @@
                     (vals
                      (remove-protos (:protocol @bot) (:modules @bot))))))))
 
+(defn extract-protocol [m & rest] (-> m :bot deref :protocol))
+
 (defn call-message-hooks [com bot channel s action?]
   (apply nil-comp com bot channel s action? (pull-hooks bot :on-send-message)))
 
-(defmulti send-message (fn [m & rest] (-> m :bot
-                                          deref :protocol)))
+(defmulti send-message #'extract-protocol)
 
 (defmethod send-message :irc
   [{:keys [com bot channel]} s & {:keys [action? notice?]}]
@@ -39,6 +40,14 @@
      action? (ircb/send-action com channel result)
      notice? (ircb/send-notice com channel result)
      :else (ircb/send-message com channel result))))
+
+(defmulti prefix
+  "Multiple protocol safe name prefixing"
+  #'extract-protocol)
+
+(defmethod prefix :irc
+  [bot nick & s]
+  (str nick ": " s))
 
 (defn get-priv [logged-in user]
   (if (and (seq logged-in) (-> user logged-in (= :admin))) :admin :noadmin))

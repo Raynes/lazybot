@@ -20,14 +20,14 @@
                             :where (keywordize [nick server channel]))]
     (get user-map :karma 0)))
 
-(defn- put-karma [{:keys [channel irc]} nick karma]
-  (set-karma nick (:server @irc) channel karma))
+(defn- put-karma [{:keys [channel com]} nick karma]
+  (set-karma nick (:server @com) channel karma))
 
 (def limit (ref {}))
 
 ;; TODO: mongo has atomic inc/dec commands - we should use those
 (defn- change-karma
-  [snick new-karma {:keys [nick irc bot channel] :as irc-map}]
+  [snick new-karma {:keys [nick com bot channel] :as com-m}]
   (let [[msg apply] 
         (dosync
          (let [current (get-in @limit [nick snick])]
@@ -38,36 +38,36 @@
             :else [(str "\u27F9 " new-karma)
                    (alter limit update-in [nick snick] (fnil inc 0))])))]
     (when apply
-      (put-karma irc-map snick new-karma)
+      (put-karma com-m snick new-karma)
       (future (Thread/sleep 300000)
               (alter limit update-in [nick snick] dec)))
-    (send-message irc bot channel msg)))
+    (send-message com-m msg)))
 
 (defn karma-fn
   "Create a plugin command function that applies f to the karma of the user specified in args."
   [f]
-  (fn [{:keys [irc channel args] :as irc-map}]
+  (fn [{:keys [com channel args] :as com-m}]
     (let [snick (first args)
-          karma (get-karma snick (:server @irc) channel)
+          karma (get-karma snick (:server @com) channel)
           new-karma (f karma)]
-      (change-karma snick new-karma irc-map))))
+      (change-karma snick new-karma com-m))))
 
-(defplugin
+(defplugin :irc
   (:hook :on-message
-         (fn [{:keys [message irc channel] :as irc-map}]
+         (fn [{:keys [message] :as com-m}]
            (let [[_ direction snick] (re-find #"^\((inc|dec) (.+)\)$" message)]
              (when snick
                ((karma-fn (case direction
                                 "inc" inc
                                 "dec" dec))
-                (merge irc-map {:args [snick]}))))))
+                (merge com-m {:args [snick]}))))))
   (:cmd
    "Checks the karma of the person you specify."
    #{"karma"} 
-   (fn [{:keys [irc bot channel args]}]
+   (fn [{:keys [com bot channel args] :as com-m}]
      (let [nick (first args)]
-       (send-message irc bot channel
-                     (if-let [karma (get-karma nick (:server @irc) channel)]
+       (send-message com-m
+                     (if-let [karma (get-karma nick (:server @com-m) channel)]
                        (str nick " has karma " karma ".")
                        (str "I have no record for " nick "."))))))
   (:cmd

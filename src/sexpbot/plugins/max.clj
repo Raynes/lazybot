@@ -2,14 +2,14 @@
   (:use sexpbot.registry
         [somnium.congomongo :only [fetch-one insert! destroy!]]))
 
-(defplugin
+(defplugin :irc
   (:hook
    :on-join
-   (fn [{:keys [irc nick channel]}]
+   (fn [{:keys [com nick channel]}]
      (future
-      (when (= nick (:name @irc))
+      (when (= nick (:name @com))
         (Thread/sleep 3000))
-      (let [user-count (count (keys (get-in @irc [:channels channel :users])))
+      (let [user-count (count (keys (get-in @com [:channels channel :users])))
             max (:max (fetch-one :max :where {:channel channel}))]
         (when (or (not max) (> user-count max))
           (destroy! :max {:channel channel})
@@ -18,7 +18,7 @@
   (:cmd
    "Find out what the most users ever in this channel at any one time is."
    #{"max"}
-   (fn [{:keys [irc bot channel]}]
-     (send-message irc bot channel
+   (fn [{:keys [channel] :as com-m}]
+     (send-message com-m
                    (str "The most users ever in " channel " is "
                         (:max (fetch-one :max :where {:channel channel})))))))

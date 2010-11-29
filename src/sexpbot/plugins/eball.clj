@@ -27,6 +27,6 @@
   (:cmd
    "Ask the magic eight ball a question."
    #{"8ball"} 
-   (fn [{:keys [irc bot nick channel]}]
+   (fn [{:keys [bot nick channel] :as com-m}]
      (let [answer (rand-int 20)]
-       (send-message irc bot channel (str nick ": " (nth responses answer)))))))
+       (send-message com-m (prefix bot nick (nth responses answer)))))))

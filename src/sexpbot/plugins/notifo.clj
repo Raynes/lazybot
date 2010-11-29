@@ -27,12 +27,12 @@
         message (data "notifo_message")]
     (when-let [conf ((config service) title)]
       (doseq [[server channels] conf]
-        (let [{:keys [irc bot]} (@bots server)]
+        (let [com-m (@bots server)]
           (doseq [chan channels]
-            (send-message irc bot chan message))))))
+            (send-message (assoc com-m :channel chan) message))))))
   "These boots are made for walkin' and that's just what they'll do.")
 
-(defplugin
+(defplugin :irc
   (:init
    (fn [irc bot]
      (swap! bots assoc (:server @irc) {:irc irc :bot bot})))

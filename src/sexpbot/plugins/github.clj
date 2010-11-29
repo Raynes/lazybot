@@ -57,7 +57,7 @@
    "These boots are made for walkin' and that's just what they'll do. "
    "One of these days these boots are gonna walk all over you."))
 
-(defplugin
+(defplugin :irc
   (:init
    (fn [irc bot]
      (swap! bots assoc (:server @irc) {:irc irc :bot bot})))

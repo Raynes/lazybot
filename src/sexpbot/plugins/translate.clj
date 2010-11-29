@@ -15,13 +15,13 @@
    "Translates with google translate. Takes two language abbreviations (google's ones) and some text
    to translate, and returns it translated."
    #{"trans" "translate"}
-   (fn [{:keys [irc bot channel args]}]
+   (fn [{:keys [bot channel args] :as com-m}]
      (let [[lang-from lang-to & text] args
            translation (translate lang-from lang-to (stringify text))]
        (if (:responseData translation)
-         (send-message irc bot channel (-> translation 
+         (send-message com-m (-> translation 
                                            :responseData 
                                            :translatedText 
                                            StringEscapeUtils/unescapeHtml
                                            (.replaceAll "\n|\r" "")))
-         (send-message irc bot channel "Languages not recognized."))))))
+         (send-message com-m "Languages not recognized."))))))
