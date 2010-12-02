@@ -17,9 +17,9 @@
     (s/join "" ["[" (s/join ", " show)
               (when (seq hide) "...") "]"])))
 
-(defn notify-chan [irc bot chan commit owner name branch no-header]
+(defn notify-chan [com-m commit owner name branch no-header]
   (send-message
-   irc bot chan
+   com-m
    (let [{:keys [added removed modified]} commit]
      (s/join "" [(when no-header
                    (str "\u0002" owner "/" name "\u0002: " branch " <" (is-gd (:url commit)) "> "))
@@ -37,22 +37,23 @@
       (when payload
         (when-let [conf (config (:url repository))]
           (doseq [[server channels] conf]
-            (let [{:keys [irc bot]} (@bots server)
+            (let [{:keys [com bot] :as com-map} (@bots server)
                   owner (-> repository :owner :name)
                   name (:name repository)
                   n-commits (count commits)
                   no-header (or (:no-header conf) (= n-commits 1))
                   branch (last (.split ref "/"))]
               (doseq [chan channels]
-                (when-not no-header
-                  (send-message
-                   irc bot chan
-                   (str "\u0002" owner "/" name "\u0002"
-                        ": " (count commits) " new commit(s) on branch " branch
-                        ". Compare view at <" (is-gd compare) ">. " (:open_issues repository)
-                        " open issues remain.")))
+                (let [com-m (assoc com-map :channel chan)]
+                  (when-not no-header
+                    (send-message
+                     com-m
+                     (str "\u0002" owner "/" name "\u0002"
+                          ": " (count commits) " new commit(s) on branch " branch
+                          ". Compare view at <" (is-gd compare) ">. " (:open_issues repository)
+                          " open issues remain."))))
                 (doseq [commit (take 3 commits)]
-                  (notify-chan irc bot chan commit owner name branch no-header)))))))))
+                  (notify-chan com-m commit owner name branch no-header)))))))))
   (str
    "These boots are made for walkin' and that's just what they'll do. "
    "One of these days these boots are gonna walk all over you."))
