@@ -44,7 +44,6 @@
   (:cmd
    "Get help with commands and stuff."
    #{"help"}
-   :irc
    (fn [{:keys [bot nick args] :as com-m}]
      (let [help-msg (join
                      " "
@@ -57,9 +56,9 @@
                content (fetch-one :help :where {:topic topic})]
            (cond
             (not topic) (send-message com-m "You're going to need to tell me what you want help with.")
-            content (send-message com-m (str nick ": " (:content content)))
+            content (send-message com-m (prefix bot nick (:content content)))
             :else (send-message com-m (str "Topic: \"" topic "\" doesn't exist!"))))
-         (send-message com-m (str nick ": " help-msg))))))
+         (send-message com-m (prefix bot nick help-msg))))))
   
   (:cmd
    "Lists the available help topics in the DB."
