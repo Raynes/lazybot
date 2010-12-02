@@ -12,8 +12,7 @@
          [gist :only [trim-with-gist]]]
         [somnium.congomongo :only [insert! fetch-one]])
   (:require [oauth.client :as oauth]
-            twitter)
-  (:import org.apache.commons.lang.StringEscapeUtils))
+            twitter))
 
 (defn set-log-level! [level]
   "Sets the root logger's level, and the level of all of its Handlers, to level.
@@ -80,7 +79,7 @@
               140
               "result.clj"
               (str "@" nick " " message "\n@" name ": \u27F9 ")
-              (str "@" nick " " s))]
+              (str "@" nick " " (.replace s "\n" "")))]
     (println "Sending tweet:" msg)
     (when-let [dupe (:id
                      (some
@@ -95,7 +94,7 @@
           (print-stack-trace e))))
     (try
       (twitter/with-oauth consumer token token-secret
-        (twitter/update-status (StringEscapeUtils/escapeHtml msg)))
+        (twitter/update-status msg))
       (catch Exception e
         (println "An error occurred while trying to update your status:")
         (print-stack-trace e)))))
