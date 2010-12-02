@@ -272,9 +272,9 @@ link map is not in mongo format."
 
 (defn learn-url
   "Fetch the contents of a URL and learn it as if it had been pasted directly to the current channel. Admin only."
-  [{:keys [bot irc nick channel] :as irc-map} url]
+  [{:keys [bot com nick channel] :as com-m} url]
   (if-admin
-   nick irc-map bot
+   nick com-m bot
    (str "I'd love to read " url ", but amalloy won't teach me how :(")))
 
 (defn trim-addressee [msg]
@@ -283,26 +283,26 @@ link map is not in mongo format."
 ;;; Plugin mumbo-jumbo
 
 ;; TODO add forms of address other than $markov, eg "sexpbot: thoughts?"
-(defplugin
+(defplugin :irc
   (:hook
    :on-message
-   (fn [{:keys [irc bot nick channel message]}]
-     (when-not (or (= nick (:name irc))
+   (fn [{:keys [com bot nick channel message]}]
+     (when-not (or (= nick (:name com))
                    (is-command? message bot))
-       (learn-message bot irc (db-name channel) (trim-addressee message)))))
+       (learn-message bot com (db-name channel) (trim-addressee message)))))
 
   (:cmd
    "Say something that seems to reflect what the channel is talking about."
    #{"markov" "thoughts?"}
-   (fn [{:keys [bot irc channel args] :as irc-map}]
-     (send-message irc bot channel
+   (fn [{:keys [bot com channel args] :as com-m}]
+     (send-message com-m
                    (if-let [sub-cmd (first args)]
                      (let [sub-args (rest args)]
                        (case sub-cmd
                              "url" (s/join ";"
                                            (for [url sub-args]
-                                             (learn-url irc-map url)))
+                                             (learn-url com-m url)))
                              (str "I don't understand " sub-cmd)))
                      (apply build-sentence
-                            (map #(% bot irc (db-name channel))
+                            (map #(% bot com (db-name channel))
                                  [vocabulary current-topics])))))))
