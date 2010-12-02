@@ -36,9 +36,8 @@
     (when (and (> nmess 0) (alert-time? lower-nick))
       (send-message
        (assoc com-m :channel nick)
-       (prefix
-        bot nick "You have " nmess 
-        " new message(s). Try the mymail or mail commands without any arguments to see them. This also works via PM.")
+       (str "You have " nmess 
+            " new message(s). Try the mymail or mail commands without any arguments to see them. This also works via PM.")
        :notice? true)
       (swap! alerted assoc lower-nick (now)))))
 
@@ -49,7 +48,7 @@
       (send-message com-m "You have no messages."))))
 
 (defplugin
-  (:hook :on-message #'mail-alert)
+  (:hook :on-message :irc #'mail-alert)
   (:hook :on-join #'mail-alert)
   
   (:cmd
