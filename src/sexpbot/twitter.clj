@@ -12,7 +12,8 @@
          [gist :only [trim-with-gist]]]
         [somnium.congomongo :only [insert! fetch-one]])
   (:require [oauth.client :as oauth]
-            twitter))
+            twitter)
+  (:import org.apache.commons.lang.StringEscapeUtils))
 
 (defn set-log-level! [level]
   "Sets the root logger's level, and the level of all of its Handlers, to level.
