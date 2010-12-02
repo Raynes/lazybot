@@ -51,9 +51,9 @@
                      (str "\u0002" owner "/" name "\u0002"
                           ": " (count commits) " new commit(s) on branch " branch
                           ". Compare view at <" (is-gd compare) ">. " (:open_issues repository)
-                          " open issues remain."))))
-                (doseq [commit (take 3 commits)]
-                  (notify-chan com-m commit owner name branch no-header)))))))))
+                          " open issues remain.")))
+                  (doseq [commit (take 3 commits)]
+                    (notify-chan com-m commit owner name branch no-header))))))))))
   (str
    "These boots are made for walkin' and that's just what they'll do. "
    "One of these days these boots are gonna walk all over you."))
