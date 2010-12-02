@@ -69,7 +69,7 @@
     (load-plugin irc refzors plugin)
     true
     (catch Exception e false)))
-
+ 
 (defn load-plugins [irc refzors]
   (let [info (:config @refzors)
 	plugins-to-load (intersection (:plugins info) (:plugins (info (:server @irc))))]
@@ -106,11 +106,11 @@
   (require 'sexpbot.utilities :reload)
   (require-plugins)
   (route (extract-routes bots))
-  (doseq [{:keys [irc bot]} bots]
+  (doseq [{:keys [com bot]} bots]
     (doseq [{:keys [cleanup]} (vals (:modules @bot))]
       (when cleanup (cleanup)))
     (dosync
      (alter bot dissoc :modules)
      (alter bot assoc-in [:modules :internal :hooks] initial-hooks)
      (reload-config bot))
-    (load-plugins irc bot)))
+    (load-plugins com bot)))
