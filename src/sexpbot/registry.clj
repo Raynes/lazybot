@@ -98,7 +98,7 @@
    (let [bot-map (assoc irc-map :privs (get-priv (:logged-in @bot) nick))
          conf (:config @bot)
          max-ops (:max-operations conf)
-         no-pre? (or (= nick channel) (= :twitter (:protocol bot)))]
+         no-pre? (or (= nick channel) (= :twitter (:protocol @bot)))]
      (when (or (is-command? message bot) no-pre?)
        (if (dosync
             (let [pending (:pending-ops @bot)
