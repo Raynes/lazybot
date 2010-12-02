@@ -14,7 +14,7 @@
     (.replaceAll string (str "(?i)" regexp) replacement)))
 
 (defn sed [com-m verbose?]
-  (let [{:keys [com nick args channel]} @com-m
+  (let [{:keys [com nick args channel]} com-m
         
         arg-str (.trim (join " " args))
         try-to-match (fn [regex]
