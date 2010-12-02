@@ -26,7 +26,10 @@
                     (vals
                      (remove-protos (:protocol @bot) (:modules @bot))))))))
 
-(defn extract-protocol [m & rest] (-> m :bot deref :protocol))
+(defn extract-protocol [m & rest]
+  (if (map? m)
+    (-> m :bot deref :protocol)
+    (-> m deref :protocol)))
 
 (defn call-message-hooks [com bot channel s action?]
   (apply nil-comp com bot channel s action? (pull-hooks bot :on-send-message)))
@@ -47,7 +50,7 @@
 
 (defmethod prefix :irc
   [bot nick & s]
-  (str nick ": " s))
+  (apply str nick ": " s))
 
 (defn get-priv [logged-in user]
   (if (and (seq logged-in) (-> user logged-in (= :admin))) :admin :noadmin))
@@ -99,7 +102,7 @@
          conf (:config @bot)
          max-ops (:max-operations conf)
          no-pre? (or (= nick channel) (= :twitter (:protocol @bot)))]
-     (when (or (is-command? message bot) no-pre?)
+     (when (or no-pre? (is-command? message bot))
        (if (dosync
             (let [pending (:pending-ops @bot)
                   permitted (< pending max-ops)]
@@ -113,7 +116,7 @@
            (finally
             (dosync
              (alter bot assoc :pending-ops (dec (:pending-ops @bot))))))
-         (send-message irc bot channel "Too much is happening at once. Wait until other operations cease."))))))
+         (send-message irc-map "Too much is happening at once. Wait until other operations cease."))))))
 
 (defn merge-with-conj [& args]
   (apply merge-with #(if (vector? %) (conj % %2) (conj [] % %2)) args))
