@@ -104,6 +104,7 @@
   [& bots]
   (require 'sexpbot.registry :reload)
   (require 'sexpbot.utilities :reload)
+  (require 'sexpbot.twitter :reload)
   (require-plugins)
   (route (extract-routes bots))
   (doseq [{:keys [com bot]} bots]
