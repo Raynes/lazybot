@@ -28,7 +28,7 @@
 (defplugin
   (:hook :on-quit
          (fn [{:keys [com bot nick]}]
-           (when (logged-in? (:server @com) bot nick)
+           (when (logged-in? bot nick)
              (dosync (alter bot update-in [:logged-in]
                             dissoc nick)))))
 
