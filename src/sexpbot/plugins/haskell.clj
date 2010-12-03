@@ -33,13 +33,14 @@
 (defn heval-cmd
   "Build a function suitable for use as a plugin's :cmd key, using the specified haskell evaluation function."
   [evaluator]
-  (fn [{:keys [args] :as com-m}]
-    (->> args
-         (interpose " ")
-         (apply str)
-         evaluator
-         (str "\u27F9 ")
-         (send-message com-m))))
+  (fn [{:keys [bot args] :as com-m}]
+    (send-message
+     com-m
+     (str (when (= :irc (:protocol @bot)) "\u27F9 ")
+          (->> args
+               (interpose " ")
+               (apply str)
+               evaluator)))))
 
 (defplugin
   (:cmd
