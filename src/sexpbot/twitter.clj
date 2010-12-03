@@ -100,7 +100,7 @@
         (println "An error occurred while trying to update your status:")
         (print-stack-trace e)))))
 
-(defmethod prefix :twitter [bot nick & s] s)
+(defmethod prefix :twitter [bot nick & s] (apply str s))
 
 (defn setup-twitter []
   (println "Hi! I'm sexpbot! Shall we set up twitter support? We shall!")
