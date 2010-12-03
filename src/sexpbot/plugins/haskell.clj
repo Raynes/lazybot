@@ -38,7 +38,7 @@
          (interpose " ")
          (apply str)
          evaluator
-         (str "\u27F9")
+         (str "\u27F9 ")
          (send-message com-m))))
 
 (defplugin
