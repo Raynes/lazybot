@@ -1,12 +1,13 @@
 (ns sexpbot.plugins.load
-  (:use [sexpbot registry core irc]))
+  (:use [sexpbot registry core irc]
+        [sexpbot.plugins.login :only [when-privs]]))
 
 (defplugin
   (:cmd
    "Load a plugin. ADMIN ONLY!"
    #{"load"}
    (fn [{:keys [com bot nick channel args] :as com-m}]
-     (if-admin nick com-m bot
+     (when-privs com-m :admin
                (if (->> args first (safe-load-plugin com bot))
                  (send-message com-m "Loaded.")
                  (send-message com-m (str "Module " (first args) " not found."))))))
@@ -15,7 +16,7 @@
    "Unload a plugin. ADMIN ONLY!"
    #{"unload"}
    (fn [{:keys [bot nick channel args] :as com-m}]
-     (if-admin nick com-m bot
+     (when-privs com-m :admin
                (if ((:modules @bot) (keyword (first args)))
                  (do 
                    (dosync (alter bot update-in [:modules] dissoc (keyword (first args))))
@@ -26,7 +27,7 @@
    "Lists all the plugins that are currently loaded. ADMIN ONLY!"
    #{"loaded?"}
    (fn [{:keys [bot nick args] :as com-m}]
-     (if-admin nick com-m bot
+     (when-privs com-m :admin
                (send-message com-m
                              (apply str (interpose " " (sort (keys (:modules @bot)))))))))
   
@@ -34,7 +35,7 @@
    "Reloads all plugins. ADMIN ONLY!"
    #{"reload"}
    (fn [{:keys [bot channel nick bot] :as com-m}]
-     (if-admin nick com-m bot
+     (when-privs com-m :admin
                (do
                  (apply reload-all (vals @bots))
                  (send-message com-m "Reloaded successfully.")))))

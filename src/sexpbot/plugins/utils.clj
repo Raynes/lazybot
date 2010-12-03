@@ -1,5 +1,6 @@
 (ns sexpbot.plugins.utils
   (:use [sexpbot utilities info registry]
+        [sexpbot.plugins.login :only [when-privs]]
 	[clj-github.gists :only [new-gist]]
         [sexpbot.gist :only [trim-with-gist]]
 	clj-config.core
@@ -40,7 +41,7 @@
    #{"join"}
    :irc
    (fn [{:keys [com bot nick args] :as com-m}]
-     (if-admin nick com-m bot
+     (when-privs com-m :admin
                (ircb/join-chan com (first args) (last args)))))
 
   (:cmd
@@ -48,7 +49,7 @@
    #{"part"}
    :irc
    (fn [{:keys [bot com nick args channel] :as com-m}]
-     (if-admin nick com-m bot
+     (when-privs com-m :admin
                (let [chan (if (seq args) (first args) channel)]
                  (send-message com-m "Bai!")
                  (ircb/part-chan com chan :reason "Because I don't like you.")))))
@@ -87,7 +88,7 @@
    "Sets the bot's nick. ADMIN ONLY."
    #{"setnick"} 
    (fn [{:keys [com bot nick args] :as com-m}]
-     (if-admin nick com-m bot (ircb/set-nick com (first args)))))
+     (when-privs com-m :admin (ircb/set-nick com (first args)))))
 
   (:cmd
    "Amusing command to check to see if a directory exists on the system that runs the bot."
@@ -151,7 +152,7 @@
    "Says what you tell it to in the channel you specify. ADMIN ONLY."
    #{"say"} 
    (fn [{:keys [bot nick args] :as com-m}]
-     (if-admin nick com-m bot
+     (when-privs com-m :admin
                (send-message (assoc com-m :channel (first args))
                              (->> args rest (interpose " ") (apply str))))))
 
@@ -195,8 +196,7 @@
    "Executes a shell command and displays the STDOUT"
    #{"shell"}
    (fn [{:keys [bot nick args] :as com-m}]
-     (if-admin
-      nick com-m bot
+     (when-privs com-m :admin
       (send-message
        com-m
        (let [cmd (s/join " " args)]

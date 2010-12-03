@@ -1,6 +1,7 @@
 ;; Written by Erik (boredomist)
 (ns sexpbot.plugins.help
   (:use [sexpbot registry info]
+        [sexpbot.plugins.login :only [when-privs]]
         [clojure.string :only [join]]
         [somnium.congomongo :only [fetch fetch-one insert! destroy!]]))
 
@@ -11,7 +12,7 @@
    (fn [{:keys [bot nick args] :as com-m}]
      (let [[topic & content] args
            content-s (join " " content)
-           admin-add? (:addmin-add? (:config @bot))]
+           admin-add? (:admin-add? (:config @bot))]
        (cond
         (fetch-one :help :where {:topic topic}) (send-message com-m "Topic already exists!")
         (or (empty? topic) (empty? content)) (send-message com-m "Neither topic nor content can be empty!")
@@ -20,8 +21,7 @@
                        (insert! :help {:topic topic :content content-s})
                        (send-message com-m (str "Topic Added: " topic)))]
                 (if admin-add?
-                  (if-admin nick com-m bot
-                            (insert-and-reply topic content))
+                  (when-privs com-m :admin (insert-and-reply topic content))
                   (insert-and-reply topic content)))))))
 
   (:cmd
@@ -36,8 +36,7 @@
                   (destroy! :help {:topic topic})
                   (send-message com-m (str "Topic Removed: " topic)))]
            (if admin-rm?
-             (if-admin nick com-m bot
-                       (destroy-and-reply topic))
+             (when-privs com-m :admin (destroy-and-reply topic))
              (destroy-and-reply topic)))
          (send-message com-m (str "Topic: \"" topic  "\" doesn't exist!"))))))
 

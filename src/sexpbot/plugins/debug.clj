@@ -1,5 +1,6 @@
 (ns sexpbot.plugins.debug
-  (:use sexpbot.registry)
+  (:use sexpbot.registry
+        [sexpbot.plugins.login :only [when-privs]])
   (:require [clojure.string :as string]))
 
 (defn get-mode [old-mode user-arg]
@@ -22,10 +23,9 @@
   (:cmd
    "Toggle debug mode, causing full stacktraces to be printed to the console/log when an exception goes uncaught, as well as permitting evaluation of arbitrary clojure code to inspect the running bot. Use the -v flag to print more debug information to the log."
    #{"debug"}
-   (fn [{:keys [irc bot nick channel args] :as irc-map}]
-     (if-admin
-      nick irc-map bot
-      (send-message irc bot channel
+   (fn [{:keys [bot nick channel args] :as com-m}]
+     (when-privs com-m :admin
+      (send-message com-m
                     (dosync
                      (let [arg (keyword (first args))]
                        (alter bot update-in debug-keypath get-mode arg)
@@ -35,9 +35,8 @@
   (:cmd
    "Evaluate code in an un-sandboxed context. Prints the result to stdout, does not send it to any irc channel."
    #{"deval"}
-   (fn [{:keys [irc bot nick channel args] :as irc-map}]
+   (fn [{:keys [bot nick channel args] :as com-m}]
      (when (get-in @bot debug-keypath)
-       (if-admin
-        nick irc-map bot
+       (when-privs com-m :admin
         (let [code (string/join " " args)]
           (println (str code " evaluates to:\n" (eval (read-string code))))))))))

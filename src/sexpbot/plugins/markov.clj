@@ -1,6 +1,7 @@
 (ns sexpbot.plugins.markov
   (:use sexpbot.registry
-        [sexpbot.utilities :only [keywordize verify transform-if]])
+        [sexpbot.utilities :only [keywordize verify transform-if]]
+        [sexpbot.plugins.login :only [when-privs]])
   (:require [clojure.contrib.string :as s :only [capitalize join]]
             [somnium.congomongo :as mongo :only [insert! destroy! fetch-one]])
   (:import java.util.regex.Pattern))
@@ -273,8 +274,7 @@ link map is not in mongo format."
 (defn learn-url
   "Fetch the contents of a URL and learn it as if it had been pasted directly to the current channel. Admin only."
   [{:keys [bot com nick channel] :as com-m} url]
-  (if-admin
-   nick com-m bot
+  (when-privs com-m :admin
    (str "I'd love to read " url ", but amalloy won't teach me how :(")))
 
 (defn trim-addressee [msg]

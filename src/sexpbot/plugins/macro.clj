@@ -1,5 +1,6 @@
 (ns sexpbot.plugins.macro
   (:use [sexpbot registry info]
+        [sexpbot.plugins.login :only [when-privs]]
 	clj-config.core
         [somnium.congomongo :only [fetch fetch-one insert! destroy!]]))
 
@@ -21,7 +22,7 @@
            macro      (.trim (->> args (interpose " ") rest (apply str)))]
        (if (and (seq macro)
                 (seq macro-name))
-         (if-admin nick com-m bot
+         (when-privs com-m :admin
                    (do
                      (destroy! :macro {:macro-name macro-name})
                      (insert! :macro {:macro-name macro-name :macro macro})

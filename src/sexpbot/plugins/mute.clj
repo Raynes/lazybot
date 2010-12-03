@@ -1,5 +1,6 @@
 (ns sexpbot.plugins.mute
-  (:use sexpbot.registry))
+  (:use sexpbot.registry
+        [sexpbot.plugins.login :only [when-privs]]))
 
 (defplugin :irc
   (:hook
@@ -10,8 +11,7 @@
    "Mutes the bot for the channel that this function is executed in."
    #{"mute"} 
    (fn [{:keys [bot nick channel] :as com-m}]
-     (if-admin
-      nick com-m bot
+     (when-privs com-m :admin
       (do
         (send-message com-m "Muting.")
         (dosync (alter bot update-in [:configs :mute :channels] conj channel))))))
@@ -20,8 +20,7 @@
    "Unmutes a channel that has been previously muted by :mute."
    #{"unmute"}
    (fn [{:keys [bot nick channel] :as com-m}]
-     (if-admin
-      nick com-m bot
+     (when-privs com-m :admin
       (do
         (dosync
          (alter bot update-in [:configs :mute :channels]

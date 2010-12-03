@@ -52,17 +52,6 @@
   [bot nick & s]
   (apply str nick ": " s))
 
-(defn get-priv [logged-in user]
-  (if (and (seq logged-in) (-> user logged-in (= :admin))) :admin :noadmin))
-
-(defmacro if-admin
-  [user full bot & body]
-  `(let [com# (:com ~full)]
-     (if (and (seq (:logged-in @~bot))
-              (= :admin (get-priv ((:logged-in @~bot) (:server @com#)) ~user)))
-       (do ~@body)
-       (send-message ~full (str ~user ": You aren't an admin!")))))
-
 (defn find-command [modules command]
   (some #(when ((:triggers %) command) %)
         (apply concat (map :commands (vals modules)))))
@@ -96,10 +85,9 @@
   [message bot]
   (m-starts-with message (-> @bot :config :prepends)))
 
-(defn try-handle [{:keys [nick channel irc bot message] :as irc-map}]
+(defn try-handle [{:keys [nick channel bot message] :as com-m}]
   (on-thread
-   (let [bot-map (assoc irc-map :privs (get-priv (:logged-in @bot) nick))
-         conf (:config @bot)
+   (let [conf (:config @bot)
          max-ops (:max-operations conf)
          no-pre? (or (= nick channel) (= :twitter (:protocol @bot)))]
      (when (or no-pre? (is-command? message bot))
@@ -109,14 +97,14 @@
               (when permitted
                 (alter bot assoc :pending-ops (inc pending)))))
          (try
-           (let [n-bmap (into bot-map (split-args conf message no-pre?))]
+           (let [n-bmap (into com-m (split-args conf message no-pre?))]
              (thunk-timeout #((respond n-bmap) n-bmap) 30))
-           (catch TimeoutException _ (send-message irc bot channel "Execution timed out."))
+           (catch TimeoutException _ (send-message com-m "Execution timed out."))
            (catch Exception e (.printStackTrace e))
            (finally
             (dosync
              (alter bot assoc :pending-ops (dec (:pending-ops @bot))))))
-         (send-message irc-map "Too much is happening at once. Wait until other operations cease."))))))
+         (send-message com-m "Too much is happening at once. Wait until other operations cease."))))))
 
 (defn merge-with-conj [& args]
   (apply merge-with #(if (vector? %) (conj % %2) (conj [] % %2)) args))
