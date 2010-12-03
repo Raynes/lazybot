@@ -20,7 +20,6 @@
    send the user a message pointing out that they don't have the required privs."
   [com-m priv & body]
   `(let [{bot# :bot nick# :nick} ~com-m]
-     (prn nick#)
      (if (has-privs? bot# nick# ~priv)
        (do ~@body)
        (send-message ~com-m (prefix bot# nick# "You don't not have the required privileges to do this.")))))
