@@ -1,5 +1,5 @@
 (ns sexpbot.plugins.load
-  (:use [sexpbot registry core]))
+  (:use [sexpbot registry core irc]))
 
 (defplugin
   (:cmd
@@ -42,4 +42,4 @@
   (:cmd
    "Connect the bot to a server specified in your configuration. ADMIN ONLY!"
    #{"reconnect" "connect"}
-   (fn [{:keys [args]}] (connect-bot (first args)))))
+   (fn [{:keys [args]}] (connect-bot #'make-bot (first args)))))

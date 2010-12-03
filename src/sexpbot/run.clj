@@ -1,5 +1,5 @@
 (ns sexpbot.run
-  (:use [sexpbot core twitter]
+  (:use [sexpbot core twitter irc]
         ring.adapter.jetty
         clojure.contrib.command-line
         [clojure.java.io :only [writer]])
