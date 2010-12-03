@@ -9,11 +9,11 @@
   (:require [irclj.core :as ircb])
   (:import [java.io File FileReader]))
 
-(mongo! :db "sexpbot")
-
 (def bots (atom {}))
 
 (defonce initial-info (eval (read-config info-file)))
+
+(mongo! :db (or (:db initial-info) "sexpbot"))
 
 (defn call-all [{bot :bot :as ircm} hook-key]
   (doseq [hook (pull-hooks bot hook-key)] (hook ircm)))
