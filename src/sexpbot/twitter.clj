@@ -63,10 +63,10 @@
        (Thread/sleep (or (:interval twitter-info) 120000))
        (let [mentions (get-mentions @com)
              new-mentions (remove
-                           (fn [{text :text {sn :screen_name} :user}]
+                           (fn [{text :text date :date {sn :screen_name} :user}]
                              (some
-                              (fn [{text2 :text {sn2 :screen_name} :user}]
-                                (and (= text text2) (= sn sn2)))
+                              (fn [{text2 :text date2 :data {sn2 :screen_name} :user}]
+                                (and (= text text2) (= sn sn2) (= date date2)))
                               stale-mentions))
                            mentions)]
          (doseq [{raw-text :text :as mention} new-mentions]
@@ -81,30 +81,33 @@
 
 (defmethod send-message :twitter
   [{:keys [com bot nick message]} s]
-  (let [{:keys [token token-secret consumer name]} @com
-        msg (trim-with-gist
-              140
-              "result.clj"
-              (str "@" nick " " message "\n@" name ": \u27F9 ")
-              (str "@" nick " " (.replace s "\n" "")))]
-    (println "Sending tweet:" msg)
-    (when-let [dupe (:id
-                     (some
-                      #(and (= msg (:text %)) %)
-                      (twitter/user-timeline :screen-name name)))]
-      (println "Duplicate tweet found. Destroying it.")
-      (try
-        (twitter/with-oauth consumer token token-secret
-          (twitter/destroy-status dupe))
-        (catch Exception e
-          (println "An error occurred while trying to destroy a tweet:")
-          (print-stack-trace e))))
-    (try
-      (twitter/with-oauth consumer token token-secret
-        (twitter/update-status msg))
-      (catch Exception e
-        (println "An error occurred while trying to update your status:")
-        (print-stack-trace e)))))
+  (on-thread
+   (let [{:keys [token token-secret consumer name]} @com
+         msg (trim-with-gist
+               140
+               "result.clj"
+               (str "@" nick " " message "\n@" name ": \u27F9 ")
+               (str "@" nick " " (.replace s "\n" "")))
+         update #(try
+                   (twitter/with-oauth consumer token token-secret
+                     (twitter/update-status msg))
+                   (catch Exception e
+                     (println "An error occurred while trying to update your status:")
+                     (print-stack-trace e)))]
+     (println "Sending tweet:" msg)
+     (if-let [dupe (:id
+                    (some
+                     #(and (= msg (:text %)) %)
+                     (twitter/user-timeline :screen-name name)))]
+       (try
+         (println "Duplicate tweet found. Destroying it.")
+         (twitter/with-oauth consumer token token-secret
+           (twitter/destroy-status dupe))
+         (update)
+         (catch Exception e
+           (println "An error occurred while trying to destroy a tweet:")
+           (print-stack-trace e)))
+       (update)))))
 
 (defmethod prefix :twitter [bot nick & s] (apply str s))
 
