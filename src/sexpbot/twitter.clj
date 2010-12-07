@@ -39,11 +39,11 @@
   (try
     (twitter/with-oauth
       consumer token token-secret
-      (set (twitter/mentions)))
+      (twitter/mentions))
     (catch Exception e
       (println "An error occured while trying to get mentions:")
       (print-stack-trace e)
-      #{})))
+      [])))
 
 (defn drop-name [s] (join " " (rest (.split s " "))))
 
@@ -62,7 +62,13 @@
      (loop [stale-mentions (get-mentions @com)]
        (Thread/sleep (or (:interval twitter-info) 120000))
        (let [mentions (get-mentions @com)
-             new-mentions (difference mentions stale-mentions)]
+             new-mentions (remove
+                           (fn [{text :text {sn :screen_name} :user}]
+                             (some
+                              (fn [{text2 :text {sn2 :screen_name} :user}]
+                                (and (= text text2) (= sn sn2)))
+                              stale-mentions))
+                           mentions)]
          (doseq [{raw-text :text :as mention} new-mentions]
            (let [text (StringEscapeUtils/unescapeHtml raw-text)
                  nick (-> mention :user :screen_name)]
