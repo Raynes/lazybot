@@ -19,11 +19,9 @@
   "Sets the root logger's level, and the level of all of its Handlers, to level.
    Level should be one of the constants defined in java.util.logging.Level."
   (let [logger (.getLogger (impl-get-log ""))]
-    (.setLevel logger level)
-    (doseq [handler (.getHandlers logger)]
-      (. handler setLevel level))))
+    (.setLevel logger level)))
 
-(set-log-level! java.util.logging.Level/OFF)
+(set-log-level! org.apache.log4j.Level/OFF)
 
 (def twitter-info (:twitter initial-info))
 
