@@ -24,11 +24,11 @@
 		     :channel-catch-blacklist #{} ; Channels in which URL title scraper is to be disabled.
 		     :url-blacklist #{} ; URL title scraper will look for these words in URLs and not use them if they appear.
 		     :user-ignore-url-blacklist [["bot" "ters"]] ; A series of "match this" but "not this" pairs.}
-		     :plugins #{#_"dictionary" "lmgtfy" "google" "translate" "eball" "utils" "leet" "clojure" "login"
+		     :plugins #{#_"dictionary" "lmgtfy" "google" "translate" "eball" "utils" "leet" "clojure" "login" "log"
 				"weather" "brainfuck" "whatis" "shorturl" "dynamic" "haskell"
 				"mail" "timer" "fortune" "rss" "title" "operator" "seen" "sed" "help" "status"
                                 "load" "embedded" "karma" "markov"}} ; A series of "match this" but "not this" pairs.
- :plugins #{#_"dictionary" "lmgtfy" "google" "translate" "eball" "utils" "leet" "clojure" "login"
+ :plugins #{#_"dictionary" "lmgtfy" "google" "translate" "eball" "utils" "leet" "clojure" "login" "log"
 	    "weather" "brainfuck" "whatis" "shorturl" "dynamic" "haskell"
 	    "mail" "timer" "fortune" "rss" "title" "operator" "seen" "sed" "help" "status"
             "load" "embedded" "karma" "markov"}}

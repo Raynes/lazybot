@@ -3,7 +3,8 @@
   (:require [clojure.contrib.io :as io]
             [clojure.string :only [join] :as string])
   (:import [java.io File FileReader]
-	   [java.util.concurrent FutureTask TimeUnit TimeoutException]))
+	   [java.util.concurrent FutureTask TimeUnit TimeoutException]
+           [org.apache.log4j LogManager]))
 
 ;; support legacy code, written before (join) was invented
 (def stringify string/join)
@@ -80,6 +81,11 @@ identity)."
   semantics instead of those of (future)."
   [& body]
   `(.start (Thread. (fn [] ~@body))))
+
+(defn get-logger
+  ([] (get-logger (str *ns*)))
+  ([ns]
+     (LogManager/getLogger (str ns))))
 
 ;;;;;; From clojurebot's sandbox.clj, adapted for my code. ;;;;;;
 (defn thunk-timeout [thunk seconds]

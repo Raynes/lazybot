@@ -1,4 +1,4 @@
-(defproject sexpbot "0.5.0"
+(defproject sexpbot "0.5.1"
   :description "FIXME: write"
   :dependencies [[org.clojure/clojure "1.2.0"]
                  [org.clojure/clojure-contrib "1.2.0"]
@@ -13,7 +13,11 @@
 		 [clj-config "0.1.0-SNAPSHOT"]
                  [clj-github "1.0.0-SNAPSHOT"]
                  [compojure "0.4.1"]
-                 [ring/ring-jetty-adapter "0.2.5"]]
+                 [ring/ring-jetty-adapter "0.2.5"]
+                 [log4j "1.2.15" :exclusions [javax.mail/mail
+                                              javax.jms/jms
+                                              com.sun.jdmk/jmxtools
+                                              com.sun.jmx/jmxri]]]
   :dev-dependencies [[swank-clojure "1.2.1"]]
   :uberjar-name "sexpbot"
   :main sexpbot.run)
