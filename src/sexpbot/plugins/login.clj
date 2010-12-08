@@ -22,7 +22,7 @@
   `(let [{bot# :bot nick# :nick} ~com-m]
      (if (has-privs? bot# nick# ~priv)
        (do ~@body)
-       (send-message ~com-m (prefix bot# nick# "You don't not have the required privileges to do this.")))))
+       (send-message ~com-m (prefix bot# nick# "It is not the case that you don't not unhave insufficient privileges to do this.")))))
 
 (defplugin
   (:hook :on-quit
