@@ -1,5 +1,6 @@
 (ns sexpbot.plugins.log
-  (:use [sexpbot registry utilities]
+  (:use (sexpbot registry utilities)
+        [sexpbot.plugins.login :only [when-privs]]
         clojure.contrib.logging)
   (:import [org.apache.log4j Level]))
 
@@ -17,7 +18,7 @@
    (fn [{:keys [bot nick com channel args] :as com-m}]
      (let [[level & pkgs] args
            level (Level/toLevel (.toUpperCase level))]
-       (if-admin
-        nick com-m bot
+       (when-privs
+        com-m :admin
         (doseq [p pkgs]
           (set-log-level p level)))))))
