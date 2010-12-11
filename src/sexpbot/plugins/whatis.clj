@@ -22,6 +22,16 @@
       (if-let [result (fetch-one :whatis :where {:subject (first args)})]
         (send-message com-m (str (first args) " = " (:is result)))
         (send-message com-m (str (first args) " does not exist in my database.")))))
+
+   (:cmd 
+    "Pass it a key, and it will tell the recipient what is at the key in the database via PM
+Example - $tell G0SUB about clojure"
+    #{"tell"}
+    (fn [{:keys [bot channel args] :as com-m}]
+      (when-let [subject (nth args 2 nil)]
+        (if-let [result (fetch-one :whatis :where {:subject subject})]
+          (send-message (assoc com-m :channel (first args)) (str subject " = " (:is result)))
+          (send-message com-m (str subject " does not exist in my database."))))))
    
    (:cmd 
     "Forgets the value of a key."
