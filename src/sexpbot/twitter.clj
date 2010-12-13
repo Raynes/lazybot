@@ -74,7 +74,8 @@
              (call-all {:bot bot :com com :nick nick
                         :channel nick :message (drop-name text)}
                        :on-message)))
-         (recur mentions))))
+         (recur (or (not-empty mentions)
+                    stale-mentions)))))
     [com bot]))
 
 (defmethod send-message :twitter
