@@ -5,7 +5,11 @@
         [sexpbot.utilities :only [verify transform-if on-thread]]
     [sexpbot.plugins.shorturl :only [is-gd]]
     [sexpbot.gist :only [trim-with-gist]])
-  (:require [clojure.string :as string :only [replace]])
+  (:require [clojure.string :as string :only [replace]]
+            ; these requires are for findfn
+            clojure.string
+            clojure.set
+            clojure.contrib.string)
   (:import java.io.StringWriter
            java.util.concurrent.TimeoutException
            (java.util.regex Pattern)))
@@ -136,6 +140,32 @@ Return a seq of strings to be evaluated. Usually this will be either nil or a on
                       trimmed)) " " (execute-text bot-name user f protocol)))
                forms))))
 
+(def findfn-ns-set
+     (map the-ns '#{clojure.core clojure.set clojure.string
+                    clojure.contrib.string}))
+
+(defn fn-name [var]
+  (symbol (string/join "/"
+                       ((juxt (comp ns-name :ns)
+                              :name)
+                        (meta var)))))
+
+(defn find-fn
+  [in out]
+  (map (comp fn-name second)
+       (filter
+        (fn [x]
+          (try 
+            (= out
+               (binding [*out* java.io.StringWriter]
+                 (apply
+                  (if (-> (second x) meta :macro)
+                    (macroexpand `(second x))
+                    (second x))
+                  in)))
+            (catch Exception _ false)))
+        (mapcat ns-publics findfn-ns-set))))
+
 (defplugin
   (:hook
    :on-message
@@ -159,4 +189,15 @@ Return a seq of strings to be evaluated. Usually this will be either nil or a on
    (fn [{:keys [com bot channel args] :as com-m}]
      (if-let [line-url (get-line-url (first args))]
        (send-message com-m (str (first args)  " is " line-url))
-       (send-message com-m "Source not found.")))))
+       (send-message com-m "Source not found."))))
+
+  (:cmd
+   "Finds the clojure fns, which given your input, produce your ouput."
+   #{"findfn"}
+   (fn [{:keys [bot args] :as com-m}]
+     (let [[user-in user-out :as args] (with-in-str (string/join " " args)
+                                         [(read) (read)])]
+       (send-message com-m (-> `(find-fn ~user-in ~user-out)
+                               sb
+                               vec
+                               str))))))
