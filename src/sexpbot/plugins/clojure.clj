@@ -145,14 +145,14 @@ Return a seq of strings to be evaluated. Usually this will be either nil or a on
                     clojure.contrib.string}))
 
 (defn fn-name [var]
-  (symbol (string/join "/"
-                       ((juxt (comp ns-name :ns)
-                              :name)
-                        (meta var)))))
+  (apply symbol (map str
+                     ((juxt (comp ns-name :ns)
+                            :name)
+                      (meta var)))))
 
 (defn find-fn
   [in out]
-  (map (comp fn-name second)
+  (map (comp str fn-name second)
        (filter
         (fn [x]
           (try 
@@ -163,7 +163,7 @@ Return a seq of strings to be evaluated. Usually this will be either nil or a on
                     (macroexpand `(second x))
                     (second x))
                   in)))
-            (catch Exception _ false)))
+            (catch Throwable _ false)))
         (mapcat ns-publics findfn-ns-set))))
 
 (defplugin
