@@ -152,7 +152,7 @@ Return a seq of strings to be evaluated. Usually this will be either nil or a on
 
 (defn find-fn
   [in out]
-  (map (comp str fn-name second)
+  (map (comp fn-name second)
        (filter
         (fn [x]
           (try 
