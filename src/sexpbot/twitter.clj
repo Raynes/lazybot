@@ -15,13 +15,27 @@
             twitter)
   (:import org.apache.commons.lang.StringEscapeUtils))
 
-(defn set-log-level! [level]
-  "Sets the root logger's level, and the level of all of its Handlers, to level.
-   Level should be one of the constants defined in java.util.logging.Level."
-  (let [logger (.getLogger (impl-get-log ""))]
-    (.setLevel logger level)))
+(defn set-log-level!
+  ([level]
+     (set-log-level! [(org.apache.log4j.Logger/getRootLogger)] level))
+  ([loggers level]
+     (let [loggers (map (fn [l] (if (string? l)
+                                  (org.apache.log4j.Logger/getLogger l)
+                                  l))
+                        loggers)]
+       (doseq [l loggers]
+         (.setLevel l (case level
+                            :all org.apache.log4j.Level/ALL
+                            :debug org.apache.log4j.Level/DEBUG
+                            :error org.apache.log4j.Level/ERROR
+                            :fatal org.apache.log4j.Level/FATAL
+                            :info org.apache.log4j.Level/INFO
+                            :off org.apache.log4j.Level/OFF
+                            :trace org.apache.log4j.Level/TRACE
+                            :trace-int org.apache.log4j.Level/TRACE_INT
+                            :warn org.apache.log4j.Level/WARN))))))
 
-(set-log-level! org.apache.log4j.Level/OFF)
+(set-log-level! :off)
 
 (def twitter-info (:twitter initial-info))
 
