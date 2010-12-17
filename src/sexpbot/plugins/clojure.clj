@@ -195,8 +195,15 @@ Return a seq of strings to be evaluated. Usually this will be either nil or a on
    "Finds the clojure fns, which given your input, produce your ouput."
    #{"findfn"}
    (fn [{:keys [bot args] :as com-m}]
-     (let [[user-in user-out :as args] (with-in-str (string/join " " args)
-                                         [(read) (read)])]
+     (let [[user-in user-out :as args]
+           ((juxt (comp vec butlast) last)
+            (with-in-str (string/join " " args)
+              (doall
+               (take-while identity
+                           (repeatedly
+                            #(try
+                               (read)
+                               (catch Throwable _)))))))]
        (send-message com-m (-> `(find-fn ~user-in ~user-out)
                                sb
                                vec
