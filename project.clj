@@ -20,4 +20,5 @@
                                               com.sun.jmx/jmxri]]]
   :dev-dependencies [[swank-clojure "1.2.1"]]
   :uberjar-name "sexpbot"
-  :main sexpbot.run)
+  :main sexpbot.run
+  :resources-path "resource")
