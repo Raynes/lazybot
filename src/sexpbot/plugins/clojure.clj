@@ -2,6 +2,7 @@
   (:use clojure.stacktrace
 	[clojail core testers]
 	sexpbot.registry
+        clojure.contrib.logging
         [sexpbot.utilities :only [verify transform-if on-thread]]
     [sexpbot.plugins.shorturl :only [is-gd]]
     [sexpbot.gist :only [trim-with-gist]])
@@ -152,6 +153,7 @@ Return a seq of strings to be evaluated. Usually this will be either nil or a on
 
 (defn find-fn
   [out & in]
+  (debug (str "out:[" out "], in[" in "]"))
   (map fn-name
        (filter
         (fn [x]
