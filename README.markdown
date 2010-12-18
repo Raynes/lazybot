@@ -10,7 +10,7 @@ Several of this bot's plugins require that you have MongoDB installed and runnin
 
 As for what OSes this bot actually runs on: I have no clue. I've seen it run on several Ubuntu distros, but nobody (that I know of) has yet to venture into the world of sexpbot-on-windows or mac. If you do, please let me know how it goes.
 
-Right now, there are no distributions, so the easiest way to run the bot is to clone the repository. Install leiningen or cake and do 'lein deps' or 'cake deps' to install the project's dependencies into the lib/ directory. Edit .sexpbot/info.clj to put the servers and other information the bot needs to have in there, get MongoDB running, and then run ./sexpbot. After you run the bot the first time, you'll have to edit configuration in ~/.sexpbot/info.clj.
+Right now, there are no distributions, so the easiest way to run the bot is to clone the repository. Install leiningen or cake and do 'lein deps' or 'cake deps' to install the project's dependencies into the lib/ directory. Additionally, you will need MongoDB installed (in some future version, this will be an optional dependency). Edit .sexpbot/info.clj to put the servers and other information the bot needs to have in there, get MongoDB running, and then run ./sexpbot. After you run the bot the first time, you'll have to edit configuration in ~/.sexpbot/info.clj (the .sexpbot directory is copied to your home directory the first time).
 
 You can also run `lein uberjar` or `cake uberjar` which will create a standalone jar file for you to use to run the bot. You can just do java -jar jarfile to run it.
 
@@ -23,6 +23,21 @@ IMPORTANT: If you load the clojure plugin, you must rename and move "example.pol
 
 The current list of commands is maintained at https://github.com/Raynes/sexpbot/wiki/Commands, and you can find help on any particular command with $help <command> (eg $help fcst).
 
+## Development
+
+Contributions to sexpbot are welcome, most often in the form of new plugins. If you have a great idea for something sexpbot could do that would be useful or neat, don't just sit on it: Write a plugin, and send a pull request! But before you get started, take a look at [our plugin policy][before-plugin] and the [plugin quick-start guide][plugin-guide]. If you want to see how much work it takes to write a plugin, take a look at a couple plugins added by developers not on the core team:
+* [$tell][], an improvement to $whatis from [ghoseb][]
+* [$findfn][], for finding the clojure function you're looking for, by [jColeChanged][]
+
 ## License
 
-Licensed under the same thing Clojure is licensed under. The EPL, of which you can find a copy of here: http://www.eclipse.org/legal/epl-v10.html and at the root of this directory.
+Licensed under the same thing Clojure is licensed under. The EPL, of which you can find a copy at http://www.eclipse.org/legal/epl-v10.html and in the root of this directory.
+
+
+[before-plugin]: https://github.com/Raynes/sexpbot/wiki/Read-this-before-writing-your-plugin
+[plugin-guide]: https://github.com/Raynes/sexpbot/wiki/Plugin-quick-start-guide
+[$findfn]: https://github.com/Raynes/sexpbot/compare/544566f7ee740731ca69...da4fcae5f3afe6cc9e6c
+[$tell]: https://github.com/Raynes/sexpbot/commit/b94c36c52271766c07de9f6bfb7c4d2a429ba498
+[ghoseb]: https://github.com/ghoseb
+[jColeChanged]: https://github.com/jColeChanged
+
