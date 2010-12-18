@@ -151,20 +151,20 @@ Return a seq of strings to be evaluated. Usually this will be either nil or a on
                       (meta var)))))
 
 (defn find-fn
-  [in out]
-  (map (comp fn-name second)
+  [out & in]
+  (map fn-name
        (filter
         (fn [x]
           (try 
             (= out
-               (binding [*out* java.io.StringWriter]
+               (binding [*out* (java.io.StringWriter.)]
                  (apply
-                  (if (-> (second x) meta :macro)
-                    (macroexpand `(second x))
-                    (second x))
+                  (if (-> x meta :macro)
+                    (macroexpand `x)
+                    x)
                   in)))
             (catch Throwable _ false)))
-        (mapcat ns-publics findfn-ns-set))))
+        (map second (mapcat ns-publics findfn-ns-set)))))
 
 (defplugin
   (:hook
@@ -192,19 +192,19 @@ Return a seq of strings to be evaluated. Usually this will be either nil or a on
        (send-message com-m "Source not found."))))
 
   (:cmd
-   "Finds the clojure fns, which given your input, produce your ouput."
+   "Finds the clojure fns which, given your input, produce your ouput."
    #{"findfn"}
    (fn [{:keys [bot args] :as com-m}]
      (let [[user-in user-out :as args]
-           ((juxt (comp vec butlast) last)
+           ((juxt butlast last)
             (with-in-str (string/join " " args)
               (doall
-               (take-while identity
+               (take-while (complement #{::done})
                            (repeatedly
                             #(try
                                (read)
-                               (catch Throwable _)))))))]
-       (send-message com-m (-> `(find-fn ~user-in ~user-out)
+                               (catch Throwable _ ::done)))))))]
+       (send-message com-m (-> `(find-fn ~user-out ~@user-in)
                                sb
                                vec
                                str))))))
