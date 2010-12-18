@@ -116,7 +116,7 @@
    (fn [com-m] (send-message com-m "KILL IT WITH FIRE!")))
 
   (:cmd 
-   "Gists it's arguments."
+   "Gists its arguments."
    #{"gist"} 
    (fn [{:keys [nick bot args] :as com-m}]
      (send-message
