@@ -26,7 +26,9 @@ The current list of commands is maintained at https://github.com/Raynes/sexpbot/
 ## Development
 
 Contributions to sexpbot are welcome, most often in the form of new plugins. If you have a great idea for something sexpbot could do that would be useful or neat, don't just sit on it: Write a plugin, and send a pull request! But before you get started, take a look at [our plugin policy][before-plugin] and the [plugin quick-start guide][plugin-guide]. If you want to see how much work it takes to write a plugin, take a look at a couple plugins added by developers not on the core team:
+
 * [$tell][], an improvement to $whatis from [ghoseb][]
+
 * [$findfn][], for finding the clojure function you're looking for, by [jColeChanged][]
 
 ## License
