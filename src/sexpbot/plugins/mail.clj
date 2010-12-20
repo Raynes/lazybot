@@ -44,7 +44,7 @@
 (defn get-messages [{:keys [nick] :as com-m}]
   (let [lower-nick (.toLowerCase nick)]
     (if-let [messages (seq (fetch-messages lower-nick))]
-      (doseq [message messages] (send-message (assoc com-m :nick lower-nick) message))
+      (doseq [message messages] (send-message (assoc com-m :channel lower-nick) message))
       (send-message com-m "You have no messages."))))
 
 (defplugin
