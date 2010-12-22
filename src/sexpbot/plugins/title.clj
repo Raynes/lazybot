@@ -1,7 +1,9 @@
 ;; The result of a team effort between programble and Rayne.
 (ns sexpbot.plugins.title
   (:use [sexpbot info registry utilities]
-	[clojure.contrib [string :only [ltrim]] [io :only [reader]]])
+	(clojure.contrib [string :only [ltrim]]
+                         [io :only [reader]]
+                         [logging :only [debug]]))
   (:import java.util.concurrent.TimeoutException
 	   org.apache.commons.lang.StringEscapeUtils))
 
@@ -11,7 +13,7 @@
   (->> s (.split #"\s+") (interpose " ") (apply str)))
 
 (defn add-url-prefix [url]
-  (if-not (.startsWith url "http://")
+  (if-not (.startsWith url "http")
     (str "http://" url)
     url))
 
@@ -39,7 +41,7 @@
 		(re-pattern match-this))]
     (re-find regex lower-s)))
 
-(defn strip-tilde [s] (apply str (remove #(= \~ %) s)))
+(defn strip-tilde [s] (apply str (remove #{\~} s)))
 
 (defn check-blacklist [server user bot]
   (let [blacklist (:user-ignore-url-blacklist ((:config @bot) server))]
@@ -48,7 +50,7 @@
 			   blacklist))))
 
 (defn title [{:keys [com nick bot user channel] :as com-m}
-             links & {verbose? :verbose? :or {verbose? false}}]
+             links & {verbose? :verbose?}]
   (if (or (and verbose? (seq links))
 	  (and (not (check-blacklist (:server @com) user bot))
 	       (not ((:channel-catch-blacklist ((:config @bot) (:server @com))) channel))))
@@ -76,13 +78,17 @@
    :on-message
    (fn [{:keys [com bot nick channel message] :as com-m}]
      (let [info (:config @bot)
-           get-links (fn [s] (->> s (re-seq #"(http://|www\.)[^ ]+") (apply concat) (take-nth 2)))]
+           get-links (fn [s]
+                       (->> s
+                            (re-seq #"(https?://|www\.)[^\]\[(){}\"'$^\s]+")
+                            (map first)))]
        (when (not ((:user-blacklist (info (:server @com))) nick))
          (let [prepend (:prepends info)
                links (get-links message)
                title-links? (and (not (m-starts-with message (:prepends info))) 
                                  (:catch-links? (info (:server @com)))
                                  (seq links))]
+           (debug (pr-str links))
            (when title-links?
              (title com-m links)))))))
   

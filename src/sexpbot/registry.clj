@@ -67,7 +67,7 @@
   ((:prepends config) s))
 
 (defn m-starts-with [m s]
-  (some identity (map #(.startsWith m %) s)))
+  (some #(.startsWith m %) s))
 
 (defn split-args [config s no-pre?]
   (let [[prepend command & args] (.split s " ")
