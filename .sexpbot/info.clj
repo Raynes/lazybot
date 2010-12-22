@@ -25,12 +25,12 @@
 		     :url-blacklist #{} ; URL title scraper will look for these words in URLs and not use them if they appear.
 		     :user-ignore-url-blacklist [["bot" "ters"]] ; A series of "match this" but "not this" pairs.}
 		     :plugins #{#_"dictionary" "lmgtfy" "google" "translate" "eball" "utils" "leet" "clojure" "login" "log"
-				"weather" "brainfuck" "whatis" "shorturl" "dynamic" "haskell"
-				"mail" "timer" "fortune" "rss" "title" "operator" "seen" "sed" "help" "status"
+				"weather" "brainfuck" "whatis" "shorturl" "haskell"
+				"mail" "timer" "fortune" "rss" "title" "operator" "seen" "sed" "help"
                                 "load" "embedded" "karma" "markov"}} ; A series of "match this" but "not this" pairs.
  :plugins #{#_"dictionary" "lmgtfy" "google" "translate" "eball" "utils" "leet" "clojure" "login" "log"
-	    "weather" "brainfuck" "whatis" "shorturl" "dynamic" "haskell"
-	    "mail" "timer" "fortune" "rss" "title" "operator" "seen" "sed" "help" "status"
+	    "weather" "brainfuck" "whatis" "shorturl" "haskell"
+	    "mail" "timer" "fortune" "rss" "title" "operator" "seen" "sed" "help"
             "load" "embedded" "karma" "markov"}}
 
 ; users is a series of username to password and privileges.
