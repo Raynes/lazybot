@@ -11,9 +11,8 @@
 
 (defn if-exists-read [file]
   (into {} 
-	(if (.exists (File. file))
-	  (-> file slurp read-string)
-	  nil)))
+	(when (.exists (File. file))
+	  (-> file slurp read-string))))
 
 (defmacro keywordize
   "Create a map in which, for each symbol S in vars, (keyword S) is a

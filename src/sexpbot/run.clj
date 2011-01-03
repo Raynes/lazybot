@@ -9,7 +9,7 @@
   (with-command-line args
     "sexpbot -- A Clojure IRC bot"
     [[background? b? "Start sexpbot in the background. Should only be used along with --logpath."]
-     [logpath "A file for sexpbot to direct ouput to."]
+     [logpath "A file for sexpbot to direct output to."]
      [setup-twitter? "Set up your twitter account with sexpbot."]]
     (cond
      background? (.exec (Runtime/getRuntime) (str "java -jar sexpbot.jar --logpath " logpath))
