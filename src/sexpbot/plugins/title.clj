@@ -5,7 +5,7 @@
                          [io :only [reader]]
                          [logging :only [debug]])
         [clojail.core :only [thunk-timeout]])
-  (:import (java.util.concurrent TimeoutException TimeUnit)
+  (:import java.util.concurrent.TimeoutException
 	   org.apache.commons.lang.StringEscapeUtils))
 
 (def titlere #"(?i)<title>([^<]+)</title>")
@@ -68,7 +68,7 @@
 						     (collapse-whitespace match))) 
 						   "\""))
 			   (when verbose? (send-message com-m "Page has no title."))))
-		      20 TimeUnit/SECONDS)
+		      20 :sec)
        (catch TimeoutException _ 
 	 (when verbose? 
 	   (send-message com-m "It's taking too long to find the title. I'm giving up.")))))

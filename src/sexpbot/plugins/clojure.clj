@@ -12,8 +12,8 @@
             clojure.set
             clojure.contrib.string)
   (:import java.io.StringWriter
-           (java.util.concurrent TimeoutException TimeUnit)
-           (java.util.regex Pattern)))
+           java.util.concurrent.TimeoutException
+           java.util.regex.Pattern))
 
 (def eval-tester secure-tester)
 (def sb (sandbox eval-tester))
@@ -170,7 +170,7 @@ Return a seq of strings to be evaluated. Usually this will be either nil or a on
                       (->> (str "Trying ")
                            debug))
                     in)))
-             50 TimeUnit/MILLISECONDS)
+             50 :ms)
             (catch Throwable _ false)))
         (remove (comp eval-tester
                       :name
