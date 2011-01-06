@@ -1,7 +1,8 @@
 (ns sexpbot.registry
-  (:use [sexpbot.utilities :only [thunk-timeout verify on-thread]])
+  (:use [sexpbot.utilities :only [verify on-thread]]
+        [clojail.core :only [thunk-timeout]])
   (:require [irclj.core :as ircb])
-  (:import java.util.concurrent.TimeoutException))
+  (:import (java.util.concurrent TimeoutException TimeUnit)))
 
 (defmacro def- [name & value]
   (concat (list 'def (with-meta name (assoc (meta name) :private true))) value))
@@ -98,7 +99,8 @@
                 (alter bot assoc :pending-ops (inc pending)))))
          (try
            (let [n-bmap (into com-m (split-args conf message no-pre?))]
-             (thunk-timeout #((respond n-bmap) n-bmap) 30))
+             (thunk-timeout #((respond n-bmap) n-bmap)
+                            TimeUnit/SECONDS 30))
            (catch TimeoutException _ (send-message com-m "Execution timed out."))
            (catch Exception e (.printStackTrace e))
            (finally

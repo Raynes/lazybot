@@ -1,21 +1,22 @@
 (ns sexpbot.plugins.clojure
   (:use clojure.stacktrace
-	[clojail core testers]
+	(clojail testers core) 
 	sexpbot.registry
         clojure.contrib.logging
-        [sexpbot.utilities :only [verify transform-if on-thread]]
-    [sexpbot.plugins.shorturl :only [is-gd]]
-    [sexpbot.gist :only [trim-with-gist]])
+        [sexpbot.utilities :only [verify transform-if on-thread thunk-timeout]]         
+        [sexpbot.plugins.shorturl :only [is-gd]]
+        [sexpbot.gist :only [trim-with-gist]])
   (:require [clojure.string :as string :only [replace]]
             ; these requires are for findfn
             clojure.string
             clojure.set
             clojure.contrib.string)
   (:import java.io.StringWriter
-           java.util.concurrent.TimeoutException
+           (java.util.concurrent TimeoutException TimeUnit)
            (java.util.regex Pattern)))
 
-(def sb (sandbox secure-tester))
+(def eval-tester secure-tester)
+(def sb (sandbox eval-tester))
 
 (def cap 300)
 
@@ -157,16 +158,22 @@ Return a seq of strings to be evaluated. Usually this will be either nil or a on
   (map fn-name
        (filter
         (fn [x]
-          (try 
-            (= out
-               (binding [*out* (java.io.StringWriter.)]
-                 (apply
-                  (if (-> x meta :macro)
-                    (macroexpand `x)
-                    x)
-                  in)))
+          (try
+            (thunk-timeout
+             #(= out
+                 (binding [*out* (java.io.StringWriter.)]
+                   (apply
+                    (doto (if (-> x meta :macro)
+                            (macroexpand `x)
+                            x)
+                      debug)
+                    in)))
+             50 TimeUnit/MILLISECONDS)
             (catch Throwable _ false)))
-        (map second (mapcat ns-publics findfn-ns-set)))))
+        (filter (complement (comp eval-tester
+                                  :name
+                                  meta))
+                (map second (mapcat ns-publics findfn-ns-set))))))
 
 (defplugin
   (:hook
@@ -194,7 +201,7 @@ Return a seq of strings to be evaluated. Usually this will be either nil or a on
        (send-message com-m "Source not found."))))
 
   (:cmd
-   "Finds the clojure fns which, given your input, produce your ouput."
+   "Finds the clojure fns which, given your input, produce your output."
    #{"findfn"}
    (fn [{:keys [bot args] :as com-m}]
      (let [[user-in user-out :as args]

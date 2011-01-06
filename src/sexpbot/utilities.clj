@@ -85,16 +85,3 @@ identity)."
   ([] (get-logger (str *ns*)))
   ([ns]
      (LogManager/getLogger (str ns))))
-
-;;;;;; From clojurebot's sandbox.clj, adapted for my code. ;;;;;;
-(defn thunk-timeout [thunk seconds]
-      (let [task (FutureTask. thunk)
-            thr (Thread. task)]
-        (try
-          (.start thr)
-          (.get task seconds TimeUnit/SECONDS)
-          (catch TimeoutException e
-                 (.cancel task true)
-                 (.stop thr (Exception. "Thread stopped!")) 
-		 (throw (TimeoutException. "Execution Timed Out"))))))
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
