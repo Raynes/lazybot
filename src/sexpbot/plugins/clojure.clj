@@ -164,8 +164,8 @@ Return a seq of strings to be evaluated. Usually this will be either nil or a on
                  (binding [*out* (java.io.StringWriter.)]
                    (apply
                     (doto (if (-> x meta :macro)
-                            (doto (macroexpand `x)
-                              warn) ; does this make any sense?
+                            (fn [& args]
+                              (eval `(~x ~@args))) ; args and x already vetted
                             x)
                       (->> (str "Trying ")
                            debug))
@@ -216,6 +216,4 @@ Return a seq of strings to be evaluated. Usually this will be either nil or a on
                                (read)
                                (catch Throwable _ ::done)))))))]
        (send-message com-m (-> `(find-fn ~user-out ~@user-in)
-                               sb
-                               vec
-                               str))))))
+                               sb vec str trim-with-gist))))))
