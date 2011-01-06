@@ -3,8 +3,9 @@
   (:use [sexpbot info registry utilities]
 	(clojure.contrib [string :only [ltrim]]
                          [io :only [reader]]
-                         [logging :only [debug]]))
-  (:import java.util.concurrent.TimeoutException
+                         [logging :only [debug]])
+        [clojail.core :only [thunk-timeout]])
+  (:import (java.util.concurrent TimeoutException TimeUnit)
 	   org.apache.commons.lang.StringEscapeUtils))
 
 (def titlere #"(?i)<title>([^<]+)</title>")
@@ -67,7 +68,7 @@
 						     (collapse-whitespace match))) 
 						   "\""))
 			   (when verbose? (send-message com-m "Page has no title."))))
-		      20)
+		      20 TimeUnit/SECONDS)
        (catch TimeoutException _ 
 	 (when verbose? 
 	   (send-message com-m "It's taking too long to find the title. I'm giving up.")))))

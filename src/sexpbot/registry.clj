@@ -100,7 +100,7 @@
          (try
            (let [n-bmap (into com-m (split-args conf message no-pre?))]
              (thunk-timeout #((respond n-bmap) n-bmap)
-                            TimeUnit/SECONDS 30))
+                            30 TimeUnit/SECONDS))
            (catch TimeoutException _ (send-message com-m "Execution timed out."))
            (catch Exception e (.printStackTrace e))
            (finally

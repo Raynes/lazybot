@@ -3,7 +3,7 @@
 	(clojail testers core) 
 	sexpbot.registry
         clojure.contrib.logging
-        [sexpbot.utilities :only [verify transform-if on-thread thunk-timeout]]         
+        [sexpbot.utilities :only [verify transform-if on-thread]]         
         [sexpbot.plugins.shorturl :only [is-gd]]
         [sexpbot.gist :only [trim-with-gist]])
   (:require [clojure.string :as string :only [replace]]
@@ -164,15 +164,17 @@ Return a seq of strings to be evaluated. Usually this will be either nil or a on
                  (binding [*out* (java.io.StringWriter.)]
                    (apply
                     (doto (if (-> x meta :macro)
-                            (macroexpand `x)
+                            (doto (macroexpand `x)
+                              warn) ; does this make any sense?
                             x)
-                      debug)
+                      (->> (str "Trying ")
+                           debug))
                     in)))
              50 TimeUnit/MILLISECONDS)
             (catch Throwable _ false)))
-        (filter (complement (comp eval-tester
-                                  :name
-                                  meta))
+        (remove (comp eval-tester
+                      :name
+                      meta)
                 (map second (mapcat ns-publics findfn-ns-set))))))
 
 (defplugin
