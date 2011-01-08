@@ -67,7 +67,7 @@
    (catch TimeoutException _ "Execution Timed Out!")
    (catch Exception e (str (root-cause e)))))
 
-(def many (atom 0))
+(def tasks (atom [0]))
 
 (defn first-object [s]
   (when (seq s)
@@ -139,7 +139,8 @@ Return a seq of strings to be evaluated. Usually this will be either nil or a on
                   (let [trimmed (apply str (take 40 f))]
                     (if (> (count f) 40)
                       (str trimmed "... ")
-                      trimmed)) " " (execute-text bot-name user f protocol)))
+                      trimmed))
+                  " " (execute-text bot-name user f protocol)))
                forms))))
 
 (def findfn-ns-set
@@ -181,26 +182,29 @@ Return a seq of strings to be evaluated. Usually this will be either nil or a on
   (:hook
    :on-message
    (fn [{:keys [com bot nick channel message] :as com-m}]
-     (on-thread
-      (if-let [evalp (-> @bot :config :eval-prefixes)]
-        (when-let [sexps (what-to-eval bot channel message)]
-          (if (< @many 3)
-            (do
-              (try
-                (swap! many inc)
-                (doseq [sexp (eval-forms (:name @com) nick (:protocol @bot) sexps)]
-                  (send-message com-m sexp))
-                (finally (swap! many dec))))
-            (send-message com-m "Too much is happening at once. Wait until other operations cease.")))
-        (throw (Exception. "Dude, you didn't set :eval-prefixes. I can't configure myself!"))))))
+     (if-let [evalp (-> @bot :config :eval-prefixes)]
+       (when-let [sexps (what-to-eval bot channel message)]
+         (if-not (second (swap! tasks (fn [[pending]]
+                                        (if (< pending 3)
+                                          [(inc pending) true]
+                                          [pending false]))))
+           (send-message com-m "Too much is happening at once. Wait until other operations cease.")
+           (on-thread
+            (try
+              (doseq [msg (eval-forms (:name @com) nick (:protocol @bot) sexps)]
+                (send-message com-m msg))
+              (finally (swap! tasks (fn [[pending]]
+                                      [(dec pending)])))))))
+       (throw (Exception. "Dude, you didn't set :eval-prefixes. I can't configure myself!")))))
 
   (:cmd
    "Link to the source code of a Clojure function or macro."
    #{"source"}
-   (fn [{:keys [com bot channel args] :as com-m}]
-     (if-let [line-url (get-line-url (first args))]
-       (send-message com-m (str (first args)  " is " line-url))
-       (send-message com-m "Source not found."))))
+   (fn [{:keys [args] :as com-m}]
+     (send-message com-m
+                   (if-let [line-url (get-line-url (first args))]
+                     (str (first args)  " is " line-url)
+                     "Source not found."))))
 
   (:cmd
    "Finds the clojure fns which, given your input, produce your output."
