@@ -16,7 +16,7 @@
            java.util.regex.Pattern))
 
 (def eval-tester secure-tester)
-(def sb (sandbox eval-tester))
+(def sb (sandbox eval-tester :transform pr-str))
 
 (def cap 300)
 
@@ -56,7 +56,7 @@
 (defn execute-text [bot-name user txt protocol]
   (try
     (with-open [writer (StringWriter.)]
-      (let [res (pr-str (sb (read-string txt) {#'*out* writer #'doc #'pretty-doc}))
+      (let [res (sb (read-string txt) {#'*out* writer #'doc #'pretty-doc})
             replaced (string/replace (str writer) "\n" " ")
             result (str replaced (when (= last \space) " ") res)
             twitter? (= protocol :twitter)]
