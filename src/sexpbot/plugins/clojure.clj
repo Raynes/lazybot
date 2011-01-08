@@ -215,5 +215,5 @@ Return a seq of strings to be evaluated. Usually this will be either nil or a on
                             #(try
                                (read)
                                (catch Throwable _ ::done)))))))]
-       (send-message com-m (-> `(find-fn ~user-out ~@user-in)
-                               sb vec str trim-with-gist))))))
+       (send-message com-m (-> `(vec (find-fn ~user-out ~@user-in))
+                               sb trim-with-gist))))))
