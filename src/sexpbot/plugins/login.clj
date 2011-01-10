@@ -1,6 +1,10 @@
 (ns sexpbot.plugins.login
   (:use [sexpbot registry]))
 
+(defn logged-in [bot]
+  (or (:logged-in bot)
+      (constantly nil)))
+
 (defn check-login [user mask pass server bot]
   (let [userconf ((:users ((:config @bot) server)) user)]
     (when (or (= mask (:host userconf)) (= pass (:pass userconf))) 
@@ -13,7 +17,7 @@
 (defn has-privs?
   "Checks if a user has the specified privs."
   [bot user priv]
-  (= priv ((:logged-in @bot) user)))
+  (= priv ((logged-in @bot) user)))
 
 (defmacro when-privs
   "Check to see if a user has the specified privs, if so, execute body. Otherwise,
