@@ -50,9 +50,9 @@
    :irc
    (fn [{:keys [bot com nick args channel] :as com-m}]
      (when-privs com-m :admin
-               (let [chan (if (seq args) (first args) channel)]
+               (let [chan (or (first args) channel)]
                  (send-message com-m "Bai!")
-                 (ircb/part-chan com chan :reason "Because I don't like you.")))))
+                 (ircb/part-chan com chan :reason "Quit")))))
 
   (:cmd
    "Rapes a person you specify."
@@ -73,7 +73,7 @@
    (fn [com-m] (send-message com-m "It's AWWWW RIGHT!")))
    
   (:cmd 
-   "Checks if it's input string is a pangram."
+   "Checks if its input string is a pangram."
    #{"pangram?"} 
    (fn [{:keys [args] :as com-m}]
      (send-message com-m (-> args stringify pangram? str))))
@@ -144,7 +144,7 @@
     "Balances parens for you."
     #{"balance"}
     (fn [{:keys [nick args bot] :as com-m}]
-      (let [[fst & more] args]
+      (let [fst (first args)]
         (send-message com-m
                       (prefix bot nick (apply str (concat fst (repeat (count fst) ")"))))))))
 
