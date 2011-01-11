@@ -56,7 +56,7 @@
 (defn execute-text [bot-name user txt protocol]
   (try
     (with-open [writer (StringWriter.)]
-      (let [res (sb (read-string txt) {#'*out* writer #'doc #'pretty-doc})
+      (let [res (sb (safe-read txt) {#'*out* writer #'doc #'pretty-doc})
             replaced (string/replace (str writer) "\n" " ")
             result (str replaced (when (= last \space) " ") res)
             twitter? (= protocol :twitter)]
@@ -71,11 +71,10 @@
 
 (defn first-object [s]
   (when (seq s)
-    (binding [*read-eval* false]
-      (try
-        ((transform-if coll? pr-str (constantly nil))
-         (read-string s))
-        (catch Exception _)))))
+    (try
+      ((transform-if coll? pr-str (constantly nil))
+       (safe-read s))
+      (catch Exception _))))
 
 (defmulti find-eval-request
   "Search a target string for eval requests.
@@ -178,6 +177,9 @@ Return a seq of strings to be evaluated. Usually this will be either nil or a on
                       meta)
                 (map second (mapcat ns-publics findfn-ns-set))))))
 
+(defn expand-user-macro [com-m user-str]
+  )
+
 (defplugin
   (:hook
    :on-message
@@ -207,17 +209,25 @@ Return a seq of strings to be evaluated. Usually this will be either nil or a on
                      "Source not found."))))
 
   (:cmd
+   "Macroexpand some Clojure code; no need to quote the forms supplied."
+   #{"macroexpand" "macro-expand" "me"})
+
+  (:cmd
    "Finds the clojure fns which, given your input, produce your output."
    #{"findfn"}
    (fn [{:keys [bot args] :as com-m}]
-     (let [[user-in user-out :as args]
-           ((juxt butlast last)
-            (with-in-str (string/join " " args)
-              (doall
-               (take-while (complement #{::done})
-                           (repeatedly
-                            #(try
-                               (read)
-                               (catch Throwable _ ::done)))))))]
-       (send-message com-m (-> `(vec (find-fn ~user-out ~@user-in))
-                               sb trim-with-gist))))))
+     (try
+       (let [[user-in user-out :as args]
+             ((juxt butlast last)
+              (with-in-str (string/join " " args)
+                (doall
+                 (take-while (complement #{::done})
+                             (repeatedly
+                              #(try
+                                 (safe-read)
+                                 (catch java.io.EOFException _
+                                   ::done)))))))]
+         (send-message com-m (-> `(vec (find-fn ~user-out ~@user-in))
+                                 sb trim-with-gist)))
+       (catch Throwable e
+         (send-message com-m (.getMessage e)))))))
