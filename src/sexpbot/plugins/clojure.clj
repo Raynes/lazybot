@@ -3,7 +3,7 @@
 	(clojail testers core) 
 	sexpbot.registry
         clojure.contrib.logging
-        [sexpbot.utilities :only [verify transform-if on-thread]]         
+        [sexpbot.utilities :only [verify transform-if on-thread]]
         [sexpbot.plugins.shorturl :only [is-gd]]
         [sexpbot.gist :only [trim-with-gist]])
   (:require [clojure.string :as string :only [replace]]
@@ -13,7 +13,8 @@
             clojure.contrib.string)
   (:import java.io.StringWriter
            java.util.concurrent.TimeoutException
-           java.util.regex.Pattern))
+           java.util.regex.Pattern
+           clojure.lang.LispReader$ReaderException))
 
 (def eval-tester secure-tester)
 (def sb (sandbox eval-tester :transform pr-str))
@@ -225,7 +226,7 @@ Return a seq of strings to be evaluated. Usually this will be either nil or a on
                              (repeatedly
                               #(try
                                  (safe-read)
-                                 (catch java.io.EOFException _
+                                 (catch LispReader$ReaderException _
                                    ::done)))))))]
          (send-message com-m (-> `(vec (find-fn ~user-out ~@user-in))
                                  sb trim-with-gist)))
