@@ -1,11 +1,11 @@
-(defproject sexpbot "0.5.1"
+(defproject sexpbot "0.5.2"
   :description "FIXME: write"
   :dependencies [[org.clojure/clojure "1.2.0"]
                  [org.clojure/clojure-contrib "1.2.0"]
 		 [commons-lang/commons-lang "2.5"]
 		 [commons-io/commons-io "1.4"]
 		 [org.clojars.rayne/clj-time "0.1.0-SNAPSHOT"]
-                 [clojail "0.3.3"]
+                 [clojail "0.3.4-SNAPSHOT"]
 		 [clojure-http-client "1.1.0-SNAPSHOT"]
 		 [irclj "0.4.0-SNAPSHOT"]
                  [clojure-twitter "1.2.3"]
