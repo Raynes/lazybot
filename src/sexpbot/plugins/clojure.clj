@@ -153,7 +153,7 @@ Return a seq of strings to be evaluated. Usually this will be either nil or a on
                             :name)
                       (meta var)))))
 
-(defn find-fn
+#_(defn find-fn
   [out & in]
   (debug (str "out:[" out "], in[" in "]"))
   (map fn-name
