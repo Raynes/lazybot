@@ -215,16 +215,17 @@ Return a seq of strings to be evaluated. Usually this will be either nil or a on
    #{"findfn"}
    (fn [{:keys [bot args] :as com-m}]
      (try
-       (let [[user-in user-out :as args]
+       (let [sentinel (Object.)
+             [user-in user-out :as args]
              ((juxt butlast last)
               (with-in-str (string/join " " args)
                 (doall
-                 (take-while (complement #{::done})
+                 (take-while (complement #{sentinel})
                              (repeatedly
                               #(try
                                  (safe-read)
                                  (catch LispReader$ReaderException _
-                                   ::done)))))))]
+                                   sentinel)))))))]
          (send-message com-m (-> `(vec (find-fn ~user-out ~@user-in))
                                  sb trim-with-gist)))
        (catch Throwable e
