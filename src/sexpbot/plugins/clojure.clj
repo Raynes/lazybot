@@ -153,7 +153,7 @@ Return a seq of strings to be evaluated. Usually this will be either nil or a on
                             :name)
                       (meta var)))))
 
-(defn find-fn
+#_(defn find-fn
   [out & in]
   (debug (str "out:[" out "], in[" in "]"))
   (map fn-name
@@ -210,7 +210,7 @@ Return a seq of strings to be evaluated. Usually this will be either nil or a on
    "Macroexpand some Clojure code; no need to quote the forms supplied."
    #{"macroexpand" "macro-expand" "me"})
 
-  (:cmd
+  #_(:cmd
    "Finds the clojure fns which, given your input, produce your output."
    #{"findfn"}
    (fn [{:keys [bot args] :as com-m}]
