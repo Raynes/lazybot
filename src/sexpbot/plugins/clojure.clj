@@ -171,12 +171,36 @@ Return a seq of strings to be evaluated. Usually this will be either nil or a on
                       (->> (str "Trying ")
                            debug))
                     in)))
-             50 :ms)
+             50 :ms eagerly-consume)
             (catch Throwable _ false)))
         (remove (comp eval-tester
                       :name
                       meta)
                 (map second (mapcat ns-publics findfn-ns-set))))))
+
+(defn read-findfn-args
+  "From an input string like \"in1 in2 in3 out\", return a vector of [out
+  in1 in2 in3], for use in findfn."
+  [argstr]
+  (apply concat
+         ((juxt (comp list last) butlast)
+          (with-in-str argstr
+            (let [sentinel (Object.)]
+              (doall
+               (take-while (complement #{sentinel})
+                           (repeatedly
+                            #(try
+                               (safe-read)
+                               (catch LispReader$ReaderException _
+                                 sentinel))))))))))
+
+(defn findfn-pluginfn [argstr]
+  (try
+    ;; a lame hack to get sandbox guarantees on eval-ing the user's args
+    (let [user-args (read-string (sb (vec (read-findfn-args argstr))))]
+      (->> user-args (apply find-fn) vec str trim-with-gist))
+    (catch Throwable e
+      (.getMessage e))))
 
 (defplugin
   (:hook
@@ -207,26 +231,7 @@ Return a seq of strings to be evaluated. Usually this will be either nil or a on
                      "Source not found."))))
 
   (:cmd
-   "Macroexpand some Clojure code; no need to quote the forms supplied."
-   #{"macroexpand" "macro-expand" "me"})
-
-  (:cmd
    "Finds the clojure fns which, given your input, produce your output."
    #{"findfn"}
-   (fn [{:keys [bot args] :as com-m}]
-     (try
-       (let [sentinel (Object.)
-             [user-in user-out :as args]
-             ((juxt butlast last)
-              (with-in-str (string/join " " args)
-                (doall
-                 (take-while (complement #{sentinel})
-                             (repeatedly
-                              #(try
-                                 (safe-read)
-                                 (catch LispReader$ReaderException _
-                                   sentinel)))))))]
-         (send-message com-m (-> `(vec (find-fn ~user-out ~@user-in))
-                                 sb trim-with-gist)))
-       (catch Throwable e
-         (send-message com-m (.getMessage e)))))))
+   (fn [{:keys [args] :as com-m}]
+     (send-message com-m (findfn-pluginfn (string/join " " args))))))
