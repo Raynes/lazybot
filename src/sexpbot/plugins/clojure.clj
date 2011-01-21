@@ -178,9 +178,6 @@ Return a seq of strings to be evaluated. Usually this will be either nil or a on
                       meta)
                 (map second (mapcat ns-publics findfn-ns-set))))))
 
-(defn expand-user-macro [com-m user-str]
-  )
-
 (defplugin
   (:hook
    :on-message
