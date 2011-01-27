@@ -1,4 +1,4 @@
-(defproject sexpbot "0.5.2"
+(defproject sexpbot "0.6.0"
   :description "FIXME: write"
   :dependencies [[org.clojure/clojure "1.2.0"]
                  [org.clojure/clojure-contrib "1.2.0"]
