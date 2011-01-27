@@ -1,7 +1,8 @@
 (ns sexpbot.plugins.timer
   (:refer-clojure :exclude [extend])
   (:use sexpbot.registry
-	clj-time.core))
+	clj-time.core)
+  (:require [clojure.string :as s]))
 
 (def running-timers (atom {}))
 
@@ -41,12 +42,14 @@
    "Creates a timer. You specify the time you want it to run in a 0:0:0 format, and a message
    to print once the timer has run. Once the timer completes, the message will be printed."
    #{"timer"} 
-   (fn [{:keys [bot channel args] :as com-m}]
+   (fn [{:keys [bot channel args nick] :as com-m}]
      (let [ctime (now)
            [hour minute sec] (map #(Integer/parseInt %) (.split (first args) ":"))
            newt (plus ctime (hours hour) (minutes minute) (secs sec))
            fint (in-secs (interval ctime newt))
-           text (->> args rest (interpose " ") (apply str))
+           text (->> (or (next args)
+                         [(str nick ": ping")])
+                     (s/join " "))
            n-timers (-> @running-timers keys (or [0]) (->> (apply max)) inc)]
        (future
         (swap! running-timers assoc n-timers
