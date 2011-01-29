@@ -298,6 +298,4 @@ link map is not in mongo format."
                      (apply build-sentence
                             (for [f [vocabulary current-topics]]
                               (f bot com (db-name channel))))))))
-  (:init
-   (fn [& args]
-     (mongo/add-index! :markov [:chan :word] :unique true :force true))))
+  (:indexes [[:chan :word] :unique true :force true]))
