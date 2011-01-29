@@ -37,7 +37,8 @@
             macro-body (fetch-one :macro :where {:macro-name macro-name})]
         (if (seq macro-body)
           (send-message com-m (prefix bot nick macro-name " => " macro-body))
-          (send-message com-m (prefix bot nick "that macro doesn't exist!")))))))
+          (send-message com-m (prefix bot nick "that macro doesn't exist!"))))))
+   (:indexes [[:macro-name]]))
       
     
        

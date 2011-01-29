@@ -21,4 +21,5 @@
    (fn [{:keys [channel] :as com-m}]
      (send-message com-m
                    (str "The most users ever in " channel " is "
-                        (:max (fetch-one :max :where {:channel channel})))))))
+                        (:max (fetch-one :max :where {:channel channel}))))))
+  (:indexes [[:channel]]))

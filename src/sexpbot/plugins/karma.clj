@@ -75,4 +75,5 @@
    #{"inc"} (karma-fn inc))
   (:cmd
    "Decreases the karma of the person you specify."
-   #{"dec"} (karma-fn dec)))
+   #{"dec"} (karma-fn dec))
+  (:indexes [[:server :channel :nick]]))

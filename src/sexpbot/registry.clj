@@ -1,7 +1,8 @@
 (ns sexpbot.registry
   (:use [sexpbot.utilities :only [verify on-thread]]
         [clojail.core :only [thunk-timeout]])
-  (:require [irclj.core :as ircb])
+  (:require [irclj.core :as ircb]
+            [somnium.congomongo :as mongo])
   (:import java.util.concurrent.TimeoutException))
 
 (defmacro def- [name & value]
@@ -113,18 +114,18 @@
 
 (defn parse-fns [body protocol]
   (apply merge-with-conj
-         (for [[one two three four five] body]
-           (case
-            one
-            :cmd {:cmd {:docs two
-                        :triggers three
-                        :fn (or five four)
-                        :protocol (or protocol (verify keyword? four))}}
-            :hook {:hook {two {:fn (or four three)
-                               :protocol (or protocol (verify keyword? three))}}}
-            :cleanup {:cleanup two}
-            :init {:init two}
-            :routes {:routes two}))))
+         (for [[one & [two three four five :as args]] body]
+           {one
+            (case
+             one
+             :cmd {:docs two
+                   :triggers three
+                   :fn (or five four)
+                   :protocol (or protocol (verify keyword? four))}
+             :hook {two {:fn (or four three)
+                         :protocol (or protocol (verify keyword? three))}}
+             :indexes (vec args)
+             two)})))
 
 (defn if-seq-error [fn-type possible-seq]
   (if (and (not (fn? possible-seq)) (seq possible-seq))
@@ -134,19 +135,21 @@
 (defmacro defplugin [& [protocol & body]]
   (let [proto (verify keyword? protocol)
         checked-body (if-not (keyword? protocol) (cons protocol body) body)
-        {:keys [cmd hook cleanup init routes]} (parse-fns checked-body proto)
+        {:keys [cmd hook cleanup init indexes routes]} (parse-fns checked-body proto)
         scmd (if (map? cmd) [cmd] cmd)]
-    `(let [pns# *ns*]
+    `(let [pns# *ns*
+           m-name# (keyword (last (.split (str pns#) "\\.")))]
        (defn ~'load-this-plugin [com# bot#]
          (when ~init ((if-seq-error "init" ~init) com# bot#))
-         (let [m-name# (keyword (last (.split (str pns#) "\\.")))]
-           (dosync
-            (alter bot# assoc-in [:modules m-name#]
-                   {:protocol ~proto
-                    :commands ~scmd
-                    :hooks (into
-                            {}
-                            (for [[k# v#] (apply merge-with-conj (if (vector? ~hook) ~hook [~hook]))]
-                              (if (vector? v#) [k# v#] [k# [v#]])))
-                    :cleanup (if-seq-error "cleanup" ~cleanup)
-                    :routes ~routes})))))))
+         (doseq [idx# ~indexes]
+           (apply mongo/add-index! m-name# idx#))
+         (dosync
+          (alter bot# assoc-in [:modules m-name#]
+                 {:protocol ~proto
+                  :commands ~scmd
+                  :hooks (into
+                          {}
+                          (for [[k# v#] (apply merge-with-conj (if (vector? ~hook) ~hook [~hook]))]
+                            (if (vector? v#) [k# v#] [k# [v#]])))
+                  :cleanup (if-seq-error "cleanup" ~cleanup)
+                  :routes ~routes}))))))
