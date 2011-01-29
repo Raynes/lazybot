@@ -40,13 +40,13 @@
     "pmdb"
     channel))
 
-(defmacro and-print
+(defmacro ?
   "A useful debugging tool when you can't figure out what's going on:
   wrap a form with and-print, and the form will be printed alongside
   its result. The result will still be passed along."
   [val]
   `(let [x# ~val]
-     (println '~val "is" x#)
+     (prn '~val '~'is x#)
      x#))
 
 ;; coerce objects to various types
@@ -163,11 +163,12 @@ link map is not in mongo format."
 (defn learn
   "Absorb a set of word pairs and add them to the supplied vocabulary."
   [vocabulary links]
-  (reduce (fn [vocab link] {:pre [(every? string? link)
-                                  (seq link)]}
-            (update-in vocab link (fnil inc 0)))
-          vocabulary
-          links))
+  (let [chan (meta vocabulary)]
+    (doseq [[word dest] links]
+      (mongo/update!
+       :markov
+       (keywordize [chan word])
+       {:$inc {(str "links." dest) 1}}))))
 
 ;;; Storage and manipulation of the actual map
 
@@ -177,13 +178,17 @@ link map is not in mongo format."
   "Create a function that looks up its argument in the mongo database
   corresponding to the supplied channel. See also vocabulary."
   [irc channel]
-  (fn [word]
-    (let [res (mongo/fetch-one :markov :where
-                               {:chan (keywordize [irc channel])
-                                :word (make-str word)})]
-      (if (seq res)
-        (update-in res [:links] demongoize)
-        res))))
+  (let [chan (keywordize [irc channel])]
+    (with-meta
+      (memoize                          ; not that it really matters
+       (fn [word]
+         (let [res (mongo/fetch-one :markov :where
+                                    {:chan chan
+                                     :word (make-str word)})]
+           (if (seq res)
+             (update-in res [:links] demongoize)
+             res))))
+      chan)))
 
 (defn vocabulary
   "Look up the vocabulary function for the supplied context. A vocabulary
@@ -200,20 +205,7 @@ link map is not in mongo format."
 (defn update-vocab!
   "Instruct the bot to learn a tokenized message."
   [bot irc channel tokens]
-  (let [vocab (vocabulary bot irc channel)
-        irc (:server @irc)
-        chan (keywordize [irc channel])
-        chain (mapcat links-in tokens)
-        db-links (map vocab (distinct (map first chain)))
-        entries (into {} (filter first (map (juxt :word :links)
-                                            db-links)))
-        links (learn entries chain)]
-    (doseq [word (keep first links)]
-      (let [links (get links word)
-            key (keywordize [chan word])]
-        (mongo/destroy! :markov key)
-        (mongo/insert! :markov
-                       (assoc key :links links))))))
+  (learn (vocabulary bot irc channel) tokens))
 
 (defn update-topics! [bot irc channel tokens]
   (swap! global-topics (comp #(take topics-to-track %)
