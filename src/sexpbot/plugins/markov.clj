@@ -297,4 +297,7 @@ link map is not in mongo format."
                              (str "I don't understand " sub-cmd)))
                      (apply build-sentence
                             (for [f [vocabulary current-topics]]
-                              (f bot com (db-name channel)))))))))
+                              (f bot com (db-name channel))))))))
+  (:init
+   (fn [& args]
+     (mongo/add-index! :markov [:chan :word] :unique true :force true))))
