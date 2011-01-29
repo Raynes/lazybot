@@ -70,4 +70,5 @@
              (new-message nick lower-user (->> args rest (interpose " ") (apply str)))
              (send-message com-m "Message saved."))
            (send-message com-m "You can't message the unmessageable.")))
-       (get-messages com-m)))))
+       (get-messages com-m))))
+  (:indexes [[:to]]))

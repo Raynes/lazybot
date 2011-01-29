@@ -28,6 +28,7 @@
 (defn put-seen [{:keys [nick channel com]} doing] (tack-time nick (:server @com) channel doing))
 
 (defplugin :irc
+
   (:hook :on-message
          (fn [irc-map] (put-seen irc-map "talking")))
   (:hook :on-join 
@@ -48,4 +49,5 @@
                             (when-not (= doing "quitting") " on ") 
                             chan " " (or (format-time time)
                                          "just moments") " ago.")
-                       (str "I have never seen " who ".")))))))
+                       (str "I have never seen " who "."))))))
+  (:index [[:nick :server] :unique true]))

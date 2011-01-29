@@ -66,4 +66,5 @@
      (send-message com-m (str "I know about these topics: "
                                         (->> (fetch :help)
                                              (map :topic)
-                                             (join " ")))))))
+                                             (join " "))))))
+  (:indexes [[:topic]]))
