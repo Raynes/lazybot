@@ -103,12 +103,13 @@
                repl
                (constantly [repl]))]
     (->> elts
-         (partition-by #(boolean (pred %)))
+         (partition-by (comp boolean pred))
          (mapcat (fn [[x :as item]]
                    (if (pred x)
                      (repl item)
                      item))))))
 
+;; TODO this is seriously disgusting and I'm pretty sure can be way better
 (defn tokenize
   "Take an input string and split it into a seq of sentences. Each sentence
    will be further split into a seq of words."
@@ -221,8 +222,8 @@ link map is not in mongo format."
   and note as containing things the channel is currently 'interested in'."
   [bot irc channel msg]
   (let [tokens (tokenize msg)]
-    (update-vocab! bot irc channel tokens)
-    (update-topics! bot irc channel tokens)))
+    (doseq [f [update-vocab! update-topics!]]
+      (f bot irc channel tokens))))
 
 ;;; Sentence-creation section
 
@@ -274,7 +275,6 @@ link map is not in mongo format."
 
 ;;; Plugin mumbo-jumbo
 
-;; TODO add forms of address other than $markov, eg "sexpbot: thoughts?"
 (defplugin :irc
   (:hook
    :on-message
@@ -296,5 +296,5 @@ link map is not in mongo format."
                                              (learn-url com-m url)))
                              (str "I don't understand " sub-cmd)))
                      (apply build-sentence
-                            (map #(% bot com (db-name channel))
-                                 [vocabulary current-topics])))))))
+                            (for [f [vocabulary current-topics]]
+                              (f bot com (db-name channel)))))))))
