@@ -161,14 +161,18 @@ link map is not in mongo format."
               (every? integer? (map second %))]}
   ((kv-munge make-str make-int) x))
 
+(defn where-clause [chan word]
+  {:chan.irc (:irc chan)
+   :chan.channel (:channel chan)
+   :word word})
+
 (defn learn
   "Absorb a set of word pairs and add them to the supplied vocabulary."
   [vocabulary links]
   (let [chan (meta vocabulary)]
     (doseq [[word dest] links]
       (mongo/update!
-       :markov
-       (keywordize [chan word])
+       :markov (where-clause chan word)
        {:$inc {(str "links." dest) 1}}))))
 
 ;;; Storage and manipulation of the actual map
@@ -184,8 +188,7 @@ link map is not in mongo format."
       (memoize                          ; not that it really matters
        (fn [word]
          (let [res (mongo/fetch-one :markov :where
-                                    {:chan chan
-                                     :word (make-str word)})]
+                                    (where-clause chan (make-str word)))]
            (if (seq res)
              (update-in res [:links] demongoize)
              res))))
@@ -206,7 +209,7 @@ link map is not in mongo format."
 (defn update-vocab!
   "Instruct the bot to learn a tokenized message."
   [bot irc channel tokens]
-  (learn (vocabulary bot irc channel) tokens))
+  (learn (vocabulary bot irc channel) (mapcat links-in tokens)))
 
 (defn update-topics! [bot irc channel tokens]
   (swap! global-topics (comp #(take topics-to-track %)
@@ -298,4 +301,4 @@ link map is not in mongo format."
                      (apply build-sentence
                             (for [f [vocabulary current-topics]]
                               (f bot com (db-name channel))))))))
-  (:indexes [[:chan :word] :unique true :force true]))
+  (:indexes [[:chan.channel :chan.irc :word] :unique true :force true]))
