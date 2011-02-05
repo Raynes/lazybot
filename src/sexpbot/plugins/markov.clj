@@ -298,7 +298,11 @@ link map is not in mongo format."
                                            (for [url sub-args]
                                              (learn-url com-m url)))
                              (str "I don't understand " sub-cmd)))
-                     (apply build-sentence
-                            (for [f [vocabulary current-topics]]
-                              (f bot com (db-name channel))))))))
+                     (->> (apply build-sentence
+                                 (for [f [vocabulary current-topics]]
+                                   (f bot com (db-name channel))))
+                          (fn [])
+                          (repeatedly)
+                          (drop-while #(< (count %) 20))
+                          (first))))))
   (:indexes [[:chan.channel :chan.irc :word] :unique true :force true]))
