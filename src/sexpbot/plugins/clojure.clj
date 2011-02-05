@@ -196,8 +196,10 @@ Return a seq of strings to be evaluated. Usually this will be either nil or a on
 
 (defn findfn-pluginfn [argstr]
   (try
-    ;; a lame hack to get sandbox guarantees on eval-ing the user's args
-    (let [user-args (read-string (sb (vec (read-findfn-args argstr))))]
+    (let [argvec (vec (read-findfn-args argstr))
+          _ (sb argvec)       ; a lame hack to get sandbox
+                              ; guarantees on eval-ing the user's args
+          user-args (eval argvec)]
       (->> user-args (apply find-fn) vec str trim-with-gist))
     (catch Throwable e
       (.getMessage e))))
