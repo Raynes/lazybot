@@ -44,10 +44,12 @@
    #{"timer"} 
    (fn [{:keys [bot channel args nick] :as com-m}]
      (let [ctime (now)
-           [hour minute sec] (map #(Integer/parseInt %) (.split (first args) ":"))
+           args (-> args (->> (s/join " ")) (s/split #"[: ]"))
+           [time message] (split-at 3 args)
+           [hour minute sec] (map #(Integer/parseInt %) time)
            newt (plus ctime (hours hour) (minutes minute) (secs sec))
            fint (in-secs (interval ctime newt))
-           text (->> (or (next args)
+           text (->> (or (seq message)
                          [(str nick ": ping")])
                      (s/join " "))
            n-timers (-> @running-timers keys (or [0]) (->> (apply max)) inc)]
