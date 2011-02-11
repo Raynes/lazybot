@@ -1,7 +1,8 @@
 (ns sexpbot.plugins.sed
   (:use [sexpbot registry info]
         clj-config.core
-        [clojure.string :only [join]]))
+        [clojure.string :only [join]]
+        clojure.contrib.logging))
 
 (def message-map (atom {}))
 (def sed-regex #"^s/([^/]+)/([^/]*)/?")
@@ -36,6 +37,7 @@
      :else
      (try
        (let [new-msg (sed* orig-msg regexp replacement)]
+         (debug (str user-to (-> @bot :config :dont-sed)))
          (when-not (or (= orig-msg new-msg)
                        ((-> @bot :config :dont-sed) user-to))
            (send-message com-m (str "<" user-to "> " new-msg))))
