@@ -2,6 +2,7 @@
  :prepends #{"@"} ; The character you want for a prepend. Currently set to @
  :bitly-login ""  ; Your bit.ly login.
  :bitly-key ""	  ; API key and login above needed for URL shortening.
+ :dont-sed #{"tomoj" "hiredman"}
  :wordnik-key ""  ; API key needed for dictionary access.
  :max-operations 3 ; The maximum number of operations that can be running at any given time.
  :pending-ops 0 ; The number of operations running right now
