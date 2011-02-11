@@ -14,7 +14,7 @@
     (.replaceAll string (str "(?i)" regexp) replacement)))
 
 (defn sed [com-m verbose?]
-  (let [{:keys [com nick args channel]} com-m
+  (let [{:keys [bot com nick args channel]} com-m
         
         arg-str (.trim (join " " args))
         try-to-match (fn [regex]
@@ -36,7 +36,8 @@
      :else
      (try
        (let [new-msg (sed* orig-msg regexp replacement)]
-         (when-not (= orig-msg new-msg)
+         (when-not (or (= orig-msg new-msg)
+                       ((-> @bot :config :dont-sed) user-to))
            (send-message com-m (str "<" user-to "> " new-msg))))
        (catch Exception _
          (when verbose? (format-msg com-m)))))))
