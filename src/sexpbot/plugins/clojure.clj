@@ -83,10 +83,13 @@
 (defn safe-read-with-paren-fix
   [txt]
   (try (safe-read txt)
-       (catch java.lang.RuntimeException e
+       (catch Throwable e
          (if (= (.getMessage (.getCause e))
                 "EOF while reading")
-           (safe-read (fix-parens txt))
+           (let [fixed (fix-parens txt)]
+             `(print (str ~(safe-read fixed)
+                          " ; Adjusted to "
+                          ~fixed)))
            (throw e)))))
 
 (defn execute-text [bot-name user txt protocol]
