@@ -17,7 +17,8 @@
                  [log4j "1.2.15" :exclusions [javax.mail/mail
                                               javax.jms/jms
                                               com.sun.jdmk/jmxtools
-                                              com.sun.jmx/jmxri]]]
+                                              com.sun.jmx/jmxri]]
+                 [fnparse "2.2.7"]]
   :dev-dependencies [[swank-clojure "1.2.1"]]
   :uberjar-name "sexpbot"
   :main sexpbot.run

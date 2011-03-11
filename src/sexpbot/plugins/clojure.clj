@@ -5,7 +5,8 @@
         clojure.contrib.logging
         [sexpbot.utilities :only [verify transform-if on-thread]]
         [sexpbot.plugins.shorturl :only [is-gd]]
-        [sexpbot.gist :only [trim-with-gist]])
+        [sexpbot.gist :only [trim-with-gist]]
+        [name.choi.joshua.fnparse :only [rule-match term failpoint alt complex rep*]])
   (:require [clojure.string :as string :only [replace]]
             ; these requires are for findfn
             clojure.string
@@ -15,6 +16,7 @@
            java.util.concurrent.TimeoutException
            java.util.regex.Pattern
            clojure.lang.LispReader$ReaderException))
+
 
 (def eval-tester secure-tester)
 (def sb (sandbox eval-tester :transform pr-str))
@@ -54,10 +56,43 @@
                (string/replace d# #"\s+" " "))]
       (str (when m# "Macro ") a# "; " d#))))
 
+;; fix-paren parser
+
+(def tokenize (partial re-seq #"\\[\[\](){}]|\"(?:\\.|[^\"])*\"|[\[\](){}]|[^\[\](){}]+"))
+
+(def initial-state (comp (partial array-map :remainder) tokenize))
+
+(def brackets {"[" "]" "(" ")" "{" "}"})
+
+(def opening (term (set (keys brackets))))
+
+(def closing (failpoint (term (set (vals brackets)))
+                        vector))
+
+(def content (term (complement (set (flatten (seq brackets))))))
+
+(def expression (alt (complex [open opening
+                               body (rep* expression)
+                               _    closing]                                
+                              (str open (apply str body) (brackets open)))
+                     content))
+
+(def fix-parens (comp (partial rule-match expression (constantly nil) (constantly nil))
+                      initial-state))
+
+(defn safe-read-with-paren-fix
+  [txt]
+  (try (safe-read txt)
+       (catch java.lang.RuntimeException e
+         (if (= (.getMessage (.getCause e))
+                "EOF while reading")
+           (safe-read (fix-parens txt))
+           (throw e)))))
+
 (defn execute-text [bot-name user txt protocol]
   (try
     (with-open [writer (StringWriter.)]
-      (let [res (sb (safe-read txt) {#'*out* writer #'doc #'pretty-doc})
+      (let [res (sb (safe-read-with-paren-fix txt) {#'*out* writer #'doc #'pretty-doc})
             replaced (string/replace (str writer) "\n" " ")
             result (str replaced (when (= last \space) " ") res)
             twitter? (= protocol :twitter)]
