@@ -87,9 +87,9 @@
          (if (= (.getMessage (.getCause e))
                 "EOF while reading")
            (let [fixed (fix-parens txt)]
-             `(print (str ~(safe-read fixed)
-                          " ; Adjusted to "
-                          ~fixed)))
+             `(do
+                (print ~(safe-read fixed) "; Adjusted to ")
+                ~fixed))
            (throw e)))))
 
 (defn execute-text [bot-name user txt protocol]
