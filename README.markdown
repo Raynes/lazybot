@@ -43,3 +43,17 @@ Licensed under the same thing Clojure is licensed under. The EPL, of which you c
 [ghoseb]: https://github.com/ghoseb
 [jColeChanged]: https://github.com/jColeChanged
 
+## Contributors
+
+These are people who have contributed to sexpbot since the beginning. These may not all be active contributors. Even one-off contributors will be added to this list.
+
+Anthony Grimes (Raynes)
+Alan Malloy (amalloy)
+Andrew Brehaut (brehaut)
+Baishampayan Ghose
+Curtis McEnroe (programble)
+Erik Price (boredomist)
+Joshua
+Michael D. Ivey (ivey)
+Pepijn de Vos (fliebel)
+Justin Balthrop (ninjudd)
