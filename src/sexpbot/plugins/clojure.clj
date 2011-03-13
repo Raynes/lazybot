@@ -84,12 +84,14 @@
   [txt]
   (try (safe-read txt)
        (catch Throwable e
-         (if (= (.getMessage (.getCause e))
-                "EOF while reading")
-           (let [fixed (safe-read (fix-parens txt))]
-             `(do
-                (print ~fixed "; Adjusted to ")
-                '~fixed))
+         (if (re-find #"(EOF while reading|Unmatched delimiter)"
+                      (.getMessage (.getCause e)))
+           (try
+             (let [fixed (safe-read (fix-parens txt))]
+               `(do
+                  (print ~fixed "; Adjusted to ")
+                  '~fixed))
+             (catch Throwable _ (throw e)))
            (throw e)))))
 
 (defn execute-text [bot-name user txt protocol]
