@@ -86,10 +86,10 @@
        (catch Throwable e
          (if (= (.getMessage (.getCause e))
                 "EOF while reading")
-           (let [fixed (fix-parens txt)]
+           (let [fixed (safe-read (fix-parens txt))]
              `(do
-                (print ~(safe-read fixed) "; Adjusted to ")
-                ~fixed))
+                (print ~fixed "; Adjusted to ")
+                '~fixed))
            (throw e)))))
 
 (defn execute-text [bot-name user txt protocol]
