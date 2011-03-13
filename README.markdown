@@ -21,7 +21,7 @@ IMPORTANT: If you load the clojure plugin, you must rename and move "example.pol
 
 ## Commands
 
-The current list of commands is maintained at https://github.com/Raynes/sexpbot/wiki/Commands, and you can find help on any particular command with $help <command> (eg $help fcst).
+The current list of commands is maintained at [https://github.com/Raynes/sexpbot/wiki/Commands](), and you can find help on any particular command with $help <command> (eg $help fcst).
 
 ## Development
 
@@ -33,7 +33,7 @@ Contributions to sexpbot are welcome, most often in the form of new plugins. If 
 
 ## License
 
-Licensed under the same thing Clojure is licensed under. The EPL, of which you can find a copy at http://www.eclipse.org/legal/epl-v10.html and in the root of this directory.
+Licensed under the same thing Clojure is licensed under, [the EPL](http://www.eclipse.org/legal/epl-v10.html). You can find a copy in the root of this directory.
 
 
 [before-plugin]: https://github.com/Raynes/sexpbot/wiki/Read-this-before-writing-your-plugin
@@ -47,13 +47,13 @@ Licensed under the same thing Clojure is licensed under. The EPL, of which you c
 
 These are people who have contributed to sexpbot since the beginning. These may not all be active contributors. Even one-off contributors will be added to this list.
 
-Anthony Grimes (Raynes)
-Alan Malloy (amalloy)
-Andrew Brehaut (brehaut)
-Baishampayan Ghose
-Curtis McEnroe (programble)
-Erik Price (boredomist)
-Joshua
-Michael D. Ivey (ivey)
-Pepijn de Vos (fliebel)
-Justin Balthrop (ninjudd)
+* Anthony Grimes ([Raynes](https://github.com/Raynes))
+* Alan Malloy ([amalloy](https://github.com/amalloy))
+* Andrew Brehaut ([brehaut](https://github.com/brehaut))
+* Baishampayan Ghose ([ghoseb](https://github.com/ghoseb))
+* Curtis McEnroe ([programble](https://github.com/programble))
+* Erik Price ([boredomist](https://github.com/boredomist))
+* Joshua ([jColeChanged](https://github.com/jColeChanged))
+* Michael D. Ivey ([ivey](https://github.com/ivey))
+* Pepijn de Vos ([fliebel](https://github.com/fliebel))
+* Justin Balthrop ([ninjudd](https://github.com/ninjudd))
