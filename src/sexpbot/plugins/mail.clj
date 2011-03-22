@@ -37,7 +37,7 @@
       (send-message
        (assoc com-m :channel nick)
        (str "You have " nmess 
-            " new message(s). Try the mymail or mail commands without any arguments to see them. This also works via PM.")
+            " new message(s). To retrieve your mail, send me a private message with the contents 'mail'.")
        :notice? true)
       (swap! alerted assoc lower-nick (now)))))
 
