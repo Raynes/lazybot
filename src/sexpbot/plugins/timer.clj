@@ -54,13 +54,9 @@
                      (s/join " "))
            n-timers (-> @running-timers keys (or [0]) (->> (apply max)) inc)]
        (future
-         (swap! running-timers assoc n-timers
-                {:end-time newt 
-                 :text text})
-         (Thread/sleep (* fint 1000))
-         (when (@running-timers n-timers)
            (apply send-message com-m
                   (if (= (first message) "/me") 
-                    [(apply str (interpose " " (rest message))) :action? true]
+                    [(s/join " " (rest message)) :action? true]
                     [text])))
-         (swap! running-timers dissoc n-timers))))))
+       (swap! running-timers dissoc n-timers)
+       (send-message com-m "Timer added.")))))
