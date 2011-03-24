@@ -44,7 +44,7 @@
    #{"timer"} 
    (fn [{:keys [bot channel args nick] :as com-m}]
      (let [ctime (now)
-           args (-> args (->> (s/join " ")) (s/split #"[: ]"))
+           args (-> args (->> (s/join " ")) (s/split #"[: ]+"))
            [time message] (split-at 3 args)
            [hour minute sec] (map #(Integer/parseInt %) time)
            newt (plus ctime (hours hour) (minutes minute) (secs sec))
@@ -54,12 +54,13 @@
                      (s/join " "))
            n-timers (-> @running-timers keys (or [0]) (->> (apply max)) inc)]
        (future
-        (swap! running-timers assoc n-timers
-               {:end-time newt 
-                :text text})
-        (Thread/sleep (* fint 1000))
-        (when (@running-timers n-timers)
-          (if (= (second args) "/me") 
-            (send-message com-m (apply str (interpose " " (nnext args))) :action? true)
-            (send-message com-m text)))
-        (swap! running-timers dissoc n-timers))))))
+         (swap! running-timers assoc n-timers
+                {:end-time newt 
+                 :text text})
+         (Thread/sleep (* fint 1000))
+         (when (@running-timers n-timers)
+           (apply send-message com-m
+                  (if (= (first message) "/me") 
+                    [(apply str (interpose " " (rest message))) :action? true]
+                    [text])))
+         (swap! running-timers dissoc n-timers))))))

@@ -128,11 +128,19 @@
 
 (defn links-in
   "Returns a seq of the touching pairs in a tokenized sentence, with
-  special start and end markers added."  [sentence]
-  (partition 2 1
-             (concat [start-sentence]
-                     sentence
-                     [end-sentence])))
+  special start and end markers added."
+  [sentence]
+  (ngrams sentence (concat [start-sentence]
+                           sentence
+                           [end-sentence])))
+
+(defn ngrams
+  ([items]
+     (ngrams 2 items))
+  ([size items]
+     (into {}
+           (map (juxt butlast last)
+                (partition size 1 items)))))
 
 (defn kv-munge
   "Returns a function that operates on a link-map by applying kf and vf to
