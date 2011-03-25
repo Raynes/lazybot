@@ -53,10 +53,10 @@
                          [(str nick ": ping")])
                      (s/join " "))
            n-timers (-> @running-timers keys (or [0]) (->> (apply max)) inc)]
+       (send-message com-m "Timer added.")
        (future
-           (apply send-message com-m
-                  (if (= (first message) "/me") 
-                    [(s/join " " (rest message)) :action? true]
-                    [text])))
-       (swap! running-timers dissoc n-timers)
-       (send-message com-m "Timer added.")))))
+         (apply send-message com-m
+                (if (= (first message) "/me") 
+                  [(s/join " " (rest message)) :action? true]
+                  [text]))
+         (swap! running-timers dissoc n-timers))))))
