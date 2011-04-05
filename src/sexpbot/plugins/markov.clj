@@ -1,7 +1,10 @@
 (ns sexpbot.plugins.markov
   (:use sexpbot.registry
-        [sexpbot.utilities :only [keywordize verify transform-if]]
-        [sexpbot.plugins.login :only [when-privs]])
+        [sexpbot.plugins.login :only [when-privs]]
+        [amalloy.utils :only [! keywordize verify trim-seq]]
+        (amalloy.utils [transform :only [transform-if
+                                         make-str make-kw make-int]]
+                       [debug :only [?]]))
   (:require [clojure.contrib.string :as s :only [capitalize join]]
             [somnium.congomongo :as mongo :only [insert! destroy! fetch-one]])
   (:import java.util.regex.Pattern))
@@ -25,12 +28,6 @@
                   :else (recur ub (+ i 1)))))))))
 
 ;;; Things that are just annoying to type out all the time
-(def ^{:arglists (:arglists (meta #'complement))}
-  ! complement)
-
-(defn trim-seq "Trim a sequence at the first falsey element"
-  [s]
-  (take-while identity s))
 
 (defn is-private? [channel]
   (not= \# (first channel)))
@@ -39,20 +36,6 @@
   (if (is-private? channel)
     "pmdb"
     channel))
-
-(defmacro ?
-  "A useful debugging tool when you can't figure out what's going on:
-  wrap a form with and-print, and the form will be printed alongside
-  its result. The result will still be passed along."
-  [val]
-  `(let [x# ~val]
-     (prn '~val '~'is x#)
-     x#))
-
-;; coerce objects to various types
-(def make-str (transform-if keyword? name str))
-(def make-kw keyword)
-(def make-int (transform-if string? #(Integer/parseInt %)))
 
 ;;; tuneable parameters
 (def topic-weight 3/2)
@@ -126,14 +109,6 @@
        (partition-by #{::sentence-sep})
        (remove #(every? keyword? %))))
 
-(defn links-in
-  "Returns a seq of the touching pairs in a tokenized sentence, with
-  special start and end markers added."
-  [sentence]
-  (ngrams sentence (concat [start-sentence]
-                           sentence
-                           [end-sentence])))
-
 (defn ngrams
   ([items]
      (ngrams 2 items))
@@ -141,6 +116,14 @@
      (into {}
            (map (juxt butlast last)
                 (partition size 1 items)))))
+
+(defn links-in
+  "Returns a seq of the touching pairs in a tokenized sentence, with
+  special start and end markers added."
+  [sentence]
+  (ngrams sentence (concat [start-sentence]
+                           sentence
+                           [end-sentence])))
 
 (defn kv-munge
   "Returns a function that operates on a link-map by applying kf and vf to
@@ -155,9 +138,9 @@
   exception if the supplied link map is not recognizable as a map."
   [x]
   {:pre [(every? string? (map first x))
-                          (every? integer? (map second x))]
-                    :post [(every? keyword? (map first %))
-                           (every? integer? (map second %))]}
+         (every? integer? (map second x))]
+   :post [(every? keyword? (map first %))
+          (every? integer? (map second %))]}
   ((kv-munge make-kw make-str) x))
 
 (defn demongoize

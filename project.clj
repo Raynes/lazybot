@@ -1,4 +1,4 @@
-(defproject sexpbot "0.6.1"
+(defproject sexpbot "0.6.2"
   :description "FIXME: write"
   :dependencies [[org.clojure/clojure "1.2.0"]
                  [org.clojure/clojure-contrib "1.2.0"]
@@ -18,7 +18,8 @@
                                               javax.jms/jms
                                               com.sun.jdmk/jmxtools
                                               com.sun.jmx/jmxri]]
-                 [fnparse "2.2.7"]]
+                 [fnparse "2.2.7"]
+                 [amalloy/utils "[0.3.6,)"]]
   :dev-dependencies [[swank-clojure "1.2.1"]]
   :uberjar-name "sexpbot"
   :main sexpbot.run

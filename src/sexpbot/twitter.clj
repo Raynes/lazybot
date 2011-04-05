@@ -8,8 +8,9 @@
          core
          [info :only [info-file]]
          [registry :only [send-message prefix]]
-         [utilities :only [keywordize on-thread]]
+         [utilities :only [on-thread]]
          [gist :only [trim-with-gist]]]
+        [amalloy.utils :only [keywordize]]
         [somnium.congomongo :only [insert! fetch-one]])
   (:require [oauth.client :as oauth]
             twitter)

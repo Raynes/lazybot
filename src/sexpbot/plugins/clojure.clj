@@ -3,10 +3,12 @@
 	(clojail testers core) 
 	sexpbot.registry
         clojure.contrib.logging
-        [sexpbot.utilities :only [verify transform-if on-thread]]
+        [sexpbot.utilities :only [on-thread]]
         [sexpbot.plugins.shorturl :only [is-gd]]
         [sexpbot.gist :only [trim-with-gist]]
-        [name.choi.joshua.fnparse :only [rule-match term failpoint alt complex rep*]])
+        [name.choi.joshua.fnparse :only [rule-match term failpoint alt complex rep*]]
+        [amalloy.utils :only [verify]]
+        [amalloy.utils.transform :only [transform-if]])
   (:require [clojure.string :as string :only [replace]]
             ; these requires are for findfn
             clojure.string

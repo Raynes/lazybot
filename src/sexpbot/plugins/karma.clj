@@ -3,7 +3,7 @@
 
 (ns sexpbot.plugins.karma
   (:use [sexpbot registry info]
-        [sexpbot.utilities :only [keywordize]]
+        [amalloy.utils :only [keywordize]]
 	[somnium.congomongo :only [fetch-one insert! destroy!]]))
 
 (defn- set-karma

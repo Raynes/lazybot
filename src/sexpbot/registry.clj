@@ -1,5 +1,6 @@
 (ns sexpbot.registry
-  (:use [sexpbot.utilities :only [verify on-thread]]
+  (:use [amalloy.utils :only [verify]]
+        [sexpbot.utilities :only [on-thread]]
         [clojail.core :only [thunk-timeout]])
   (:require [irclj.core :as ircb]
             [somnium.congomongo :as mongo])
