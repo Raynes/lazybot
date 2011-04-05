@@ -12,14 +12,19 @@
      [logpath "A file for sexpbot to direct output to."]
      [setup-twitter? "Set up your twitter account with sexpbot."]]
     (cond
-     background? (.exec (Runtime/getRuntime) (str "java -jar sexpbot.jar --logpath " logpath))
+     background? (.exec (Runtime/getRuntime)
+                        (str "java -jar sexpbot.jar --logpath " logpath))
      setup-twitter? (setup-twitter)
+     
      :else
      (let [write (if logpath (writer logpath) *out*)]
-       (alter-var-root #'*out* (fn [& _] write))
-       (alter-var-root #'*err* (fn [& _] write))
-       (defonce server (run-jetty #'sexpbot.core/sroutes {:port servers-port :join? false}))
+       (doseq [stream [#'*out* #'*err*]]
+         (alter-var-root stream (constantly write)))
+       (defonce server (run-jetty #'sexpbot.core/sroutes
+                                  {:port servers-port :join? false}))
        (require-plugins)
-       (doseq [serv (:servers initial-info)] (connect-bot #'make-bot serv))
-       (when (:twitter initial-info) (connect-bot #'twitter-loop :twitter))
+       (doseq [serv (:servers initial-info)]
+         (connect-bot #'make-bot serv))
+       (when (:twitter initial-info)
+         (connect-bot #'twitter-loop :twitter))
        (route (extract-routes (vals @bots)))))))
