@@ -1,13 +1,14 @@
 (ns sexpbot.registry
-  (:use [amalloy.utils :only [verify]]
+  (:use [amalloy.utils :only [verify validator !]]
+        [amalloy.utils.transform :only [transform-if]]
         [sexpbot.utilities :only [on-thread]]
         [clojail.core :only [thunk-timeout]])
   (:require [irclj.core :as ircb]
             [somnium.congomongo :as mongo])
   (:import java.util.concurrent.TimeoutException))
 
-(defmacro def- [name & value]
-  (concat (list 'def (with-meta name (assoc (meta name) :private true))) value))
+(defmacro def- [name value]
+  `(def ~(vary-meta name assoc :private true) ~value))
 
 (defn nil-comp [com bot channel s action? & fns]
   (reduce #(when %1
@@ -30,9 +31,8 @@
                      (remove-protos (:protocol @bot) (:modules @bot))))))))
 
 (defn extract-protocol [m & rest]
-  (if (map? m)
-    (-> m :bot deref :protocol)
-    (-> m deref :protocol)))
+  (-> ((transform-if map? :bot) m)
+      deref :protocol))
 
 (defn call-message-hooks [com bot channel s action?]
   (apply nil-comp com bot channel s action? (pull-hooks bot :on-send-message)))
@@ -42,10 +42,11 @@
 (defmethod send-message :irc
   [{:keys [com bot channel]} s & {:keys [action? notice?]}]
   (if-let [result (call-message-hooks com bot channel s action?)]
-    (cond
-     action? (ircb/send-action com channel result)
-     notice? (ircb/send-notice com channel result)
-     :else (ircb/send-message com channel result))))
+    ((cond
+      action? ircb/send-action
+      notice? ircb/send-notice
+      :else ircb/send-message)
+     com channel result)))
 
 (defmulti prefix
   "Multiple protocol safe name prefixing"
@@ -56,15 +57,20 @@
   (apply str nick ": " s))
 
 (defn find-command [modules command]
-  (some #(when ((:triggers %) command) %)
+  (some (validator #((:triggers %) command))
         (apply concat (map :commands (vals modules)))))
 
 (defn find-docs [bot command]
   (:docs (find-command (:modules @bot) command)))
 
 (defn respond [{:keys [command bot]}]
-  (let [cmd (find-command (remove-protos (:protocol @bot) (:modules @bot)) command)]
-    (or (and (equal-nil (:protocol @bot) (:protocol cmd)) (:fn cmd)) (constantly nil))))
+  (let [cmd (find-command (remove-protos (:protocol @bot)
+                                         (:modules @bot))
+                          command)]
+    (or (and (equal-nil (:protocol @bot)
+                        (:protocol cmd))
+             (:fn cmd))
+        (constantly nil))))
 
 (defn full-prepend [config s]
   ((:prepends config) s))
@@ -81,7 +87,10 @@
                is-long-pre command
                prefix (apply str (rest prepend))
                no-pre? prepend)
-     :args (if is-long-pre args (when command (conj args command)))}))
+     :args (if is-long-pre
+             args
+             (when command
+               (conj args command)))}))
 
 (defn is-command?
   "Tests whether or not a message begins with a prepend."
@@ -133,6 +142,9 @@
     (throw (Exception. (str "Only one " fn-type " function allowed.")))
     possible-seq))
 
+;; Wrap isolated objects with a vector
+(def make-vector (transform-if (! vector?) vector))
+
 (defmacro defplugin [& [protocol & body]]
   (let [proto (verify keyword? protocol)
         checked-body (if-not (keyword? protocol) (cons protocol body) body)
@@ -148,9 +160,9 @@
           (alter bot# assoc-in [:modules m-name#]
                  {:protocol ~proto
                   :commands ~scmd
-                  :hooks (into
-                          {}
-                          (for [[k# v#] (apply merge-with-conj (if (vector? ~hook) ~hook [~hook]))]
-                            (if (vector? v#) [k# v#] [k# [v#]])))
+                  :hooks (into {}
+                               (for [[k# v#] (apply merge-with-conj
+                                                    (make-vector ~hook))]
+                                 [k# (make-vector v#)]))
                   :cleanup (if-seq-error "cleanup" ~cleanup)
                   :routes ~routes}))))))

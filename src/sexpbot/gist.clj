@@ -23,9 +23,10 @@ not necessary in the result."
   ([s]
      (trim-with-gist default-cap "result.clj" "" s))
   ([opt s]
-     (if (number? opt)
-       (trim-with-gist opt "result.clj" "" s)
-       (trim-with-gist default-cap opt "" s)))
+   (apply trim-with-gist
+          (if (number? opt)
+            [opt "result.clj" "" s]
+            [default-cap opt "" s])))
   ([cap name s]
      (trim-with-gist cap name "" s))
   ([cap name gist-prefix s]
