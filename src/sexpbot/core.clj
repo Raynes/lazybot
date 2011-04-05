@@ -19,16 +19,17 @@
     (.printStackTrace e *out*)))
 
 (defn call-all [{bot :bot :as ircm} hook-key]
-  (doseq [hook (pull-hooks bot hook-key)] (hook ircm)))
+  (doseq [hook (pull-hooks bot hook-key)]
+    (hook ircm)))
 
 (def initial-hooks
      {:on-message [{:fn (fn [irc-map] (try-handle irc-map))}]
       :on-quit []
       :on-join []})
 
-(def all-plugins (:plugins (eval (read-config info-file))))
-
-(def servers-port (:servers-port (eval (read-config info-file))))
+(let [current-config (eval (read-config info-file))]
+  (def all-plugins (:plugins current-config))
+  (def servers-port (:servers-port current-config)))
 
 (defn reload-config [bot]
   (alter bot assoc :config (eval (read-config info-file))))
@@ -56,7 +57,7 @@
       (load-plugin irc refzors plug))))
 
 (defn reload-configs
-  "Reloads the bot's configs. Must be ran in a transaction."
+  "Reloads the bot's configs. Must be run in a transaction."
   [& bots]
   (doseq [[_ bot] bots]
     (reload-config bot)))
