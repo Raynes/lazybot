@@ -99,14 +99,14 @@
 (defn execute-text [bot-name user txt protocol]
   (try
     (with-open [writer (StringWriter.)]
-      (let [res (sb (safe-read-with-paren-fix txt) {#'*out* writer #'doc #'pretty-doc})
+      (let [res (sb (safe-read-with-paren-fix txt) {#'*out* writer
+                                                    #'doc #'pretty-doc})
             replaced (string/replace (str writer) "\n" " ")
             result (str replaced (when (= last \space) " ") res)
             twitter? (= protocol :twitter)]
-        (str (when-not twitter? "\u27F9 ")
-             (if twitter?
-               result
-               (trim bot-name user txt result)))))
+        (if twitter?
+          result
+          (str "\u27F9 " (trim bot-name user txt result)))))
    (catch TimeoutException _ "Execution Timed Out!")
    (catch Exception e (str (root-cause e)))))
 
@@ -123,7 +123,7 @@
   "Search a target string for eval requests.
 Return a seq of strings to be evaluated. Usually this will be either nil or a one-element list, but it's possible for users to request evaluation of multiple forms with embedded specifiers, in which case it will be longer."
   {:arglists '([matcher target])}
-  (comp class first list))
+  (fn [x & _] (class x)))
 
 (defmethod find-eval-request String
   ([search target]
@@ -150,12 +150,13 @@ Return a seq of strings to be evaluated. Usually this will be either nil or a on
 (defn- pattern-comparator [a b]
   (let [ac (class a)
 	bc (class b)]
-    (if (= (= ac Pattern)
-	   (= bc Pattern))
-      (compare (str a) (str b))
-      (if (= ac Pattern)
-	-1
-	1))))
+    (cond
+     (= (= ac Pattern) ; both patterns, or both strings
+        (= bc Pattern))
+     (compare (str a) (str b)) ; so compare by value
+
+     (= ac Pattern) -1 ; make the pattern come first
+     :else 1)))
 
 (defn- eval-exceptions [bot channel]
   (set (get (eval-config-settings bot)
@@ -176,13 +177,12 @@ Return a seq of strings to be evaluated. Usually this will be either nil or a on
   (take max-embedded-forms
         (if-not form2
           [(execute-text bot-name user form1 protocol)]
-          (map (fn [f]
+          (map (fn [form]
                  (str
-                  (let [trimmed (apply str (take 40 f))]
-                    (if (> (count f) 40)
-                      (str trimmed "... ")
-                      trimmed))
-                  " " (execute-text bot-name user f protocol)))
+                  (let [trimmed (apply str (take 40 form))]
+                    (str " " trimmed (when (not= trimmed form)
+                                       "... ")))
+                  " " (execute-text bot-name user form protocol)))
                forms))))
 
 (def findfn-ns-set
@@ -206,19 +206,17 @@ Return a seq of strings to be evaluated. Usually this will be either nil or a on
              #(= out
                  (binding [*out* (java.io.StringWriter.)]
                    (apply
-                    (doto (if (-> x meta :macro)
-                            (fn [& args]
-                              (eval `(~x ~@args))) ; args and x already vetted
-                            x)
-                      (->> (str "Trying ")
-                           debug))
+                    (if-not (-> x meta :macro)
+                      x
+                      (fn [& args]
+                        (eval `(~x ~@args)))) ; args and x already vetted
                     in)))
              50 :ms eagerly-consume)
             (catch Throwable _ false)))
         (remove (comp eval-tester
                       :name
                       meta)
-                (map second (mapcat ns-publics findfn-ns-set))))))
+                (map val (mapcat ns-publics findfn-ns-set))))))
 
 (defn read-findfn-args
   "From an input string like \"in1 in2 in3 out\", return a vector of [out
