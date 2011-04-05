@@ -12,7 +12,11 @@
 
 (defonce initial-info (eval (read-config info-file)))
 
-(mongo! :db (or (:db initial-info) "sexpbot"))
+(try
+  (mongo! :db (or (:db initial-info) "sexpbot"))
+  (catch Throwable e
+    (println "Error starting mongo (see below), carrying on without it")
+    (.printStackTrace e *out*)))
 
 (defn call-all [{bot :bot :as ircm} hook-key]
   (doseq [hook (pull-hooks bot hook-key)] (hook ircm)))
