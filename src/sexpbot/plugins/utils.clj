@@ -76,7 +76,7 @@
    "Checks if its input string is a pangram."
    #{"pangram?"} 
    (fn [{:keys [args] :as com-m}]
-     (send-message com-m (-> args stringify pangram? str))))
+     (send-message com-m (->> args s/join pangram? str))))
    
   (:cmd 
    "Just says the sender's name: no u."

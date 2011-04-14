@@ -5,9 +5,6 @@
   (:import [java.io File FileReader]
            [org.apache.log4j LogManager]))
 
-;; support legacy code - written before (join) was invented, har har
-(def stringify string/join)
-
 (defn if-exists-read [file]
   (into {} 
 	(when (.exists (File. file))
