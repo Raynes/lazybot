@@ -8,8 +8,10 @@
         [sexpbot.gist :only [trim-with-gist]]
         [name.choi.joshua.fnparse :only [rule-match term failpoint alt complex rep*]]
         [amalloy.utils :only [verify]]
-        [amalloy.utils.transform :only [transform-if]])
+        (amalloy.utils [transform :only [transform-if]]
+                       [debug :only [?]]))
   (:require [clojure.string :as string :only [replace]]
+            [clojure.walk :as walk]
             ; these requires are for findfn
             clojure.string
             clojure.set
@@ -245,7 +247,7 @@ Return a seq of strings to be evaluated. Usually this will be either nil or a on
 
 (defn findfn-pluginfn [f argstr]
   (try
-    (let [argvec (vec (read-findfn-args argstr))
+    (let [argvec (? (vec (walk/postwalk-replace {'% ''%} (read-findfn-args argstr))))
           _ (sb argvec)       ; a lame hack to get sandbox
                               ; guarantees on eval-ing the user's args
           user-args (eval argvec)]
@@ -285,10 +287,10 @@ Return a seq of strings to be evaluated. Usually this will be either nil or a on
    "Finds the clojure fns which, given your input, produce your output."
    #{"findfn"}
    (fn [{:keys [args] :as com-m}]
-     (send-message com-m (pluginfn find-fn (string/join " " args)))))
+     (send-message com-m (findfn-pluginfn find-fn (string/join " " args)))))
   
   (:cmd
    "(findarg map % [1 2 3] [2 3 4]) ;=> inc"
    #{"findarg"}
    (fn [{:keys [args] :as com-m}]
-     (send-message com-m (pluginfn find-arg (string/join " " args))))))
+     (send-message com-m (findfn-pluginfn find-arg (string/join " " args))))))
