@@ -218,6 +218,15 @@ Return a seq of strings to be evaluated. Usually this will be either nil or a on
            f)
          in)))))
 
+(defn find-arg [out & in]
+  (debug (str "out:[" out "], in[" in "]"))
+  (filter-vars
+   (fn [f]
+     (when-not (-> f meta :macro)
+       (= out
+          (eval `(let [~'% ~f]
+                   (~@in))))))))
+
 (defn read-findfn-args
   "From an input string like \"in1 in2 in3 out\", return a vector of [out
   in1 in2 in3], for use in findfn."
@@ -276,4 +285,10 @@ Return a seq of strings to be evaluated. Usually this will be either nil or a on
    "Finds the clojure fns which, given your input, produce your output."
    #{"findfn"}
    (fn [{:keys [args] :as com-m}]
-     (send-message com-m (pluginfn find-fn (string/join " " args))))))
+     (send-message com-m (pluginfn find-fn (string/join " " args)))))
+  
+  (:cmd
+   "(findarg map % [1 2 3] [2 3 4]) ;=> inc"
+   #{"findarg"}
+   (fn [{:keys [args] :as com-m}]
+     (send-message com-m (pluginfn find-arg (string/join " " args))))))
