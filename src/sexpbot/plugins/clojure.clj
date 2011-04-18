@@ -195,28 +195,28 @@ Return a seq of strings to be evaluated. Usually this will be either nil or a on
                             :name)
                       (meta var)))))
 
-(defn find-fn
-  [out & in]
+(defn filter-vars [testfn]
+  (for [f (remove (comp eval-tester :name meta)
+                  (mapcat (comp vals ns-publics) findfn-ns-set))
+        :when (try
+               (thunk-timeout
+                #(binding [*out* (java.io.StringWriter.)]
+                   (testfn f))
+                50 :ms eagerly-consume)
+               (catch Throwable _# nil))]
+    (fn-name f)))
+
+(defn find-fn [out & in]
   (debug (str "out:[" out "], in[" in "]"))
-  (map fn-name
-       (filter
-        (fn [x]
-          (try
-            (thunk-timeout
-             #(= out
-                 (binding [*out* (java.io.StringWriter.)]
-                   (apply
-                    (if-not (-> x meta :macro)
-                      x
-                      (fn [& args]
-                        (eval `(~x ~@args)))) ; args and x already vetted
-                    in)))
-             50 :ms eagerly-consume)
-            (catch Throwable _ false)))
-        (remove (comp eval-tester
-                      :name
-                      meta)
-                (map val (mapcat ns-publics findfn-ns-set))))))
+  (filter-vars
+   (fn [f]
+     (= out
+        (apply
+         (if (-> f meta :macro)
+           (fn [& args]
+             (eval `(~f ~@args)))
+           f)
+         in)))))
 
 (defn read-findfn-args
   "From an input string like \"in1 in2 in3 out\", return a vector of [out
@@ -234,13 +234,13 @@ Return a seq of strings to be evaluated. Usually this will be either nil or a on
                                (catch LispReader$ReaderException _
                                  sentinel))))))))))
 
-(defn findfn-pluginfn [argstr]
+(defn findfn-pluginfn [f argstr]
   (try
     (let [argvec (vec (read-findfn-args argstr))
           _ (sb argvec)       ; a lame hack to get sandbox
                               ; guarantees on eval-ing the user's args
           user-args (eval argvec)]
-      (->> user-args (apply find-fn) vec str trim-with-gist))
+      (->> user-args (apply f) vec str trim-with-gist))
     (catch Throwable e
       (.getMessage e))))
 
@@ -276,4 +276,4 @@ Return a seq of strings to be evaluated. Usually this will be either nil or a on
    "Finds the clojure fns which, given your input, produce your output."
    #{"findfn"}
    (fn [{:keys [args] :as com-m}]
-     (send-message com-m (findfn-pluginfn (string/join " " args))))))
+     (send-message com-m (pluginfn find-fn (string/join " " args))))))
