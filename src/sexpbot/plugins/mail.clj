@@ -1,6 +1,7 @@
 (ns sexpbot.plugins.mail
   (:refer-clojure :exclude [extend])
   (:use [sexpbot registry info]
+        [sexpbot.plugins.login :only [when-privs]]
 	[clj-time core format]
         [somnium.congomongo :only [fetch fetch-one insert! destroy!]]))
 
@@ -15,6 +16,10 @@
 
 (defn compose-message [{:keys [from message timestamp]}]
   (str "From: " from ", Time: " timestamp ", Text: " message))
+
+(defn destroy-messages! [com-m from to]
+  (send-message com-m (str "Deleted unread messages from " from " to " to))
+  (destroy! :mail {:to to :from from}))
 
 (defn fetch-messages [user]
   (let [mlist (doall (map compose-message (fetch :mail :where {:to user})))]
@@ -71,4 +76,13 @@
              (send-message com-m "Message saved."))
            (send-message com-m "You can't message the unmessageable.")))
        (get-messages com-m))))
-  (:indexes [[:to]]))
+  (:cmd
+   "Cancel your pending messages to another user. Specify the user's nick. Admin users can use $unmail <from> <to> to delete anyone's mails."
+   #{"unmail"}
+   (fn [{:keys [com nick args irc] :as com-m}]
+     (if (> (count args) 1)
+       (when-privs com-m :admin
+         (let [[from to] args]
+           (destroy-messages! com-m from to)))
+       (destroy-messages! com-m nick (first args)))))
+  (:indexes [[:to :from]]))
