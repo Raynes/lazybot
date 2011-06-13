@@ -3,7 +3,8 @@
 	[clojure-http.client :only [add-query-params]]
         [clojure.contrib.json :only [read-json]])
   (:require [clojure-http.resourcefully :as res])
-  (:import org.apache.commons.lang.StringEscapeUtils))
+  (:import org.apache.commons.lang.StringEscapeUtils
+           java.net.URLDecoder))
 
 (defn google [term]
   (-> (res/get (add-query-params "http://ajax.googleapis.com/ajax/services/search/web"
@@ -22,7 +23,7 @@
 	  url (:url res-map)]
       (send-message com-m (StringEscapeUtils/unescapeHtml 
                                      (str "First out of " res-count " results is: " title)))
-      (send-message com-m url))))
+      (send-message com-m (URLDecoder/decode url "UTF-8")))))
 
 (defplugin
   (:cmd
