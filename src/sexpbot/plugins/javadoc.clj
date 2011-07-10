@@ -5,13 +5,35 @@
 (def ^{:dynamic true}
   *javadoc-base-url* "http://download.oracle.com/javase/6/docs/api/")
 
+(defn format-varargs [class]
+  (if-not (.isArray class)
+    (.getName class)
+    (str (.getName (.getComponentType class)) "...")))
+
+(defn arglist-anchor-components [method]
+  (let [args (.getParameterTypes method)]
+    (if-not (.isVarArgs method)
+      (map #(.getName %) args)
+      (let [[easy hard] ((juxt butlast last) args)]
+        (concat (map #(.getName %) easy)
+                [(format-varargs hard)])))))
+
 (defn javadoc-url
   ([class]
      (str *javadoc-base-url*
-          (s/replace (.getName class) "." "/")))
+          (s/replace (.getName class) "." "/")
+          ".html"))
   ([class member]
-     (javadoc-url class) ; would love to get this working
-     ))
+     (let [base (javadoc-url class)
+           methods (seq (.getMethods class))
+           guessed-target (->> methods
+                               (filter #(= member (.getName %)))
+                               first)]
+       (str base (when guessed-target
+                   (str "#" member "("
+                        (s/join ",%20"
+                                (arglist-anchor-components guessed-target))
+                        ")"))))))
 
 (defplugin :irc
   (:cmd
