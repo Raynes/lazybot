@@ -11,12 +11,16 @@
     (str (.getName (.getComponentType class)) "...")))
 
 (defn arglist-anchor-components [method]
-  (let [args (.getParameterTypes method)]
+  (let [args (.getGenericParameterTypes method)]
     (if-not (.isVarArgs method)
       (map #(.getName %) args)
       (let [[easy hard] ((juxt butlast last) args)]
         (concat (map #(.getName %) easy)
                 [(format-varargs hard)])))))
+
+(defn matching-members [class name]
+  (->> (.getMethods class)
+       (filter #(= name (.getName %)))))
 
 (defn javadoc-url
   ([class]
@@ -25,10 +29,7 @@
           ".html"))
   ([class member]
      (let [base (javadoc-url class)
-           methods (seq (.getMethods class))
-           guessed-target (->> methods
-                               (filter #(= member (.getName %)))
-                               first)]
+           guessed-target (first (matching-members class member))]
        (str base (when guessed-target
                    (str "#" member "("
                         (s/join ",%20"
