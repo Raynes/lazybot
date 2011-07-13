@@ -98,7 +98,7 @@
              (catch Throwable _ (throw e)))
            (throw e)))))
 
-(defn execute-text [bot-name user txt protocol]
+(defn execute-text [bot-name user txt protocol pre]
   (try
     (with-open [writer (StringWriter.)]
       (let [res (sb (safe-read-with-paren-fix txt) {#'*out* writer
@@ -108,7 +108,7 @@
             twitter? (= protocol :twitter)]
         (if twitter?
           result
-          (str "\u27F9 " (trim bot-name user txt result)))))
+          (str (or pre  "\u27F9 ") (trim bot-name user txt result)))))
    (catch TimeoutException _ "Execution Timed Out!")
    (catch Exception e (str (root-cause e)))))
 
@@ -175,16 +175,16 @@ Return a seq of strings to be evaluated. Usually this will be either nil or a on
 
 (def max-embedded-forms 3)
 
-(defn- eval-forms [bot-name user protocol [form1 form2 :as forms]]
+(defn- eval-forms [bot-name user protocol pre [form1 form2 :as forms]]
   (take max-embedded-forms
         (if-not form2
-          [(execute-text bot-name user form1 protocol)]
+          [(execute-text bot-name user form1 protocol pre)]
           (map (fn [form]
                  (str
                   (let [trimmed (apply str (take 40 form))]
                     (str " " trimmed (when (not= trimmed form)
                                        "... ")))
-                  " " (execute-text bot-name user form protocol)))
+                  " " (execute-text bot-name user form protocol pre)))
                forms))))
 
 (def findfn-ns-set
@@ -259,20 +259,22 @@ Return a seq of strings to be evaluated. Usually this will be either nil or a on
   (:hook
    :on-message
    (fn [{:keys [com bot nick channel message] :as com-m}]
-     (if-let [evalp (-> @bot :config :eval-prefixes)]
-       (when-let [sexps (what-to-eval bot channel message)]
-         (if-not (second (swap! tasks (fn [[pending]]
-                                        (if (< pending 3)
-                                          [(inc pending) true]
-                                          [pending false]))))
-           (send-message com-m "Too much is happening at once. Wait until other operations cease.")
-           (on-thread
-            (try
-              (doseq [msg (eval-forms (:name @com) nick (:protocol @bot) sexps)]
-                (send-message com-m msg))
-              (finally (swap! tasks (fn [[pending]]
-                                      [(dec pending)])))))))
-       (throw (Exception. "Dude, you didn't set :eval-prefixes. I can't configure myself!")))))
+     (let [config (-> @bot :config)
+           pre (:print-prefix config)]
+       (if-let [evalp (:eval-prefixes config)]
+         (when-let [sexps (what-to-eval bot channel message)]
+           (if-not (second (swap! tasks (fn [[pending]]
+                                          (if (< pending 3)
+                                            [(inc pending) true]
+                                            [pending false]))))
+             (send-message com-m "Too much is happening at once. Wait until other operations cease.")
+             (on-thread
+              (try
+                (doseq [msg (eval-forms (:name @com) nick (:protocol @bot) pre sexps)]
+                  (send-message com-m msg))
+                (finally (swap! tasks (fn [[pending]]
+                                        [(dec pending)])))))))
+         (throw (Exception. "Dude, you didn't set :eval-prefixes. I can't configure myself!"))))))
 
   (:cmd
    "Link to the source code of a Clojure function or macro."
