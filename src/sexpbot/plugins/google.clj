@@ -1,14 +1,15 @@
 (ns sexpbot.plugins.google
-  (:use [sexpbot registry]
-	[clojure-http.client :only [add-query-params]]
+  (:use [sexpbot registry [utilities :only [trim-string]]]
+        [clojure-http.client :only [add-query-params]]
         [clojure.contrib.json :only [read-json]])
-  (:require [clojure-http.resourcefully :as res])
+  (:require [clojure-http.resourcefully :as res]
+            [clojure.string :as s])
   (:import org.apache.commons.lang.StringEscapeUtils
            java.net.URLDecoder))
 
 (defn google [term]
   (-> (res/get (add-query-params "http://ajax.googleapis.com/ajax/services/search/web"
-				 {"v" "1.0" "q" term}))
+                                 {"v" "1.0" "q" term}))
       :body-seq first read-json))
 
 (defn cull [result-set]
@@ -16,30 +17,33 @@
    (first (:results (:responseData result-set)))])
 
 (defn handle-search [{:keys [args] :as com-m}]
-  (if-not (seq (.trim (apply str (interpose " " args))))
-    (send-message com-m (str "No search term!"))
-    (let [[res-count res-map] (-> (apply str (interpose " " args)) google cull)
-	  title (:titleNoFormatting res-map)
-	  url (:url res-map)]
-      (send-message com-m (StringEscapeUtils/unescapeHtml 
-                                     (str "First out of " res-count " results is: " title)))
-      (send-message com-m (URLDecoder/decode url "UTF-8")))))
+  (send-message com-m
+                (let [argstr (s/join " " args)]
+                  (if-not (seq (.trim argstr))
+                    (str "No search term!")
+                    (let [[res-count {title :titleNoFormatting
+                                      url :url}] (-> argstr google cull)]
+                      (str "["
+                           (trim-string 80 (constantly "...")
+                                        (StringEscapeUtils/unescapeHtml title))
+                           "] "
+                           (URLDecoder/decode url "UTF-8")))))))
 
 (defplugin
   (:cmd
    "Searches google for whatever you ask it to, and displays the first result and the estimated
    number of results found."
-   #{"google"} 
+   #{"google"}
    #'handle-search)
-  
+
   (:cmd
    "Searches wikipedia via google."
    #{"wiki"}
    (fn [args]
      (handle-search (assoc args :args (conj (:args args) "site:en.wikipedia.org")))))
-  
+
   (:cmd
    "Searches encyclopediadramtica via google."
-   #{"ed"} 
+   #{"ed"}
    (fn [args]
      (handle-search (assoc args :args (conj (:args args) "site:encyclopediadramatica.com"))))))

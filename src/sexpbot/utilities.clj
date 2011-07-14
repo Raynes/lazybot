@@ -6,9 +6,9 @@
            [org.apache.log4j LogManager]))
 
 (defn if-exists-read [file]
-  (into {} 
-	(when (.exists (File. file))
-	  (-> file slurp read-string))))
+  (into {}
+        (when (.exists (File. file))
+          (-> file slurp read-string))))
 
 ;; This is a bit ugly. Each entry in the table describes how many of the
 ;; labelled unit it takes to constitute the next-largest unit. It can't be
@@ -57,3 +57,20 @@
   ([] (get-logger (str *ns*)))
   ([ns]
      (LogManager/getLogger (str ns))))
+
+(defn split-str-at [len s]
+  (map #(apply str %)
+       ((juxt take drop) len s)))
+
+(defn trim-string
+  "Trim the specified string down to a maximum length. If any trimming needs
+to be done, then trim-indication-generator will be called with s as its argument
+to create an indication that trimming has been done; the resulting string will
+be added to the end of the string, trimming again to fit into the maximum size."
+  [max-len trim-indication-generator s]
+  (let [[before after] (split-str-at max-len s)]
+    (if-not (seq after)
+      before
+      (let [indicator (trim-indication-generator s)]
+        (str (.substring s 0 (- max-len (count indicator)))
+             indicator)))))

@@ -1,14 +1,11 @@
 (ns sexpbot.gist
-  (:use [clj-github.gists :only [new-gist]])
+  (:use [clj-github.gists :only [new-gist]]
+        [sexpbot.utilities :only [trim-string]])
   (:require [clojure.contrib.string :as string])
   (:import [java.io IOException]))
 
 (defn word-wrap [str]
   (string/replace-re #"(.{50,70}[])}\"]*)\s+" "$1\n" str))
-
-(defn split-str-at [len s]
-  (map #(apply str %)
-       ((juxt take drop) len s)))
 
 (def gist-note "... ")
 (def default-cap 300)
@@ -30,10 +27,9 @@ not necessary in the result."
   ([cap name s]
      (trim-with-gist cap name "" s))
   ([cap name gist-prefix s]
-     (let [[before after] (split-str-at cap s)]
-       (if-not (seq after)
-         before
-         (let [note (str gist-note
+     (trim-string cap
+                  (fn [s]
+                    (str gist-note
                          (try
                            (->> s
                                 (str gist-prefix)
@@ -42,6 +38,5 @@ not necessary in the result."
                                 :repo
                                 (str "http://gist.github.com/"))
                            (catch IOException e (str "failed to gist: "
-                                                     (.getMessage e)))))]
-           (str (string/take (- cap (count note)) s)
-                note))))))
+                                                     (.getMessage e))))))
+                  s)))
