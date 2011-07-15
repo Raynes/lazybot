@@ -23,4 +23,5 @@
   :dev-dependencies [[swank-clojure "1.2.1"]]
   :uberjar-name "lazybot"
   :main lazybot.run
+  :copy-deps true
   :resources-path "resource")
