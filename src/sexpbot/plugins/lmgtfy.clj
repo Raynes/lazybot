@@ -1,5 +1,5 @@
-(ns sexpbot.plugins.lmgtfy
-  (:use [sexpbot registry]))
+(ns lazybot.plugins.lmgtfy
+  (:use [lazybot registry]))
 
 (defn create-url [args]
   (str "http://www.lmgtfy.com/?q=" (apply str (interpose "+" args))))

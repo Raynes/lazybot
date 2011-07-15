@@ -1,6 +1,6 @@
-(ns sexpbot.plugins.mute
-  (:use sexpbot.registry
-        [sexpbot.plugins.login :only [when-privs]]))
+(ns lazybot.plugins.mute
+  (:use lazybot.registry
+        [lazybot.plugins.login :only [when-privs]]))
 
 (defplugin :irc
   (:hook

@@ -11,8 +11,8 @@
 ;   http://your-server-ip:8080/notifo as your Notification Webhook URL
 ; * Enjoy
 
-(ns sexpbot.plugins.notifo
-  (:use sexpbot.registry
+(ns lazybot.plugins.notifo
+  (:use lazybot.registry
         [compojure.core :only [POST]]))
 
 (def bots (atom {}))

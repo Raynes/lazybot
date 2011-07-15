@@ -1,13 +1,13 @@
-(ns sexpbot.plugins.log
-  (:use (sexpbot registry utilities)
-        [sexpbot.plugins.login :only [when-privs]]
+(ns lazybot.plugins.log
+  (:use (lazybot registry utilities)
+        [lazybot.plugins.login :only [when-privs]]
         clojure.contrib.logging)
   (:import [org.apache.log4j Level]))
 
 (defn str->package [s]
   (if (not= (.indexOf s ".") -1)
     s
-    (str "sexpbot.plugins." s)))
+    (str "lazybot.plugins." s)))
 
 (defn all-loaded-plugins [bot]
   (let [module-list (-> bot :modules keys)]

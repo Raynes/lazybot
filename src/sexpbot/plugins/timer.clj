@@ -1,6 +1,6 @@
-(ns sexpbot.plugins.timer
+(ns lazybot.plugins.timer
   (:refer-clojure :exclude [extend])
-  (:use sexpbot.registry
+  (:use lazybot.registry
 	clj-time.core)
   (:require [clojure.string :as s]))
 

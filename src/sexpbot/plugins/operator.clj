@@ -1,6 +1,6 @@
-(ns sexpbot.plugins.operator
-  (:use sexpbot.registry
-        [sexpbot.plugins.login :only [when-privs]])
+(ns lazybot.plugins.operator
+  (:use lazybot.registry
+        [lazybot.plugins.login :only [when-privs]])
   (:require [irclj.core :as ircb]))
 
 (defplugin :irc

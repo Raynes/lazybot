@@ -1,5 +1,5 @@
-(ns sexpbot.plugins.javadoc
-  (:use sexpbot.registry)
+(ns lazybot.plugins.javadoc
+  (:use lazybot.registry)
   (:require [clojure.string :as s]))
 
 (def ^{:dynamic true}

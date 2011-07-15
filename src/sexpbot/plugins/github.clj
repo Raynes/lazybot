@@ -1,6 +1,6 @@
-(ns sexpbot.plugins.github
-  (:use sexpbot.registry
-        [sexpbot.plugins.shorturl :only [is-gd]]
+(ns lazybot.plugins.github
+  (:use lazybot.registry
+        [lazybot.plugins.shorturl :only [is-gd]]
         [compojure.core :only [POST]]
         clojure.contrib.json)
   (:require [clojure.contrib.string :as s])

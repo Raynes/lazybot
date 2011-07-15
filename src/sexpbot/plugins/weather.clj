@@ -1,5 +1,5 @@
-(ns sexpbot.plugins.weather
-  (:use [sexpbot registry]
+(ns lazybot.plugins.weather
+  (:use [lazybot registry]
 	[clojure.contrib.str-utils :only [re-sub]])
   (:require [clojure.xml :as xml]
 	    [clojure.zip :as zip]

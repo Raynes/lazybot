@@ -1,5 +1,5 @@
-(ns sexpbot.core-test
-  (:use [sexpbot.core] :reload-all)
+(ns lazybot.core-test
+  (:use [lazybot.core] :reload-all)
   (:use [clojure.test]))
 
 (deftest replace-me ;; FIXME: write

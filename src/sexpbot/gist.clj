@@ -1,6 +1,6 @@
-(ns sexpbot.gist
+(ns lazybot.gist
   (:use [clj-github.gists :only [new-gist]]
-        [sexpbot.utilities :only [trim-string]])
+        [lazybot.utilities :only [trim-string]])
   (:require [clojure.contrib.string :as string])
   (:import [java.io IOException]))
 

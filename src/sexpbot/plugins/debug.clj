@@ -1,6 +1,6 @@
-(ns sexpbot.plugins.debug
-  (:use sexpbot.registry
-        [sexpbot.plugins.login :only [when-privs]])
+(ns lazybot.plugins.debug
+  (:use lazybot.registry
+        [lazybot.plugins.login :only [when-privs]])
   (:require [clojure.string :as string]))
 
 (defn get-mode [old-mode user-arg]

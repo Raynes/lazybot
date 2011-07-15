@@ -1,5 +1,5 @@
-(ns sexpbot.plugins.login
-  (:use [sexpbot registry]))
+(ns lazybot.plugins.login
+  (:use [lazybot registry]))
 
 (defn logged-in [bot]
   (or (:logged-in bot)

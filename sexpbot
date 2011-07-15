@@ -1,1 +1,1 @@
-java -cp lib/*:src/:resource clojure.main -e "(use 'sexpbot.run) (-main)"
+java -cp lib/*:src/:resource clojure.main -e "(use 'lazybot.run) (-main)"

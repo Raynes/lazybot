@@ -1,5 +1,5 @@
-(ns sexpbot.plugins.google
-  (:use [sexpbot registry [utilities :only [trim-string]]]
+(ns lazybot.plugins.google
+  (:use [lazybot registry [utilities :only [trim-string]]]
         [clojure-http.client :only [add-query-params]]
         [clojure.contrib.json :only [read-json]])
   (:require [clojure-http.resourcefully :as res]

@@ -1,5 +1,5 @@
-(ns sexpbot.core
-  (:use [sexpbot registry info]
+(ns lazybot.core
+  (:use [lazybot registry info]
 	[clj-config.core :only [read-config]]
 	[clojure.stacktrace :only [root-cause]]
         [somnium.congomongo :only [mongo!]]
@@ -13,7 +13,7 @@
 (defonce initial-info (eval (read-config info-file)))
 
 (try
-  (mongo! :db (or (:db initial-info) "sexpbot"))
+  (mongo! :db (or (:db initial-info) "lazybot"))
   (catch Throwable e
     (println "Error starting mongo (see below), carrying on without it")
     (.printStackTrace e *out*)))
@@ -35,10 +35,10 @@
   (alter bot assoc :config (eval (read-config info-file))))
 
 (defn require-plugin [plugin]
-  (require (symbol (str "sexpbot.plugins." plugin)) :reload))
+  (require (symbol (str "lazybot.plugins." plugin)) :reload))
 
 (defn load-plugin [irc refzors plugin]
-  ((resolve (symbol (str "sexpbot.plugins." plugin "/load-this-plugin"))) irc refzors))
+  ((resolve (symbol (str "lazybot.plugins." plugin "/load-this-plugin"))) irc refzors))
 
 (defn require-plugins []
   (doseq [plug ((eval (read-config info-file)) :plugins)]
@@ -74,17 +74,17 @@
 (def sroutes nil)
 
 (defn route [rs]
-  (alter-var-root #'sexpbot.core/sroutes (constantly (apply routes rs))))
+  (alter-var-root #'lazybot.core/sroutes (constantly (apply routes rs))))
 
 (defn reload-all
-  "A clever function to reload everything when running sexpbot from SLIME.
+  "A clever function to reload everything when running lazybot from SLIME.
   Do not try to reload anything individually. It doesn't work because of the nature
   of plugins. This makes sure everything is reset to the way it was
   when the bot was first loaded."
   [& bots]
-  (require 'sexpbot.registry :reload)
-  (require 'sexpbot.utilities :reload)
-  (require 'sexpbot.twitter :reload)
+  (require 'lazybot.registry :reload)
+  (require 'lazybot.utilities :reload)
+  (require 'lazybot.twitter :reload)
   (require-plugins)
   (route (extract-routes bots))
   (doseq [{:keys [com bot]} bots]

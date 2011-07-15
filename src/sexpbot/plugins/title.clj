@@ -1,6 +1,6 @@
 ;; The result of a team effort between programble and Rayne.
-(ns sexpbot.plugins.title
-  (:use [sexpbot info registry utilities]
+(ns lazybot.plugins.title
+  (:use [lazybot info registry utilities]
 	(clojure.contrib [string :only [ltrim]]
                          [io :only [reader]]
                          [logging :only [debug]])

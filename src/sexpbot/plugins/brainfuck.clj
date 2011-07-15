@@ -1,5 +1,5 @@
-(ns sexpbot.plugins.brainfuck
-  (:use sexpbot.registry))
+(ns lazybot.plugins.brainfuck
+  (:use lazybot.registry))
 ;;; From Rosettacode ;;;
 (def *input*)
  

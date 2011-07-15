@@ -1,11 +1,11 @@
-(ns sexpbot.plugins.clojure
+(ns lazybot.plugins.clojure
   (:use clojure.stacktrace
 	(clojail testers core) 
-	sexpbot.registry
+	lazybot.registry
         clojure.contrib.logging
-        [sexpbot.utilities :only [on-thread]]
-        [sexpbot.plugins.shorturl :only [is-gd]]
-        [sexpbot.gist :only [trim-with-gist]]
+        [lazybot.utilities :only [on-thread]]
+        [lazybot.plugins.shorturl :only [is-gd]]
+        [lazybot.gist :only [trim-with-gist]]
         [name.choi.joshua.fnparse :only [rule-match term failpoint alt complex rep*]]
         [amalloy.utils :only [verify]]
         (amalloy.utils [transform :only [transform-if]]

@@ -1,5 +1,5 @@
-(ns sexpbot.plugins.logger
-  (:use [sexpbot registry]
+(ns lazybot.plugins.logger
+  (:use [lazybot registry]
         [clj-time.core :only [now from-time-zone time-zone-for-offset]]
         [clj-time.format :only [unparse formatters]]
         [clojure.java.io :only [file]])

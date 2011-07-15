@@ -1,6 +1,6 @@
-(ns sexpbot.plugins.rss
-  (:use sexpbot.registry
-	[sexpbot.plugins.shorturl :only [shorten-url]])
+(ns lazybot.plugins.rss
+  (:use lazybot.registry
+	[lazybot.plugins.shorturl :only [shorten-url]])
   (:require [clojure.xml :as xml]
 	    [clojure.zip :as zip]
 	    [clojure.contrib.zip-filter.xml :as zf]))

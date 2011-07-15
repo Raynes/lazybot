@@ -1,5 +1,5 @@
-(ns sexpbot.plugins.hello-world
-  (:use sexpbot.registry))
+(ns lazybot.plugins.hello-world
+  (:use lazybot.registry))
 
 (defplugin
   (:cmd

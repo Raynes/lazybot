@@ -1,7 +1,7 @@
 ;; Written by Erik (boredomist)
-(ns sexpbot.plugins.help
-  (:use [sexpbot registry info]
-        [sexpbot.plugins.login :only [when-privs]]
+(ns lazybot.plugins.help
+  (:use [lazybot registry info]
+        [lazybot.plugins.login :only [when-privs]]
         [clojure.string :only [join]]
         [somnium.congomongo :only [fetch fetch-one insert! destroy!]]))
 

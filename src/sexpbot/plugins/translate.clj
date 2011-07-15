@@ -1,5 +1,5 @@
-(ns sexpbot.plugins.translate
-  (:use [sexpbot registry utilities]
+(ns lazybot.plugins.translate
+  (:use [lazybot registry utilities]
         [clojure.contrib.json :only [read-json]])
   (:require [clojure-http.resourcefully :as res]
             [clojure.string :as s])

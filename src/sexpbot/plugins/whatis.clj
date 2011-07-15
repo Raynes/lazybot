@@ -1,5 +1,5 @@
-(ns sexpbot.plugins.whatis
-  (:use [sexpbot registry]
+(ns lazybot.plugins.whatis
+  (:use [lazybot registry]
         [somnium.congomongo :only [fetch fetch-one insert! destroy!]]))
 
 (defn tell-about [what com-m]

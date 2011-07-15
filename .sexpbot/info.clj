@@ -16,7 +16,7 @@
                  "#clojure" [","]}        ; let clojurebot have this one
  :servers-port 8080    ; port for plugins that require webserver
  "irc.freenode.net" {:channels ["#tempchan"]
-		     :bot-name "sexpbot-test"
+		     :bot-name "lazybot-test"
 		     :bot-password nil
 		     :users {"JohnDoe" {:pass "iliekpie", :privs :admin}
                      "JaneDoe" {:pass "ohai", :privs :admin}}

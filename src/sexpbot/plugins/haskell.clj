@@ -1,9 +1,9 @@
-(ns sexpbot.plugins.haskell
-  (:use [sexpbot registry]
+(ns lazybot.plugins.haskell
+  (:use [lazybot registry]
         [clojure.contrib.json :only [read-json]]
 	[clojure-http.client :only [add-query-params]]
         [clojure.java.shell :only [sh]]
-        [sexpbot.gist :only [trim-with-gist]])
+        [lazybot.gist :only [trim-with-gist]])
   (:require [clojure-http.resourcefully :as res]))
 
 (def tryurl "http://tryhaskell.org/haskell.json")

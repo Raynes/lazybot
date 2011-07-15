@@ -1,5 +1,5 @@
-(ns sexpbot.plugins.sed
-  (:use [sexpbot registry info]
+(ns lazybot.plugins.sed
+  (:use [lazybot registry info]
         clj-config.core
         [clojure.string :only [join]]
         clojure.contrib.logging))

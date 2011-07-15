@@ -1,6 +1,6 @@
-(ns sexpbot.plugins.seen
-  (:use [sexpbot registry info]
-        [sexpbot.utilities :only [format-time]]
+(ns lazybot.plugins.seen
+  (:use [lazybot registry info]
+        [lazybot.utilities :only [format-time]]
 	[somnium.congomongo :only [fetch fetch-one insert! destroy!]]
         [clojure.string :only [join]]))
 

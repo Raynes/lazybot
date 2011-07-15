@@ -1,5 +1,5 @@
-(ns sexpbot.plugins.max
-  (:use sexpbot.registry
+(ns lazybot.plugins.max
+  (:use lazybot.registry
         [somnium.congomongo :only [fetch-one insert! destroy!]]))
 
 (defplugin :irc

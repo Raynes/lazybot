@@ -1,10 +1,10 @@
-(ns sexpbot.twitter
+(ns lazybot.twitter
   (:use [clojure
          [string :only [join]] [set :only [difference]]
          [stacktrace :only [print-stack-trace]]]
         clojure.contrib.logging
         [clj-config.core :only [read-config]]
-        [sexpbot
+        [lazybot
          core
          [info :only [info-file]]
          [registry :only [send-message prefix]]
@@ -126,9 +126,9 @@
 (defmethod prefix :twitter [bot nick & s] (apply str s))
 
 (defn setup-twitter []
-  (println "Hi! I'm sexpbot! Shall we set up twitter support? We shall!")
-  (println "Have you set up a twitter application for sexpbot at"
-           "http://twitter.com/oauth_clients/new, and configured sexpbot with"
+  (println "Hi! I'm lazybot! Shall we set up twitter support? We shall!")
+  (println "Have you set up a twitter application for lazybot at"
+           "http://twitter.com/oauth_clients/new, and configured lazybot with"
            "Your consumer keys and such? y/n")
   (when (= (read-line) "y")
     (println "Alright. Fetching a request token...")

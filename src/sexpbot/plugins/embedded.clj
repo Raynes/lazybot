@@ -1,5 +1,5 @@
-(ns sexpbot.plugins.embedded
-  (:use [sexpbot registry]))
+(ns lazybot.plugins.embedded
+  (:use [lazybot registry]))
 
 (defplugin :irc
   (:hook

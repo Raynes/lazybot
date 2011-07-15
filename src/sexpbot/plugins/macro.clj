@@ -1,6 +1,6 @@
-(ns sexpbot.plugins.macro
-  (:use [sexpbot registry info]
-        [sexpbot.plugins.login :only [when-privs]]
+(ns lazybot.plugins.macro
+  (:use [lazybot registry info]
+        [lazybot.plugins.login :only [when-privs]]
 	clj-config.core
         [somnium.congomongo :only [fetch fetch-one insert! destroy!]]))
 

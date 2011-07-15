@@ -1,8 +1,8 @@
 ; Written by Pepijn de Vos <pepijndevos@gmail.com>
 ; Licensed under the EPL
-(ns sexpbot.plugins.ping
-  (:use sexpbot.registry
-        [sexpbot.utilities :only [format-time]]))
+(ns lazybot.plugins.ping
+  (:use lazybot.registry
+        [lazybot.utilities :only [format-time]]))
 
 (def pings (ref {}))
 

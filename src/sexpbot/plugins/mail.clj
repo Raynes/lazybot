@@ -1,7 +1,7 @@
-(ns sexpbot.plugins.mail
+(ns lazybot.plugins.mail
   (:refer-clojure :exclude [extend])
-  (:use [sexpbot registry info]
-        [sexpbot.plugins.login :only [when-privs]]
+  (:use [lazybot registry info]
+        [lazybot.plugins.login :only [when-privs]]
 	[clj-time core format]
         [somnium.congomongo :only [fetch fetch-one insert! destroy!]]))
 

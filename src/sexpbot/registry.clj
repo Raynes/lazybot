@@ -1,7 +1,7 @@
-(ns sexpbot.registry
+(ns lazybot.registry
   (:use [amalloy.utils :only [verify validator !]]
         [amalloy.utils.transform :only [transform-if]]
-        [sexpbot.utilities :only [on-thread]]
+        [lazybot.utilities :only [on-thread]]
         [clojail.core :only [thunk-timeout]])
   (:require [irclj.core :as ircb]
             [somnium.congomongo :as mongo])

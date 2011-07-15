@@ -1,6 +1,6 @@
-(ns sexpbot.plugins.markov
-  (:use sexpbot.registry
-        [sexpbot.plugins.login :only [when-privs]]
+(ns lazybot.plugins.markov
+  (:use lazybot.registry
+        [lazybot.plugins.login :only [when-privs]]
         [amalloy.utils :only [! keywordize verify trim-seq]]
         (amalloy.utils [transform :only [transform-if
                                          make-str make-kw make-int]]

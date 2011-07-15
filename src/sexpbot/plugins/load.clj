@@ -1,6 +1,6 @@
-(ns sexpbot.plugins.load
-  (:use [sexpbot registry core irc]
-        [sexpbot.plugins.login :only [when-privs]]))
+(ns lazybot.plugins.load
+  (:use [lazybot registry core irc]
+        [lazybot.plugins.login :only [when-privs]]))
 
 (defplugin
   (:cmd

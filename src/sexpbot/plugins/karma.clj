@@ -1,8 +1,8 @@
 ; Written by Michael D. Ivey <ivey@gweezlebur.com>
 ; Licensed under the EPL
 
-(ns sexpbot.plugins.karma
-  (:use [sexpbot registry info]
+(ns lazybot.plugins.karma
+  (:use [lazybot registry info]
         [amalloy.utils :only [keywordize]]
 	[somnium.congomongo :only [fetch-one insert! destroy!]]))
 

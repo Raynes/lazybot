@@ -1,7 +1,7 @@
 ; Written by Programble <programble@gmail.com>
 ; Licensed under the EPL
-(ns sexpbot.plugins.fortune
-  (:use [sexpbot registry info]
+(ns lazybot.plugins.fortune
+  (:use [lazybot registry info]
         [somnium.congomongo :only [fetch fetch-one insert! destroy!]]))
 
 (defplugin

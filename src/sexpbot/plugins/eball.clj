@@ -1,5 +1,5 @@
-(ns sexpbot.plugins.eball
-  (:use [sexpbot registry]))
+(ns lazybot.plugins.eball
+  (:use [lazybot registry]))
 
 (def responses
      ["As I see it, yes."

@@ -1,5 +1,5 @@
-(ns sexpbot.plugins.leet
-  (:use sexpbot.registry))
+(ns lazybot.plugins.leet
+  (:use lazybot.registry))
 
 (defn char-to-leet [c]
   (condp = c

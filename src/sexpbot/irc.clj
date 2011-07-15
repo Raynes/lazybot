@@ -1,5 +1,5 @@
-(ns sexpbot.irc
-  (:use [sexpbot core info]
+(ns lazybot.irc
+  (:use [lazybot core info]
         [clj-config.core :only [read-config]]
         [amalloy.utils :only [decorate keywordize]])
   (:require [irclj.core :as ircb]))
