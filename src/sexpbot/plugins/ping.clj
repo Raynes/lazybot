@@ -6,7 +6,7 @@
 
 (def pings (ref {}))
 
-(defn notify-pingers [{:keys [irc bot]} nick]
+(defn notify-pingers [{:keys [irc bot] :as com-m} nick]
   (doseq [[who when] (dosync
                       (when-let [pingers (@pings nick)]
                         (alter pings dissoc nick)
@@ -14,7 +14,7 @@
     (let [what (str nick " is available, "
                     (format-time (- (System/currentTimeMillis) when))
                     " after your ping.")]
-      (io! (send-message irc bot who what :notice? true)))))
+      (io! (send-message (assoc com-m :channel who) what :notice? true)))))
 
 (defn scan-ping-request [message from]
   (when-let [[_ to] (re-find #"^([^ ]+).{2}ping.?$" message)]
@@ -26,6 +26,6 @@
 (defplugin :irc
   (:hook
    :on-message
-   (fn [{:keys [nick message] :as args}]
-     (notify-pingers args nick)
+   (fn [{:keys [nick message] :as com-m}]
+     (notify-pingers com-m nick)
      (scan-ping-request message nick))))
