@@ -1,12 +1,12 @@
 ;; The result of a team effort between programble and Rayne.
 (ns lazybot.plugins.title
   (:use [lazybot info registry utilities]
-	(clojure.contrib [string :only [ltrim]]
+        (clojure.contrib [string :only [ltrim]]
                          [io :only [reader]]
                          [logging :only [debug]])
         [clojail.core :only [thunk-timeout]])
   (:import java.util.concurrent.TimeoutException
-	   org.apache.commons.lang.StringEscapeUtils))
+           org.apache.commons.lang.StringEscapeUtils))
 
 (def titlere #"(?i)<title>([^<]+)</title>")
 
@@ -23,11 +23,11 @@
    (with-open [readerurl (reader url)]
      (loop [acc [] lines (line-seq readerurl)]
        (cond
-	(not (seq lines)) nil
-	(some #(re-find #"</title>|</TITLE>" %) acc) (->> acc (apply str) 
-							  (#(.replace % "\n" " ")) 
-							  (re-find titlere))
-	:else (recur (conj acc (first lines)) (rest lines)))))
+        (not (seq lines)) nil
+        (some #(re-find #"</title>|</TITLE>" %) acc) (->> acc (apply str)
+                                                          (#(.replace % "\n" " "))
+                                                          (re-find titlere))
+        :else (recur (conj acc (first lines)) (rest lines)))))
    (catch java.lang.Exception e nil)))
 
 (defn url-blacklist-words [com bot] (:url-blacklist ((:config @bot) (:server @com))))
@@ -37,41 +37,42 @@
 
 (defn is-blacklisted? [[match-this not-this] s]
   (let [lower-s (.toLowerCase s)
-	regex (if (seq not-this)
-		(re-pattern (format "(?=.*%s(?!%s))^(\\w+)" match-this not-this))
-		(re-pattern match-this))]
+        regex (if (seq not-this)
+                (re-pattern (format "(?=.*%s(?!%s))^(\\w+)" match-this not-this))
+                (re-pattern match-this))]
     (re-find regex lower-s)))
 
 (defn strip-tilde [s] (apply str (remove #{\~} s)))
 
 (defn check-blacklist [server user bot]
   (let [blacklist (:user-ignore-url-blacklist ((:config @bot) server))]
-    (some (comp not nil?) (map 
-			   #(is-blacklisted? % (strip-tilde user)) 
-			   blacklist))))
+    (some (comp not nil?) (map
+                           #(is-blacklisted? % (strip-tilde user))
+                           blacklist))))
 
 (defn title [{:keys [com nick bot user channel] :as com-m}
              links & {verbose? :verbose?}]
   (if (or (and verbose? (seq links))
-	  (and (not (check-blacklist (:server @com) user bot))
-	       (not ((:channel-catch-blacklist ((:config @bot) (:server @com))) channel))))
+          (and (not (check-blacklist (:server @com) user bot))
+               (not (contains? (:channel-catch-blacklist ((:config @bot) (:server @com)))
+                               channel))))
     (doseq [link (take 1 links)]
       (try
        (thunk-timeout #(let [url (add-url-prefix link)
-			     page (slurp-or-default url)
-			     match (second page)]
-			 (if (and (seq page) (seq match) (not (url-check com bot url)))
-			   (send-message com-m
-					      (str "\"" 
-						   (ltrim 
-						    (StringEscapeUtils/unescapeHtml 
-						     (collapse-whitespace match))) 
-						   "\""))
-			   (when verbose? (send-message com-m "Page has no title."))))
-		      20 :sec)
-       (catch TimeoutException _ 
-	 (when verbose? 
-	   (send-message com-m "It's taking too long to find the title. I'm giving up.")))))
+                             page (slurp-or-default url)
+                             match (second page)]
+                         (if (and (seq page) (seq match) (not (url-check com bot url)))
+                           (send-message com-m
+                                              (str "\""
+                                                   (ltrim
+                                                    (StringEscapeUtils/unescapeHtml
+                                                     (collapse-whitespace match)))
+                                                   "\""))
+                           (when verbose? (send-message com-m "Page has no title."))))
+                      20 :sec)
+       (catch TimeoutException _
+         (when verbose?
+           (send-message com-m "It's taking too long to find the title. I'm giving up.")))))
     (when verbose? (send-message com-m "Which page?"))))
 
 (defplugin :irc
@@ -83,16 +84,16 @@
                        (->> s
                             (re-seq #"(https?://|www\.)[^\]\[(){}\"'$^\s]+")
                             (map first)))]
-       (when (not ((:user-blacklist (info (:server @com))) nick))
+       (when-not (contains? (:user-blacklist (info (:server @com))) nick)
          (let [prepend (:prepends info)
                links (get-links message)
-               title-links? (and (not (m-starts-with message (:prepends info))) 
+               title-links? (and (not (m-starts-with message (:prepends info)))
                                  (:catch-links? (info (:server @com)))
                                  (seq links))]
            (debug (pr-str links))
            (when title-links?
              (title com-m links)))))))
-  
-  (:cmd 
+
+  (:cmd
    "Gets the title of a web page. Takes a link. This is verbose, and prints error messages."
    #{"title"} (fn [com-m] (title com-m (:args com-m) :verbose? true))))

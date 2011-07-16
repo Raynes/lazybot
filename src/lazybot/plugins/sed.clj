@@ -39,7 +39,7 @@
        (let [new-msg (sed* orig-msg regexp replacement)]
          (debug (str user-to (-> @bot :config :dont-sed)))
          (when-not (or (= orig-msg new-msg)
-                       ((-> @bot :config :dont-sed) user-to))
+                       (contains? (-> @bot :config :dont-sed) user-to))
            (send-message com-m (str "<" user-to "> " new-msg))))
        (catch Exception _
          (when verbose? (format-msg com-m)))))))
