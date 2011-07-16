@@ -31,7 +31,7 @@
   (trim-with-gist
     cap
     "result.clj" 
-    (str "<" user "> " expression "\n<" bot-name "> \u27F9 ")
+    (str "<" user "> " expression "\n<" bot-name "> \u8658 ")
     s))
 
 ;(defmacro defn2 [name & body] `(def ~name (fn ~name ~@body)))
@@ -108,7 +108,7 @@
             twitter? (= protocol :twitter)]
         (if twitter?
           result
-          (str (or pre  "\u27F9 ") (trim bot-name user txt result)))))
+          (str (or pre  "\u8658 ") (trim bot-name user txt result)))))
    (catch TimeoutException _ "Execution Timed Out!")
    (catch Exception e (str (root-cause e)))))
 
