@@ -16,12 +16,12 @@
 
 (defn sed [com-m verbose?]
   (let [{:keys [bot com nick args channel]} com-m
-        
+
         arg-str (.trim (join " " args))
         try-to-match (fn [regex]
                        (or (second (re-find regex arg-str))
                            ""))
-        user-to (try-to-match #"^\s*-(\w+)")
+        user-to (try-to-match #"^\s*-?(\w+)")
         margs (try-to-match #"\s*(s/[^/]+/[^/]*/?)$")
         orig-msg (some #(get (get-in @message-map [com channel])
                              %)
@@ -50,7 +50,7 @@
    :irc
    (fn [{:keys [com bot nick message channel] :as com-m}]
      (when (seq (re-find sed-regex message))
-       (sed (assoc com-m :args [(str "-" nick) message]) false))
+       (sed (assoc com-m :args [nick message]) false))
      (when (and (not= nick (:name @com))
                 (not= (take 4 message)
                       (-> @bot :config :prepends first (str "sed"))))
@@ -59,7 +59,7 @@
 
   (:cmd
    "Simple find and replace. Usage: sed [-<user name>] s/<regexp>/<replacement>/
-If the specified user isn't found, it will default to the last thing said in the channel. 
+If the specified user isn't found, it will default to the last thing said in the channel.
 Example Usage: sed -boredomist s/[aeiou]/#/
 Shorthand : s/[aeiou]/#/"
    #{"sed"}
