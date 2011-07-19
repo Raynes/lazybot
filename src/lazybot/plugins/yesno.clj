@@ -1,0 +1,27 @@
+(ns lazybot.plugins.yesno
+  (:use [lazybot registry info]))
+
+(def answers {:yes ["Oh, absolutely."
+                    "How could that be wrong?"
+                    "Yes, 100% for sure."]
+              :no  ["What are you, crazy? Of course not!"
+                    "Definitely not."
+                    "Uh, no. Why would you even ask?"]})
+
+(defn choose-answer [num-questions]
+  (case num-questions
+        3 :yes
+        2 :no
+        nil))
+
+(defplugin
+  (:hook
+   :on-message
+   :irc
+   (fn [{:keys [com bot nick message channel] :as com-m}]
+     (prn "Hook start")
+     (when-let [[match questions] (re-find #"(\?+)\s*$" message)]
+       (prn "Matched" match questions)
+       (when-let [answer-type (choose-answer (count questions))]
+         (prn "Decided")
+         (send-message com-m (prefix bot nick (rand-nth (get answers answer-type)))))))))
