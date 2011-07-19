@@ -5,13 +5,13 @@
      ["As I see it, yes."
       "It is certain."
       "It is decidedly so."
-      "Most likely." 
-      "Outlook good." 
+      "Most likely."
+      "Outlook good."
       "Signs point to yes."
-      "Without a doubt." 
+      "Without a doubt."
       "Yes."
       "Yes - definitely."
-      "You may rely on it." 
+      "You may rely on it."
       "Reply hazy, try again."
       "Ask again later."
       "Better not tell you now."
@@ -26,7 +26,7 @@
 (defplugin
   (:cmd
    "Ask the magic eight ball a question."
-   #{"8ball"} 
+   #{"8ball" "will" "should"}
    (fn [{:keys [bot nick channel] :as com-m}]
      (let [answer (rand-int 20)]
        (send-message com-m (prefix bot nick (nth responses answer)))))))
