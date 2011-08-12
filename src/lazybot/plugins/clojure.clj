@@ -98,11 +98,17 @@
              (catch Throwable _ (throw e)))
            (throw e)))))
 
-(defn execute-text [bot-name user txt protocol pre]
+(defn no-box [code bindings]
+  (with-bindings bindings (eval code)))
+
+(defn execute-text [box? bot-name user txt protocol pre]
   (try
     (with-open [writer (StringWriter.)]
-      (let [res (sb (safe-read-with-paren-fix txt) {#'*out* writer
-                                                    #'doc #'pretty-doc})
+      (let [bindings {#'*out* writer
+                      #'doc #'pretty-doc}
+            res (if box?
+                  (sb (safe-read-with-paren-fix txt) bindings)
+                  (no-box (read-string txt) bindings))
             replaced (string/replace (str writer) "\n" " ")
             result (str replaced (when (= last \space) " ") res)
             twitter? (= protocol :twitter)]
@@ -175,16 +181,16 @@ Return a seq of strings to be evaluated. Usually this will be either nil or a on
 
 (def max-embedded-forms 3)
 
-(defn- eval-forms [bot-name user protocol pre [form1 form2 :as forms]]
+(defn- eval-forms [box? bot-name user protocol pre [form1 form2 :as forms]]
   (take max-embedded-forms
         (if-not form2
-          [(execute-text bot-name user form1 protocol pre)]
+          [(execute-text box? bot-name user form1 protocol pre)]
           (map (fn [form]
                  (str
                   (let [trimmed (apply str (take 40 form))]
                     (str " " trimmed (when (not= trimmed form)
                                        "... ")))
-                  " " (execute-text bot-name user form protocol pre)))
+                  " " (execute-text box? bot-name user form protocol pre)))
                forms))))
 
 (def findfn-ns-set
@@ -260,7 +266,8 @@ Return a seq of strings to be evaluated. Usually this will be either nil or a on
    :on-message
    (fn [{:keys [com bot nick channel message] :as com-m}]
      (let [config (-> @bot :config)
-           pre (:print-prefix config)]
+           pre (:print-prefix config)
+           box? (:box config)]
        (if-let [evalp (:eval-prefixes config)]
          (when-let [sexps (what-to-eval bot channel message)]
            (if-not (second (swap! tasks (fn [[pending]]
@@ -270,7 +277,11 @@ Return a seq of strings to be evaluated. Usually this will be either nil or a on
              (send-message com-m "Too much is happening at once. Wait until other operations cease.")
              (on-thread
               (try
-                (doseq [msg (eval-forms (:name @com) nick (:protocol @bot) pre sexps)]
+                (doseq [msg (eval-forms (if (nil? box?) true box?)
+                                        (:name @com) nick
+                                        (:protocol @bot)
+                                        pre
+                                        sexps)]
                   (send-message com-m msg))
                 (finally (swap! tasks (fn [[pending]]
                                         [(dec pending)])))))))
