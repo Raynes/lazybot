@@ -3,7 +3,7 @@
 	(clojail testers core) 
 	lazybot.registry
         clojure.contrib.logging
-        [lazybot.utilities :only [on-thread]]
+        [lazybot.utilities :only [on-thread trim-string]]
         [lazybot.plugins.shorturl :only [is-gd]]
         [lazybot.gist :only [trim-with-gist]]
         [name.choi.joshua.fnparse :only [rule-match term failpoint alt complex rep*]]
@@ -185,13 +185,9 @@ Return a seq of strings to be evaluated. Usually this will be either nil or a on
   (take max-embedded-forms
         (if-not form2
           [(execute-text box? bot-name user form1 protocol pre)]
-          (map (fn [form]
-                 (str
-                  (let [trimmed (apply str (take 40 form))]
-                    (str " " trimmed (when (not= trimmed form)
-                                       "... ")))
-                  " " (execute-text box? bot-name user form protocol pre)))
-               forms))))
+          (for [form forms]
+            (str (trim-string 40 (constantly "... ") form)
+                 " " (execute-text box? bot-name user form protocol pre))))))
 
 (def findfn-ns-set
      (map the-ns '#{clojure.core clojure.set clojure.string
