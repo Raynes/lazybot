@@ -1,7 +1,7 @@
 (ns lazybot.plugins.clojure
   (:use clojure.stacktrace
-	(clojail testers core) 
-	lazybot.registry
+        (clojail testers core)
+        lazybot.registry
         clojure.contrib.logging
         [lazybot.utilities :only [on-thread trim-string]]
         [lazybot.plugins.shorturl :only [is-gd]]
@@ -30,7 +30,7 @@
 (defn trim [bot-name user expression s]
   (trim-with-gist
     cap
-    "result.clj" 
+    "result.clj"
     (str "<" user "> " expression "\n<" bot-name "> \u21D2 ")
     s))
 
@@ -77,7 +77,7 @@
 
 (def expression (alt (complex [open opening
                                body (rep* expression)
-                               _    closing]                                
+                               _    closing]
                               (str open (apply str body) (brackets open)))
                      content))
 
@@ -157,7 +157,7 @@ Return a seq of strings to be evaluated. Usually this will be either nil or a on
 ;; Make sure Pattern objects show up first
 (defn- pattern-comparator [a b]
   (let [ac (class a)
-	bc (class b)]
+        bc (class b)]
     (cond
      (= (= ac Pattern) ; both patterns, or both strings
         (= bc Pattern))
@@ -175,7 +175,7 @@ Return a seq of strings to be evaluated. Usually this will be either nil or a on
   (let [candidates (default-prefixes bot)
         exceptions (eval-exceptions bot channel)
         patterns (sort pattern-comparator
-		       (remove exceptions candidates))]
+                       (remove exceptions candidates))]
     (first (keep #(find-eval-request % message)
                  patterns))))
 
@@ -297,7 +297,7 @@ Return a seq of strings to be evaluated. Usually this will be either nil or a on
    #{"findfn"}
    (fn [{:keys [args] :as com-m}]
      (send-message com-m (findfn-pluginfn find-fn (string/join " " args)))))
-  
+
   (:cmd
    "(findarg map % [1 2 3] [2 3 4]) ;=> inc"
    #{"findarg"}
