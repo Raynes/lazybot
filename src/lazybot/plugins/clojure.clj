@@ -31,7 +31,7 @@
   (trim-with-gist
     cap
     "result.clj"
-    (str "<" user "> " expression "\n<" bot-name "> \u21D2 ")
+    (str "<" user "> " expression "\n<" bot-name "> => ")
     s))
 
 ;(defmacro defn2 [name & body] `(def ~name (fn ~name ~@body)))
