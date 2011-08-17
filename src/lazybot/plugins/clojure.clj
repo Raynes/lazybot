@@ -108,7 +108,7 @@
                       #'doc #'pretty-doc}
             res (if box?
                   (sb (safe-read-with-paren-fix txt) bindings)
-                  (no-box (read-string txt) bindings))
+                  (pr-str (no-box (read-string txt) bindings)))
             replaced (string/replace (str writer) "\n" " ")
             result (str replaced (when (= last \space) " ") res)
             twitter? (= protocol :twitter)]
