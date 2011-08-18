@@ -19,9 +19,6 @@
    :on-message
    :irc
    (fn [{:keys [com bot nick message channel] :as com-m}]
-     (prn "Hook start")
      (when-let [[match questions] (re-find #"(\?+)\s*$" message)]
-       (prn "Matched" match questions)
        (when-let [answer-type (choose-answer (count questions))]
-         (prn "Decided")
          (send-message com-m (prefix bot nick (rand-nth (get answers answer-type)))))))))
