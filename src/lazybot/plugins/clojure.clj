@@ -5,15 +5,16 @@
         clojure.contrib.logging
         [lazybot.utilities :only [on-thread trim-string]]
         [lazybot.plugins.shorturl :only [is-gd]]
-        [lazybot.gist :only [trim-with-gist]]
+        [lazybot.gist :only [trim-with-gist gist]]
         [name.choi.joshua.fnparse :only [rule-match term failpoint alt complex rep*]]
         [amalloy.utils :only [verify]]
         (amalloy.utils [transform :only [transform-if]]
                        [debug :only [?]]))
   (:require [clojure.string :as string :only [replace]]
             [clojure.walk :as walk]
+            [cd-client.core :as cd]
             ; these requires are for findfn
-            clojure.string
+            [clojure.string :as s]
             clojure.set
             clojure.contrib.string)
   (:import java.io.StringWriter
@@ -302,4 +303,21 @@ Return a seq of strings to be evaluated. Usually this will be either nil or a on
    "(findarg map % [1 2 3] [2 3 4]) ;=> inc"
    #{"findarg"}
    (fn [{:keys [args] :as com-m}]
-     (send-message com-m (findfn-pluginfn find-arg (string/join " " args))))))
+     (send-message com-m (findfn-pluginfn find-arg (string/join " " args)))))
+  
+  (:cmd
+   "Search clojuredocs for something."
+   #{"cd"}
+   (fn [{:keys [args] :as com-m}]
+     (if-let [results (take 3 (apply cd/search args))]
+       (doseq [{:keys [url ns name]} results]
+         (send-message com-m (format "%s/%s: %s" ns name url)))
+       (send-message com-m "No results found."))))
+
+  (:cmd
+   "Find an example usage of something on clojuredocs."
+   #{"examples"}
+   (fn [{:keys [args] :as com-m}]
+     (if-let [results (:examples (apply cd/examples-core args))]
+       (send-message com-m (gist "examples.clj" (s/join "\n\n" (map :body results))))
+       (send-message com-m "No results found.")))))

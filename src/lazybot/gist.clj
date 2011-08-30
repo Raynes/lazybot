@@ -10,6 +10,9 @@
 (def gist-note "... ")
 (def default-cap 300)
 
+(defn gist [name s]
+  (str "https://gist.github.com/" (:repo (new-gist {} name s))))
+
 (defn trim-with-gist
   "Trims the input string to a maximum of cap characters; if any
 trimming is done, then a gist will be created to hold the entire
@@ -34,9 +37,7 @@ not necessary in the result."
                            (->> s
                                 (str gist-prefix)
                                 word-wrap
-                                (new-gist {} name)
-                                :repo
-                                (str "http://gist.github.com/"))
+                                (gist name))
                            (catch IOException e (str "failed to gist: "
                                                      (.getMessage e))))))
                   s)))
