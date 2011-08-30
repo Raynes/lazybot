@@ -304,7 +304,7 @@ Return a seq of strings to be evaluated. Usually this will be either nil or a on
    #{"findarg"}
    (fn [{:keys [args] :as com-m}]
      (send-message com-m (findfn-pluginfn find-arg (string/join " " args)))))
-  
+
   (:cmd
    "Search clojuredocs for something."
    #{"cd"}
@@ -318,6 +318,7 @@ Return a seq of strings to be evaluated. Usually this will be either nil or a on
    "Find an example usage of something on clojuredocs."
    #{"examples"}
    (fn [{:keys [args] :as com-m}]
-     (if-let [results (:examples (apply cd/examples-core args))]
-       (send-message com-m (gist "examples.clj" (s/join "\n\n" (map :body results))))
-       (send-message com-m "No results found.")))))
+     (send-message com-m
+                   (if-let [results (:examples (apply cd/examples-core args))]
+                     (gist "examples.clj" (s/join "\n\n" (map :body results)))
+                     "No results found.")))))
