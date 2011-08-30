@@ -6,7 +6,7 @@
       (constantly nil)))
 
 (defn check-login [user mask pass server bot]
-  (let [userconf ((:users ((:config @bot) server)) user)]
+  (when-let [userconf (get-in @bot [:config server :users user])]
     (when (or (= mask (:host userconf)) (= pass (:pass userconf))) 
       (dosync (alter bot assoc-in [:logged-in user] (userconf :privs))))))
 
