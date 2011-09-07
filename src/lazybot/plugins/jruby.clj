@@ -1,8 +1,10 @@
 (ns lazybot.plugins.jruby
   (:use lazybot.registry
-        [clojail.core :only [thunk-timeout]])
-  (:import javax.script.ScriptEngineManager
-           java.io.StringWriter))
+        [clojail.core :only [thunk-timeout]]
+        clojure.stacktrace)
+  (:import (javax.script ScriptEngineManager ScriptException)
+           java.io.StringWriter
+           org.jruby.exceptions.RaiseException))
 
 (def jruby (.getEngineByName (ScriptEngineManager.) "jruby"))
 
@@ -11,7 +13,10 @@
    (fn []
      (let [writer (StringWriter.)]
        (.setWriter (.getContext jruby) writer)
-       (str writer " " (pr-str (.eval jruby code)))))
+       (str writer " "
+            (try (pr-str (.eval jruby code))
+                 (catch ScriptException e
+                   (.getMessage (root-cause e)))))))
    5000))
 
 (defplugin
