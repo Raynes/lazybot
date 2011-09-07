@@ -1,5 +1,5 @@
 (ns lazybot.run
-  (:use [lazybot core twitter irc]
+  (:use [lazybot core irc]
         ring.adapter.jetty
         clojure.contrib.command-line
         [clojure.java.io :only [writer]])
@@ -9,12 +9,10 @@
   (with-command-line args
     "lazybot -- A Clojure IRC bot"
     [[background? b? "Start lazybot in the background. Should only be used along with --logpath."]
-     [logpath "A file for lazybot to direct output to."]
-     [setup-twitter? "Set up your twitter account with lazybot."]]
+     [logpath "A file for lazybot to direct output to."]]
     (cond
      background? (.exec (Runtime/getRuntime)
                         (str "java -jar lazybot.jar --logpath " logpath))
-     setup-twitter? (setup-twitter)
      
      :else
      (let [write (if logpath (writer logpath) *out*)]
@@ -25,6 +23,4 @@
        (require-plugins)
        (doseq [serv (:servers initial-info)]
          (connect-bot #'make-bot serv))
-       (when (:twitter initial-info)
-         (connect-bot #'twitter-loop :twitter))
        (route (extract-routes (vals @bots)))))))

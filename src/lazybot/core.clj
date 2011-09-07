@@ -84,7 +84,6 @@
   [& bots]
   (require 'lazybot.registry :reload)
   (require 'lazybot.utilities :reload)
-  (require 'lazybot.twitter :reload)
   (require-plugins)
   (route (extract-routes bots))
   (doseq [{:keys [com bot]} bots]
