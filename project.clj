@@ -20,7 +20,8 @@
                                               com.sun.jmx/jmxri]]
                  [fnparse "2.2.7"]
                  [amalloy/utils "[0.3.6,)"]
-                 [org.thnetos/cd-client "0.3.0"]]
+                 [org.thnetos/cd-client "0.3.0"]
+                 [org.jruby/jruby "1.6.4"]]
   :dev-dependencies [[swank-clojure "1.2.1"]]
   :uberjar-name "lazybot"
   :main lazybot.run

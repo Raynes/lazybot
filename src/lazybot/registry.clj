@@ -2,7 +2,8 @@
   (:use [amalloy.utils :only [verify validator !]]
         [amalloy.utils.transform :only [transform-if]]
         [lazybot.utilities :only [on-thread]]
-        [clojail.core :only [thunk-timeout]])
+        [clojail.core :only [thunk-timeout]]
+        [clojure.string :only [join]])
   (:require [irclj.core :as ircb]
             [somnium.congomongo :as mongo])
   (:import java.util.concurrent.TimeoutException))
@@ -78,7 +79,7 @@
 (defn m-starts-with [m s]
   (some #(.startsWith m %) s))
 
-(defn split-args [config s no-pre?]
+#_(defn split-args [config s no-pre?]
   (let [[prepend command & args] (.split s " ")
         is-long-pre (full-prepend config prepend)
         prefix (or (full-prepend config prepend)
@@ -92,6 +93,14 @@
              (when command
                (conj args command)))}))
 
+(defn split-args [config s]
+  (let [[fst & args] (.split s " ")
+        full? (full-prepend config fst)
+        args (if full? (rest args) args)]
+    {:command (if full? (first args) (join (rest fst)))
+     :args args
+     :raw-args (join " " args)}))
+
 (defn is-command?
   "Tests whether or not a message begins with a prepend."
   [message bot]
@@ -100,16 +109,15 @@
 (defn try-handle [{:keys [nick channel bot message] :as com-m}]
   (on-thread
    (let [conf (:config @bot)
-         max-ops (:max-operations conf)
-         no-pre? (or (= nick channel) (= :twitter (:protocol @bot)))]
-     (when (or no-pre? (is-command? message bot))
+         max-ops (:max-operations conf)]
+     (when (is-command? message bot)
        (if (dosync
             (let [pending (:pending-ops @bot)
                   permitted (< pending max-ops)]
               (when permitted
                 (alter bot assoc :pending-ops (inc pending)))))
          (try
-           (let [n-bmap (into com-m (split-args conf message no-pre?))]
+           (let [n-bmap (into com-m (split-args conf message))]
              (thunk-timeout #((respond n-bmap) n-bmap)
                             30 :sec))
            (catch TimeoutException _ (send-message com-m "Execution timed out."))
