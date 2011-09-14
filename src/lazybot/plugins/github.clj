@@ -3,7 +3,7 @@
         [lazybot.plugins.shorturl :only [is-gd]]
         [compojure.core :only [POST]]
         clojure.contrib.json)
-  (:require [clojure.contrib.string :as s])
+  (:require [clojure.string :as s])
   (:import java.net.InetAddress))
 
 (def bots (atom {}))
@@ -25,7 +25,7 @@
                    (str "\u0002" owner "/" name "\u0002: " branch " <" (is-gd url) "> "))
                  "\u0002" (-> commit :author :name) "\u0002: "
                  (format-vec (concat modified (map #(str "+" %) added) (map #(str "-" %) removed)))
-                 " \u0002--\u0002 " (string/replace message #"\n" " ")]))))
+                 " \u0002--\u0002 " (s/replace message #"\n" " ")]))))
 
 (defn handler [req]
   (let [remote (:remote-addr req)]
