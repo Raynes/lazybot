@@ -20,12 +20,12 @@
 (defn notify-chan [com-m commit owner name branch no-header]
   (send-message
    com-m
-   (let [{:keys [added removed modified]} commit]
+   (let [{:keys [added removed modified message url]} commit]
      (s/join "" [(when no-header
-                   (str "\u0002" owner "/" name "\u0002: " branch " <" (is-gd (:url commit)) "> "))
+                   (str "\u0002" owner "/" name "\u0002: " branch " <" (is-gd url) "> "))
                  "\u0002" (-> commit :author :name) "\u0002: "
                  (format-vec (concat modified (map #(str "+" %) added) (map #(str "-" %) removed)))
-                 " \u0002--\u0002 " (:message commit)]))))
+                 " \u0002--\u0002 " (string/replace message #"\n" " ")]))))
 
 (defn handler [req]
   (let [remote (:remote-addr req)]
