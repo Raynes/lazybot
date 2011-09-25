@@ -100,7 +100,7 @@
            (throw e)))))
 
 (defn no-box [code bindings]
-  (with-bindings bindings (eval code)))
+  (thunk-timeout #(with-bindings bindings (eval code)) 10000))
 
 (defn execute-text [box? bot-name user txt protocol pre]
   (try
