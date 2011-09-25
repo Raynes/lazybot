@@ -96,10 +96,10 @@
 (defn split-args [config s]
   (let [[fst & args] (.split s " ")
         full? (full-prepend config fst)
-        args (if full? (rest args) args)]
+        fixed-args (if full? (rest args) args)]
     {:command (if full? (first args) (join (rest fst)))
-     :args args
-     :raw-args (join " " args)}))
+     :args fixed-args
+     :raw-args (join " " fixed-args)}))
 
 (defn is-command?
   "Tests whether or not a message begins with a prepend."
