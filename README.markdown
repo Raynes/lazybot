@@ -21,7 +21,7 @@ Sexpbot has some basic background functionality. In order to use it, you must ha
 
 ## Commands
 
-The current list of commands is maintained at [https://github.com/Raynes/lazybot/wiki/Commands](), and you can find help on any particular command with $help <command> (eg $help fcst).
+The current list of commands is maintained at [https://github.com/flatland/lazybot/wiki/Commands](), and you can find help on any particular command with $help <command> (eg $help fcst).
 
 ## Development
 
@@ -36,10 +36,10 @@ Contributions to lazybot are welcome, most often in the form of new plugins. If 
 Licensed under the same thing Clojure is licensed under, [the EPL](http://www.eclipse.org/legal/epl-v10.html). You can find a copy in the root of this directory.
 
 
-[before-plugin]: https://github.com/Raynes/lazybot/wiki/Read-this-before-writing-your-plugin
-[plugin-guide]: https://github.com/Raynes/lazybot/wiki/Plugin-quick-start-guide
-[$findfn]: https://github.com/Raynes/lazybot/compare/544566f7ee740731ca69...da4fcae5f3afe6cc9e6c
-[$tell]: https://github.com/Raynes/lazybot/commit/b94c36c52271766c07de9f6bfb7c4d2a429ba498
+[before-plugin]: https://github.com/flatland/lazybot/wiki/Read-this-before-writing-your-plugin
+[plugin-guide]: https://github.com/flatland/lazybot/wiki/Plugin-quick-start-guide
+[$findfn]: https://github.com/flatland/lazybot/compare/544566f7ee740731ca69...da4fcae5f3afe6cc9e6c
+[$tell]: https://github.com/flatland/lazybot/commit/b94c36c52271766c07de9f6bfb7c4d2a429ba498
 [ghoseb]: https://github.com/ghoseb
 [jColeChanged]: https://github.com/jColeChanged
 
