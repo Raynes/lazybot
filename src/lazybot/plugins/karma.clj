@@ -55,7 +55,7 @@
 (defplugin :irc
   (:hook :on-message
          (fn [{:keys [message] :as com-m}]
-           (let [[_ direction snick] (re-find #"^\((inc|dec) (.+)\)$" message)]
+           (let [[_ direction snick] (re-find #"^\((inc|dec) (.+)\)(\s*;.*)?$" message)]
              (when snick
                ((karma-fn (case direction
                                 "inc" inc
