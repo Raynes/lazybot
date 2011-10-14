@@ -1,16 +1,16 @@
 (ns lazybot.plugins.google
   (:use [lazybot registry [utilities :only [trim-string]]]
-        [clojure-http.client :only [add-query-params]]
         [clojure.data.json :only [read-json]])
-  (:require [clojure-http.resourcefully :as res]
-            [clojure.string :as s])
+  (:require [clojure.string :as s]
+            [clj-http.client :as http])
   (:import org.apache.commons.lang.StringEscapeUtils
            java.net.URLDecoder))
 
 (defn google [term]
-  (-> (res/get (add-query-params "http://ajax.googleapis.com/ajax/services/search/web"
-                                 {"v" "1.0" "q" term}))
-      :body-seq first read-json))
+  (-> (http/get "http://ajax.googleapis.com/ajax/services/search/web"
+                {:query-params {"v" "1.0" "q" term}})
+      :body
+      read-json))
 
 (defn cull [result-set]
   [(:estimatedResultCount (:cursor (:responseData result-set)))
@@ -19,7 +19,7 @@
 (defn handle-search [{:keys [args] :as com-m}]
   (send-message com-m
                 (let [argstr (s/join " " args)]
-                  (if-not (seq (.trim argstr))
+                  (if-not (seq (s/trim argstr))
                     (str "No search term!")
                     (let [[res-count {title :titleNoFormatting
                                       url :url}] (-> argstr google cull)]

@@ -5,7 +5,7 @@
                  [commons-io/commons-io "1.4"]
                  [clj-time "0.3.1"]
                  [clojail "0.3.4"]
-                 [clojure-http-client "1.1.0"]
+                 [clj-http "0.2.1"]
                  [irclj "0.4.0-SNAPSHOT"]
                  [congomongo "0.1.7"]
                  [clj-config "0.1.0"]

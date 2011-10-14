@@ -1,15 +1,18 @@
 (ns lazybot.plugins.translate
   (:use [lazybot registry utilities]
         [clojure.data.json :only [read-json]])
-  (:require [clojure-http.resourcefully :as res]
+  (:require [clj-http.client :as http]
             [clojure.string :as s])
   (:import org.apache.commons.lang.StringEscapeUtils))
 
 (defn translate [lang1 lang2 text]
-  (-> (res/get 
+  (-> (http/get 
        "http://ajax.googleapis.com/ajax/services/language/translate"
-       {} {"v" "1.0" "q" text "langpair" (str lang1 "|" lang2)})
-      :body-seq first read-json))
+       {:query-params {"v" "1.0"
+                       "q" text
+                       "langpair" (str lang1 "|" lang2)}})
+      :body
+      read-json))
 
 (defplugin
   (:cmd

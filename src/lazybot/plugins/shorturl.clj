@@ -1,30 +1,31 @@
 (ns lazybot.plugins.shorturl
   (:use [lazybot registry]
-        [clojure.data.json :only [read-json]]
-        [clojure-http.client :only [add-query-params]])
-  (:require [clojure-http.resourcefully :as res])
+        [clojure.data.json :only [read-json]])
+  (:require [clj-http.client :as http])
   (:import java.net.URI))
 
 (defn grab-url [js]
+  (prn js)
   (-> js :results vals first :shortUrl))
 
 (defn is-gd [url]
-  (-> (res/get (add-query-params "http://is.gd/api.php" {"longurl" url})) :body-seq first))
+  (:body
+   (http/get "http://is.gd/api.php"
+             {:query-params {"longurl" url}})))
   
 (defn bit-ly [url login bitkey]
   (grab-url (read-json 
-	     (->> (res/get (add-query-params "http://api.bit.ly/shorten"
-					     {"login" login 
-                                              "apiKey" bitkey
-                                              "longUrl" (if (.startsWith url "http://") url (str "http://" url))
-                                              "version" "2.0.1"}))
-		  :body-seq
-		  (apply str)))))
+	     (->> (http/get
+                   "http://api.bit.ly/shorten"
+                   {:query-params {"login" login 
+                                   "apiKey" bitkey
+                                   "longUrl" (if (.startsWith url "http://") url (str "http://" url))
+                                   "version" "2.0.1"}})
+		  :body))))
 
 (defn dot-tk [url]
   (.substring
-   (->> (res/get (add-query-params "http://api.dot.tk/tweak/shorten" {"long" url}))
-	:body-seq (apply str))
+   (:body (http/get "http://api.dot.tk/tweak/shorten" {:query-params {"long" url}}))
    0 15))
 
 (defn shorten-url [url bot site]

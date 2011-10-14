@@ -1,10 +1,9 @@
 (ns lazybot.plugins.haskell
   (:use [lazybot registry]
         [clojure.data.json :only [read-json]]
-	[clojure-http.client :only [add-query-params]]
         [clojure.java.shell :only [sh]]
         [lazybot.gist :only [trim-with-gist]])
-  (:require [clojure-http.resourcefully :as res]))
+  (:require [clj-http.client :as http]))
 
 (def tryurl "http://tryhaskell.org/haskell.json")
 
@@ -17,9 +16,8 @@
   (trim-with-gist cap "output.hs" s))
 
 (defn eval-haskell [expr]
-  (->> (res/get (add-query-params tryurl {"method" "eval" "expr" expr}))
-       :body-seq
-       first
+  (->> (http/get tryurl {:query-params {"method" "eval" "expr" expr}})
+       :body
        read-json
        cull
        (apply str)))
