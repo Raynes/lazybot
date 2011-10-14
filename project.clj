@@ -17,14 +17,14 @@
                                               com.sun.jdmk/jmxtools
                                               com.sun.jmx/jmxri]]
                  [fnparse "2.2.7"]
-                 [amalloy/utils "[0.3.6,)"]
                  [org.thnetos/cd-client "0.3.0"]
                  [org.jruby/jruby "1.6.4"]
                  [clj-wordnik "0.0.1"]
                  [org.clojure/data.json "0.1.1"]
                  [org.clojure/tools.logging "0.2.3"]
                  [org.clojure/data.zip "0.1.0"]
-                 [org.clojure/tools.cli "0.1.0"]]
+                 [org.clojure/tools.cli "0.1.0"]
+                 [useful "0.7.2"]]
   :uberjar-name "lazybot"
   :main lazybot.run
   :copy-deps true

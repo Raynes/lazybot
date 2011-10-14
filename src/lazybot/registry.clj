@@ -1,7 +1,7 @@
 (ns lazybot.registry
-  (:use [amalloy.utils :only [verify validator !]]
-        [amalloy.utils.transform :only [transform-if]]
-        [lazybot.utilities :only [on-thread]]
+  (:use [useful.fn :only [fix to-fix]]
+        [lazybot.utilities :only [on-thread verify validator]]
+        [useful.fn :only [!]]
         [clojail.core :only [thunk-timeout]]
         [clojure.string :only [join]])
   (:require [irclj.core :as ircb]
@@ -32,7 +32,7 @@
                      (remove-protos (:protocol @bot) (:modules @bot))))))))
 
 (defn extract-protocol [m & rest]
-  (-> ((transform-if map? :bot) m)
+  (-> m (fix map? :bot)
       deref :protocol))
 
 (defn call-message-hooks [com bot channel s action?]
@@ -151,7 +151,7 @@
     possible-seq))
 
 ;; Wrap isolated objects with a vector
-(def make-vector (transform-if (! vector?) vector))
+(def make-vector (to-fix (! vector?) vector))
 
 (defmacro defplugin [& [protocol & body]]
   (let [proto (verify keyword? protocol)

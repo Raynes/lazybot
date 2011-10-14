@@ -3,13 +3,11 @@
         (clojail testers core)
         lazybot.registry
         clojure.tools.logging
-        [lazybot.utilities :only [on-thread trim-string]]
+        [lazybot.utilities :only [on-thread verify trim-string]]
         [lazybot.plugins.shorturl :only [is-gd]]
         [lazybot.gist :only [trim-with-gist gist]]
-        [name.choi.joshua.fnparse :only [rule-match term failpoint alt complex rep*]]
-        [amalloy.utils :only [verify]]
-        (amalloy.utils [transform :only [transform-if]]
-                       [debug :only [?]]))
+        [useful.fn :only [fix]]
+        [name.choi.joshua.fnparse :only [rule-match term failpoint alt complex rep*]])
   (:require [clojure.string :as string :only [replace]]
             [clojure.walk :as walk]
             [cd-client.core :as cd]
@@ -123,8 +121,8 @@
 (defn first-object [s]
   (when (seq s)
     (try
-      ((transform-if coll? pr-str (constantly nil))
-       (safe-read s))
+      (-> (safe-read s)
+          (fix coll? pr-str, nil))
       (catch Exception _))))
 
 (defmulti find-eval-request

@@ -61,6 +61,17 @@
   (map #(apply str %)
        ((juxt take drop) len s)))
 
+(defn verify
+  "Return x, unless (pred x) is logical false, in which case return
+nil."
+  [pred x]
+  (when (pred x)
+    x))
+
+(defn validator
+  [pred]
+  (partial verify pred))
+
 (defn trim-string
   "Trim the specified string down to a maximum length. If any trimming needs
 to be done, then trim-indication-generator will be called with s as its argument

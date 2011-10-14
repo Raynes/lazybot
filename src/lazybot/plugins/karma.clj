@@ -3,13 +3,13 @@
 
 (ns lazybot.plugins.karma
   (:use [lazybot registry info]
-        [amalloy.utils :only [keywordize]]
-	[somnium.congomongo :only [fetch-one insert! destroy!]]))
+        [useful.map :only [keyed]]
+        [somnium.congomongo :only [fetch-one insert! destroy!]]))
 
 (defn- set-karma
   [nick server channel karma]
   (let [nick (.toLowerCase nick)
-        attrs (keywordize [nick server channel])]
+        attrs (keyed [nick server channel])]
     (destroy! :karma attrs)
     (insert! :karma (assoc attrs :karma karma))))
 
@@ -17,7 +17,7 @@
   [nick server channel]
   (let [nick (.toLowerCase nick)
         user-map (fetch-one :karma
-                            :where (keywordize [nick server channel]))]
+                            :where (keyed [nick server channel]))]
     (get user-map :karma 0)))
 
 (defn- put-karma [{:keys [channel com]} nick karma]
@@ -28,7 +28,7 @@
 ;; TODO: mongo has atomic inc/dec commands - we should use those
 (defn- change-karma
   [snick new-karma {:keys [nick com bot channel] :as com-m}]
-  (let [[msg apply] 
+  (let [[msg apply]
         (dosync
          (let [current (get-in @limit [nick snick])]
            (cond
@@ -63,7 +63,7 @@
                 (merge com-m {:args [snick]}))))))
   (:cmd
    "Checks the karma of the person you specify."
-   #{"karma"} 
+   #{"karma"}
    (fn [{:keys [com bot channel args] :as com-m}]
      (let [nick (first args)]
        (send-message com-m
