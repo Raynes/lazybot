@@ -1,6 +1,6 @@
 (ns lazybot.plugins.shorturl
   (:use [lazybot registry]
-        [clojure.contrib.json :only [read-json]]
+        [clojure.data.json :only [read-json]]
         [clojure-http.client :only [add-query-params]])
   (:require [clojure-http.resourcefully :as res])
   (:import java.net.URI))

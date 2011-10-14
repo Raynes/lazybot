@@ -1,11 +1,11 @@
 (ns lazybot.gist
   (:use [clj-github.gists :only [new-gist]]
         [lazybot.utilities :only [trim-string]])
-  (:require [clojure.contrib.string :as string])
+  (:require [clojure.string :as string])
   (:import [java.io IOException]))
 
 (defn word-wrap [str]
-  (string/replace-re #"(.{50,70}[])}\"]*)\s+" "$1\n" str))
+  (string/replace str #"(.{50,70}[])}\"]*)\s+" "$1\n"))
 
 (def gist-note "... ")
 (def default-cap 300)

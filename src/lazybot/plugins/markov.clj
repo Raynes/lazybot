@@ -5,7 +5,7 @@
         (amalloy.utils [transform :only [transform-if
                                          make-str make-kw make-int]]
                        [debug :only [?]]))
-  (:require [clojure.contrib.string :as s :only [capitalize join]]
+  (:require [clojure.string :as s :only [capitalize join]]
             [somnium.congomongo :as mongo :only [insert! destroy! fetch-one]])
   (:import java.util.regex.Pattern))
 

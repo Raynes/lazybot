@@ -1,7 +1,6 @@
 (ns lazybot.utilities
   (:use lazybot.info)
-  (:require [clojure.contrib.io :as io]
-            [clojure.string :only [join] :as string])
+  (:require [clojure.string :only [join] :as string])
   (:import [java.io File FileReader]
            [org.apache.log4j LogManager]))
 

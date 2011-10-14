@@ -2,7 +2,7 @@
   (:use lazybot.registry
         [lazybot.plugins.shorturl :only [is-gd]]
         [compojure.core :only [POST]]
-        clojure.contrib.json)
+        clojure.data.json)
   (:require [clojure.string :as s])
   (:import java.net.InetAddress))
 

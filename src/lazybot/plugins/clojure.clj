@@ -2,7 +2,7 @@
   (:use clojure.stacktrace
         (clojail testers core)
         lazybot.registry
-        clojure.contrib.logging
+        clojure.tools.logging
         [lazybot.utilities :only [on-thread trim-string]]
         [lazybot.plugins.shorturl :only [is-gd]]
         [lazybot.gist :only [trim-with-gist gist]]
@@ -15,8 +15,7 @@
             [cd-client.core :as cd]
             ; these requires are for findfn
             [clojure.string :as s]
-            clojure.set
-            clojure.contrib.string)
+            clojure.set)
   (:import java.io.StringWriter
            java.util.concurrent.TimeoutException
            java.util.regex.Pattern
@@ -191,8 +190,7 @@ Return a seq of strings to be evaluated. Usually this will be either nil or a on
                  " " (execute-text box? bot-name user form protocol pre))))))
 
 (def findfn-ns-set
-     (map the-ns '#{clojure.core clojure.set clojure.string
-                    clojure.contrib.string}))
+     (map the-ns '#{clojure.core clojure.set clojure.string}))
 
 (defn fn-name [var]
   (apply symbol (map str

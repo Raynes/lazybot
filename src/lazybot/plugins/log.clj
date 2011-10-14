@@ -1,7 +1,7 @@
 (ns lazybot.plugins.log
   (:use (lazybot registry utilities)
         [lazybot.plugins.login :only [when-privs]]
-        clojure.contrib.logging)
+        clojure.tools.logging)
   (:import [org.apache.log4j Level]))
 
 (defn str->package [s]

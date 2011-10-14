@@ -2,7 +2,7 @@
   (:use [lazybot registry info]
         clj-config.core
         [clojure.string :only [join]]
-        clojure.contrib.logging))
+        clojure.tools.logging))
 
 (def message-map (atom {}))
 (def sed-regex #"^s/([^/]+)/([^/]*)/?")

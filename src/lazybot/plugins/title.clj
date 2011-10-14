@@ -1,9 +1,9 @@
 ;; The result of a team effort between programble and Rayne.
 (ns lazybot.plugins.title
   (:use [lazybot info registry utilities]
-        (clojure.contrib [string :only [ltrim]]
-                         [io :only [reader]]
-                         [logging :only [debug]])
+        [clojure.java.io :only [reader]]
+        [clojure.string :only [triml]]
+        [clojure.tools.logging :only [debug]]
         [clojail.core :only [thunk-timeout]])
   (:import java.util.concurrent.TimeoutException
            org.apache.commons.lang.StringEscapeUtils))
@@ -64,7 +64,7 @@
                          (if (and (seq page) (seq match) (not (url-check com bot url)))
                            (send-message com-m
                                               (str "\""
-                                                   (ltrim
+                                                   (triml
                                                     (StringEscapeUtils/unescapeHtml
                                                      (collapse-whitespace match)))
                                                    "\""))

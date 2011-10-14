@@ -1,6 +1,6 @@
 (ns lazybot.plugins.translate
   (:use [lazybot registry utilities]
-        [clojure.contrib.json :only [read-json]])
+        [clojure.data.json :only [read-json]])
   (:require [clojure-http.resourcefully :as res]
             [clojure.string :as s])
   (:import org.apache.commons.lang.StringEscapeUtils))

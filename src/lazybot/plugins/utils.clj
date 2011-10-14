@@ -115,19 +115,6 @@
    #{"kill"}
    (fn [com-m] (send-message com-m "KILL IT WITH FIRE!")))
 
-  (:cmd 
-   "Gists its arguments."
-   #{"gist"} 
-   (fn [{:keys [nick bot args] :as com-m}]
-     (send-message
-      com-m
-      (prefix bot nick ": http://gist.github.com/" 
-              (:repo
-               (new-gist
-                {}
-                (first args) 
-                (->> args rest (interpose " ") (apply str))))))))
-
   ;(:dumpcmds
   ; "Dumps a list of commands to a gist."
   ; ["dumpcmds" "commands"]

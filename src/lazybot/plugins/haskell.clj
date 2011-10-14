@@ -1,6 +1,6 @@
 (ns lazybot.plugins.haskell
   (:use [lazybot registry]
-        [clojure.contrib.json :only [read-json]]
+        [clojure.data.json :only [read-json]]
 	[clojure-http.client :only [add-query-params]]
         [clojure.java.shell :only [sh]]
         [lazybot.gist :only [trim-with-gist]])
