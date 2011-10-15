@@ -6,8 +6,7 @@
         [lazybot.utilities :only [on-thread verify trim-string]]
         [lazybot.plugins.shorturl :only [is-gd]]
         [lazybot.gist :only [trim-with-gist gist]]
-        [useful.fn :only [fix]]
-        [name.choi.joshua.fnparse :only [rule-match term failpoint alt complex rep*]])
+        [useful.fn :only [fix]])
   (:require [clojure.string :as string :only [replace]]
             [clojure.walk :as walk]
             [cd-client.core :as cd]
@@ -58,44 +57,6 @@
                (string/replace d# #"\s+" " "))]
       (str (when m# "Macro ") a# "; " d#))))
 
-;; fix-paren parser
-
-(def tokenize (partial re-seq #"\\[\[\](){}]|\"(?:\\.|[^\"])*\"|[\[\](){}]|[^\[\](){}]+"))
-
-(def initial-state (comp (partial array-map :remainder) tokenize))
-
-(def brackets {"[" "]" "(" ")" "{" "}"})
-
-(def opening (term (set (keys brackets))))
-
-(def closing (failpoint (term (set (vals brackets)))
-                        vector))
-
-(def content (term (complement (set (flatten (seq brackets))))))
-
-(def expression (alt (complex [open opening
-                               body (rep* expression)
-                               _    closing]
-                              (str open (apply str body) (brackets open)))
-                     content))
-
-(def fix-parens (comp (partial rule-match expression (constantly nil) (constantly nil))
-                      initial-state))
-
-(defn safe-read-with-paren-fix
-  [txt]
-  (try (safe-read txt)
-       (catch Throwable e
-         (if (re-find #"(EOF while reading|Unmatched delimiter)"
-                      (.getMessage (.getCause e)))
-           (try
-             (let [fixed (safe-read (fix-parens txt))]
-               `(do
-                  (print ~fixed "; Adjusted to ")
-                  '~fixed))
-             (catch Throwable _ (throw e)))
-           (throw e)))))
-
 (defn no-box [code bindings]
   (thunk-timeout #(with-bindings bindings (eval code)) 10000))
 
@@ -105,7 +66,7 @@
       (let [bindings {#'*out* writer
                       #'doc #'pretty-doc}
             res (if box?
-                  (sb (safe-read-with-paren-fix txt) bindings)
+                  (sb (safe-read txt) bindings)
                   (pr-str (no-box (read-string txt) bindings)))
             replaced (string/replace (str writer) "\n" " ")
             result (str replaced (when (= last \space) " ") res)

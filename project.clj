@@ -1,14 +1,14 @@
 (defproject lazybot "0.6.2"
   :description "FIXME: write"
-  :dependencies [[org.clojure/clojure "1.2.0"]
+  :dependencies [[org.clojure/clojure "1.3.0"]
                  [commons-lang/commons-lang "2.5"]
                  [commons-io/commons-io "1.4"]
                  [clj-time "0.3.1"]
-                 [clojail "0.3.4"]
+                 [clojail "0.4.1"]
                  [clj-http "0.2.1"]
-                 [irclj "0.4.0-SNAPSHOT"]
+                 [irclj "0.4.1"]
                  [congomongo "0.1.7"]
-                 [clj-config "0.1.0"]
+                 [clj-config "0.2.0"]
                  [clj-github "1.1.0-alpha1"]
                  [compojure "0.6.5"]
                  [ring/ring-jetty-adapter "1.0.0-beta2"]
@@ -16,7 +16,6 @@
                                               javax.jms/jms
                                               com.sun.jdmk/jmxtools
                                               com.sun.jmx/jmxri]]
-                 [fnparse "2.2.7"]
                  [org.thnetos/cd-client "0.3.0"]
                  [org.jruby/jruby "1.6.4"]
                  [clj-wordnik "0.0.1"]
