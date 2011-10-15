@@ -3,7 +3,6 @@
         [lazybot.plugins.login :only [when-privs]]
 	[clj-github.gists :only [new-gist]]
         [lazybot.gist :only [trim-with-gist]]
-	clj-config.core
 	[clj-time [core :only [plus minus now interval in-secs hours]] [format :only [unparse formatters]]]
         [clojure.java.shell :only [sh]])
   (:require [irclj.core :as ircb]

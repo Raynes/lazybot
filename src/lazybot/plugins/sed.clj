@@ -1,6 +1,5 @@
 (ns lazybot.plugins.sed
   (:use [lazybot registry info]
-        clj-config.core
         [clojure.string :only [join]]
         clojure.tools.logging))
 
