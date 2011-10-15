@@ -31,8 +31,6 @@
     (str "<" user "> " expression "\n<" bot-name "> => ")
     s))
 
-;(defmacro defn2 [name & body] `(def ~name (fn ~name ~@body)))
-
 (defn sfmsg [t anchor] (str t ": Please see http://clojure.org/special_forms#" anchor))
 
 (defn get-line-url [s]
@@ -44,7 +42,6 @@
          (str "https://github.com/clojure/clojure-contrib/tree/1.2.x/src/main/clojure/"
               (:file s-meta) "#L" line)
          (str "https://github.com/clojure/clojure/blob/1.2.x/src/clj/clojure/core.clj#L" line))))))
-
 (defmacro pretty-doc [s]
   (cond
    (special-form-anchor s)
