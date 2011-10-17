@@ -24,6 +24,7 @@
 (defn fetch-messages [user]
   (let [mlist (doall (map compose-message (fetch :mail :where {:to user})))]
     (destroy! :mail {:to user})
+    (swap! alerted dissoc user)
     mlist))
 
 (defn count-messages [user]
