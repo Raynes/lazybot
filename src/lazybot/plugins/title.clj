@@ -90,7 +90,6 @@
                title-links? (and (not (m-starts-with message (:prepends info)))
                                  (:catch-links? (info (:server @com)))
                                  (seq links))]
-           (debug (pr-str links))
            (when title-links?
              (title com-m links)))))))
 
