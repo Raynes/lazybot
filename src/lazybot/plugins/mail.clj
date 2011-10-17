@@ -2,15 +2,15 @@
   (:refer-clojure :exclude [extend])
   (:use [lazybot registry info]
         [lazybot.plugins.login :only [when-privs]]
-	[clj-time core format]
+        [clj-time core format]
         [somnium.congomongo :only [fetch fetch-one insert! destroy!]]))
 
 (def alerted (atom {}))
 
 (defn new-message [from to text]
-  (let [time (unparse (formatters :date-time-no-ms) (now))] 
+  (let [time (unparse (formatters :date-time-no-ms) (now))]
     (insert! :mail {:to to
-                    :from from 
+                    :from from
                     :message text
                     :timestamp time})))
 
@@ -38,11 +38,11 @@
 (defn mail-alert
   [{:keys [nick bot] :as com-m}]
   (let [lower-nick (.toLowerCase nick)
-	nmess (count-messages lower-nick)]
+        nmess (count-messages lower-nick)]
     (when (and (> nmess 0) (alert-time? lower-nick))
       (send-message
        (assoc com-m :channel nick)
-       (str "You have " nmess 
+       (str "You have " nmess
             " new message(s). To retrieve your mail, send me a private message with the contents 'mail'.")
        :notice? true)
       (swap! alerted assoc lower-nick (now)))))
@@ -56,14 +56,14 @@
 (defplugin
   (:hook :on-message :irc #'mail-alert)
   (:hook :on-join #'mail-alert)
-  
+
   (:cmd
    "Request that your messages be sent you via PM. Executing this command will delete all your messages."
    #{"getmessages" "getmail" "mymail"}
    :irc
    #'get-messages)
 
-  (:cmd 
+  (:cmd
    "Send somebody a message. Takes a nickname and a message to send. Will alert the person with a notice."
    #{"mail"}
    :irc
