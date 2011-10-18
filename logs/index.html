@@ -10,6 +10,8 @@ one_day  = 1000*60*60*24;
 hash     = window.location.hash.split("/");
 channel  = hash[0].replace("#", "");
 current  = hash[1] ? new Date(hash[1].replace(/-/g, "/")) : new Date();
+reverse  = window.location.search.indexOf('r') > 0;
+poll     = window.location.search.indexOf('p') > 0;
 count    = 0;
 
 function prev() {
@@ -41,12 +43,13 @@ function updateLog() {
     $.get(url, function(data) {
         lines = data.split("\n")
         lines.pop();
+        if (reverse) { lines.reverse(); }
         if (lines.length > count) {
-          $('#log').html(lines.reverse().join("\n"));
+          $('#log').html(lines.join("\n"));
           count = lines.length;
         }
     });
-    setTimeout(updateLog, 10 * 1000);
+    if (poll) { setTimeout(updateLog, 10 * 1000); }
 }
 
 $(document).ready(function() {
