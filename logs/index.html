@@ -26,17 +26,17 @@ function pad(num) {
 }
 
 function updateLog() {
-    $('#date').show();
+
     $('#channel').html('<a href="' + irc_url + channel + '">#' + channel + '</a>');
 
     now = (new Date()).getTime();
     if (current.getTime() > now) {
         current.setTime(now);
     }
-    day = current.getFullYear() + "-" + pad(current.getMonth() + 1) + "-" + pad(current.getDate());
-    $('#day').html(day);
-    window.location.hash = "#" + channel + "/" + day
+    $('#day').html(current.toDateString());
 
+    day = current.getFullYear() + "-" + pad(current.getMonth() + 1) + "-" + pad(current.getDate());
+    window.location.hash = "#" + channel + "/" + day
     url = base_url + channel + "/" + day + ".txt";
     $.get(url, function(data) {
         $('#log').html(data);
