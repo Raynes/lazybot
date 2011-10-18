@@ -12,32 +12,28 @@ channel  = hash[0].replace("#", "");
 current  = hash[1] ? new Date(hash[1].replace(/-/g, "/")) : new Date();
 
 function prev() {
-    return new Date(current.getTime() - one_day);
+    current.setTime(current.getTime() - one_day);
+    updateLog();
 }
 
 function next() {
-    return new Date(current.getTime() + one_day);
+    current.setTime(current.getTime() + one_day);
+    updateLog();
 }
 
 function pad(num) {
     return (num < 10) ? '0' + num : num;
 }
 
-function date(t) {
-  return t.getFullYear() + "-" + pad(t.getMonth() + 1) + "-" + pad(t.getDate());
-}
-
 function updateLog() {
+    $('#date').show();
+    $('#channel').html('<a href="' + irc_url + channel + '">#' + channel + '</a>');
+
     now = (new Date()).getTime();
     if (current.getTime() > now) {
         current.setTime(now);
     }
-
-    $('#channel').html('<a href="' + irc_url + channel + '">#' + channel + '</a>');
-    $('#prev').html('<a href="/logs/#' + channel + '/' + date(prev()) + '">&lt;</a>');
-    $('#next').html('<a href="/logs/#' + channel + '/' + date(next()) + '">&gt;</a>');
-
-    day = date(current);
+    day = current.getFullYear() + "-" + pad(current.getMonth() + 1) + "-" + pad(current.getDate());
     $('#day').html(day);
     window.location.hash = "#" + channel + "/" + day
 
@@ -68,9 +64,9 @@ a:visited{color: grey;}
 <code>
 <h3>
 <span id="channel"></span>
-<span id="prev"></span>
-<span id="day"></span>
-<span id="next"></span>
+<span id="date">
+  <a href="javascript:prev()">&lt;</a> <span id="day"></span> <a href="javascript:next()">&gt;</a>
+</div>
 </h3>
 
 <pre id="log"></pre>
