@@ -10,17 +10,14 @@ one_day  = 1000*60*60*24;
 hash     = window.location.hash.split("/");
 channel  = hash[0].replace("#", "");
 current  = hash[1] ? new Date(hash[1].replace(/-/g, "/")) : new Date();
-count    = 0;
 
 function prev() {
     current.setTime(current.getTime() - one_day);
-    count = 0;
     updateLog();
 }
 
 function next() {
     current.setTime(current.getTime() + one_day);
-    count = 0;
     updateLog();
 }
 
@@ -44,11 +41,8 @@ function updateLog() {
     $.get(url, function(data) {
         lines = data.split("\n")
         lines.pop();
-        if (lines.length > count) {
-          if (window.location.search.indexOf('r') > 0) { lines.reverse(); }
-          $('#log').html(lines.join("\n"));
-          count = lines.length;
-        }
+        if (window.location.search.indexOf('r') > 0) { lines.reverse(); }
+        $('#log').html(lines.join("\n"));
     });
     if (current.toDateString() == today.toDateString()) { setTimeout(updateLog, 30 * 1000); }
 }
