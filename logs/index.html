@@ -10,6 +10,7 @@ one_day  = 1000*60*60*24;
 hash     = window.location.hash.split("/");
 channel  = hash[0].replace("#", "");
 current  = hash[1] ? new Date(hash[1].replace(/-/g, "/")) : new Date();
+count    = 0;
 
 function prev() {
     current.setTime(current.getTime() - one_day);
@@ -26,7 +27,6 @@ function pad(num) {
 }
 
 function updateLog() {
-
     $('#channel').html('<a href="' + irc_url + channel + '">#' + channel + '</a>');
 
     now = (new Date()).getTime();
@@ -41,8 +41,12 @@ function updateLog() {
     $.get(url, function(data) {
         lines = data.split("\n")
         lines.pop();
-        $('#log').html(lines.reverse().join("\n"));
+        if (lines.length > count) {
+          $('#log').html(lines.reverse().join("\n"));
+          count = lines.length;
+        }
     });
+    setTimeout(updateLog, 10 * 1000);
 }
 
 $(document).ready(function() {
