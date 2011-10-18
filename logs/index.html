@@ -39,7 +39,9 @@ function updateLog() {
     window.location.hash = "#" + channel + "/" + day
     url = base_url + channel + "/" + day + ".txt";
     $.get(url, function(data) {
-        $('#log').html(data);
+        lines = data.split("\n")
+        lines.pop();
+        $('#log').html(lines.reverse().join("\n"));
     });
 }
 
