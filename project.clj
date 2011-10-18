@@ -4,7 +4,7 @@
                  [commons-lang/commons-lang "2.5"]
                  [commons-io/commons-io "1.4"]
                  [clj-time "0.3.1"]
-                 [clojail "0.4.1"]
+                 [clojail "0.4.2"]
                  [clj-http "0.2.1"]
                  [irclj "0.4.1"]
                  [congomongo "0.1.7"]
@@ -16,7 +16,7 @@
                                               javax.jms/jms
                                               com.sun.jdmk/jmxtools
                                               com.sun.jmx/jmxri]]
-                 [org.thnetos/cd-client "0.3.0"]
+                 [org.thnetos/cd-client "0.3.1"]
                  [org.jruby/jruby "1.6.4"]
                  [clj-wordnik "0.0.1"]
                  [org.clojure/data.json "0.1.1"]

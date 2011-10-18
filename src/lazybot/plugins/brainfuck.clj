@@ -1,9 +1,9 @@
 (ns lazybot.plugins.brainfuck
   (:use lazybot.registry))
 ;;; From Rosettacode ;;;
-(def *input*)
+(def ^:dynamic *input*)
  
-(def *output*)
+(def ^:dynamic *output*)
  
 (defstruct data :ptr :cells)
  

@@ -18,9 +18,16 @@
            java.util.regex.Pattern
            clojure.lang.LispReader$ReaderException))
 
-
-(def eval-tester secure-tester)
-(def sb (sandbox eval-tester :transform pr-str))
+(def sb (sandbox secure-tester
+                 :transform pr-str
+                 :init '(defmacro doc [s]
+                          (println "\n\n\n" *ns* "\n\n")
+                          (if (special-symbol? s)
+                            `(str "Special: " ~s " ; " (:doc (#'clojure.repl/special-doc ~s)))
+                            `(let [[a# m# d#] (-> ~s var meta ((juxt :arglists :macro :doc)))
+                                   d# (when d#
+                                        (string/replace d# #"\s+" " "))]
+                               (str (when m# "Macro ") a# "; " d#))))))
 
 (def cap 300)
 
@@ -31,8 +38,6 @@
     (str "<" user "> " expression "\n<" bot-name "> => ")
     s))
 
-(defn sfmsg [t anchor] (str t ": Please see http://clojure.org/special_forms#" anchor))
-
 (defn get-line-url [s]
   (let [s-meta (try (-> s symbol resolve meta) (catch Exception _ nil))
         ns-str (str (:ns s-meta))]
@@ -42,35 +47,21 @@
          (str "https://github.com/clojure/clojure-contrib/tree/1.2.x/src/main/clojure/"
               (:file s-meta) "#L" line)
          (str "https://github.com/clojure/clojure/blob/1.2.x/src/clj/clojure/core.clj#L" line))))))
-(defmacro pretty-doc [s]
-  (cond
-   (special-form-anchor s)
-   `(sfmsg "Special Form" (special-form-anchor '~s))
-   (syntax-symbol-anchor s)
-   `(sfmsg "Syntax Symbol" (syntax-symbol-anchor '~s))
-   :else
-   `(let [[a# m# d#] (-> ~s var meta ((juxt :arglists :macro :doc)))
-          d# (when d#
-               (string/replace d# #"\s+" " "))]
-      (str (when m# "Macro ") a# "; " d#))))
 
 (defn no-box [code bindings]
   (thunk-timeout #(with-bindings bindings (eval code)) 10000))
 
-(defn execute-text [box? bot-name user txt protocol pre]
+(defn execute-text [box? bot-name user txt pre]
   (try
+    (prn txt)
     (with-open [writer (StringWriter.)]
-      (let [bindings {#'*out* writer
-                      #'doc #'pretty-doc}
+      (let [bindings {#'*out* writer}
             res (if box?
                   (sb (safe-read txt) bindings)
                   (pr-str (no-box (read-string txt) bindings)))
             replaced (string/replace (str writer) "\n" " ")
-            result (str replaced (when (= last \space) " ") res)
-            twitter? (= protocol :twitter)]
-        (if twitter?
-          result
-          (str (or pre  "\u21D2 ") (trim bot-name user txt result)))))
+            result (str replaced (when (= last \space) " ") res)]
+        (str (or pre "\u21D2 ") (trim bot-name user txt result))))
    (catch TimeoutException _ "Execution Timed Out!")
    (catch Exception e (str (root-cause e)))))
 
@@ -137,16 +128,17 @@ Return a seq of strings to be evaluated. Usually this will be either nil or a on
 
 (def max-embedded-forms 3)
 
-(defn- eval-forms [box? bot-name user protocol pre [form1 form2 :as forms]]
+(defn- eval-forms [box? bot-name user pre [form1 form2 :as forms]]
   (take max-embedded-forms
         (if-not form2
-          [(execute-text box? bot-name user form1 protocol pre)]
+          [(execute-text box? bot-name user form1 pre)]
           (for [form forms]
             (str (trim-string 40 (constantly "... ") form)
-                 " " (execute-text box? bot-name user form protocol pre))))))
+                 " " (execute-text box? bot-name user form pre))))))
+
 
 (def findfn-ns-set
-     (map the-ns '#{clojure.core clojure.set clojure.string}))
+  (map the-ns '#{clojure.core clojure.set clojure.string}))
 
 (defn fn-name [var]
   (apply symbol (map str
@@ -155,7 +147,7 @@ Return a seq of strings to be evaluated. Usually this will be either nil or a on
                       (meta var)))))
 
 (defn filter-vars [testfn]
-  (for [f (remove (comp eval-tester :name meta)
+  (for [f (remove (comp secure-tester :name meta)
                   (mapcat (comp vals ns-publics) findfn-ns-set))
         :when (try
                (thunk-timeout
@@ -230,13 +222,18 @@ Return a seq of strings to be evaluated. Usually this will be either nil or a on
               (try
                 (doseq [msg (eval-forms (if (nil? box?) true box?)
                                         (:name @com) nick
-                                        (:protocol @bot)
                                         pre
                                         sexps)]
                   (send-message com-m msg))
                 (finally (swap! tasks (fn [[pending]]
                                         [(dec pending)])))))))
          (throw (Exception. "Dude, you didn't set :eval-prefixes. I can't configure myself!"))))))
+
+  (:cmd
+   "eval"
+   #{"eval"}
+   (fn [{:keys [args] :as com-m}]
+     (send-message com-m (sb '*ns*))))
 
   (:cmd
    "Link to the source code of a Clojure function or macro."
