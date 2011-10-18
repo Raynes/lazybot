@@ -12,22 +12,32 @@
             [cd-client.core :as cd]
             ; these requires are for findfn
             [clojure.string :as s]
-            clojure.set)
+            clojure.set
+            clojure.repl)
   (:import java.io.StringWriter
            java.util.concurrent.TimeoutException
            java.util.regex.Pattern
            clojure.lang.LispReader$ReaderException))
 
-(def sb (sandbox secure-tester
-                 :transform pr-str
-                 :init '(defmacro doc [s]
-                          (println "\n\n\n" *ns* "\n\n")
-                          (if (special-symbol? s)
-                            `(str "Special: " ~s " ; " (:doc (#'clojure.repl/special-doc ~s)))
-                            `(let [[a# m# d#] (-> ~s var meta ((juxt :arglists :macro :doc)))
-                                   d# (when d#
-                                        (string/replace d# #"\s+" " "))]
-                               (str (when m# "Macro ") a# "; " d#))))))
+(defn doc* [v]
+  (if (symbol? v)
+    (str "Special: " v "; " (:doc (#'clojure.repl/special-doc v)))
+    (let [[arglists macro docs]
+          (-> v
+              meta
+              ((juxt :arglists
+                     :macro
+                     :doc)))
+          docs (and docs (string/replace docs #"s+" " "))]
+      (str (and macro "Macro ") arglists "; " docs))))
+
+(def sb
+  (sandbox secure-tester
+           :transform pr-str
+           :init '(defmacro doc [s]
+                    (if (special-symbol? s)
+                      (lazybot.plugins.clojure/doc* s)
+                      `(doc* (var ~s))))))
 
 (def cap 300)
 
@@ -53,7 +63,6 @@
 
 (defn execute-text [box? bot-name user txt pre]
   (try
-    (prn txt)
     (with-open [writer (StringWriter.)]
       (let [bindings {#'*out* writer}
             res (if box?
@@ -228,12 +237,6 @@ Return a seq of strings to be evaluated. Usually this will be either nil or a on
                 (finally (swap! tasks (fn [[pending]]
                                         [(dec pending)])))))))
          (throw (Exception. "Dude, you didn't set :eval-prefixes. I can't configure myself!"))))))
-
-  (:cmd
-   "eval"
-   #{"eval"}
-   (fn [{:keys [args] :as com-m}]
-     (send-message com-m (sb '*ns*))))
 
   (:cmd
    "Link to the source code of a Clojure function or macro."
