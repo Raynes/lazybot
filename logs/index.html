@@ -10,17 +10,17 @@ one_day  = 1000*60*60*24;
 hash     = window.location.hash.split("/");
 channel  = hash[0].replace("#", "");
 current  = hash[1] ? new Date(hash[1].replace(/-/g, "/")) : new Date();
-reverse  = window.location.search.indexOf('r') > 0;
-poll     = window.location.search.indexOf('p') > 0;
 count    = 0;
 
 function prev() {
     current.setTime(current.getTime() - one_day);
+    count = 0;
     updateLog();
 }
 
 function next() {
     current.setTime(current.getTime() + one_day);
+    count = 0;
     updateLog();
 }
 
@@ -31,7 +31,8 @@ function pad(num) {
 function updateLog() {
     $('#channel').html('<a href="' + irc_url + channel + '">#' + channel + '</a>');
 
-    now = (new Date()).getTime();
+    today = new Date();
+    now   = today.getTime();
     if (current.getTime() > now) {
         current.setTime(now);
     }
@@ -43,13 +44,13 @@ function updateLog() {
     $.get(url, function(data) {
         lines = data.split("\n")
         lines.pop();
-        if (reverse) { lines.reverse(); }
         if (lines.length > count) {
+          if (window.location.search.indexOf('r') > 0) { lines.reverse(); }
           $('#log').html(lines.join("\n"));
           count = lines.length;
         }
     });
-    if (poll) { setTimeout(updateLog, 10 * 1000); }
+    if (current.toDateString() == today.toDateString()) { setTimeout(updateLog, 30 * 1000); }
 }
 
 $(document).ready(function() {
