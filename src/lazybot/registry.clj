@@ -74,50 +74,38 @@
         (constantly nil))))
 
 (defn full-prepend [config s]
-  ((:prepends config) s))
+  ((:prepends config) (str s)))
 
 (defn m-starts-with [m s]
   (some #(.startsWith m %) s))
 
-#_(defn split-args [config s no-pre?]
-  (let [[prepend command & args] (.split s " ")
-        is-long-pre (full-prepend config prepend)
-        prefix (or (full-prepend config prepend)
-                   (->> prepend first str (full-prepend config)))]
-    {:command (cond
-               is-long-pre command
-               prefix (apply str (rest prepend))
-               no-pre? prepend)
-     :args (if is-long-pre
-             args
-             (when command
-               (conj args command)))}))
+(defn cmd-map [cmd args]
+  {:command cmd, :args args, :raw-args (join " " args)})
 
-(defn split-args [config s]
-  (let [[fst & args] (.split s " ")
-        full? (full-prepend config fst)
-        fixed-args (if full? (rest args) args)]
-    {:command (if full? (first args) (join (rest fst)))
-     :args fixed-args
-     :raw-args (join " " fixed-args)}))
+(defn split-args [config s query?]
+  (let [[fst & args] (.split s " ")]
+    (cond (full-prepend config fst)         (cmd-map (first args) (rest args))
+          (full-prepend config (first fst)) (cmd-map (-> fst rest join) args)
+          query?                            (cmd-map fst args))))
 
 (defn is-command?
   "Tests whether or not a message begins with a prepend."
-  [message bot]
-  (m-starts-with message (-> @bot :config :prepends)))
+  [message prepends]
+  (m-starts-with message prepends))
 
 (defn try-handle [{:keys [nick channel bot message] :as com-m}]
   (on-thread
    (let [conf (:config @bot)
+         query? (= channel nick)
          max-ops (:max-operations conf)]
-     (when (is-command? message bot)
+     (when (or (is-command? message (:prepends conf)) query?)
        (if (dosync
             (let [pending (:pending-ops @bot)
                   permitted (< pending max-ops)]
               (when permitted
                 (alter bot assoc :pending-ops (inc pending)))))
          (try
-           (let [n-bmap (into com-m (split-args conf message))]
+           (let [n-bmap (into com-m (split-args conf message query?))]
              (thunk-timeout #((respond n-bmap) n-bmap)
                             30 :sec))
            (catch TimeoutException _ (send-message com-m "Execution timed out."))
