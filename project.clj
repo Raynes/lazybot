@@ -23,7 +23,8 @@
                  [org.clojure/tools.logging "0.2.3"]
                  [org.clojure/data.zip "0.1.0"]
                  [org.clojure/tools.cli "0.1.0"]
-                 [useful "0.7.2"]]
+                 [useful "0.7.2"]
+                 [hobbit "0.1.0-SNAPSHOT"]]
   :uberjar-name "lazybot"
   :main lazybot.run
   :copy-deps true

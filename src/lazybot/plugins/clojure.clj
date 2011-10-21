@@ -3,8 +3,7 @@
         (clojail testers core)
         lazybot.registry
         clojure.tools.logging
-        [lazybot.utilities :only [on-thread verify trim-string]]
-        [lazybot.plugins.shorturl :only [is-gd]]
+        [lazybot.utilities :only [on-thread verify trim-string shorten-url]]
         [lazybot.gist :only [trim-with-gist gist]]
         [useful.fn :only [fix]])
   (:require [clojure.string :as string :only [replace]]
@@ -52,7 +51,7 @@
   (let [s-meta (try (-> s symbol resolve meta) (catch Exception _ nil))
         ns-str (str (:ns s-meta))]
     (when-let [line (:line s-meta)]
-      (is-gd
+      (shorten-url
        (if-not (= "clojure.core" ns-str)
          (str "https://github.com/clojure/clojure-contrib/tree/1.2.x/src/main/clojure/"
               (:file s-meta) "#L" line)

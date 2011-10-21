@@ -1,5 +1,6 @@
 (ns lazybot.utilities
-  (:use lazybot.info)
+  (:use lazybot.info
+        [hobbit core isgd])
   (:require [clojure.string :only [join] :as string])
   (:import [java.io File FileReader]
            [org.apache.log4j LogManager]))
@@ -8,6 +9,10 @@
   (into {}
         (when (.exists (File. file))
           (-> file slurp read-string))))
+
+(defn shorten-url
+  "Shorten a URL using is.gd."
+  [url] (shorten (shortener :idgd) url))
 
 ;; This is a bit ugly. Each entry in the table describes how many of the
 ;; labelled unit it takes to constitute the next-largest unit. It can't be

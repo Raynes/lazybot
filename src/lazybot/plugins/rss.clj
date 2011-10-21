@@ -1,6 +1,6 @@
 (ns lazybot.plugins.rss
   (:use lazybot.registry
-	[lazybot.plugins.shorturl :only [shorten-url]])
+	[lazybot.utilities :only [shorten-url]])
   (:require [clojure.xml :as xml]
 	    [clojure.zip :as zip]
 	    [clojure.data.zip.xml :as zf]))
