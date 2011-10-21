@@ -5,7 +5,6 @@
 (defplugin
   (:hook
    :on-message
-   :irc
    (fn [{:keys [bot com message channel] :as com-m}]
 
      (when-let [reply (first (for [[find replace] (get-in @bot
