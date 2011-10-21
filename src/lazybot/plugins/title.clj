@@ -75,7 +75,7 @@
            (send-message com-m "It's taking too long to find the title. I'm giving up.")))))
     (when verbose? (send-message com-m "Which page?"))))
 
-(defplugin :irc
+(defplugin
   (:hook
    :on-message
    (fn [{:keys [com bot nick channel message] :as com-m}]

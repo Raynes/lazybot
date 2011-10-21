@@ -54,19 +54,17 @@
       (send-message com-m "You have no messages."))))
 
 (defplugin
-  (:hook :on-message :irc #'mail-alert)
+  (:hook :on-message #'mail-alert)
   (:hook :on-join #'mail-alert)
 
   (:cmd
    "Request that your messages be sent you via PM. Executing this command will delete all your messages."
    #{"getmessages" "getmail" "mymail"}
-   :irc
    #'get-messages)
 
   (:cmd
    "Send somebody a message. Takes a nickname and a message to send. Will alert the person with a notice."
    #{"mail"}
-   :irc
    (fn [{:keys [com nick args irc] :as com-m}]
      (if (seq args)
        (let [lower-user (.toLowerCase (first args))]

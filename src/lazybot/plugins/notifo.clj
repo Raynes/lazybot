@@ -32,7 +32,7 @@
             (send-message (assoc com-m :channel chan) message))))))
   "These boots are made for walkin' and that's just what they'll do.")
 
-(defplugin :irc
+(defplugin
   (:init
    (fn [irc bot]
      (swap! bots assoc (:server @irc) {:irc irc :bot bot})))

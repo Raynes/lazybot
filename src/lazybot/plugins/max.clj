@@ -2,7 +2,7 @@
   (:use lazybot.registry
         [somnium.congomongo :only [fetch-one insert! destroy!]]))
 
-(defplugin :irc
+(defplugin
   (:hook
    :on-join
    (fn [{:keys [com nick channel]}]

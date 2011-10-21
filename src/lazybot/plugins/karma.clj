@@ -52,7 +52,7 @@
           new-karma (f karma)]
       (change-karma snick new-karma com-m))))
 
-(defplugin :irc
+(defplugin
   (:hook :on-message
          (fn [{:keys [message] :as com-m}]
            (let [[_ direction snick] (re-find #"^\((inc|dec) (.+)\)(\s*;.*)?$" message)]

@@ -1,9 +1,10 @@
 (ns lazybot.plugins.macro
   (:use [lazybot registry info]
         [lazybot.plugins.login :only [when-privs]]
+        [lazybot.utilities :only [prefix]]
         [somnium.congomongo :only [fetch fetch-one insert! destroy!]]))
 
-(defplugin :irc
+(defplugin
   (:hook
    :on-message
    (fn [{:keys [message bot] :as com-m}]
@@ -26,7 +27,7 @@
                      (destroy! :macro {:macro-name macro-name})
                      (insert! :macro {:macro-name macro-name :macro macro})
                      (send-message com-m (str "Added macro: " macro-name))))
-         (send-message com-m (prefix bot nick "please provide a macro name and body!"))))))
+         (send-message com-m (prefix nick "please provide a macro name and body!"))))))
 
    (:cmd
     "See what the named macro will do before executing it"
@@ -35,8 +36,8 @@
       (let [macro-name (first args)
             macro-body (fetch-one :macro :where {:macro-name macro-name})]
         (if (seq macro-body)
-          (send-message com-m (prefix bot nick macro-name " => " macro-body))
-          (send-message com-m (prefix bot nick "that macro doesn't exist!"))))))
+          (send-message com-m (prefix nick macro-name " => " macro-body))
+          (send-message com-m (prefix nick "that macro doesn't exist!"))))))
    (:indexes [[:macro-name]]))
       
     

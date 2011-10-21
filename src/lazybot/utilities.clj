@@ -5,25 +5,18 @@
   (:import [java.io File FileReader]
            [org.apache.log4j LogManager]))
 
-(defn if-exists-read [file]
-  (into {}
-        (when (.exists (File. file))
-          (-> file slurp read-string))))
-
-(defn shorten-url
-  "Shorten a URL using is.gd."
-  [url] (shorten (shortener :idgd) url))
-
+;; ## Pretty time formatting
 ;; This is a bit ugly. Each entry in the table describes how many of the
 ;; labelled unit it takes to constitute the next-largest unit. It can't be
 ;; a map because order matters.
-(def time-units
-     [['millisecond 1000]
-      ['second 60]
-      ['minute 60]
-      ['hour 24]
-      ['day 7]
-      ['week Integer/MAX_VALUE]]) ; Extend if you want month/year/whatever
+(def ^{:private true}
+  time-units
+  [['millisecond 1000]
+   ['second 60]
+   ['minute 60]
+   ['hour 24]
+   ['day 7]
+   ['week Integer/MAX_VALUE]]) ; Extend if you want month/year/whatever
 
 (defn pluralize [num label]
   (when (> num 0)
@@ -49,6 +42,16 @@
          (take 2) ; If a high-order thing like week is nonzero, don't bother with hours
          (remove nil?)
          (string/join " and "))))
+
+;; ## Various utilities
+(defn if-exists-read [file]
+  (into {}
+        (when (.exists (File. file))
+          (-> file slurp read-string))))
+
+(defn shorten-url
+  "Shorten a URL using is.gd."
+  [url] (shorten (shortener :idgd) url))
 
 (defmacro on-thread
   "Run the body in an anonymous, new thread. Very much like
@@ -89,3 +92,8 @@ be added to the end of the string, trimming again to fit into the maximum size."
       (let [indicator (trim-indication-generator s)]
         (str (.substring s 0 (- max-len (count indicator)))
              indicator)))))
+
+(defn prefix
+  "Prefix a nick to a message."
+  [nick & s]
+  (apply str nick ": " s))

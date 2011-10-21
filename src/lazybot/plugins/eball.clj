@@ -1,5 +1,6 @@
 (ns lazybot.plugins.eball
-  (:use [lazybot registry]))
+  (:use lazybot.registry
+        [lazybot.utilities :only [prefix]]))
 
 (def responses
      ["As I see it, yes."
@@ -29,4 +30,4 @@
    #{"8ball" "will" "should"}
    (fn [{:keys [bot nick channel] :as com-m}]
      (let [answer (rand-int 20)]
-       (send-message com-m (prefix bot nick (nth responses answer)))))))
+       (send-message com-m (prefix nick (nth responses answer)))))))

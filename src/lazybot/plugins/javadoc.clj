@@ -36,7 +36,7 @@
                                 (arglist-anchor-components guessed-target))
                         ")"))))))
 
-(defplugin :irc
+(defplugin
   (:cmd
    "Find out what the most users ever in this channel at any one time is."
    #{"javadoc"}

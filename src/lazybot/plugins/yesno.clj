@@ -1,5 +1,6 @@
 (ns lazybot.plugins.yesno
-  (:use [lazybot registry info]))
+  (:use [lazybot registry info]
+        [lazybot.utilities :only [prefix]]))
 
 (def answers {:yes ["Oh, absolutely."
                     "How could that be wrong?"
@@ -17,8 +18,7 @@
 (defplugin
   (:hook
    :on-message
-   :irc
    (fn [{:keys [com bot nick message channel] :as com-m}]
      (when-let [[match questions] (re-find #"(\?+)\s*$" message)]
        (when-let [answer-type (choose-answer (count questions))]
-         (send-message com-m (prefix bot nick (rand-nth (get answers answer-type)))))))))
+         (send-message com-m (prefix nick (rand-nth (get answers answer-type)))))))))

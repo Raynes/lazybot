@@ -1,7 +1,7 @@
 (ns lazybot.plugins.embedded
   (:use [lazybot registry]))
 
-(defplugin :irc
+(defplugin
   (:hook
    :on-message
    (fn [{:keys [message bot] :as irc-map}]

@@ -27,8 +27,7 @@
 
 (defn put-seen [{:keys [nick channel com]} doing] (tack-time nick (:server @com) channel doing))
 
-(defplugin :irc
-
+(defplugin
   (:hook :on-message
          (fn [irc-map] (put-seen irc-map "talking")))
   (:hook :on-join 

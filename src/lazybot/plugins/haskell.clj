@@ -34,7 +34,7 @@
   (fn [{:keys [bot args] :as com-m}]
     (send-message
      com-m
-     (str (when (= :irc (:protocol @bot)) "\u27F9 ")
+     (str "\u27F9 "
           (->> args
                (interpose " ")
                (apply str)

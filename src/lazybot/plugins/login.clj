@@ -1,5 +1,6 @@
 (ns lazybot.plugins.login
-  (:use [lazybot registry]))
+  (:use lazybot.registry
+        [lazybot.utilities :only [prefix]]))
 
 (defn logged-in [bot]
   (or (:logged-in bot)
@@ -26,7 +27,7 @@
   `(let [{bot# :bot nick# :nick} ~com-m]
      (if (has-privs? bot# nick# ~priv)
        (do ~@body)
-       (send-message ~com-m (prefix bot# nick# "It is not the case that you don't not unhave insufficient privileges to do this.")))))
+       (send-message ~com-m (prefix nick# "It is not the case that you don't not unhave insufficient privileges to do this.")))))
 
 (defplugin
   (:hook :on-quit
@@ -57,7 +58,7 @@
       (do
         (send-message
          com-m
-         (prefix bot nick
+         (prefix nick
                  "You have privilege level "
                  (if-let [user ((:users ((:config @bot) (:server @com))) nick)]
                    (name (:privs user))

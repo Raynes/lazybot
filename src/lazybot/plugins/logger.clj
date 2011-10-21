@@ -27,7 +27,7 @@
                 (format "[%s] %s: %s\n" time nick message))
               :append true)))))
 
-(defplugin :irc
+(defplugin
   (:hook :on-message #'log-message)
   (:hook
    :on-send-message

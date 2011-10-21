@@ -2,7 +2,7 @@
   (:use lazybot.registry
         [lazybot.plugins.login :only [when-privs]]))
 
-(defplugin :irc
+(defplugin
   (:hook
    :on-send-message
    (fn [_ bot channel s action?] (when-not (some #{channel} (-> @bot :configs :mute :channels)) s)))

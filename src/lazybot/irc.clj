@@ -6,7 +6,9 @@
   (:require [irclj.core :as ircb]))
 
 (defn make-callbacks []
-  (let [refzors (ref {:protocol :irc :modules {:internal {:hooks initial-hooks}} :config initial-info :pending-ops 0})]
+  (let [refzors (ref {:modules {:internal {:hooks initial-hooks}}
+                      :config initial-info
+                      :pending-ops 0})]
     [(into {}
            (map
             (decorate

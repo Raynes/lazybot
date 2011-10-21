@@ -1,6 +1,7 @@
 ;; Written by Erik (boredomist)
 (ns lazybot.plugins.help
   (:use [lazybot registry info]
+        [lazybot.utilities :only [prefix]]
         [lazybot.plugins.login :only [when-privs]]
         [clojure.string :only [join]]
         [somnium.congomongo :only [fetch fetch-one insert! destroy!]]))
@@ -55,9 +56,9 @@
                content (fetch-one :help :where {:topic topic})]
            (cond
             (not topic) (send-message com-m "You're going to need to tell me what you want help with.")
-            content (send-message com-m (prefix bot nick (:content content)))
+            content (send-message com-m (prefix nick (:content content)))
             :else (send-message com-m (str "Topic: \"" topic "\" doesn't exist!"))))
-         (send-message com-m (prefix bot nick help-msg))))))
+         (send-message com-m (prefix  nick help-msg))))))
   
   (:cmd
    "Lists the available help topics in the DB."

@@ -1,5 +1,6 @@
 (ns lazybot.plugins.dictionary
   (:use lazybot.registry
+        [lazybot.utilities :only [prefix]]
         clj-wordnik.core))
 
 (defplugin 
@@ -9,7 +10,7 @@
    (fn [{:keys [bot channel nick args]:as com-m}]
      (send-message
       com-m 
-      (prefix bot nick 
+      (prefix nick 
               (let [definition (first
                                 (definitions (:wordnik-key (:config @bot))
                                   (first args)))

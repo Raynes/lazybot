@@ -8,55 +8,23 @@
             [somnium.congomongo :as mongo])
   (:import java.util.concurrent.TimeoutException))
 
-(defmacro def- [name value]
-  `(def ~(vary-meta name assoc :private true) ~value))
+;; ## Hook handling 
+(defn pull-hooks [bot hook-key]
+  (map :fn
+       (hook-key
+        (apply merge-with concat
+               (map :hooks
+                    (vals (:modules @bot)))))))
 
 (defn nil-comp [com bot channel s action? & fns]
   (reduce #(when %1
              (%2 com bot channel %1 action?))
           s fns))
 
-(defn equal-nil [x y] (or (= x y) (nil? y)))
-
-(defn remove-protos [proto s]
-  (filter
-   (fn [[k v]] (equal-nil proto (:protocol v)))
-   s))
-
-(defn pull-hooks [bot hook-key]
-  (map :fn
-       (hook-key
-        (apply merge-with concat
-               (map :hooks
-                    (vals
-                     (remove-protos (:protocol @bot) (:modules @bot))))))))
-
-(defn extract-protocol [m & rest]
-  (-> m (fix map? :bot)
-      deref :protocol))
-
 (defn call-message-hooks [com bot channel s action?]
   (apply nil-comp com bot channel s action? (pull-hooks bot :on-send-message)))
 
-(defmulti send-message #'extract-protocol)
-
-(defmethod send-message :irc
-  [{:keys [com bot channel]} s & {:keys [action? notice?]}]
-  (if-let [result (call-message-hooks com bot channel s action?)]
-    ((cond
-      action? ircb/send-action
-      notice? ircb/send-notice
-      :else ircb/send-message)
-     com channel result)))
-
-(defmulti prefix
-  "Multiple protocol safe name prefixing"
-  #'extract-protocol)
-
-(defmethod prefix :irc
-  [bot nick & s]
-  (apply str nick ": " s))
-
+;; ## Command searching
 (defn find-command [modules command]
   (some (validator #((:triggers %) command))
         (apply concat (map :commands (vals modules)))))
@@ -65,13 +33,10 @@
   (:docs (find-command (:modules @bot) command)))
 
 (defn respond [{:keys [command bot]}]
-  (let [cmd (find-command (remove-protos (:protocol @bot)
-                                         (:modules @bot))
-                          command)]
-    (or (and (equal-nil (:protocol @bot)
-                        (:protocol cmd))
-             (:fn cmd))
-        (constantly nil))))
+  (let [cmd (find-command (:modules @bot) command)]
+    (or (:fn cmd) (constantly nil))))
+
+;; ## Command parsing
 
 (defn full-prepend [config s]
   ((:prepends config) (str s)))
@@ -92,6 +57,18 @@
   "Tests whether or not a message begins with a prepend."
   [message prepends]
   (m-starts-with message prepends))
+
+;; ## Command handling
+
+;; This is what you should use for sending messages.
+;; TODO: Document
+(defn send-message [{:keys [com bot channel]} s & {:keys [action? notice?]}]
+  (if-let [result (call-message-hooks com bot channel s action?)]
+    ((cond
+      action? ircb/send-action
+      notice? ircb/send-notice
+      :else ircb/send-message)
+     com channel result)))
 
 (defn try-handle [{:keys [nick channel bot message] :as com-m}]
   (on-thread
@@ -115,21 +92,20 @@
              (alter bot assoc :pending-ops (dec (:pending-ops @bot))))))
          (send-message com-m "Too much is happening at once. Wait until other operations cease."))))))
 
+;; ## Plugin DSL
 (defn merge-with-conj [& args]
   (apply merge-with #(if (vector? %) (conj % %2) (conj [] % %2)) args))
 
-(defn parse-fns [body protocol]
+(defn parse-fns [body]
   (apply merge-with-conj
-         (for [[one & [two three four five :as args]] body]
+         (for [[one & [two three four :as args]] body]
            {one
             (case
              one
              :cmd {:docs two
                    :triggers three
-                   :fn (or five four)
-                   :protocol (or protocol (verify keyword? four))}
-             :hook {two {:fn (or four three)
-                         :protocol (or protocol (verify keyword? three))}}
+                   :fn four}
+             :hook {two {:fn three}}
              :indexes (vec args)
              two)})))
 
@@ -141,10 +117,9 @@
 ;; Wrap isolated objects with a vector
 (def make-vector (to-fix (! vector?) vector))
 
-(defmacro defplugin [& [protocol & body]]
-  (let [proto (verify keyword? protocol)
-        checked-body (if-not (keyword? protocol) (cons protocol body) body)
-        {:keys [cmd hook cleanup init indexes routes]} (parse-fns checked-body proto)
+;; This is the meat -- our plugin DSL.
+(defmacro defplugin [& body]
+  (let [{:keys [cmd hook cleanup init indexes routes]} (parse-fns body)
         scmd (if (map? cmd) [cmd] cmd)]
     `(let [pns# *ns*
            m-name# (keyword (last (.split (str pns#) "\\.")))]
@@ -154,8 +129,7 @@
            (apply mongo/add-index! m-name# idx#))
          (dosync
           (alter bot# assoc-in [:modules m-name#]
-                 {:protocol ~proto
-                  :commands ~scmd
+                 {:commands ~scmd
                   :hooks (into {}
                                (for [[k# v#] (apply merge-with-conj
                                                     (make-vector ~hook))]

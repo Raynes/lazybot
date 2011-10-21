@@ -3,7 +3,7 @@
         [lazybot.plugins.login :only [when-privs]])
   (:require [irclj.core :as ircb]))
 
-(defplugin :irc
+(defplugin
   (:cmd
    "Sets the person you specify as operator. ADMIN ONLY."
    #{"op"} 

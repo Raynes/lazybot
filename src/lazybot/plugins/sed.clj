@@ -1,5 +1,6 @@
 (ns lazybot.plugins.sed
   (:use [lazybot registry info]
+        [lazybot.utilities :only [prefix]]
         [clojure.string :only [join]]
         clojure.tools.logging))
 
@@ -7,7 +8,7 @@
 (def sed-regex #"^s/([^/]+)/([^/]*)/?")
 
 (defn- format-msg [{:keys [bot nick] :as com-m}]
-  (send-message com-m (prefix bot nick "Format is sed [-<user name>] s/<regexp>/<replacement>/ Try <prefix>help sed")))
+  (send-message com-m (prefix nick "Format is sed [-<user name>] s/<regexp>/<replacement>/ Try <prefix>help sed")))
 
 (defn sed* [string regexp replacement]
   (try
@@ -46,7 +47,6 @@
 (defplugin
   (:hook
    :on-message
-   :irc
    (fn [{:keys [com bot nick message channel] :as com-m}]
      (when (seq (re-find sed-regex message))
        (sed (assoc com-m :args [nick message]) false))

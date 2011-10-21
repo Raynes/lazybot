@@ -33,12 +33,11 @@
                                  \- (minus (now) (hours n))
                                  (now)))
                            (now)))]
-       (send-message com-m (prefix bot nick "The time is now " time)))))
+       (send-message com-m (prefix nick "The time is now " time)))))
 
   (:cmd
    "Joins a channel. Takes a channel and an optional password. ADMIN ONLY."
    #{"join"}
-   :irc
    (fn [{:keys [com bot nick args] :as com-m}]
      (when-privs com-m :admin
                (ircb/join-chan com (first args) (last args)))))
@@ -46,7 +45,6 @@
   (:cmd
    "Parts a channel. Takes a channel and a part message. ADMIN ONLY." 
    #{"part"}
-   :irc
    (fn [{:keys [bot com nick args channel] :as com-m}]
      (when-privs com-m :admin
                (let [chan (or (first args) channel)]
@@ -56,7 +54,6 @@
   (:cmd
    "Rapes a person you specify."
    #{"rape"}
-   :irc
    (fn [{:keys [args] :as com-m}]
      (send-message com-m (str "raepz " (first args) ".") :action? true)))
 
@@ -64,7 +61,7 @@
    "Flips a coin."
    #{"coin"} 
    (fn [{:keys [bot nick] :as com-m}]
-     (send-message com-m (prefix bot nick (if (= 0 (rand-int 2)) "Heads." "Tails.")))))
+     (send-message com-m (prefix nick (if (= 0 (rand-int 2)) "Heads." "Tails.")))))
 
   (:cmd 
    "Prints an amusing message."
@@ -81,7 +78,7 @@
    "Just says the sender's name: no u."
    #{"fuck"} 
    (fn [{:keys [bot nick] :as com-m}]
-     (send-message com-m (prefix bot nick "no u"))))
+     (send-message com-m (prefix nick "no u"))))
 
   (:cmd
    "Sets the bot's nick. ADMIN ONLY."
@@ -99,13 +96,12 @@
    "Love your bot? Give him a snack and thank him for his hard work!"
    #{"botsnack"} 
    (fn [{:keys [nick bot] :as com-m}]
-     (send-message com-m (prefix bot nick "Thanks! Om nom nom!!"))))
+     (send-message com-m (prefix nick "Thanks! Om nom nom!!"))))
    
   (:cmd
    "Prints an amusing and inappropriate message directed at a person you specify. For when people
     use 'your' when they should have used 'you're'"
    #{"your"}
-   :irc
    (fn [{:keys [args] :as com-m}]
      (send-message com-m (str (first args) ": It's 'you're', you fucking illiterate bastard."))))
 
@@ -132,7 +128,7 @@
     (fn [{:keys [nick args bot] :as com-m}]
       (let [fst (first args)]
         (send-message com-m
-                      (prefix bot nick (apply str (concat fst (repeat (count fst) ")"))))))))
+                      (prefix nick (apply str (concat fst (repeat (count fst) ")"))))))))
 
   (:cmd 
    "Says what you tell it to in the channel you specify. ADMIN ONLY."
@@ -148,7 +144,7 @@
    (fn [{:keys [nick args bot] :as com-m}]
      (let [num (->> args first rest (apply str) Integer/parseInt)]
        (send-message com-m 
-                     (prefix bot nick
+                     (prefix nick
                              (condp = (ffirst args)
                                  \F (* (- num 32) (/ 5 9.0))
                                  \C (+ 32 (* (/ 9.0 5) num))
@@ -162,7 +158,7 @@
            stime (now)]
        (send-message 
         com-m
-        (prefix bot nick
+        (prefix nick
              (if (= false (.isReachable address 5000))
                "FAILURE!"
                (str "Ping completed in " (in-secs (interval stime (now))) " seconds.")))))))
