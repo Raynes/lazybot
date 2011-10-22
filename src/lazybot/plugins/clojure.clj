@@ -100,8 +100,7 @@ Return a seq of strings to be evaluated. Usually this will be either nil or a on
           seq)))
 
 (defn- eval-config-settings [bot]
-  (let [config-setting (-> @bot :config (get :eval-prefixes
-                                             {:defaults #{}}))]
+  (let [config-setting (get-in @bot [:config :clojure :eval-prefixes] {:defaults #{}})]
     (if (vector? config-setting)
       {:defaults (set config-setting)}      ; backwards compatible
       config-setting)))
@@ -219,7 +218,7 @@ Return a seq of strings to be evaluated. Usually this will be either nil or a on
      (let [config (-> @bot :config)
            pre (:print-prefix config)
            box? (:box config)]
-       (if-let [evalp (:eval-prefixes config)]
+       (if-let [evalp (:eval-prefixes (:clojure config))]
          (when-let [sexps (what-to-eval bot channel message)]
            (if-not (second (swap! tasks (fn [[pending]]
                                           (if (< pending 3)
