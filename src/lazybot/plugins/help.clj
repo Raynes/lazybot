@@ -13,7 +13,7 @@
    (fn [{:keys [bot nick args] :as com-m}]
      (let [[topic & content] args
            content-s (join " " content)
-           admin-add? (:admin-add? (:config @bot))]
+           admin-add? (get-in @bot [:config :help :admin-add?])]
        (cond
         (fetch-one :help :where {:topic topic}) (send-message com-m "Topic already exists!")
         (or (empty? topic) (empty? content)) (send-message com-m "Neither topic nor content can be empty!")
@@ -30,7 +30,7 @@
    #{"rmtopic"}
    (fn [{:keys [bot nick args] :as com-m}]
      (let [topic (first args)
-           admin-rm? (:admin-rm? (:config @bot))]
+           admin-rm? (get-in @bot [:config :help :admin-rm?])]
        (if (fetch-one :help :where {:topic topic})
          (letfn [(destroy-and-reply
                   [topic]

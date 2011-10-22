@@ -12,7 +12,7 @@
       com-m 
       (prefix nick 
               (let [definition (first
-                                (definitions (:wordnik-key (:config @bot))
+                                (definitions (get-in @bot [:config :dictionary :wordnik-key])
                                   (first args)))
                     text (:text definition)]
                 (if (seq text)
