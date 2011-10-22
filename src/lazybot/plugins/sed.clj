@@ -37,9 +37,7 @@
      :else
      (try
        (let [new-msg (sed* orig-msg regexp replacement)]
-         (debug (str user-to (-> @bot :config :dont-sed)))
-         (when-not (or (= orig-msg new-msg)
-                       (contains? (-> @bot :config :dont-sed) user-to))
+         (when-not (= orig-msg new-msg)
            (send-message com-m (str "<" user-to "> " new-msg))))
        (catch Exception _
          (when verbose? (format-msg com-m)))))))
@@ -48,13 +46,16 @@
   (:hook
    :on-message
    (fn [{:keys [com bot nick message channel] :as com-m}]
-     (when (seq (re-find sed-regex message))
-       (sed (assoc com-m :args [nick message]) false))
-     (when (and (not= nick (:name @com))
-                (not= (take 4 message)
-                      (-> @bot :config :prepends first (str "sed"))))
-       (swap! message-map update-in [com channel]
-              assoc nick message, :channel-last message))))
+     (when (and (get-in @bot [:config :sed :automatic?])
+                (not (when-let [blacklist (get-in @bot [:config (:server @com) :sed :blacklist])]
+                       (blacklist channel))))
+       (when (seq (re-find sed-regex message))
+         (sed (assoc com-m :args [nick message]) false))
+       (when (and (not= nick (:name @com))
+                  (not= (take 4 message)
+                        (-> @bot :config :prepends first (str "sed"))))
+         (swap! message-map update-in [com channel]
+                assoc nick message, :channel-last message)))))
 
   (:cmd
    "Simple find and replace. Usage: sed [-<user name>] s/<regexp>/<replacement>/
