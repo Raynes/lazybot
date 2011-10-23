@@ -10,7 +10,7 @@
 
 (extend nil Read-JSON-From {:read-json-from (constantly nil)})
 
-(defn grab-config [] (-> @bots vals first :bot deref :config))
+(defn grab-config [] (-> @bots vals first :bot deref :config :github))
 
 (defn format-vec [v]
   (let [[show hide] (split-at 10 v)]
