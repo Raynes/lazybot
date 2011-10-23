@@ -26,9 +26,6 @@
                                "JaneDoe" {:pass "ohai", :privs :admin}}
                        :title {:blacklist #{"#foo"}}
                        :autoreplies {"#clojure" {#".*(https?://)richhickey(.github.com/\S*).*" "Nooooo, that's so out of date! Please see instead $1clojure$2 and try to stop linking to rich's repo."}}
-                       :channel-catch-blacklist #{} ; Channels in which URL title scraper is to be disabled.
-                       :url-blacklist #{} ; URL title scraper will look for these words in URLs and not use them if they appear.
-                       :user-ignore-url-blacklist [["bot" "ters"]] ; A series of "match this" but "not this" pairs.}
                        :plugins plugins} ; A series of "match this" but "not this" pairs.
    :plugins plugins})
 
