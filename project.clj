@@ -3,7 +3,7 @@
   :dependencies [[org.clojure/clojure "1.3.0"]
                  [commons-lang/commons-lang "2.5"]
                  [commons-io/commons-io "1.4"]
-                 [clj-time "0.3.1"]
+                 [backtype/clj-time "0.3.2"]
                  [clojail "0.4.4"]
                  [clj-http "0.2.1"]
                  [irclj "0.4.1"]
