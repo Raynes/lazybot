@@ -1,6 +1,6 @@
 (ns lazybot.plugins.github
   (:use lazybot.registry
-        [lazybot.plugins.shorturl :only [is-gd]]
+        [lazybot.utilities :only [shorten-url]]
         [compojure.core :only [POST]]
         clojure.data.json)
   (:require [clojure.string :as s])
@@ -22,7 +22,7 @@
    com-m
    (let [{:keys [added removed modified message url]} commit]
      (s/join "" [(when no-header
-                   (str "\u0002" owner "/" name "\u0002: " branch " <" (is-gd url) "> "))
+                   (str "\u0002" owner "/" name "\u0002: " branch " <" (shorten-url url) "> "))
                  "\u0002" (-> commit :author :name) "\u0002: "
                  (format-vec (concat modified (map #(str "+" %) added) (map #(str "-" %) removed)))
                  " \u0002--\u0002 " (s/replace message #"\n" " ")]))))
@@ -49,7 +49,7 @@
                    com-m
                    (str "\u0002" owner "/" name "\u0002"
                         ": " (count commits) " new commit(s) on branch " branch
-                        ". Compare view at <" (is-gd compare) ">. " (:open_issues repository)
+                        ". Compare view at <" (shorten-url compare) ">. " (:open_issues repository)
                         " open issues remain.")))
                 (doseq [commit (take 3 commits)]
                   (notify-chan com-m commit owner name branch no-header)))))))))
