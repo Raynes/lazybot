@@ -1,13 +1,12 @@
 (ns lazybot.irc
   (:use [lazybot core info]
-        [clj-config.core :only [read-config]]
         [useful.fn :only [decorate]]
         [useful.map :only [keyed]])
   (:require [irclj.core :as ircb]))
 
-(defn make-callbacks []
+(defn make-callbacks [config]
   (let [refzors (ref {:modules {:internal {:hooks initial-hooks}}
-                      :config initial-info
+                      :config config
                       :pending-ops 0})]
     [(into {}
            (map
@@ -22,10 +21,10 @@
   (ircb/create-irc (keyed [name password server fnmap])))
 
 (defn make-bot [server]
-  (let [bot-config (eval (read-config info-file))
+  (let [bot-config (read-config)
         [name pass channels] ((juxt :bot-name :bot-password :channels)
                               (bot-config server))
-        [fnmap refzors] (make-callbacks)
+        [fnmap refzors] (make-callbacks bot-config)
         irc (ircb/connect (make-bot-run name pass server fnmap)
                           :channels channels, :identify-after-secs 3)]
     [irc refzors]))

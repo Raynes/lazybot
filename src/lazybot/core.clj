@@ -1,6 +1,5 @@
 (ns lazybot.core
   (:use [lazybot registry info]
-	[clj-config.core :only [read-config]]
 	[clojure.stacktrace :only [root-cause]]
         [somnium.congomongo :only [mongo!]]
         [clojure.set :only [intersection]]
@@ -10,13 +9,12 @@
 
 (def bots (atom {}))
 
-(defonce initial-info (eval (read-config info-file)))
-
-(try
-  (mongo! :db (or (:db initial-info) "lazybot"))
-  (catch Throwable e
-    (println "Error starting mongo (see below), carrying on without it")
-    (.printStackTrace e *out*)))
+(defn initiate-mongo []
+  (try
+    (mongo! :db (or (:db (read-config)) "lazybot"))
+    (catch Throwable e
+      (println "Error starting mongo (see below), carrying on without it")
+      (.printStackTrace e *out*))))
 
 (defn call-all [{bot :bot :as ircm} hook-key]
   (doseq [hook (pull-hooks bot hook-key)]
@@ -27,12 +25,8 @@
       :on-quit []
       :on-join []})
 
-(let [current-config (eval (read-config info-file))]
-  (def all-plugins (:plugins current-config))
-  (def servers-port (:servers-port current-config)))
-
 (defn reload-config [bot]
-  (alter bot assoc :config (eval (read-config info-file))))
+  (alter bot assoc :config (read-config)))
 
 (defn load-plugin [irc refzors plugin]
   (let [ns (symbol (str "lazybot.plugins." plugin))]
