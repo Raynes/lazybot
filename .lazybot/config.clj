@@ -1,7 +1,7 @@
-(let [plugins #{#_"dictionary" "lmgtfy" "google" "translate" "eball" "utils" "leet" "clojure" "login" "log"
-                "brainfuck" "whatis" "shorturl" "haskell"
+(let [plugins #{"dictionary" "lmgtfy" "google" "translate" "eball" "utils" "leet"
+                "clojure" "login" "log" "brainfuck" "whatis" "shorturl" "haskell"
                 "mail" "timer" "fortune" "rss" "title" "operator" "seen" "sed" "help"
-                "load" "embedded" "karma" "yesno" "autoreply"}]
+                "load" "embedded" "karma" "yesno" "autoreply" "weather"}]
   {:servers ["irc.freenode.net"]        ; A list of servers.
    :prepends #{"@"}   ; The character you want for a prepend. Currently set to @
    :weather {:token ""} ; Wunderground token.
@@ -24,9 +24,8 @@
                        :bot-password nil
                        :users {"JohnDoe" {:pass "iliekpie", :privs :admin}
                                "JaneDoe" {:pass "ohai", :privs :admin}}
-                       :user-blacklist #{"Meowzorz"}
+                       :title {:blacklist #{"#foo"}}
                        :autoreplies {"#clojure" {#".*(https?://)richhickey(.github.com/\S*).*" "Nooooo, that's so out of date! Please see instead $1clojure$2 and try to stop linking to rich's repo."}}
-                       ;:catch-links? {true} ; Should only be enabled if the title plugin is activated below.
                        :channel-catch-blacklist #{} ; Channels in which URL title scraper is to be disabled.
                        :url-blacklist #{} ; URL title scraper will look for these words in URLs and not use them if they appear.
                        :user-ignore-url-blacklist [["bot" "ters"]] ; A series of "match this" but "not this" pairs.}

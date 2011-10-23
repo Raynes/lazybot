@@ -35,27 +35,13 @@
 (defn url-check [com bot url]
   (some #(.contains url %) (url-blacklist-words com bot)))
 
-(defn is-blacklisted? [[match-this not-this] s]
-  (let [lower-s (.toLowerCase s)
-        regex (if (seq not-this)
-                (re-pattern (format "(?=.*%s(?!%s))^(\\w+)" match-this not-this))
-                (re-pattern match-this))]
-    (re-find regex lower-s)))
-
 (defn strip-tilde [s] (apply str (remove #{\~} s)))
-
-(defn check-blacklist [server user bot]
-  (let [blacklist (:user-ignore-url-blacklist ((:config @bot) server))]
-    (some (comp not nil?) (map
-                           #(is-blacklisted? % (strip-tilde user))
-                           blacklist))))
 
 (defn title [{:keys [com nick bot user channel] :as com-m}
              links & {verbose? :verbose?}]
   (if (or (and verbose? (seq links))
-          (and (not (check-blacklist (:server @com) user bot))
-               (not (contains? (:channel-catch-blacklist ((:config @bot) (:server @com)))
-                               channel))))
+          (not (contains? (get-in @bot [:config (:server @com) :title :blacklist])
+                          channel)))
     (doseq [link (take 1 links)]
       (try
        (thunk-timeout #(let [url (add-url-prefix link)
@@ -84,14 +70,13 @@
                        (->> s
                             (re-seq #"(https?://|www\.)[^\]\[(){}\"'$^\s]+")
                             (map first)))]
-       (when-not (contains? (:user-blacklist (info (:server @com))) nick)
-         (let [prepend (:prepends info)
-               links (get-links message)
-               title-links? (and (not (m-starts-with message (:prepends info)))
-                                 (:catch-links? (info (:server @com)))
-                                 (seq links))]
-           (when title-links?
-             (title com-m links)))))))
+       (let [prepend (:prepends info)
+             links (get-links message)
+             title-links? (and (not (is-command? message prepend))
+                               (get-in info [(:server @com) :title :automatic?])
+                               (seq links))]
+         (when title-links?
+           (title com-m links))))))
 
   (:cmd
    "Gets the title of a web page. Takes a link. This is verbose, and prints error messages."
