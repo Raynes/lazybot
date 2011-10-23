@@ -33,7 +33,7 @@
 
   (:cmd
    "Deletes a timer."
-   #{"dl-timer"}
+   #{"rmtimer"}
    (fn [{:keys [bot channel args] :as com-m}]
      (swap! running-timers dissoc (Integer/parseInt (first args)))
      (send-message com-m "Timer deleted.")))
