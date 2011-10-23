@@ -4,7 +4,7 @@
                  [commons-lang/commons-lang "2.5"]
                  [commons-io/commons-io "1.4"]
                  [clj-time "0.3.1"]
-                 [clojail "0.4.3"]
+                 [clojail "0.4.4"]
                  [clj-http "0.2.1"]
                  [irclj "0.4.1"]
                  [congomongo "0.1.7"]
