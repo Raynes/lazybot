@@ -34,15 +34,10 @@
 (defn reload-config [bot]
   (alter bot assoc :config (eval (read-config info-file))))
 
-(defn require-plugin [plugin]
-  (require (symbol (str "lazybot.plugins." plugin)) :reload))
-
 (defn load-plugin [irc refzors plugin]
-  ((resolve (symbol (str "lazybot.plugins." plugin "/load-this-plugin"))) irc refzors))
-
-(defn require-plugins []
-  (doseq [plug ((eval (read-config info-file)) :plugins)]
-    (require-plugin plug)))
+  (let [ns (symbol (str "lazybot.plugins." plugin))]
+    (require ns :reload)
+    ((resolve (symbol (str ns "/load-this-plugin"))) irc refzors)))
 
 (defn safe-load-plugin [irc refzors plugin]
   (try
@@ -51,9 +46,8 @@
     (catch Exception e false)))
  
 (defn load-plugins [irc refzors]
-  (let [info (:config @refzors)
-	plugins-to-load (intersection (:plugins info) (:plugins (info (:server @irc))))]
-    (doseq [plug plugins-to-load]
+  (let [info (:config @refzors)]
+    (doseq [plug (:plugins (info (:server @irc)))]
       (load-plugin irc refzors plug))))
 
 (defn reload-configs
@@ -84,7 +78,6 @@
   [& bots]
   (require 'lazybot.registry :reload)
   (require 'lazybot.utilities :reload)
-  (require-plugins)
   (route (extract-routes bots))
   (doseq [{:keys [com bot]} bots]
     (doseq [{:keys [cleanup]} (vals (:modules @bot))]
