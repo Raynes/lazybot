@@ -21,7 +21,6 @@
                (alter-var-root stream (constantly write)))
              (defonce server (run-jetty #'lazybot.core/sroutes
                                         {:port servers-port :join? false}))
-             #_(require-plugins)
              (doseq [serv (:servers initial-info)]
                (connect-bot #'make-bot serv))
              (route (extract-routes (vals @bots)))))))
