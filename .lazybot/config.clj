@@ -25,7 +25,7 @@
                        :users {"JohnDoe" {:pass "iliekpie", :privs :admin}
                                "JaneDoe" {:pass "ohai", :privs :admin}}
                        :title {:blacklist #{"#foo"}}
-                       :autoreplies {"#clojure" {#".*(https?://)richhickey(.github.com/\S*).*" "Nooooo, that's so out of date! Please see instead $1clojure$2 and try to stop linking to rich's repo."}}
+                       :autoreply {:autoreplies {"#clojure" {#".*(https?://)richhickey(.github.com/\S*).*" "Nooooo, that's so out of date! Please see instead $1clojure$2 and try to stop linking to rich's repo."}}}
                        :plugins plugins} ; A series of "match this" but "not this" pairs.
    :plugins plugins})
 
