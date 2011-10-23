@@ -1,4 +1,4 @@
-(defproject lazybot "0.6.2"
+(defproject lazybot "0.7.0-alpha1"
   :description "FIXME: write"
   :dependencies [[org.clojure/clojure "1.3.0"]
                  [commons-lang/commons-lang "2.5"]
