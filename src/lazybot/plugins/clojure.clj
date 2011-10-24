@@ -261,7 +261,7 @@ Return a seq of strings to be evaluated. Usually this will be either nil or a on
    "Search clojuredocs for something."
    #{"cd"}
    (fn [{:keys [args] :as com-m}]
-     (if-let [results (take 3 (apply cd/search args))]
+     (if-let [results (seq (take 3 (apply cd/search args)))]
        (doseq [{:keys [url ns name]} results]
          (send-message com-m (format "%s/%s: %s" ns name url)))
        (send-message com-m "No results found."))))
@@ -270,8 +270,14 @@ Return a seq of strings to be evaluated. Usually this will be either nil or a on
    "Find an example usage of something on clojuredocs."
    #{"examples"}
    (fn [{:keys [args] :as com-m}]
-     (send-message com-m
-                   (if-let [results (:examples (apply cd/examples-core args))]
-                     (gist "examples.clj" (s/join "\n\n" (for [{:keys [body]} results]
-                                                           (cd/remove-markdown body))))
-                     "No results found.")))))
+     (send-message
+      com-m
+      (if-let [args (if (> 2 (count args))
+                      (let [split-args (.split (first args) "/")]
+                        (when (second split-args) split-args))
+                      args)]
+        (if-let [results (:examples (apply cd/examples-core args))]
+          (gist "examples.clj" (s/join "\n\n" (for [{:keys [body]} results]
+                                                (cd/remove-markdown body))))
+          "No results found.")
+        "You must pass a name like clojure.core/foo or, as two arguments, clojure.core foo.")))))
