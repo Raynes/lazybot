@@ -11,7 +11,7 @@
 (def default-cap 300)
 
 (defn gist [name s]
-  (str "https://gist.github.com/" (:repo (new-gist {} name s))))
+  (str "https://gist.github.com/" (:repo (new-gist name s))))
 
 (defn trim-with-gist
   "Trims the input string to a maximum of cap characters; if any
