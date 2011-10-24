@@ -27,7 +27,7 @@
               ((juxt :arglists
                      :macro
                      :doc)))
-          docs (and docs (string/replace docs #"s+" " "))]
+          docs (and docs (string/replace docs #"\s+" " "))]
       (str (and macro "Macro ") arglists "; " docs))))
 
 (def sb
