@@ -72,6 +72,7 @@
   [& bots]
   (require 'lazybot.registry :reload)
   (require 'lazybot.utilities :reload)
+  (require 'lazybot.gist :reload)
   (route (extract-routes bots))
   (doseq [{:keys [com bot]} bots]
     (doseq [{:keys [cleanup]} (vals (:modules @bot))]
