@@ -4,7 +4,7 @@
         [somnium.congomongo :only [mongo!]]
         [clojure.set :only [intersection]]
         [compojure.core :only [routes]]
-        ring.middleware.params)
+        [ring.middleware.params :only [wrap-params]])
   (:import [java.io File FileReader]))
 
 (def bots (atom {}))
@@ -62,7 +62,7 @@
 (def sroutes nil)
 
 (defn route [rs]
-  (alter-var-root #'lazybot.core/sroutes (constantly (apply routes rs))))
+  (alter-var-root #'lazybot.core/sroutes (constantly (wrap-params (apply routes rs)))))
 
 (defn reload-all
   "A clever function to reload everything when running lazybot from SLIME.
