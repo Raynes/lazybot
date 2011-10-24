@@ -30,29 +30,29 @@
 (defn handler [req]
   (let [remote (:remote-addr req)]
     (when (or (= "127.0.0.1" remote)
-              (.endsWith (.getCanonicalHostName (InetAddress/getByName remote)) "github.com")))
-    (let [{:keys [before repository commits after compare ref] :as payload}
-          (read-json ((:form-params req) "payload"))
-          config (:commits (grab-config))]
-      (when-let [conf (and payload (config (:url repository)))]
-        (doseq [[server channels] conf]
-          (let [{:keys [com bot] :as com-map} (@bots server)
-                owner (-> repository :owner :name)
-                name (:name repository)
-                n-commits (count commits)
-                no-header (or (:no-header conf) (= n-commits 1))
-                branch (last (.split ref "/"))]
-            (doseq [chan channels]
-              (let [com-m (assoc com-map :channel chan)]
-                (when-not no-header
-                  (send-message
-                   com-m
-                   (str "\u0002" owner "/" name "\u0002"
-                        ": " (count commits) " new commit(s) on branch " branch
-                        ". Compare view at <" (shorten-url compare) ">. " (:open_issues repository)
-                        " open issues remain.")))
-                (doseq [commit (take 3 commits)]
-                  (notify-chan com-m commit owner name branch no-header)))))))))
+              (.endsWith (.getCanonicalHostName (InetAddress/getByName remote)) "github.com"))
+      (let [{:keys [before repository commits after compare ref] :as payload}
+            (read-json ((:form-params req) "payload"))
+            config (:commits (grab-config))]
+        (when-let [conf (and payload (config (:url repository)))]
+          (doseq [[server channels] conf]
+            (let [{:keys [com bot] :as com-map} (@bots server)
+                  owner (-> repository :owner :name)
+                  name (:name repository)
+                  n-commits (count commits)
+                  no-header (or (:no-header conf) (= n-commits 1))
+                  branch (last (.split ref "/"))]
+              (doseq [chan channels]
+                (let [com-m (assoc com-map :channel chan)]
+                  (when-not no-header
+                    (send-message
+                     com-m
+                     (str "\u0002" owner "/" name "\u0002"
+                          ": " (count commits) " new commit(s) on branch " branch
+                          ". Compare view at <" (shorten-url compare) ">. " (:open_issues repository)
+                          " open issues remain.")))
+                  (doseq [commit (take 3 commits)]
+                    (notify-chan com-m commit owner name branch no-header))))))))))
   (str
    "These boots are made for walkin' and that's just what they'll do. "
    "One of these days these boots are gonna walk all over you."))
