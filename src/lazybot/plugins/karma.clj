@@ -35,7 +35,7 @@
             (= nick snick) ["You can't adjust your own karma."]
             (= current 3) ["Do I smell abuse? Wait a while before modifying that person's karma again."]
             (= current new-karma) ["You want me to leave karma the same? Fine, I will."]
-            :else [(str "\u27F9 " new-karma)
+            :else [(str (get-in @bot [:config :prefix-arrow]) new-karma)
                    (alter limit update-in [nick snick] (fnil inc 0))])))]
     (when apply
       (put-karma com-m snick new-karma)

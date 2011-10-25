@@ -9,6 +9,7 @@
    :sed {:automatic? true}
    :max-operations 3 ; The maximum number of operations that can be running at any given time.
    :pending-ops 0    ; The number of operations running right now
+   :prefix-arrow "\u21D2 "
    :help {:admin-add? true  ; only admins can add help topics
           :admin-rm? true}   ; only admins can remove help topics
    :clojure {:eval-prefixes {:defaults ["->" "." "," ; prefixes in any channel

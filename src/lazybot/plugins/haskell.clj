@@ -34,7 +34,7 @@
   (fn [{:keys [bot args] :as com-m}]
     (send-message
      com-m
-     (str "\u27F9 "
+     (str (get-in @bot [:config :prefix-arrow])
           (->> args
                (interpose " ")
                (apply str)

@@ -215,10 +215,11 @@ Return a seq of strings to be evaluated. Usually this will be either nil or a on
   (:hook
    :on-message
    (fn [{:keys [com bot nick channel message] :as com-m}]
-     (let [config (get-in @bot [:config :clojure])
-           pre (:print-prefix config)
-           box? (:box config)]
-       (if-let [evalp (:eval-prefixes config)]
+     (let [config (:config @bot)
+           clj-config (:clojure config)
+           pre (:prefix-arrow config)
+           box? (:box clj-config)]
+       (if-let [evalp (:eval-prefixes clj-config)]
          (when-let [sexps (what-to-eval bot channel message)]
            (if-not (second (swap! tasks (fn [[pending]]
                                           (if (< pending 3)
