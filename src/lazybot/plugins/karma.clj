@@ -67,7 +67,7 @@
    (fn [{:keys [com bot channel args] :as com-m}]
      (let [nick (first args)]
        (send-message com-m
-                     (if-let [karma (get-karma nick (:server @com-m) channel)]
+                     (if-let [karma (get-karma nick (:server com-m) channel)]
                        (str nick " has karma " karma ".")
                        (str "I have no record for " nick "."))))))
   (:cmd
