@@ -51,7 +51,7 @@
 
 (defn shorten-url
   "Shorten a URL using is.gd."
-  [url] (shorten (shortener :isgd) url))
+  [url] (when url (shorten (shortener :isgd) url)))
 
 (defmacro on-thread
   "Run the body in an anonymous, new thread. Very much like
