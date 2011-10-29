@@ -1,1 +1,1 @@
-java -Djruby.home=/usr/local/Cellar/jruby/1.6.4/jruby -cp lib/*:src/:resource clojure.main -e "(use 'lazybot.run) (-main)"
+java -cp lib/*:src/:resource clojure.main -e "(use 'lazybot.run) (-main)"
