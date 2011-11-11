@@ -4,24 +4,22 @@
 (ns lazybot.plugins.karma
   (:use [lazybot registry info]
         [useful.map :only [keyed]]
-        [somnium.congomongo :only [fetch-one insert! destroy!]]))
+        [somnium.congomongo :only [fetch-one insert! update!]]))
+
+(defn- key-attrs [nick server channel]
+  (let [nick (.toLowerCase nick)]
+    (keyed [nick server channel])))
 
 (defn- set-karma
   [nick server channel karma]
-  (let [nick (.toLowerCase nick)
-        attrs (keyed [nick server channel])]
-    (destroy! :karma attrs)
-    (insert! :karma (assoc attrs :karma karma))))
+  (let [attrs (key-attrs nick server channel)]
+    (update! :karma attrs (assoc attrs :karma karma))))
 
 (defn- get-karma
   [nick server channel]
-  (let [nick (.toLowerCase nick)
-        user-map (fetch-one :karma
-                            :where (keyed [nick server channel]))]
+  (let [user-map (fetch-one :karma
+                            :where (key-attrs nick server channel))]
     (get user-map :karma 0)))
-
-(defn- put-karma [{:keys [channel com]} nick karma]
-  (set-karma nick (:server @com) channel karma))
 
 (def limit (ref {}))
 
@@ -38,7 +36,7 @@
             :else [(str (get-in @bot [:config :prefix-arrow]) new-karma)
                    (alter limit update-in [nick snick] (fnil inc 0))])))]
     (when apply
-      (put-karma com-m snick new-karma)
+      (set-karma snick (:server @com) channel new-karma)
       (future (Thread/sleep 300000)
               (alter limit update-in [nick snick] dec)))
     (send-message com-m msg)))
@@ -67,7 +65,7 @@
    (fn [{:keys [com bot channel args] :as com-m}]
      (let [nick (first args)]
        (send-message com-m
-                     (if-let [karma (get-karma nick (:server com-m) channel)]
+                     (if-let [karma (get-karma nick (:server @com) channel)]
                        (str nick " has karma " karma ".")
                        (str "I have no record for " nick "."))))))
   (:cmd
