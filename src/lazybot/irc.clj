@@ -28,3 +28,8 @@
         irc (ircb/connect (make-bot-run name pass server fnmap)
                           :channels channels, :identify-after-secs 3)]
     [irc refzors]))
+
+(defn start-bots [servers]
+  (doseq [serv servers]
+    (connect-bot #'make-bot serv))
+  (route (extract-routes (vals @bots))))
