@@ -27,7 +27,7 @@
                                "JaneDoe" {:pass "ohai", :privs :admin}}
                        :title {:blacklist #{"#foo"}}
                        :autoreply {:autoreplies {"#clojure" {#".*(https?://)richhickey(.github.com/\S*).*" "Nooooo, that's so out of date! Please see instead $1clojure$2 and try to stop linking to rich's repo."}}}
-                       :plugins plugins}
+                       :plugins plugins}})
 
 ; users is a series of username to password and privileges.
 ; plugins is a list of plugins to load at startup.
