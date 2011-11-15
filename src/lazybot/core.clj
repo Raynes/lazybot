@@ -4,7 +4,8 @@
         [somnium.congomongo :only [mongo!]]
         [clojure.set :only [intersection]]
         [compojure.core :only [routes]]
-        [ring.middleware.params :only [wrap-params]])
+        [ring.middleware.params :only [wrap-params]]
+        [ring.adapter.jetty :only [run-jetty]])
   (:import [java.io File FileReader]))
 
 (def bots (atom {}))
@@ -63,6 +64,10 @@
 
 (defn route [rs]
   (alter-var-root #'lazybot.core/sroutes (constantly (wrap-params (apply routes rs)))))
+
+(defn start-server [port]
+  (defonce server (run-jetty #'lazybot.core/sroutes
+                             {:port port :join? false})))
 
 (defn reload-all
   "A clever function to reload everything when running lazybot from SLIME.

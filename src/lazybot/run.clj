@@ -1,6 +1,5 @@
 (ns lazybot.run
   (:use [lazybot core irc info]
-        ring.adapter.jetty
         clojure.tools.cli
         [clojure.java.io :only [writer file]])
   (:gen-class))
@@ -22,9 +21,6 @@
             config (read-config)]
         (doseq [stream [#'*out* #'*err*]]
           (alter-var-root stream (constantly write)))
-        (defonce server (run-jetty #'lazybot.core/sroutes
-                                   {:port (:servers-port config) :join? false}))
+        (start-server (:servers-port config 8080))
         (initiate-mongo)
-        (doseq [serv (:servers config)]
-          (connect-bot #'make-bot serv))
-        (route (extract-routes (vals @bots)))))))
+        (start-bots (:servers config))))))
