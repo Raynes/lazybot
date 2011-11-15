@@ -1,10 +1,10 @@
 (defproject lazybot "0.7.0-alpha1"
   :description "FIXME: write"
-  :dependencies [[org.clojure/clojure "1.3.0"]
+  :dependencies [[clojure "1.3.0"]
                  [commons-lang/commons-lang "2.5"]
                  [commons-io/commons-io "1.4"]
                  [backtype/clj-time "0.3.2"]
-                 [clojail "0.5.0-beta3"]
+                 [clojail "0.5.0"]
                  [clj-http "0.2.1"]
                  [irclj "0.4.1"]
                  [congomongo "0.1.7"]
@@ -17,7 +17,7 @@
                                               com.sun.jdmk/jmxtools
                                               com.sun.jmx/jmxri]]
                  [org.thnetos/cd-client "0.3.1"]
-                 [org.jruby/jruby "1.6.4"]
+                 [org.jruby/jruby "1.6.5"]
                  [clj-wordnik "0.0.1"]
                  [org.clojure/data.json "0.1.1"]
                  [org.clojure/tools.logging "0.2.3"]
