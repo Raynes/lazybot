@@ -26,7 +26,7 @@
                  [useful "0.7.2"]
                  [hobbit "0.1.0-SNAPSHOT"]
                  [ororo "0.1.0-alpha2"]]
-  :uberjar-name "lazybot"
+  :uberjar-name "lazybot.jar"
   :main lazybot.run
   :copy-deps true
   :resources-path "resource")
