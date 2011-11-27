@@ -15,7 +15,7 @@
     (mongo! :db (or (:db (read-config)) "lazybot"))
     (catch Throwable e
       (println "Error starting mongo (see below), carrying on without it")
-      (.printStackTrace e *out*))))
+      (.printStackTrace e))))
 
 (defn call-all [{bot :bot :as ircm} hook-key]
   (doseq [hook (pull-hooks bot hook-key)]
