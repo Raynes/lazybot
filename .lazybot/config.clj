@@ -22,7 +22,8 @@
                                         #"##(([^#]|#(?!#))+)\s*((##)?(?=.*##)|$)"]
                              }}
    :servers-port 21310
-   :github {:commits {"https://github.com/DirectEmployers/direct-seo" {"irc.freenode.net" ["#depd"]}}}
+   :github {:commits {"https://github.com/DirectEmployers/direct-seo" {"irc.freenode.net" ["#depd"]}
+                      "https://github.com/DirectEmployers/lazybot" {"irc.freenode.net" ["#depd"]}}
    "irc.freenode.net" {:channels ["#depd"]
                        :bot-name "direct-bot"
                        :bot-password "lingo23"
