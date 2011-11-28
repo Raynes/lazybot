@@ -34,8 +34,8 @@
    (fn [{:keys [com bot nick channel args] :as com-m}]
      (when-privs com-m :admin (ircb/set-mode com channel "+b" (first args)))))
 
-  (:cmd 
-   "Unban's whatever you specify. ADMIN ONLY."
+  (:cmd
+   "Unban whatever you specify. ADMIN ONLY."
    #{"unban"}
    (fn [{:keys [com bot nick channel args] :as com-m}]
      (when-privs com-m :admin (ircb/set-mode com channel "-b" (first args)))))
