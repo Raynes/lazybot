@@ -24,7 +24,7 @@ specified in config.clj."
    com-m
    (let [{:keys [added removed modified message url]} commit]
      (s/join "" [(when no-header
-                   (str "\u0002" owner "/" name "\u0002 " action " : " branch " <" (shorten-url url) "> "))
+                   (str "\u0002" owner "/" name "\u0002 " action branch " <" (shorten-url url) "> "))
                  "\u0002" (-> commit :author :name) "\u0002: "
                  (format-vec (concat modified (map #(str "+" %) added) (map #(str "-" %) removed)))
                  " \u0002--\u0002 " (s/replace message #"\n" " ")]))))
@@ -67,7 +67,7 @@ specified in config.clj."
                         ": " (cond
                               branchdel? (str (:upper commit-type) " deleted: " branch)
                               branchnew? (str (:upper commit-type) " created: " branch)
-                              :else (str (count commits) " new commit(s) on " (:lower commit-type) " " branch ". Compare view at <" (shorten-url compare) ">."))
+                              :else (str " -- " (count commits) " new commit(s) on " (:lower commit-type) " " branch ". Compare view at <" (shorten-url compare) ">."))
                         ;; Only report issues if there are some issues
                         ;; to report.
                         (if (> (:open_issues repository) 0)
