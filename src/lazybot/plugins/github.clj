@@ -20,12 +20,12 @@
     (s/join "" ["[" (s/join ", " show)
               (when (seq hide) "...") "]"])))
 
-(defn notify-chan [com-m commit owner name branch no-header]
+(defn notify-chan [com-m commit owner name branch no-header action]
   (send-message
    com-m
    (let [{:keys [added removed modified message url]} commit]
      (s/join "" [(when no-header
-                   (str "\u0002" owner "/" name "\u0002: " branch " <" (shorten-url url) "> "))
+                   (str "\u0002" owner "/" name "\u0002 " action " : " branch " <" (shorten-url url) "> "))
                  "\u0002" (-> commit :author :name) "\u0002: "
                  (format-vec (concat modified (map #(str "+" %) added) (map #(str "-" %) removed)))
                  " \u0002--\u0002 " (s/replace message #"\n" " ")]))))
@@ -65,7 +65,11 @@
                         (if (> (:open_issues repository) 0)
                           (str (:open_issues repository) " open issues remain.")))))
                 (doseq [commit (take 3 commits)]
-                  (notify-chan com-m commit owner name branch no-header)))))))))
+                  (let [action (cond
+                                branchnew? "New branch: "
+                                branchdel? "Branch deleted: "
+                                :else nil)]
+                    (notify-chan com-m commit owner name branch no-header action))))))))))
   (str
    "These boots are made for walkin' and that's just what they'll do. "
    "One of these days these boots are gonna walk all over you."))
