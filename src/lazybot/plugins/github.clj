@@ -67,7 +67,7 @@ specified in config.clj."
                               :else (str " -- " (count commits) " new commit(s) on " (:lower commit-type) " " branch ". Compare view at <" (shorten-url compare) ">."))
                         ;; Only report issues if there are some issues
                         ;; to report.
-                        (if (> (:open_issues repository) 0)
+                        (when (> (:open_issues repository) 0)
                           (str (:open_issues repository) " open issues remain.")))))
                 ;; Grab first three commits from the message and pass to
                 ;; (notify-chan) to squawk.
