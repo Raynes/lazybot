@@ -44,11 +44,10 @@ specified in config.clj."
           (let [{:keys [com bot] :as com-map} (@bots server)
                 owner (-> repository :owner :name)
                 name (:name repository)
-                commit-type (let [msg (second (.split ref "/"))]
-                              (case msg
-                                "heads" {:upper "Branch" :lower "branch"}
-                                "tags" {:upper "Tag" :lower "tag"}
-                                "remotes" {:upper "Remote" :lower "remote"}))
+                commit-type (case (second (.split ref "/"))
+                              "heads" {:upper "Branch" :lower "branch"}
+                              "tags" {:upper "Tag" :lower "tag"}
+                              "remotes" {:upper "Remote" :lower "remote"}))
                 n-commits (count commits)
                 branchdel? (true? deleted)
                 ;; If it's a new branch, the "before" field will be a str
