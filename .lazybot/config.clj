@@ -1,5 +1,9 @@
 (let [plugins #{"lmgtfy" "login" "help" "load" "yesno" "clojure" "google" "karma"
-                "seen" "utils" "operator" "github"}]
+                "seen" "utils" "operator" "github"}
+      chat {"irc.freenode.net" ["#depd"]}
+      de-repo "https://github.com/DirectEmployers/"
+      repos ["direct-seo" "lazybot" "saved-search" "DotJobs-MetaProfiles"
+             "django-my-urls"]]
   {:servers ["irc.freenode.net"]        ; A list of servers.
    :prepends #{"@"}   ; The character you want for a prepend. Currently set to @
    :weather {:token ""} ; Wunderground token.
@@ -22,9 +26,7 @@
                                         #"##(([^#]|#(?!#))+)\s*((##)?(?=.*##)|$)"]
                              }}
    :servers-port 21310
-   :github {:commits {"https://github.com/DirectEmployers/direct-seo" {"irc.freenode.net" ["#depd"]}
-                      "https://github.com/DirectEmployers/lazybot" {"irc.freenode.net" ["#depd"]}
-                      "https://github.com/DirectEmployers/saved-search" {"irc.freenode.net" ["#depd"]}}}
+   :github {:commits (into {} for [x repos] [(str de-repo x) chat])}
    "irc.freenode.net" {:channels ["#depd"]
                        :bot-name "direct-bot"
                        :bot-password "lingo23"
