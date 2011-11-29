@@ -33,9 +33,7 @@ specified in config.clj."
   "Process the JSON payload sent by Github's post-commit hooks."
   (let [remote (:remote-addr req)]
     (when (or (= "127.0.0.1" remote)
-              (.endsWith (.getCanonicalHostName
-                          (InetAddress/getByName remote))
-                         "github.com")))
+              (.endsWith (.getCanonicalHostName (InetAddress/getByName remote)) "github.com")))
     ;; Though `req` is a proper Clojure map, its :form-params key has a
     ;; JSON string as its value, which we parse out into a map.
     (let [{:keys [before repository commits after compare ref deleted] :as payload}
