@@ -52,7 +52,7 @@ specified in config.clj."
                 branchdel? (true? deleted)
                 ;; If it's a new branch, the "before" field will be a str
                 ;; consisting of a number of zeroes.
-                branchnew? (if (re-find #"^00000+" before) true false)
+                branchnew? (if (re-find #"^0+$" before) true false)
                 no-header (or (:no-header conf) (= n-commits 1))
                 branch (last (.split ref "/"))]
             (doseq [chan channels]
