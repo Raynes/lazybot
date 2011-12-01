@@ -4,9 +4,9 @@
       de-repo "https://github.com/DirectEmployers/"
       repos ["direct-seo" "lazybot" "saved-search" "DotJobs-MetaProfiles"
              "django-my-urls"]]
-  {:servers ["irc.freenode.net"]        ; A list of servers.
-   :prepends #{"@"}   ; The character you want for a prepend. Currently set to @
-   :weather {:token ""} ; Wunderground token.
+  {:servers ["irc.freenode.net"]
+   :prepends #{"@"}
+   :weather {:token ""}
    :dictionary {:wordnik-key
                 "99c266291da87b231f40a0c8902040da0b568588c25526cff"} 
    :sed {:automatic? true}
@@ -27,11 +27,9 @@
                              }}
    :servers-port 21310
    :github {:commits (into {} (for [x repos] [(str de-repo x) chat])}
-   "irc.freenode.net" {:channels ["#depd"]
-                       :bot-name "direct-bot"
-                       :bot-password "lingo23"
-                       :users {"mdeboard" {:pass "password", :privs :admin}}
-                       :plugins plugins}})
+   "irc.freenode.net" (read-string (slurp
+                                    (str (System/getProperty "user.dir")
+                                         "/.lazybot/secret.clj")))})
 
 ; users is a series of username to password and privileges.
 ; plugins is a list of plugins to load at startup.
