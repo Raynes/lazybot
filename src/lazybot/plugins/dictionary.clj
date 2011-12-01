@@ -12,12 +12,14 @@
      (send-message
       com-m 
       (prefix nick 
-              (let [key (get-in @bot [:config :dictionary :wordnik-key])
-                    definition (first (wword/definitions (first args) :api_key key))
-                    text (:text definition)]
-                (if (seq text)
-                  (str (:part-of-speech definition) ": " text)
-                  "Word not found."))))))
+              (if-not (first args)
+                "You didn't give me a word. Duh."
+                (let [key (get-in @bot [:config :dictionary :wordnik-key])
+                      definition (first (wword/definitions (first args) :api_key key))
+                      text (:text definition)]
+                  (if (seq text)
+                  (str (:partOfSpeech definition) ": " text)
+                  "Word not found.")))))))
   (:cmd
    "Wordnik's Word Of The Day"
    #{"wotd"}
@@ -38,6 +40,8 @@
      (send-message
       com-m
       (prefix nick
+              (if-not (first args)
+                "I can't show you phrases if you don't give me a word."
               (let [key (get-in @bot [:config :dictionary :wordnik-key])
                     phrases (wword/phrases (first args) :api_key key)]
                 (if (seq phrases)
@@ -45,7 +49,7 @@
                        (map #((juxt :gram1 :gram2) %))
                        (map #(apply str (interpose " " %)))
                        (clojure.string/join ", "))
-                (str "No phrases found for " (first args) "."))))))))
+                (str "No phrases found for " (first args) ".")))))))))
 
 
    
