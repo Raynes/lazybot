@@ -1,19 +1,13 @@
 (ns lazybot.plugins.utils
   (:use [lazybot utilities info registry]
         [lazybot.plugins.login :only [when-privs]]
-	[clj-github.gists :only [new-gist]]
         [lazybot.gist :only [trim-with-gist]]
-	[clj-time [core :only [plus minus now interval in-secs hours]] [format :only [unparse formatters]]]
+	[clj-time.core :only [plus minus now interval in-secs hours]]
+        [clj-time.format :only [unparse formatters]]
         [clojure.java.shell :only [sh]])
   (:require [irclj.core :as ircb]
             [clojure.string :as s])
   (:import java.net.InetAddress))
-
-(def known-prefixes
-     [\& \+ \@ \% \! \~])
-
-(defn drop-modes [users]
-  (map (fn [x] (if (some #(= (first x) %) known-prefixes) (apply str (rest x)) x)) users))
 
 (defn pangram? [s]
   (let [letters (into #{} "abcdefghijklmnopqrstuvwxyz")]
@@ -109,18 +103,6 @@
    "Prints an amusing message."
    #{"kill"}
    (fn [com-m] (send-message com-m "KILL IT WITH FIRE!")))
-
-  ;(:dumpcmds
-  ; "Dumps a list of commands to a gist."
-  ; ["dumpcmds" "commands"]
-  ; [{:keys [irc channel]}]
-  ; (send-message
-  ;  irc channel
-  ;  (str "http://gist.github.com/"
-  ;       (:repo (new-gist "dumpcmds"
-  ;                        ((constantly "omg") ( apply str
-  ;                                                    (for [[x {doc :doc}] (->> (:commands @irc) vals (apply merge))]
-  ;                                                      (str x ": " doc "\n")))))))))
 
    (:cmd 
     "Balances parens for you."
