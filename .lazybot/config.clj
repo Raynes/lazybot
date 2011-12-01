@@ -29,7 +29,7 @@
    :github {:commits (into {} (for [x repos] [(str de-repo x) chat])}
    "irc.freenode.net" (read-string (slurp
                                     (str (System/getProperty "user.dir")
-                                         "/.lazybot/secret.clj")))})
+                                         "/.lazybot/secret.clj")))}})
 
 ; users is a series of username to password and privileges.
 ; plugins is a list of plugins to load at startup.
