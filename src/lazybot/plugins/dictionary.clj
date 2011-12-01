@@ -1,7 +1,8 @@
 (ns lazybot.plugins.dictionary
   (:use lazybot.registry
         [lazybot.utilities :only [prefix]]
-        clj-wordnik.core))
+        [wordnik.api.word :as wword]
+        [wordnik.api.words :as wwords]))
 
 (defplugin 
   (:cmd
@@ -11,10 +12,40 @@
      (send-message
       com-m 
       (prefix nick 
-              (let [definition (first
-                                (definitions (get-in @bot [:config :dictionary :wordnik-key])
-                                  (first args)))
+              (let [key (get-in @bot [:config :dictionary :wordnik-key])
+                    definition (first (wword/definitions (first args) :api_key key))
                     text (:text definition)]
                 (if (seq text)
-                  (str (:partOfSpeech definition) ": " text)
-                  "Word not found.")))))))
+                  (str (:part-of-speech definition) ": " text)
+                  "Word not found."))))))
+  (:cmd
+   "Wordnik's Word Of The Day"
+   #{"wotd"}
+   (fn [{:keys [bot channel nick args]:as com-m}]
+     (send-message
+      com-m
+      (prefix nick
+              (let [key (get-in @bot [:config :dictionary :wordnik-key])
+                    wotd (wwords/wotd :api_key key)
+                    definition (:text (first (:definitions wotd)))]
+                (if (seq wotd)
+                  (str (:word wotd) ": " definition)
+                  "No word of the day today, sorry!"))))))
+  (:cmd
+   "Common bi-gram phrases for the given word"
+   #{"phrases"}
+   (fn [{:keys [bot channel nick args]:as com-m}]
+     (send-message
+      com-m
+      (prefix nick
+              (let [key (get-in @bot [:config :dictionary :wordnik-key])
+                    phrases (wword/phrases (first args) :api_key key)]
+                (if (seq phrases)
+                  (->> (wword/phrases (first args) :api_key key)
+                       (map #((juxt :gram1 :gram2) %))
+                       (map #(apply str (interpose " " %)))
+                       (clojure.string/join ", "))
+                (str "No phrases found for " (first args) "."))))))))
+
+
+   
