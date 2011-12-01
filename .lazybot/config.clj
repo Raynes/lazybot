@@ -26,7 +26,7 @@
                                         #"##(([^#]|#(?!#))+)\s*((##)?(?=.*##)|$)"]
                              }}
    :servers-port 21310
-   :github {:commits (into {} for [x repos] [(str de-repo x) chat])}
+   :github {:commits (into {} (for [x repos] [(str de-repo x) chat])}
    "irc.freenode.net" {:channels ["#depd"]
                        :bot-name "direct-bot"
                        :bot-password "lingo23"
