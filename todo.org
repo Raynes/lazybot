@@ -1,0 +1,21 @@
+* Todo list
+** TODO clj-github -> tentacles
+** TODO old irclj -> new irclj
+** TODO allow for the disabling of plugins on a channel-by-channel basis
+** TODO improve initial configuration
+
+e.g. Disable all but the most useful plugins. Also need to test it and make sure it is
+working fine.
+
+** TODO move the translate plugin to a new service
+
+Google Translate is no longer free. We need to either delete the plugin or find a
+new service to use in place of it.
+** TODO fix issues with the Github plugin
+
+There is some strange bug that is causing the Github plugin to fail if the bot hasn't
+been reloaded at least once after starting up on my and Alan's VPS (the primary lazybot
+instance). I've been having some issues with ports that have kept me from reproducing
+things locally, but Alan plans to try to reproduce it soon.
+** TODO weed out crappy and useless plugins
+
