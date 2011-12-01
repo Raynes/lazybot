@@ -1,8 +1,8 @@
 (ns lazybot.gist
-  (:use [clj-github.gists :only [new-gist]]
-        [lazybot.utilities :only [trim-string]])
-  (:require [clojure.string :as string])
-  (:import [java.io IOException]))
+  (:require [clojure.string :as string]
+            [tentacles.gists :as gists]
+            [lazybot.utilities :as utils])
+  (:import java.io.IOException))
 
 (defn word-wrap [str]
   (string/replace str #"(.{50,70}[])}\"]*)\s+" "$1\n"))
@@ -11,7 +11,7 @@
 (def default-cap 300)
 
 (defn gist [name s]
-  (str "https://gist.github.com/" (:repo (new-gist name s))))
+  (:html_url (gists/create-gist {name s})))
 
 (defn trim-with-gist
   "Trims the input string to a maximum of cap characters; if any
@@ -30,14 +30,12 @@ not necessary in the result."
   ([cap name s]
      (trim-with-gist cap name "" s))
   ([cap name gist-prefix s]
-     (trim-string cap
-                  (fn [s]
-                    (str gist-note
-                         (try
-                           (->> s
-                                (str gist-prefix)
-                                word-wrap
-                                (gist name))
-                           (catch IOException e (str "failed to gist: "
-                                                     (.getMessage e))))))
-                  s)))
+     (utils/trim-string
+      cap
+      (fn [s]
+        (str gist-note
+             (try
+               (->> s (str gist-prefix) word-wrap (gist name))
+               (catch IOException e
+                 (str "failed to gist: " (.getMessage e))))))
+      s)))

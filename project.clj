@@ -9,7 +9,7 @@
                  [irclj "0.4.1"]
                  [congomongo "0.1.7"]
                  [clj-config "0.2.0"]
-                 [clj-github "1.1.0-alpha1"]
+                 [tentacles "0.1.1"]
                  [compojure "0.6.5"]
                  [ring/ring-jetty-adapter "1.0.0-beta2"]
                  [log4j "1.2.15" :exclusions [javax.mail/mail

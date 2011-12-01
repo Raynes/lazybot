@@ -1,5 +1,5 @@
 * Todo list
-** TODO clj-github -> tentacles
+** DONE clj-github -> tentacles
 ** TODO old irclj -> new irclj
 ** TODO allow for the disabling of plugins on a channel-by-channel basis
 ** TODO improve initial configuration
@@ -18,4 +18,7 @@ been reloaded at least once after starting up on my and Alan's VPS (the primary 
 instance). I've been having some issues with ports that have kept me from reproducing
 things locally, but Alan plans to try to reproduce it soon.
 ** TODO weed out crappy and useless plugins
+** TODO use jodaro's clj-wordnik
+** TODO allow for github credentials to be supplied
 
+In which case gists would end up under that account.
