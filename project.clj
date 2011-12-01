@@ -18,7 +18,7 @@
                                               com.sun.jmx/jmxri]]
                  [org.thnetos/cd-client "0.3.1"]
                  [org.jruby/jruby "1.6.5"]
-                 [clj-wordnik "0.0.1"]
+                 [clj-wordnik "0.1.0-alpha1"]
                  [org.clojure/data.json "0.1.1"]
                  [org.clojure/tools.logging "0.2.3"]
                  [org.clojure/data.zip "0.1.0"]
