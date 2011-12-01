@@ -22,3 +22,7 @@ things locally, but Alan plans to try to reproduce it soon.
 ** TODO allow for github credentials to be supplied
 
 In which case gists would end up under that account.
+
+** TODO document the *shit* out of everything
+
+With marginalia.
