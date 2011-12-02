@@ -43,4 +43,4 @@
   (:cmd
    "Connect the bot to a server specified in your configuration. ADMIN ONLY!"
    #{"reconnect" "connect"}
-   (fn [{:keys [args]}] (connect-bot #'make-bot (first args)))))
+   (fn [{:keys [args]}] (init-bot (first args)))))

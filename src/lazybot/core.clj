@@ -8,57 +8,78 @@
         [ring.adapter.jetty :only [run-jetty]])
   (:import [java.io File FileReader]))
 
-(def bots (atom {}))
+;; This is pretty much the only global mutable state in the entire bot, and it
+;; is entirely necessary. We pass the bot refs to commands and hooks, but
+;; sometimes it can't be helped and you need to get at the bots outside of
+;; a defplugin. Very little code uses this atom.
+(def bots
+  "All of the bots that are currently running."
+  (atom {}))
 
-(defn initiate-mongo []
+(defn initiate-mongo
+  "Initiate the mongodb connection and set it globally."
+  []
   (try
     (mongo! :db (or (:db (read-config)) "lazybot"))
     (catch Throwable e
       (println "Error starting mongo (see below), carrying on without it")
       (.printStackTrace e))))
 
-(defn call-all [{bot :bot :as ircm} hook-key]
+(defn call-all
+  "Call all hooks of a specific type."
+  [{bot :bot :as ircm} hook-key]
   (doseq [hook (pull-hooks bot hook-key)]
     (hook ircm)))
 
+;; Note that even the actual handling of commands is done via a hook.
 (def initial-hooks
-     {:on-message [{:fn (fn [irc-map] (try-handle irc-map))}]
-      :on-quit []
-      :on-join []})
+  "The hooks that every bot, even without plugins, needs to have."
+  {:on-message [{:fn (fn [irc-map] (try-handle irc-map))}]
+   :on-quit []
+   :on-join []})
 
-(defn reload-config [bot]
+(defn reload-config
+  "Reloads and sets the configuration in a bot."
+  [bot]
   (alter bot assoc :config (read-config)))
 
-(defn load-plugin [irc refzors plugin]
+;; A plugin is just a file on the classpath with a namespace of
+;; `lazybot.plugins.<x>` that contains a call to defplugin.
+(defn load-plugin
+  "Load a plugin (a Clojure source file)."
+  [irc refzors plugin]
   (let [ns (symbol (str "lazybot.plugins." plugin))]
     (require ns :reload)
     ((resolve (symbol (str ns "/load-this-plugin"))) irc refzors)))
 
-(defn safe-load-plugin [irc refzors plugin]
+(defn safe-load-plugin
+  "Load a plugin. Returns true if loading it was successful, false if
+   otherwise."
+  [irc refzors plugin]
   (try
     (load-plugin irc refzors plugin)
     true
     (catch Exception e false)))
  
-(defn load-plugins [irc refzors]
+(defn load-plugins
+  "Load all plugins specified in the bot's configuration."
+  [irc refzors]
   (let [info (:config @refzors)]
     (doseq [plug (:plugins (info (:server @irc)))]
       (load-plugin irc refzors plug))))
 
 (defn reload-configs
-  "Reloads the bot's configs. Must be run in a transaction."
+  "Reloads the bot's configs. Must be ran in a transaction."
   [& bots]
   (doseq [[_ bot] bots]
     (reload-config bot)))
 
-(defn connect-bot [cfn server]
-  (let [[irc refzors] (cfn server)]
-    (swap! bots assoc server {:com irc :bot refzors})
-    (dosync (reload-config refzors))
-    (load-plugins irc refzors)))
-
-(defn extract-routes [bots]
-  (filter identity (apply concat (map #(->> % :bot deref :modules vals (map :routes)) bots))))
+(defn extract-routes
+  "Extracts the routes from bots."
+  [bots]
+  (->> bots
+       (mapcat #(->> % :bot deref :modules vals (map :routes)))
+       (filter identity)))
 
 (def sroutes nil)
 
