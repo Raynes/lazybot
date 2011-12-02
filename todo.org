@@ -1,18 +1,15 @@
 * Todo list
 ** DONE clj-github -> tentacles
 ** TODO old irclj -> new irclj
+Note that the new Irclj isn't even ready yet.
 ** TODO allow for the disabling of plugins on a channel-by-channel basis
 ** TODO improve initial configuration
-
 e.g. Disable all but the most useful plugins. Also need to test it and make sure it is
 working fine.
-
 ** TODO move the translate plugin to a new service
-
 Google Translate is no longer free. We need to either delete the plugin or find a
 new service to use in place of it.
 ** TODO fix issues with the Github plugin
-
 There is some strange bug that is causing the Github plugin to fail if the bot hasn't
 been reloaded at least once after starting up on my and Alan's VPS (the primary lazybot
 instance). I've been having some issues with ports that have kept me from reproducing
@@ -20,9 +17,63 @@ things locally, but Alan plans to try to reproduce it soon.
 ** TODO weed out crappy and useless plugins
 ** DONE use jodaro's clj-wordnik
 ** TODO allow for github credentials to be supplied
-
 In which case gists would end up under that account.
-
 ** TODO document the *shit* out of everything
-
 With marginalia.
+** TODO extend and improve the permission system
+Right now, all we can do with the permission system is declare users to be either 
+admin or regular user. We need to expand this out and improve it so that we can 
+have an extensible system capable of very specific permissions. This way we can 
+have sets of permissions for users that plugins can add to and check for as well 
+as two basic permissions:
+
+- user: for regular users
+- admin: for administrators who are trusted with the scariest commands.
+
+The idea is that it would be possible to give certain non-admin users more dangerous
+and specialized permissions. For example, a plugin foo could check for its own special
+permission, like permission =foo=.
+
+** TODO JVM sandboxing for the jruby plugin
+We can probably use =clojail.jvm= for this.
+** TODO a nice way to chain lazybot commands
+Like =$foo bar && $baz quux= or something. The challenging part is getting a
+syntax that isn't insane but also doesn't clash with normal commands.
+** TODO a plugin for WolframAlpha or TrueKnowledge or something
+** TODO clojurebot-like factoids to replace the whatis plugin
+Challenging because coming up with a syntax is difficult. Your first inclination
+is to allow for factoid commands/queries to be like =lazybot: foo is bar= but that
+doesn't really work in lazybot. The problem is that command prefixes are arbitary
+strings. This means that =lazybot:= can actually be a command prefix in which case
+whatever =foo= is could be a command, in which case the commands and hooks would
+clash. I guess one option here is to modify the command/hook system so that hooks
+only trigger if a command isn't also triggered, but I don't want to do that. I
+think that the best compromise here is to just make the factoid system be a command.
+e.g.
+#+begin_example
+$fact foo is bar
+$whatis foo
+#+end_example
+** TODO more language evaluation
+Probably want to limit this to JVM languages. Haskell is a special case
+because there is a command-line tool that does sandboxed evaluation
+(mueval). If there is something like that for other languages, they're
+certainly welcome. Of course, even if there isn't, using =sh= to call
+out to interpreters/compilers is fine as long as they do sandboxing.
+*** Ideas
+- Scala
+- Java (hurrr)
+** TODO time tracking (like [[http://toggl.com][Toggl]])
+This should, for the most part, be able to replace toggl for simple use.
+*** Command ideas
+#+begin_example
+$start task ; Start timing a task.
+$stop task  ; Stop a timing a task.
+$export     ; Export timecharts. This would also take complex arguments
+              to export only specific timeframes.
+** TODO a plugin for restarting the bot
+Slightly complicated because if you fork the JVM, you end up with a
+logless bot. The restart command would need to make the bot log to a file.
+** TODO improved logging interface
+We've already got an embedded webserver, so why not write a fancy
+interface to the log files?
