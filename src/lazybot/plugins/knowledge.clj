@@ -1,8 +1,11 @@
 (ns lazybot.plugins.knowledge
   (:use lazybot.registry
         socrates.core
-        [lazybot.utilities :only [prefix]])
+        [lazybot.utilities :only [prefix]]
+        [lazybot.gist :only [trim-with-gist]])
   (:require [socrates.api.direct-answer :as soc]))
+
+(def cap 300)
 
 (defplugin
   (:cmd
@@ -18,7 +21,7 @@
                 (with-credentials account password
                   (if-let [answer (soc/direct-answer question)]
                     (if (:answered answer)
-                      (:result answer)
+                      (trim-with-gist cap "answer" (:result answer))
                       "You've asked the unanswerable.")))))))))
 
-              
+
