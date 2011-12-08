@@ -5,8 +5,6 @@
         [lazybot.gist :only [trim-with-gist]])
   (:require [socrates.api.direct-answer :as soc]))
 
-(def cap 300)
-
 (defplugin
   (:cmd
    "Ask me a question."
@@ -21,7 +19,7 @@
                 (with-credentials account password
                   (if-let [answer (soc/direct-answer question)]
                     (if (:answered answer)
-                      (trim-with-gist cap "answer" (:result answer))
+                      (trim-with-gist "answer.txt" (:result answer))
                       "You've asked the unanswerable.")))))))))
 
 
