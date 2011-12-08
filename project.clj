@@ -25,7 +25,8 @@
                  [org.clojure/tools.cli "0.1.0"]
                  [useful "0.7.2"]
                  [hobbit "0.1.0-SNAPSHOT"]
-                 [ororo "0.1.0-alpha2"]]
+                 [ororo "0.1.0-alpha2"]
+                 [socrates "0.0.1"]]
   :uberjar-name "lazybot.jar"
   :main lazybot.run
   :copy-deps true
