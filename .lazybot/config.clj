@@ -3,7 +3,7 @@
       chat {"irc.freenode.net" ["#depd"]}
       de-repo "https://github.com/DirectEmployers/"
       repos ["direct-seo" "lazybot" "saved-search" "DotJobs-MetaProfiles"
-             "django-my-urls"]]
+             "django-my-urls" "myjobs" "sendgrid-smtp-api"]]
   {:servers ["irc.freenode.net"]
    :prepends #{"@"}
    :weather {:token ""}
