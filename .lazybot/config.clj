@@ -1,6 +1,4 @@
-(let [plugins #{"lmgtfy" "login" "help" "load" "yesno" "clojure" "google" "karma"
-                "seen" "utils" "operator" "github"}
-      chat {"irc.freenode.net" ["#depd"]}
+(let [chat {"irc.freenode.net" ["#depd"]}
       de-repo "https://github.com/DirectEmployers/"
       repos ["direct-seo" "lazybot" "saved-search" "DotJobs-MetaProfiles"
              "django-my-urls" "myjobs" "sendgrid-smtp-api"]]
