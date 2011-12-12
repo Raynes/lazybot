@@ -1,7 +1,7 @@
 (let [chat {"irc.freenode.net" ["#depd"]}
       de-repo "https://github.com/DirectEmployers/"
       repos ["direct-seo" "lazybot" "saved-search" "DotJobs-MetaProfiles"
-             "django-my-urls" "myjobs" "sendgrid-smtp-api"]]
+             "django-my-urls" "myjobs" "sendgrid-smtp-api" "UI-Framework"]]
   {:servers ["irc.freenode.net"]
    :prepends #{"@"}
    :weather {:token ""}
