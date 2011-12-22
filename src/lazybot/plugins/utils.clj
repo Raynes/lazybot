@@ -133,4 +133,10 @@
        (let [cmd (s/join " " args)]
          (trim-with-gist cmd
            (s/replace
-            (:out (sh "bash" "-c" cmd)) #"\s+" " "))))))))
+            (:out (sh "bash" "-c" cmd)) #"\s+" " ")))))))
+
+  (:cmd
+   "SEIZE HIM!"
+   #{"guards"}
+   (fn [com-m]
+     (send-message com-m "SEIZE HIM!"))))
