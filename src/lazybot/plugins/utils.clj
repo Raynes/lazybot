@@ -45,17 +45,16 @@
                  (send-message com-m "Bai!")
                  (ircb/part-chan com chan :reason "Quit")))))
 
-  (:cmd
-   "Rapes a person you specify."
-   #{"rape"}
-   (fn [{:keys [args] :as com-m}]
-     (send-message com-m (str "raepz " (first args) ".") :action? true)))
-
   (:cmd 
    "Flips a coin."
    #{"coin"} 
    (fn [{:keys [bot nick] :as com-m}]
-     (send-message com-m (prefix nick (if (= 0 (rand-int 2)) "Heads." "Tails.")))))
+     (send-message
+      com-m
+      (prefix nick
+              (if (zero? (rand-int 2))
+                "Heads."
+                "Tails.")))))
 
   (:cmd 
    "Prints an amusing message."
@@ -81,36 +80,15 @@
      (when-privs com-m :admin (ircb/set-nick com (first args)))))
 
   (:cmd
-   "Amusing command to check to see if a directory exists on the system that runs the bot."
-   #{"exists?"} 
-   (fn [{:keys [args] :as com-m}]
-     (send-message com-m (str (.exists (java.io.File. (first args)))))))
-
-  (:cmd
    "Love your bot? Give him a snack and thank him for his hard work!"
    #{"botsnack"} 
    (fn [{:keys [nick bot] :as com-m}]
      (send-message com-m (prefix nick "Thanks! Om nom nom!!"))))
-   
-  (:cmd
-   "Prints an amusing and inappropriate message directed at a person you specify. For when people
-    use 'your' when they should have used 'you're'"
-   #{"your"}
-   (fn [{:keys [args] :as com-m}]
-     (send-message com-m (str (first args) ": It's 'you're', you fucking illiterate bastard."))))
 
   (:cmd 
    "Prints an amusing message."
    #{"kill"}
    (fn [com-m] (send-message com-m "KILL IT WITH FIRE!")))
-
-   (:cmd 
-    "Balances parens for you."
-    #{"balance"}
-    (fn [{:keys [nick args bot] :as com-m}]
-      (let [fst (first args)]
-        (send-message com-m
-                      (prefix nick (apply str (concat fst (repeat (count fst) ")"))))))))
 
   (:cmd 
    "Says what you tell it to in the channel you specify. ADMIN ONLY."
@@ -144,17 +122,6 @@
              (if (= false (.isReachable address 5000))
                "FAILURE!"
                (str "Ping completed in " (in-secs (interval stime (now))) " seconds.")))))))
-
-  (:cmd
-   "Huggles your best fwiendz."
-   #{"huggle"}
-   (fn [{:keys [args] :as com-m}]
-     (send-message com-m (str "Hugglez " (first args) ". I lubs yous.") :action? true)))
-
-  (:cmd
-   "I'd do you."
-   #{"would"}
-   (fn [com-m] (send-message com-m "I'd do him. Hard.")))
 
   (:cmd
    "Executes a shell command and displays the STDOUT"
