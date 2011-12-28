@@ -42,4 +42,11 @@
                  (str "Percentage of moon illuminated: %s; Age of moon: %s; "
                       "Current time: %s; Sunset: %s; Sunrise: %s.")
                  ((juxt :percentIlluminated :ageOfMoon (extract-time :current_time)
-                        (extract-time :sunset) (extract-time :sunrise)) data))))))))
+                        (extract-time :sunset) (extract-time :sunrise)) data)))))))
+
+  (:cmd
+   "Get the link to the radar image for your area."
+   #{"radar"}
+   (fn [{:keys [bot nick args] :as com-m}]
+     (when-let [token (token @bot)]
+       (send-message com-m (:url (w/radar token (parse-location args))))))))
