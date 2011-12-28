@@ -59,4 +59,20 @@
        (send-message
         com-m
         (when-let [url (:image_url (w/satellite token (parse-location args)))]
-          (first (.split url "&api_key"))))))))
+          (first (.split url "&api_key")))))))
+
+  (:cmd
+   "Get condition information for a location."
+   #{"conditions"}
+   (fn [{:keys [bot nick args] :as com-m}]
+     (when-let [token (token @bot)]
+       (send-message
+        com-m
+        (apply format
+               (str "%s; %s; Dewpoint: %s; Precipitation today: %s; "
+                    "Temperature: %s; Windchill: %s; "
+                    "Wind speed: %smph; Wind gust: %smph; URL: %s.")
+               ((juxt :observation_time :weather :dewpoint_string
+                      :precip_today_string :temperature_string :windchill_string
+                      :wind_mph :wind_gust_mph :forecast_url)
+                (w/conditions token (parse-location args)))))))))
