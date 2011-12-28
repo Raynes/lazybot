@@ -27,7 +27,7 @@
                         :txt_forecast
                         :forecastday
                        (map generate-forecast))]
-         (send-message (assoc com-m :channel nick) msg)
+         (send-message (assoc com-m :channel nick) msg :notice? true)
          (Thread/sleep 1000)))))
 
   (:cmd
