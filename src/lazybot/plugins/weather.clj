@@ -68,11 +68,13 @@
      (when-let [token (token @bot)]
        (send-message
         com-m
-        (apply format
-               (str "%s; %s; Dewpoint: %s; Precipitation today: %s; "
-                    "Temperature: %s; Windchill: %s; "
-                    "Wind speed: %smph; Wind gust: %smph; URL: %s.")
-               ((juxt :observation_time :weather :dewpoint_string
-                      :precip_today_string :temperature_string :windchill_string
-                      :wind_mph :wind_gust_mph :forecast_url)
-                (w/conditions token (parse-location args)))))))))
+        (if-let [data (w/conditions token (parse-location args))]
+          (apply format
+                 (str "%s; %s; Dewpoint: %s; Precipitation today: %s; "
+                      "Temperature: %s; Windchill: %s; "
+                      "Wind speed: %smph; Wind gust: %smph; URL: %s.")
+                 ((juxt :observation_time :weather :dewpoint_string
+                        :precip_today_string :temperature_string :windchill_string
+                        :wind_mph :wind_gust_mph :forecast_url)
+                  data))
+          "Location not found."))))))
