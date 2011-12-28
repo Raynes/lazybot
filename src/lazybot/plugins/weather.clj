@@ -49,4 +49,14 @@
    #{"radar"}
    (fn [{:keys [bot nick args] :as com-m}]
      (when-let [token (token @bot)]
-       (send-message com-m (:url (w/radar token (parse-location args))))))))
+       (send-message com-m (:url (w/radar token (parse-location args)))))))
+
+  (:cmd
+   "Get the link to the satellite image for your area."
+   #{"satellite"}
+   (fn [{:keys [bot nick args] :as com-m}]
+     (when-let [token (token @bot)]
+       (send-message
+        com-m
+        (when-let [url (:image_url (w/satellite token (parse-location args)))]
+          (first (.split url "&api_key"))))))))
