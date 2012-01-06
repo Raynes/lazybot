@@ -2,7 +2,7 @@
   (:use lazybot.registry
         socrates.core
         [lazybot.utilities :only [prefix]]
-        [lazybot.gist :only [trim-with-gist]])
+        [lazybot.paste :only [trim-with-paste]])
   (:require [socrates.api.direct-answer :as soc]))
 
 (defplugin
@@ -19,7 +19,7 @@
                 (with-credentials account password
                   (if-let [answer (soc/direct-answer question)]
                     (if (:answered answer)
-                      (trim-with-gist "answer.txt" (:result answer))
+                      (trim-with-paste (:result answer))
                       "You've asked the unanswerable.")))))))))
 
 

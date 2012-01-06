@@ -1,7 +1,7 @@
 (ns lazybot.plugins.utils
   (:use [lazybot utilities info registry]
         [lazybot.plugins.login :only [when-privs]]
-        [lazybot.gist :only [trim-with-gist]]
+        [lazybot.paste :only [trim-with-paste]]
 	[clj-time.core :only [plus minus now interval in-secs hours]]
         [clj-time.format :only [unparse formatters]]
         [clojure.java.shell :only [sh]])
@@ -131,9 +131,8 @@
       (send-message
        com-m
        (let [cmd (s/join " " args)]
-         (trim-with-gist cmd
-           (s/replace
-            (:out (sh "bash" "-c" cmd)) #"\s+" " ")))))))
+         (trim-with-paste
+           (s/replace (:out (sh "bash" "-c" cmd)) #"\s+" " ")))))))
 
   (:cmd
    "SEIZE HIM!"

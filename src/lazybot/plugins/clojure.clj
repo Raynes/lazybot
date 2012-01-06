@@ -4,7 +4,7 @@
         lazybot.registry
         clojure.tools.logging
         [lazybot.utilities :only [on-thread verify trim-string shorten-url]]
-        [lazybot.gist :only [trim-with-gist gist]]
+        [lazybot.paste :only [trim-with-paste paste]]
         [useful.fn :only [fix]])
   (:require [clojure.string :as string :only [replace]]
             [clojure.walk :as walk]
@@ -41,9 +41,9 @@
 (def cap 300)
 
 (defn trim [bot-name user expression s]
-  (trim-with-gist
+  (trim-with-paste
     cap
-    "result.clj"
+    "Clojure"
     (str "<" user "> " expression "\n<" bot-name "> => ")
     s))
 
@@ -207,7 +207,7 @@ Return a seq of strings to be evaluated. Usually this will be either nil or a on
           _ (sb argvec)       ; a lame hack to get sandbox
                               ; guarantees on eval-ing the user's args
           user-args (eval argvec)]
-      (->> user-args (apply f) vec str trim-with-gist))
+      (->> user-args (apply f) vec str trim-with-paste))
     (catch Throwable e
       (.getMessage e))))
 
@@ -278,7 +278,8 @@ Return a seq of strings to be evaluated. Usually this will be either nil or a on
                         (when (second split-args) split-args))
                       args)]
         (if-let [results (:examples (apply cd/examples-core args))]
-          (gist "examples.clj" (s/join "\n\n" (for [{:keys [body]} results]
-                                                (cd/remove-markdown body))))
+          (paste (s/join "\n\n" (for [{:keys [body]} results]
+                                  (cd/remove-markdown body)))
+                 "Clojure")
           "No results found.")
         "You must pass a name like clojure.core/foo or, as two arguments, clojure.core foo.")))))

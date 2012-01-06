@@ -2,7 +2,7 @@
   (:use [lazybot registry]
         [clojure.data.json :only [read-json]]
         [clojure.java.shell :only [sh]]
-        [lazybot.gist :only [trim-with-gist]])
+        [lazybot.paste :only [trim-with-paste]])
   (:require [clj-http.client :as http]))
 
 (def tryurl "http://tryhaskell.org/haskell.json")
@@ -13,7 +13,7 @@
 (def cap 300)
 
 (defn trim [s]
-  (trim-with-gist cap "output.hs" s))
+  (trim-with-paste cap "Haskell" s))
 
 (defn eval-haskell [expr]
   (->> (http/get tryurl {:query-params {"method" "eval" "expr" expr}})
