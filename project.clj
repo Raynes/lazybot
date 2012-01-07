@@ -23,7 +23,7 @@
                  [hobbit "0.1.0-SNAPSHOT"]
                  [ororo "0.1.0"]
                  [socrates "0.0.1"]
-                 [innuendo "0.1.0"]]
+                 [innuendo "0.1.1"]]
   :uberjar-name "lazybot.jar"
   :main lazybot.run
   :copy-deps true
