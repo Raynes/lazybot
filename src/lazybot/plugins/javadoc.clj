@@ -38,7 +38,8 @@
 
 (defplugin
   (:cmd
-   "Find out what the most users ever in this channel at any one time is."
+   "Lookup Oracle's javadocs for a class. Input can be a fully qualified class name,
+   a class name and a method/field, or a non-qualified class name."
    #{"javadoc"}
    (fn [{channel :channel [class member] :args :as com-m}]
      (send-message com-m
