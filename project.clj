@@ -12,7 +12,7 @@
                  [compojure "0.6.5"]
                  [ring/ring-jetty-adapter "1.0.0-beta2"]
                  [log4j "1.2.16"]
-                 [org.thnetos/cd-client "0.3.1"]
+                 [org.thnetos/cd-client "0.3.3"]
                  [org.jruby/jruby "1.6.5"]
                  [clj-wordnik "0.1.0-alpha1"]
                  [org.clojure/data.json "0.1.1"]
