@@ -3,7 +3,7 @@
   (:require [clojure.string :as s]))
 
 (def ^{:dynamic true}
-  *javadoc-base-url* "http://download.oracle.com/javase/6/docs/api/")
+  *javadoc-base-url* "http://docs.oracle.com/javase/6/docs/api/")
 
 (defn format-varargs [class]
   (if-not (.isArray class)
