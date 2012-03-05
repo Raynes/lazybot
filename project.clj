@@ -20,10 +20,11 @@
                  [org.clojure/data.zip "0.1.0"]
                  [org.clojure/tools.cli "0.1.0"]
                  [useful "0.7.2"]
-                 [hobbit "0.1.0-SNAPSHOT"]
+                 [hobbit "0.1.0-alpha1"]
                  [ororo "0.1.0"]
                  [socrates "0.0.1"]
-                 [innuendo "0.1.1"]]
+                 [innuendo "0.1.1"]
+                 [frinj "0.1.2"]]
   :uberjar-name "lazybot.jar"
   :main lazybot.run
   :copy-deps true
