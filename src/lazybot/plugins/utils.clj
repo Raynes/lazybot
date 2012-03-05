@@ -2,7 +2,7 @@
   (:use [lazybot utilities info registry]
         [lazybot.plugins.login :only [when-privs]]
         [lazybot.paste :only [trim-with-paste]]
-	[clj-time.core :only [plus minus now interval in-secs hours]]
+        [clj-time.core :only [plus minus now interval in-secs hours]]
         [clj-time.format :only [unparse formatters]]
         [clojure.java.shell :only [sh]])
   (:require [irclj.core :as ircb]
@@ -16,12 +16,11 @@
 (defplugin
   (:cmd
    "Gets the current time and date in UTC format."
-   #{"time"} 
+   #{"time"}
    (fn [{:keys [nick bot args] :as com-m}]
-     (let [time (unparse (formatters :date-time-no-ms) 
+     (let [time (unparse (formatters :date-time-no-ms)
                          (if-let [[[m num]] (seq args)]
-			 
-                           (let [n (try (Integer/parseInt (str num)) (catch Exception _ 0))] 
+                           (let [n (try (Integer/parseInt (str num)) (catch Exception _ 0))]
                              (condp = m
                                  \+ (plus (now) (hours n))
                                  \- (minus (now) (hours n))
@@ -37,7 +36,7 @@
                (ircb/join-chan com (first args) (last args)))))
 
   (:cmd
-   "Parts a channel. Takes a channel and a part message. ADMIN ONLY." 
+   "Parts a channel. Takes a channel and a part message. ADMIN ONLY."
    #{"part"}
    (fn [{:keys [bot com nick args channel] :as com-m}]
      (when-privs com-m :admin
@@ -45,9 +44,9 @@
                  (send-message com-m "Bai!")
                  (ircb/part-chan com chan :reason "Quit")))))
 
-  (:cmd 
+  (:cmd
    "Flips a coin."
-   #{"coin"} 
+   #{"coin"}
    (fn [{:keys [bot nick] :as com-m}]
      (send-message
       com-m
@@ -58,41 +57,41 @@
 
   (:cmd 
    "Prints an amusing message."
-   #{"what"} 
+   #{"what"}
    (fn [com-m] (send-message com-m "It's AWWWW RIGHT!")))
-   
-  (:cmd 
+
+  (:cmd
    "Checks if its input string is a pangram."
-   #{"pangram?"} 
+   #{"pangram?"}
    (fn [{:keys [args] :as com-m}]
      (send-message com-m (->> args s/join pangram? str))))
-   
-  (:cmd 
+
+  (:cmd
    "Just says the sender's name: no u."
-   #{"fuck"} 
+   #{"fuck"}
    (fn [{:keys [bot nick] :as com-m}]
      (send-message com-m (prefix nick "no u"))))
 
   (:cmd
    "Sets the bot's nick. ADMIN ONLY."
-   #{"setnick"} 
+   #{"setnick"}
    (fn [{:keys [com bot nick args] :as com-m}]
      (when-privs com-m :admin (ircb/set-nick com (first args)))))
 
   (:cmd
    "Love your bot? Give him a snack and thank him for his hard work!"
-   #{"botsnack"} 
+   #{"botsnack"}
    (fn [{:keys [nick bot] :as com-m}]
      (send-message com-m (prefix nick "Thanks! Om nom nom!!"))))
 
-  (:cmd 
+  (:cmd
    "Prints an amusing message."
    #{"kill"}
    (fn [com-m] (send-message com-m "KILL IT WITH FIRE!")))
 
-  (:cmd 
+  (:cmd
    "Says what you tell it to in the channel you specify. ADMIN ONLY."
-   #{"say"} 
+   #{"say"}
    (fn [{:keys [bot nick args] :as com-m}]
      (when-privs com-m :admin
                (send-message (assoc com-m :channel (first args))
@@ -109,14 +108,14 @@
                                  \F (* (- num 32) (/ 5 9.0))
                                  \C (+ 32 (* (/ 9.0 5) num))
                                  "Malformed expression."))))))
-  
+
   (:cmd
    "Pings an IP address or host name. If it doesn't complete within 10 seconds, it will give up."
    #{"ping"}
    (fn [{:keys [bot nick args] :as com-m}]
      (let [address (InetAddress/getByName (first args))
            stime (now)]
-       (send-message 
+       (send-message
         com-m
         (prefix nick
              (if (= false (.isReachable address 5000))
