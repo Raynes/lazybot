@@ -2,7 +2,12 @@
   (:use (lazybot registry utilities)
         [lazybot.plugins.login :only [when-privs]]
         clojure.tools.logging)
-  (:import [org.apache.log4j Level]))
+  (:import [org.apache.log4j Level LogManager]))
+
+(defn get-logger
+  ([] (get-logger (str *ns*)))
+  ([ns]
+     (LogManager/getLogger (str ns))))
 
 (defn str->package [s]
   (if (not= (.indexOf s ".") -1)
