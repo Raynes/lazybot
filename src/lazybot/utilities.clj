@@ -2,8 +2,7 @@
   (:use lazybot.info
         [hobbit core isgd])
   (:require [clojure.string :only [join] :as string])
-  (:import [java.io File FileReader]
-           [org.apache.log4j LogManager]))
+  (:import [java.io File FileReader]))
 
 ;; ## Pretty time formatting
 ;; This is a bit ugly. Each entry in the table describes how many of the
@@ -59,11 +58,6 @@
   semantics instead of those of (future)."
   [& body]
   `(.start (Thread. (fn [] ~@body))))
-
-(defn get-logger
-  ([] (get-logger (str *ns*)))
-  ([ns]
-     (LogManager/getLogger (str ns))))
 
 (defn split-str-at [len s]
   (map #(apply str %)
