@@ -65,13 +65,13 @@ specified in config.clj."
                    com-m
                    (str "\u0002" owner "/" name "\u0002"
                         ": " (cond
-                              branchdel? (str (:upper commit-type) " deleted: " branch)
-                              branchnew? (str (:upper commit-type) " created: " branch)
+                              branchdel? (str (:upper commit-type) " deleted: " branch ".")
+                              branchnew? (str (:upper commit-type) " created: " branch ".")
                               :else (str (count commits) " new commit(s) on " (:lower commit-type) " " branch ". Compare view at <" (shorten-url compare) ">."))
                         ;; Only report issues if there are some issues
                         ;; to report.
                         (if (> (:open_issues repository) 0)
-                          (str (:open_issues repository) " open issues remain.")))))
+                          (str " " (:open_issues repository) " open issues remain.")))))
                 ;; Grab first three commits from the message and pass to
                 ;; (notify-chan) to squawk.
                 (doseq [commit (take 3 commits)]
