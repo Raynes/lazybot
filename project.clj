@@ -1,6 +1,6 @@
 (defproject lazybot "0.7.0-alpha1"
   :description "FIXME: write"
-  :dependencies [[org.clojure/clojure "1.3.0"]
+  :dependencies [[org.clojure/clojure "1.4.0"]
                  [commons-lang/commons-lang "2.5"]
                  [commons-io/commons-io "1.4"]
                  [backtype/clj-time "0.3.2"]

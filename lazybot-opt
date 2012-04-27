@@ -1,1 +1,3 @@
-java -XX:ReservedCodeCacheSize=6m -Xms10m -Xmx120m -cp lib/*:src/ clojure.main -e "(use 'lazybot.run) (-main)"
+#!/bin/sh
+
+java -XX:ReservedCodeCacheSize=6m -Xms10m -Xmx120m -cp `lein classpath` clojure.main -e "(use 'lazybot.run) (-main)"
