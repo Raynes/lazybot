@@ -23,7 +23,7 @@
                  [hobbit "0.1.0-alpha1"]
                  [ororo "0.1.0"]
                  [socrates "0.0.1"]
-                 [innuendo "0.1.3"]
+                 [innuendo "0.1.4"]
                  [frinj "0.1.2"]]
   :uberjar-name "lazybot.jar"
   :main lazybot.run
