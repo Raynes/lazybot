@@ -31,7 +31,7 @@
       (str (and macro "Macro ") arglists "; " docs))))
 
 (def sb
-  (sandbox secure-tester
+  (sandbox (into secure-tester #{'somnium.congomongo 'clojail.core 'clojail.jvm})
            :transform pr-str
            :init '(defmacro doc [s]
                     (if (special-symbol? s)
