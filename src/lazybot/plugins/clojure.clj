@@ -1,6 +1,6 @@
 (ns lazybot.plugins.clojure
   (:use clojure.stacktrace
-        (clojail testers core)
+        (clojail testers core) ; What? What the fuck? Fix this. Fuck.
         lazybot.registry
         clojure.tools.logging
         [lazybot.utilities :only [on-thread verify trim-string shorten-url]]
@@ -31,7 +31,9 @@
       (str (and macro "Macro ") arglists "; " docs))))
 
 (def sb
-  (sandbox (into secure-tester #{'somnium.congomongo 'clojail.core 'clojail.jvm})
+  (sandbox (blanket secure-tester
+                    "somnium"
+                    "lazybot")
            :transform pr-str
            :init '(defmacro doc [s]
                     (if (special-symbol? s)
