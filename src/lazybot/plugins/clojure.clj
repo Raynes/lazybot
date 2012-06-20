@@ -33,7 +33,8 @@
 (def sb
   (sandbox (blanket secure-tester
                     "somnium"
-                    "lazybot")
+                    "lazybot"
+                    "irclj")
            :transform pr-str
            :init '(defmacro doc [s]
                     (if (special-symbol? s)
