@@ -50,15 +50,27 @@
     (str "<" user "> " expression "\n<" bot-name "> => ")
     s))
 
+(defn github-tag
+  "Build name of the clojure repo tag on github for current version."
+  []
+  (let [{:keys [major minor incremental qualifier]} *clojure-version*]
+    (format "%s%d.%d.%d%s"
+            (if (= [major minor] [1 2]) "" "clojure-")
+            major
+            minor
+            incremental
+            (if (nil? qualifier) "" (str "-" qualifier)))))
+
 (defn get-line-url [s]
   (let [s-meta (try (-> s symbol resolve meta) (catch Exception _ nil))
-        ns-str (str (:ns s-meta))]
+        ns-str (str (:ns s-meta))
+        file (:file s-meta)]
     (when-let [line (:line s-meta)]
       (shorten-url
-       (if-not (= "clojure.core" ns-str)
-         (str "https://github.com/clojure/clojure-contrib/tree/1.2.x/src/main/clojure/"
-              (:file s-meta) "#L" line)
-         (str "https://github.com/clojure/clojure/blob/1.2.x/src/clj/clojure/core.clj#L" line))))))
+       (format "https://github.com/clojure/clojure/tree/%s/src/clj/%s#L%d"
+               (github-tag)
+               file
+               line)))))
 
 (defn no-box [code bindings]
   (thunk-timeout #(with-bindings bindings (eval code)) 10000))
