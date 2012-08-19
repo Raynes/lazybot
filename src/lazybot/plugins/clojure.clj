@@ -98,8 +98,10 @@
       (catch Exception _))))
 
 (defmulti find-eval-request
-  "Search a target string for eval requests.
-Return a seq of strings to be evaluated. Usually this will be either nil or a one-element list, but it's possible for users to request evaluation of multiple forms with embedded specifiers, in which case it will be longer."
+  "Search a target string for eval requests. Return a seq of strings to be evaluated.
+   Usually this will be either nil or a one-element list, but it's possible for users
+   to request evaluation of multiple forms with embedded specifiers, in which case it
+   will be longer."
   {:arglists '([matcher target])}
   (fn [x & _] (class x)))
 
@@ -273,7 +275,7 @@ Return a seq of strings to be evaluated. Usually this will be either nil or a on
 
   (:cmd
    "Search clojuredocs for something."
-   #{"cd"}
+   #{"cd" "clojuredocs"}
    (fn [{:keys [args] :as com-m}]
      (if-let [results (seq (take 3 (apply cd/search args)))]
        (doseq [{:keys [url ns name]} results]
@@ -287,12 +289,9 @@ Return a seq of strings to be evaluated. Usually this will be either nil or a on
      (send-message
       com-m
       (if-let [args (if (> 2 (count args))
-                      (let [split-args (.split (first args) "/")]
+                      (let [split-args (.split (first args) "/")] 
                         (when (second split-args) split-args))
                       args)]
-        (if-let [results (:examples (apply cd/examples-core args))]
-          (paste (s/join "\n\n" (for [{:keys [body]} results]
-                                  (cd/remove-markdown body)))
-                 "Clojure")
-          "No results found.")
+        (or (:url (apply cd/examples-core args))
+        	"No results found.")
         "You must pass a name like clojure.core/foo or, as two arguments, clojure.core foo.")))))
