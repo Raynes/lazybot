@@ -271,27 +271,4 @@
    "(findarg map % [1 2 3] [2 3 4]) ;=> inc"
    #{"findarg"}
    (fn [{:keys [args] :as com-m}]
-     (send-message com-m (findfn-pluginfn find-arg (string/join " " args)))))
-
-  (:cmd
-   "Search clojuredocs for something."
-   #{"cd" "clojuredocs"}
-   (fn [{:keys [args] :as com-m}]
-     (if-let [results (seq (take 3 (apply cd/search args)))]
-       (doseq [{:keys [url ns name]} results]
-         (send-message com-m (format "%s/%s: %s" ns name url)))
-       (send-message com-m "No results found."))))
-
-  (:cmd
-   "Find an example usage of something on clojuredocs."
-   #{"examples"}
-   (fn [{:keys [args] :as com-m}]
-     (send-message
-      com-m
-      (if-let [args (if (> 2 (count args))
-                      (let [split-args (.split (first args) "/")] 
-                        (when (second split-args) split-args))
-                      args)]
-        (or (:url (apply cd/examples-core args))
-        	"No results found.")
-        "You must pass a name like clojure.core/foo or, as two arguments, clojure.core foo.")))))
+     (send-message com-m (findfn-pluginfn find-arg (string/join " " args))))))
