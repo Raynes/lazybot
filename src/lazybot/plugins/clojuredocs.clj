@@ -6,7 +6,7 @@
 (defplugin
   (:cmd
    "Search clojuredocs for something."
-   #{"cd"}
+   #{"search-cdocs" "cdocs-search" "cd-search"}
    (fn [{:keys [args] :as com-m}]
      (send-message
       com-m
@@ -17,7 +17,7 @@
 
   (:cmd
    "Find an example usage of something on clojuredocs."
-   #{"examples"}
+   #{"examples" "cdocs-examples"}
    (fn [{:keys [args] :as com-m}]
      (send-message
       com-m
