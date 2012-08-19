@@ -123,7 +123,6 @@ Return a seq of strings to be evaluated. Usually this will be either nil or a on
 (defn- default-prefixes [bot]
   (:defaults (eval-config-settings bot)))
 
-;; Make sure Pattern objects show up first
 (defn- pattern-comparator [a b]
   (let [ac (class a)
         bc (class b)]
@@ -157,7 +156,6 @@ Return a seq of strings to be evaluated. Usually this will be either nil or a on
           (for [form forms]
             (str (trim-string 40 (constantly "... ") form)
                  " " (execute-text box? bot-name user form pre))))))
-
 
 (def findfn-ns-set
   (map the-ns '#{clojure.core clojure.set clojure.string}))
