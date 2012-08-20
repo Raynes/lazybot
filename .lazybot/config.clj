@@ -1,7 +1,7 @@
 (let [plugins #{"dictionary" "lmgtfy" "google" "translate" "eball" "utils" "leet"
                 "clojure" "login" "log" "brainfuck" "whatis" "shorturl" "haskell"
                 "mail" "timer" "fortune" "rss" "title" "operator" "seen" "sed" "help"
-                "load" "embedded" "karma" "yesno" "autoreply" "weather"}]
+                "load" "embedded" "karma" "yesno" "autoreply" "weather" "unix-jokes"}]
   {:servers ["irc.freenode.net"]        ; A list of servers.
    :prepends #{"@"}   ; The character you want for a prepend. Currently set to @
    :weather {:token ""} ; Wunderground token.
