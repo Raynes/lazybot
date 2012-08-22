@@ -24,7 +24,8 @@
                  [ororo "0.1.0"]
                  [socrates "0.0.1"]
                  [innuendo "0.1.4"]
-                 [frinj "0.1.2"]]
+                 [frinj "0.1.2"]
+                 [tentacles "0.2.1"]]
   :uberjar-name "lazybot.jar"
   :main lazybot.run
   :copy-deps true

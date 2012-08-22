@@ -1,9 +1,10 @@
 (ns lazybot.plugins.github
-  (:use lazybot.registry
-        [lazybot.utilities :only [shorten-url]]
-        [compojure.core :only [POST]]
-        clojure.data.json)
-  (:require [clojure.string :as s])
+  (:require [lazybot.registry :refer [send-message defplugin]]
+            [lazybot.utilities :refer [shorten-url]]
+            [compojure.core :refer [POST]]
+            [clojure.data.json :refer [read-json Read-JSON-From]]
+            [clojure.string :as s]
+            [tentacles.issues :refer [specific-issue]])
   (:import java.net.InetAddress))
 
 (def bots (atom {}))
@@ -81,8 +82,33 @@ specified in config.clj."
      "These boots are made for walkin' and that's just what they'll do. "
      "One of these days these boots are gonna walk all over you."))
 
+(def issue-regex #"\w+\/\w+#\d+")
+
+(defn parse-issue
+  "Parse an issue message into its user, repo, and issue number parts."
+  [s]
+  (update-in
+   (zipmap [:user :repo :issue] (s/split s #"\/|#"))
+   [:issue]
+   #(Long. %)))
+
+(defn issue-message
+  "Create a message containing a link to the issue and the summary of
+   the issue."
+  [issue]
+  (let [issue (specific-issue (:user issue) (:repo issue) (:issue issue))]
+    (when-not (= 404 (:status issue))
+      (apply format "%s is %s: %s" ((juxt :html_url :state :title) issue)))))
+
 (defplugin
   (:init
    (fn [com bot]
      (swap! bots assoc (:server @com) {:com com :bot bot})))
-  (:routes (POST "/commits" req (handler req))))
+  (:routes (POST "/commits" req (handler req)))
+
+  (:hook
+   :on-message
+   (fn [{:keys [message] :as com-m}]
+     (when-let [match (re-find issue-regex message)]
+       (when-let [message (issue-message (parse-issue match))]
+         (send-message com-m message))))))
