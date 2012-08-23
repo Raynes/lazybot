@@ -4,7 +4,8 @@
             [compojure.core :refer [POST]]
             [clojure.data.json :refer [read-json Read-JSON-From]]
             [clojure.string :as s]
-            [tentacles.issues :refer [specific-issue]])
+            [tentacles.issues :refer [specific-issue]]
+            [useful.map :refer [update]])
   (:import java.net.InetAddress))
 
 (def bots (atom {}))
@@ -87,10 +88,9 @@ specified in config.clj."
 (defn parse-issue
   "Parse an issue message into its user, repo, and issue number parts."
   [s]
-  (update-in
-   (zipmap [:user :repo :issue] (s/split s #"\/|#"))
-   [:issue]
-   #(Long. %)))
+  (-> (zipmap [:user :repo :issue] 
+              (s/split s #"\/|#"))
+      (update :issue #(Long. %))))
 
 (defn issue-message
   "Create a message containing a link to the issue and the summary of
