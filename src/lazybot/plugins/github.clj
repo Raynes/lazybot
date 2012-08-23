@@ -98,7 +98,7 @@ specified in config.clj."
   [issue]
   (let [issue (specific-issue (:user issue) (:repo issue) (:issue issue))]
     (when-not (= 404 (:status issue))
-      (apply format "%s is %s: %s" ((juxt :html_url :state :title) issue)))))
+      (apply format "%s -- %s is %s" ((juxt :title :html_url :state) issue)))))
 
 (defplugin
   (:init
