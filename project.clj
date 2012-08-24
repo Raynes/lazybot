@@ -19,7 +19,7 @@
                  [org.clojure/tools.logging "0.2.3"]
                  [org.clojure/data.zip "0.1.0"]
                  [org.clojure/tools.cli "0.1.0"]
-                 [useful "0.8.4-alpha2"]
+                 [useful "0.8.4"]
                  [hobbit "0.1.0-alpha1"]
                  [ororo "0.1.0"]
                  [socrates "0.0.1"]
