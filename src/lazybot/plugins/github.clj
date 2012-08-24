@@ -5,7 +5,8 @@
             [clojure.data.json :refer [read-json Read-JSON-From]]
             [clojure.string :as s]
             [tentacles.issues :refer [specific-issue]]
-            [useful.map :refer [update]])
+            [useful.map :refer [update]]
+            [clojure.pprint :refer [pprint]])
   (:import java.net.InetAddress))
 
 (def bots (atom {}))
@@ -108,7 +109,8 @@ specified in config.clj."
 
   (:hook
    :on-message
-   (fn [{:keys [message] :as com-m}]
-     (when-let [match (re-find issue-regex message)]
-       (when-let [message (issue-message (parse-issue match))]
-         (send-message com-m message))))))
+   (fn [{:keys [message nick bot com] :as com-m}]
+     (when-not ((get-in @bot [:config (:server @com) :user-blacklist]) nick)
+       (when-let [match (re-find issue-regex message)]
+         (when-let [message (issue-message (parse-issue match))]
+           (send-message com-m message)))))))
