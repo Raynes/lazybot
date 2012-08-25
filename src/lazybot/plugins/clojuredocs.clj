@@ -6,7 +6,7 @@
 (defplugin
   (:cmd
    "Search clojuredocs for something."
-   #{"search-cdocs" "cdocs-search" "cd-search"}
+   #{"search-cdocs" "cdocs-search" "cd-search" "clojuredocs"}
    (fn [{:keys [args] :as com-m}]
      (send-message
       com-m
