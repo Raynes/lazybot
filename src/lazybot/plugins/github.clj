@@ -84,7 +84,7 @@ specified in config.clj."
      "These boots are made for walkin' and that's just what they'll do. "
      "One of these days these boots are gonna walk all over you."))
 
-(def issue-regex #"\w+\/\w+#\d+")
+(def issue-regex #"[\w-]+\/[\w-]+#\d+")
 
 (defn parse-issue
   "Parse an issue message into its user, repo, and issue number parts."
