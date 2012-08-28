@@ -84,7 +84,10 @@ specified in config.clj."
      "These boots are made for walkin' and that's just what they'll do. "
      "One of these days these boots are gonna walk all over you."))
 
-(def issue-regex #"[\w-]+\/[\w-]+#\d+")
+(defn extract-issues
+  "Extract issues out of a message."
+  [message]
+  (re-seq #"[\w-]+\/[\w-]+#\d+" message))
 
 (defn parse-issue
   "Parse an issue message into its user, repo, and issue number parts."
@@ -111,6 +114,6 @@ specified in config.clj."
    :on-message
    (fn [{:keys [message nick bot com] :as com-m}]
      (when-not ((get-in @bot [:config (:server @com) :user-blacklist]) nick)
-       (when-let [match (re-find issue-regex message)]
-         (when-let [message (issue-message (parse-issue match))]
+       (doseq [issue (extract-issues message)]
+         (when-let [message (issue-message (parse-issue issue))]
            (send-message com-m message)))))))
