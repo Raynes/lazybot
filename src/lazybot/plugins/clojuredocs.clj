@@ -11,7 +11,7 @@
      (send-message
       com-m
       (if-let [results (seq (take 5 (apply cd/search args)))]
-        (join "; " (for [{:keys [url ns name]} (reverse (sort-by :id results))]
+        (join "  " (for [{:keys [url ns name]} (reverse (sort-by :id results))]
                      (format "%s/%s: %s" ns name url)))
         "No results found."))))
 
