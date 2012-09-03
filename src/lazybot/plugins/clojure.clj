@@ -31,10 +31,10 @@
       (str (and macro "Macro ") arglists "; " docs))))
 
 (def sb
-  (sandbox (blanket secure-tester
-                    "somnium"
-                    "lazybot"
-                    "irclj")
+  (sandbox (conj secure-tester
+                 (blanket "somnium"
+                          "lazybot"
+                          "irclj"))
            :transform pr-str
            :init '(defmacro doc [s]
                     (if (special-symbol? s)
