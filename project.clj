@@ -25,7 +25,8 @@
                  [socrates "0.0.1"]
                  [innuendo "0.1.4"]
                  [frinj "0.1.2"]
-                 [tentacles "0.2.1"]]
+                 [tentacles "0.2.1"]
+                 [findfn "0.1.2"]]
   :uberjar-name "lazybot.jar"
   :main lazybot.run
   :copy-deps true

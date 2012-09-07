@@ -5,7 +5,8 @@
         clojure.tools.logging
         [lazybot.utilities :only [on-thread verify trim-string shorten-url]]
         [lazybot.paste :only [trim-with-paste paste]]
-        [useful.fn :only [fix]])
+        [useful.fn :only [fix]]
+        [findfn.core :only [find-fn find-arg read-arg-string]])
   (:require [clojure.string :as string :only [replace]]
             [clojure.walk :as walk]
             [cd-client.core :as cd]
@@ -159,66 +160,9 @@
             (str (trim-string 40 (constantly "... ") form)
                  " " (execute-text box? bot-name user form pre))))))
 
-(def findfn-ns-set
-  (map the-ns '#{clojure.core clojure.set clojure.string}))
-
-(defn fn-name [var]
-  (apply symbol (map str
-                     ((juxt (comp ns-name :ns)
-                            :name)
-                      (meta var)))))
-
-(defn filter-vars [testfn]
-  (for [f (remove (comp secure-tester :name meta)
-                  (mapcat (comp vals ns-publics) findfn-ns-set))
-        :when (try
-               (thunk-timeout
-                #(binding [*out* (java.io.StringWriter.)]
-                   (testfn f))
-                50 :ms eagerly-consume)
-               (catch Throwable _# nil))]
-    (fn-name f)))
-
-(defn find-fn [out & in]
-  (debug (str "out:[" out "], in[" in "]"))
-  (filter-vars
-   (fn [f]
-     (= out
-        (apply
-         (if (-> f meta :macro)
-           (fn [& args]
-             (eval `(~f ~@args)))
-           f)
-         in)))))
-
-(defn find-arg [out & in]
-  (debug (str "out:[" out "], in[" in "]"))
-  (filter-vars
-   (fn [f]
-     (when-not (-> f meta :macro)
-       (= out
-          (eval `(let [~'% ~f]
-                   (~@in))))))))
-
-(defn read-findfn-args
-  "From an input string like \"in1 in2 in3 out\", return a vector of [out
-  in1 in2 in3], for use in findfn."
-  [argstr]
-  (apply concat
-         ((juxt (comp list last) butlast)
-          (with-in-str argstr
-            (let [sentinel (Object.)]
-              (doall
-               (take-while (complement #{sentinel})
-                           (repeatedly
-                            #(try
-                               (safe-read)
-                               (catch LispReader$ReaderException _
-                                 sentinel))))))))))
-
 (defn findfn-pluginfn [f argstr]
   (try
-    (let [argvec (vec (walk/postwalk-replace {'% ''%} (read-findfn-args argstr)))
+    (let [argvec (vec (walk/postwalk-replace {'% ''%} (read-arg-string argstr)))
           _ (sb argvec)       ; a lame hack to get sandbox
                               ; guarantees on eval-ing the user's args
           user-args (eval argvec)]
