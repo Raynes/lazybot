@@ -35,7 +35,8 @@
   (conj secure-tester
         (blanket "somnium"
                  "lazybot"
-                 "irclj")))
+                 "irclj"
+                 "findfn")))
 
 (def sb
   (sandbox tester
