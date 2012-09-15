@@ -31,11 +31,14 @@
           docs (and docs (string/replace docs #"\s+" " "))]
       (str (and macro "Macro ") arglists "; " docs))))
 
+(def tester
+  (conj secure-tester
+        (blanket "somnium"
+                 "lazybot"
+                 "irclj")))
+
 (def sb
-  (sandbox (conj secure-tester
-                 (blanket "somnium"
-                          "lazybot"
-                          "irclj"))
+  (sandbox tester
            :transform pr-str
            :init '(defmacro doc [s]
                     (if (special-symbol? s)
@@ -166,7 +169,7 @@
           _ (sb argvec)       ; a lame hack to get sandbox
                               ; guarantees on eval-ing the user's args
           user-args (eval argvec)]
-      (->> user-args (apply f) vec str trim-with-paste))
+      (->> user-args (apply f tester) vec str trim-with-paste))
     (catch Throwable e
       (.getMessage e))))
 

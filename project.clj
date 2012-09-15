@@ -4,7 +4,7 @@
                  [commons-lang/commons-lang "2.5"]
                  [commons-io/commons-io "1.4"]
                  [backtype/clj-time "0.3.2"]
-                 [clojail "1.0.1"]
+                 [clojail "1.0.3"]
                  [clj-http "0.2.6"]
                  [irclj "0.4.1"]
                  [congomongo "0.1.9"]
@@ -26,7 +26,7 @@
                  [innuendo "0.1.4"]
                  [frinj "0.1.2"]
                  [tentacles "0.2.1"]
-                 [findfn "0.1.2"]]
+                 [findfn "0.1.3"]]
   :uberjar-name "lazybot.jar"
   :main lazybot.run
   :copy-deps true
