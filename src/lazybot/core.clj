@@ -29,7 +29,8 @@
   "Call all hooks of a specific type."
   [{bot :bot :as ircm} hook-key]
   (doseq [hook (pull-hooks bot hook-key)]
-    (hook ircm)))
+    (when-not (ignore-message? ircm)
+      (hook ircm))))
 
 ;; Note that even the actual handling of commands is done via a hook.
 (def initial-hooks

@@ -70,27 +70,33 @@
       :else ircb/send-message)
      com channel result)))
 
+(defn ignore-message? [{:keys [nick bot com]}]
+  (-> @bot
+      (get-in [:config (:server @com) :user-blacklist])
+      (contains? (.toLowerCase nick))))
+
 (defn try-handle [{:keys [nick channel bot message] :as com-m}]
-  (on-thread
-   (let [conf (:config @bot)
-         query? (= channel nick)
-         max-ops (:max-operations conf)]
-     (when (or (is-command? message (:prepends conf)) query?)
-       (if (dosync
-            (let [pending (:pending-ops @bot)
-                  permitted (< pending max-ops)]
-              (when permitted
-                (alter bot assoc :pending-ops (inc pending)))))
-         (try
-           (let [n-bmap (into com-m (split-args conf message query?))]
-             (thunk-timeout #((respond n-bmap) n-bmap)
-                            30 :sec))
-           (catch TimeoutException _ (send-message com-m "Execution timed out."))
-           (catch Exception e (.printStackTrace e))
-           (finally
-            (dosync
-             (alter bot assoc :pending-ops (dec (:pending-ops @bot))))))
-         (send-message com-m "Too much is happening at once. Wait until other operations cease."))))))
+  (when-not (ignore-message? com-m)
+    (on-thread
+     (let [conf (:config @bot)
+           query? (= channel nick)
+           max-ops (:max-operations conf)]
+       (when (or (is-command? message (:prepends conf)) query?)
+         (if (dosync
+              (let [pending (:pending-ops @bot)
+                    permitted (< pending max-ops)]
+                (when permitted
+                  (alter bot assoc :pending-ops (inc pending)))))
+           (try
+             (let [n-bmap (into com-m (split-args conf message query?))]
+               (thunk-timeout #((respond n-bmap) n-bmap)
+                              30 :sec))
+             (catch TimeoutException _ (send-message com-m "Execution timed out."))
+             (catch Exception e (.printStackTrace e))
+             (finally
+               (dosync
+                (alter bot assoc :pending-ops (dec (:pending-ops @bot))))))
+           (send-message com-m "Too much is happening at once. Wait until other operations cease.")))))))
 
 ;; ## Plugin DSL
 (defn merge-with-conj [& args]
