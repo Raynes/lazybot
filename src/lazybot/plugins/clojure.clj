@@ -10,6 +10,7 @@
   (:require [clojure.string :as string :only [replace]]
             [clojure.walk :as walk]
             [cd-client.core :as cd]
+            [me.raynes.laser :as l]
             ; these requires are for findfn
             [clojure.string :as s]
             clojure.set
@@ -219,4 +220,25 @@
    "(findarg map % [1 2 3] [2 3 4]) ;=> inc"
    #{"findarg"}
    (fn [{:keys [args] :as com-m}]
-     (send-message com-m (findfn-pluginfn find-arg (string/join " " args))))))
+     (send-message com-m (findfn-pluginfn find-arg (string/join " " args)))))
+
+  (:cmd
+   "Look up the latest version of something on clojars."
+   #{"latest"}
+   (fn [{:keys [args] :as com-m}]
+     (send-message com-m
+                   (try
+                     (let [project (first args)
+                           link (str "https://clojars.org/" project)]
+                       (str
+                        "[" project " \""
+                        (-> (l/select (l/parse (slurp link))
+                                      (l/descendant-of
+                                       (l/id= "versions")
+                                       (l/element= :a)))
+                            first
+                            :content
+                            first)
+                        "\"] -- " link))
+                     (catch java.io.FileNotFoundException _
+                       "No project by this name exists on clojars."))))))
