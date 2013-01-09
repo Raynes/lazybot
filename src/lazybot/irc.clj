@@ -17,10 +17,10 @@
            (map
             (decorate
              #(fn [irc-map]
-                (core/call-all
-                 (dissoc
-                  (assoc irc-map :bot refzors :com (:irc irc-map)) :irc)
-                 %)))
+                (core/call-all (-> irc-map
+                                   (assoc :bot refzors :com (:irc irc-map))
+                                   (dissoc :irc))
+                               %)))
             [:on-any :on-message :on-quit :on-join]))
      refzors]))
 
