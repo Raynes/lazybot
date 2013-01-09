@@ -2,16 +2,14 @@
   (:require [lazybot.registry :refer [send-message defplugin]]
             [lazybot.utilities :refer [shorten-url]]
             [compojure.core :refer [POST]]
-            [clojure.data.json :refer [read-json Read-JSON-From]]
             [clojure.string :as s]
             [tentacles.issues :refer [specific-issue]]
             [useful.map :refer [update]]
-            [clojure.pprint :refer [pprint]])
+            [clojure.pprint :refer [pprint]]
+            [cheshire.core :refer [parse-string]])
   (:import java.net.InetAddress))
 
 (def bots (atom {}))
-
-(extend nil Read-JSON-From {:read-json-from (constantly nil)})
 
 (defn grab-config [] (-> @bots vals first :bot deref :config :github))
 
@@ -40,7 +38,7 @@ specified in config.clj."
       ;; Though `req` is a proper Clojure map, its :form-params key has a
       ;; JSON string as its value, which we parse out into a map.
       (let [{:keys [before repository commits after compare ref deleted] :as payload}
-            (read-json ((:form-params req) "payload"))
+            (parse-string ((:form-params req) "payload"))
             config (:commits (grab-config))]
         (when-let [conf (and payload (config (:url repository)))]
           (doseq [[server channels] conf]

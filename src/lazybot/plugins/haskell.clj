@@ -1,9 +1,9 @@
 (ns lazybot.plugins.haskell
-  (:use [lazybot registry]
-        [clojure.data.json :only [read-json]]
-        [clojure.java.shell :only [sh]]
-        [lazybot.paste :only [trim-with-paste]])
-  (:require [clj-http.client :as http]))
+  (:require [lazybot.registry :refer [send-message defplugin]]
+            [cheshire.core :refer [parse-string]]
+            [clojure.java.shell :refer [sh]]
+            [lazybot.paste :refer [trim-with-paste]]
+            [clj-http.client :as http]))
 
 (def tryurl "http://tryhaskell.org/haskell.json")
 
@@ -18,7 +18,7 @@
 (defn eval-haskell [expr]
   (->> (http/get tryurl {:query-params {"method" "eval" "expr" expr}})
        :body
-       read-json
+       parse-string
        cull
        (apply str)))
 

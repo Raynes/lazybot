@@ -1,7 +1,8 @@
 (ns lazybot.plugins.google
-  (:use [lazybot registry [utilities :only [trim-string]]]
-        [clojure.data.json :only [read-json]])
-  (:require [clojure.string :as s]
+  (:require [lazybot.registry :refer [defplugin send-message]]
+            [lazybot.utilities :refer [trim-string]]
+            [cheshire.core :refer [parse-string]] 
+            [clojure.string :as s]
             [clj-http.client :as http])
   (:import org.apache.commons.lang.StringEscapeUtils
            java.net.URLDecoder))
@@ -10,7 +11,7 @@
   (-> (http/get "http://ajax.googleapis.com/ajax/services/search/web"
                 {:query-params {"v" "1.0" "q" term}})
       :body
-      read-json))
+      parse-string))
 
 (defn cull [result-set]
   [(:estimatedResultCount (:cursor (:responseData result-set)))
