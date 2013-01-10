@@ -237,8 +237,7 @@
                                        (l/id= "versions")
                                        (l/element= :a)))
                             first
-                            :content
-                            first)
+                            l/text)
                         "\"] -- " link))
                      (catch java.io.FileNotFoundException _
                        "No project by this name exists on clojars."))))))

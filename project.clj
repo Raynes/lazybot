@@ -27,7 +27,7 @@
                  [frinj "0.1.2"]
                  [tentacles "0.2.1"]
                  [findfn "0.1.3"]
-                 [me.raynes/laser "0.1.15"]]
+                 [me.raynes/laser "0.1.16"]]
   :uberjar-name "lazybot.jar"
   :main lazybot.run
   :copy-deps true
