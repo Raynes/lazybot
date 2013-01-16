@@ -13,22 +13,20 @@
       :body
       parse-string))
 
-(defn cull [result-set]
-  [(:estimatedResultCount (:cursor (:responseData result-set)))
-   (first (:results (:responseData result-set)))])
-
 (defn handle-search [{:keys [args] :as com-m}]
   (send-message com-m
                 (let [argstr (s/join " " args)]
                   (if-not (seq (s/trim argstr))
                     (str "No search term!")
-                    (let [[res-count {title :titleNoFormatting
-                                      url :url}] (-> argstr google cull)]
-                      (str "["
-                           (trim-string 80 (constantly "...")
-                                        (StringEscapeUtils/unescapeHtml title))
-                           "] "
-                           (URLDecoder/decode url "UTF-8")))))))
+                    (let [results (google argstr)
+                          {:strs [url titleNoFormatting]} (first (get-in results ["responseData" "results"]))
+                          res-count (get-in results ["responseData" "cursor" "estimatedResultCount"])]
+                      (if (and results url)
+                        (str "["
+                             (trim-string 80 (constantly "...")
+                                          (StringEscapeUtils/unescapeHtml titleNoFormatting))
+                             "] "
+                             (URLDecoder/decode url "UTF-8"))))))))
 
 (defplugin
   (:cmd
