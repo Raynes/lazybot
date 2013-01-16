@@ -8,7 +8,8 @@
 (def tryurl "http://tryhaskell.org/haskell.json")
 
 (defn cull [js]
-  (if-let [result (seq (:result js))] result (:error js)))
+  (or (seq (get js "result"))
+      (get js "error")))
 
 (def cap 300)
 
