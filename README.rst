@@ -1,3 +1,21 @@
+DirectEmployers LazyBot Fork
+============================
+Contains specific implementation and modifications to lazybot for use with Directemployers Porjects. 
+
+Modification made in this fork are copyright (C) 2012-2013, DirectEmployers Foundation and are provided under
+a triple license that allows you to select the license that is best for your
+needs. You may choose from:
+
+- The GNU GPL v2.0
+- The GNU GPL v3.0
+- The MIT License
+
+The original lazybot code is licensed under the same thing Clojure is licensed under, [the EPL](http://www.eclipse.org/legal/epl-v10.html). You can read the licenses in the licenses directory.
+
+More information
+----------------
+Information about DirectEmployers Foundation can be found at http://directemployersfoundation.org
+
 # lazybot
 
 [lazybot](http://github.com/Raynes/lazybot) is an IRC bot written in Clojure. Under the hood, it uses [irclj](http://github.com/Raynes/irclj) for talking to IRC. The bot is highly extensible via plugins. Plugins are written in Clojure, using a lightweight DSL. There are already plugins for tons of stuff, including Haskell and Clojure code evaluation, googling, and using the bot as an operator bot. You can view all of the plugins in src/lazybot/plugins.
