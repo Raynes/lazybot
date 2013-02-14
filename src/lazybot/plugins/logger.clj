@@ -98,17 +98,21 @@
 (defn hiccup-line
   "Format a log line as hiccup"
   [line]
-  (let [[_ time action nick message]
-                (re-matches #"\[(.+?)\] (\*?)(.+?):? (.+)" line)
-        time    (escape-html time)
-        nick    (escape-html nick)
-        message (escape-html message)]
-    (concat
-      (list "[" [:span.time time] "] ")
-      (if (empty? action)
-        (list [:span.nick nick] ": " [:span.message message])
-        (list [:span.action
-               [:span.nick nick] " " [:span.message message]])))))
+  (let [[parsed time action nick message]
+        (re-matches #"\[(.+?)\] (\*?)(.+?):? (.+)" line)]
+    (if (nil? parsed)
+      ; Just dump the line unchanged.
+      (escape-html line)
+      ; Format components as HTML
+      (let [time    (escape-html time)
+            nick    (escape-html nick)
+            message (escape-html message)] 
+        (concat
+          (list "[" [:span.time time] "] ")
+          (if (empty? action)
+            (list [:span.nick nick] ": " [:span.message message])
+            (list [:span.action
+                   [:span.nick nick] " " [:span.message message]]))))))) 
 
 (defn html-log
   "An HTML representation of a log file."
