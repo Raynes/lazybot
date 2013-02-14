@@ -2,10 +2,11 @@
   (:use [lazybot registry]
         [clj-time.core :only [now from-time-zone time-zone-for-offset]]
         [clj-time.format :only [unparse formatters]]
-        [clojure.java.io :only [file]]
+        [clojure.java.io :only [file reader]]
         [clojure.string :only [join]]
         [compojure.core :only [routes]]
-        [hiccup.page :only [html5]])
+        [hiccup.page :only [html5]] 
+        [hiccup.util :only [escape-html]])
   (:require [compojure.core :refer [GET]]
             [clj-http.util])
   (:import [java.io File]))
@@ -94,21 +95,64 @@
        [:title title]]
       [:body content])))
 
-(defn file-index
-  "A Ring response for a specific log file."
-  [server channel file]
-  (let [file (first (filter #(= file (.getName %))
-                            (log-files server channel)))]
-    (when file
-      {:status 200
-       :headers {"Content-Type" "text/plain; charset=UTF-8"}
-       :body file})))
+(defn hiccup-line
+  "Format a log line as hiccup"
+  [line]
+  (let [[parsed time action nick message]
+        (re-matches #"\[(.+?)\] (\*?)(.+?):? (.+)" line)]
+    (if (nil? parsed)
+      ; Just dump the line unchanged.
+      (escape-html line)
+      ; Format components as HTML
+      (let [time    (escape-html time)
+            nick    (escape-html nick)
+            message (escape-html message)] 
+        (concat
+          (list "[" [:span.time time] "] ")
+          (if (empty? action)
+            (list [:span.nick nick] ": " [:span.message message])
+            (list [:span.action
+                   [:span.nick nick] " " [:span.message message]]))))))) 
 
-(defn channel-index
+(defn html-log
+  "An HTML representation of a log file."
+  [server channel log file]
+  (let [date ((re-matches #"(.+)\.txt$" log) 1)]
+    (layout (str channel " " date)
+            (list [:h1 channel " " date]
+                  [:pre
+                   (with-open [rdr (reader file)]
+                     (doall
+                       (interpose "\n"
+                                  (map hiccup-line (line-seq rdr)))))]))))
+
+(defn log-page
+  "A Ring response for a specific log file."
+  [server channel log req]
+  (let [file (first (filter #(= log (.getName %))
+                            (log-files server channel)))
+        accept (get-in req [:headers "accept"])
+        accept? #(re-find (re-pattern (str "^" %)) accept)]
+    (when file
+      (cond
+        (accept? "text/html")
+        {:status 200
+         :headers {"Content-Type" "text/html; charset=UTF-8"}
+         :body (html-log server channel log file)}
+
+        ; Plain text
+        :else
+        {:status 200
+         :headers {"Content-Type" "text/plain; charset=UTF-8"}
+         :body file}))))
+
+(defn channel-page
   "A hiccup doc describing logs on a server and channel."
   [server channel]
   (when (log-dir server channel)
-    (let [logs (map #(.getName %) (log-files server channel))]
+    (let [logs (->> (log-files server channel)
+                    (map #(.getName %))
+                    (sort))]
       (list
         [:h1 "Logs for " channel " on " server]
         [:ol
@@ -116,7 +160,7 @@
                 [:li (link log server channel log)])
               logs)]))))
 
-(defn server-index
+(defn server-page
   "A hiccup doc describing logs on a server."
   [server]
   (when (some #{server} (servers))
@@ -125,14 +169,14 @@
       [:ul
        (map (fn [channel]
               [:li (link channel server channel)])
-            (channels server))])))
+            (sort (channels server)))])))
 
 (defn index
   "Renders an HTTP index of available logs."
   [req]
   (layout "IRC Logs"
           (cons [:h1 "All channel logs"]
-                (mapcat server-index (servers)))))
+                (mapcat server-page (sort (servers))))))
 
 (def pathreg #"[^\/]+")
 
@@ -140,19 +184,19 @@
   (:routes (routes
              (GET "/logger" req (index req))
              (GET ["/logger/:server" :server pathreg] [server]
-                  (layout server (server-index server)))
+                  (layout server (server-page server)))
              (GET ["/logger/:server/:channel"
                    :server pathreg
                    :channel pathreg]
                   [server channel]
                   (layout (str server channel)
-                          (channel-index server channel)))
-             (GET ["/logger/:server/:channel/:file"
+                          (channel-page server channel)))
+             (GET ["/logger/:server/:channel/:log"
                    :server pathreg
                    :channel pathreg
-                   :file pathreg]
-                  [server channel file]
-                  (file-index server channel file))
+                   :log pathreg]
+                  [server channel log :as req]
+                  (log-page server channel log req))
              (constantly error-404)))
   (:hook :on-message #'log-message)
   (:hook
