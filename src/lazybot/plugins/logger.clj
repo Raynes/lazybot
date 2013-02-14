@@ -147,8 +147,8 @@
   [server channel]
   (when (log-dir server channel)
     (let [logs (->> (log-files server channel)
-                 (map #(.getName %))
-                 (sort))]
+                    (map #(.getName %))
+                    (sort))]
       (list
         [:h1 "Logs for " channel " on " server]
         [:ol
