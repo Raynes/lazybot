@@ -108,7 +108,9 @@
   "A hiccup doc describing logs on a server and channel."
   [server channel]
   (when (log-dir server channel)
-    (let [logs (map #(.getName %) (log-files server channel))]
+    (let [logs (->> (log-files server channel)
+                 (map #(.getName %))
+                 (sort))]
       (list
         [:h1 "Logs for " channel " on " server]
         [:ol
@@ -125,14 +127,14 @@
       [:ul
        (map (fn [channel]
               [:li (link channel server channel)])
-            (channels server))])))
+            (sort (channels server)))])))
 
 (defn index
   "Renders an HTTP index of available logs."
   [req]
   (layout "IRC Logs"
           (cons [:h1 "All channel logs"]
-                (mapcat server-index (servers)))))
+                (mapcat server-index (sort (servers))))))
 
 (def pathreg #"[^\/]+")
 
