@@ -231,13 +231,13 @@
                      (let [project (first args)
                            link (str "https://clojars.org/" project)]
                        (str
-                        "[" project " \""
+                        "[" project
                         (-> (l/select (l/parse (slurp link))
                                       (l/descendant-of
-                                       (l/id= "versions")
-                                       (l/element= :a)))
+                                       (l/class= "lein")
+                                       (l/class= "string")))
                             first
                             l/text)
-                        "\"] -- " link))
+                        "] -- " link))
                      (catch java.io.FileNotFoundException _
                        "No project by this name exists on clojars."))))))
