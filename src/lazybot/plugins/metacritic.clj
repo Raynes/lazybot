@@ -17,7 +17,9 @@
 (defn metacritic [args]
   (let [[type & args] args
         path (str url (paths type) (normalize args))]
-    (if-let [html (try (l/parse (slurp path))
+    (if-let [html (try (let [html (l/parse (slurp path))]
+                         (when-not (seq (l/select html (l/class= "error_code")))
+                           html))
                        (catch Exception _))]
       (let [[critic user] (map (comp l/text first)
                                [(l/select html 
