@@ -35,8 +35,8 @@
 
 (defplugin
   (:cmd
-   "Look up scores for a game, movie, or album on metacritic. Pass the type of thing it is.
-    This can be movie, xbox, ps3, pc, or album."
+   "Look up scores for a game or movie on metacritic. Pass the type of thing it is.
+    This can be movie, xbox, ps3, or pc."
    #{"metacritic"}
    (fn [{:keys [args] :as com-m}]
      (send-message com-m (metacritic args)))))
