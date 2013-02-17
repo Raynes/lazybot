@@ -25,7 +25,7 @@
 
   (:cmd
    "Lists all the plugins that are currently loaded. ADMIN ONLY!"
-   #{"loaded?"}
+   #{"loaded"}
    (fn [{:keys [bot nick args] :as com-m}]
      (when-privs com-m :admin
                (send-message com-m
