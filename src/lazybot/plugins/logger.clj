@@ -112,9 +112,9 @@
       (list
         [:h1 "Logs for " channel " on " server]
         [:ol
-         (map (fn [log]
-                [:li (link log server channel log)])
-              logs)]))))
+         (->> logs
+              (sort (fn [a b] (compare b a)))
+              (map (fn [log] [:li (link log server channel log)])))]))))
 
 (defn server-index
   "A hiccup doc describing logs on a server."
