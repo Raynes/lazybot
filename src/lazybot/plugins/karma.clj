@@ -38,7 +38,7 @@
     (when apply
       (set-karma snick (:server @com) channel new-karma)
       (future (Thread/sleep 300000)
-              (alter limit update-in [nick snick] dec)))
+              (dosync (alter limit update-in [nick snick] dec))))
     (send-message com-m msg)))
 
 (defn karma-fn
