@@ -28,8 +28,8 @@
 (defn call-all
   "Call all hooks of a specific type."
   [{bot :bot :as ircm} hook-key]
-  (doseq [hook (pull-hooks bot hook-key)]
-    (when-not (ignore-message? ircm)
+  (when-not (ignore-message? ircm)
+    (doseq [hook (pull-hooks bot hook-key)]
       (hook ircm))))
 
 ;; Note that even the actual handling of commands is done via a hook.
