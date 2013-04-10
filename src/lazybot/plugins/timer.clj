@@ -44,7 +44,7 @@
    #{"timer"}
    (fn [{:keys [bot channel args nick] :as com-m}]
      (let [ctime (now)
-           args (-> args (->> (s/join " ")) (s/split #"[: ]+"))
+           args (-> args (->> (s/join " ")) (s/split #"[: ]+" 3))
            [time message] (split-at 3 args)
            [hour minute sec] (map #(Integer/parseInt %) time)
            newt (plus ctime (hours hour) (minutes minute) (secs sec))
