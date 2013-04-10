@@ -14,35 +14,35 @@
   "Returns the current config."
   []
   (-> lazybot.core/bots
-    deref
-    first
-    val
-    :bot
-    deref
-    :config))
+      deref
+      first
+      val
+      :bot
+      deref
+      :config))
 
 (defn servers
   "Returns a list of all servers with logging enabled."
   ([] (servers (config)))
   ([config]
-   (map key (filter (fn [[server config]]
-                      (and (string? server)
-                           (some #{"logger"} (:plugins config))))
-                    config))))
+     (map key (filter (fn [[server config]]
+                        (and (string? server)
+                             (some #{"logger"} (:plugins config))))
+                      config))))
 
 (defn channels
   "Returns a list of all channels on a given server."
   ([server] (channels (config) server))
   ([config server]
-   (get-in config [server :log])))
+     (get-in config [server :log])))
 
 (defn log-dir
   "The log directory for a particular server and channel, if one exists."
   ([server channel] (log-dir (config) server channel))
   ([config server channel]
-   (let [short-channel (apply str (remove #(= % \#) channel))]
-     (when (get-in config [server :log channel])
-       (file (:log-dir (config server)) server short-channel)))))
+     (let [short-channel (apply str (remove #(= % \#) channel))]
+       (when (get-in config [server :log channel])
+         (file (:log-dir (config server)) server short-channel)))))
 
 (defn log-files
   "A list of log files for a server and channel."
@@ -110,22 +110,22 @@
   (when (log-dir server channel)
     (let [logs (map #(.getName %) (log-files server channel))]
       (list
-        [:h1 "Logs for " channel " on " server]
-        [:ol
-         (->> logs
-              (sort (fn [a b] (compare b a)))
-              (map (fn [log] [:li (link log server channel log)])))]))))
+       [:h1 "Logs for " channel " on " server]
+       [:ol
+        (->> logs
+             (sort (fn [a b] (compare b a)))
+             (map (fn [log] [:li (link log server channel log)])))]))))
 
 (defn server-index
   "A hiccup doc describing logs on a server."
   [server]
   (when (some #{server} (servers))
     (list
-      [:h2 "Channels on " server]
-      [:ul
-       (map (fn [channel]
-              [:li (link channel server channel)])
-            (channels server))])))
+     [:h2 "Channels on " server]
+     [:ul
+      (map (fn [channel]
+             [:li (link channel server channel)])
+           (channels server))])))
 
 (defn index
   "Renders an HTTP index of available logs."
@@ -156,8 +156,8 @@
              (constantly error-404)))
   (:hook :on-message #'log-message)
   (:hook
-    :on-send-message
-    (fn [com bot channel message action?]
-      (log-message {:com com :bot bot :channel channel :message message
-                    :nick (:name @com) :action? action?})
+   :on-send-message
+   (fn [com bot channel message action?]
+     (log-message {:com com :bot bot :channel channel :message message
+                   :nick (:name @com) :action? action?})
      message)))

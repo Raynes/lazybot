@@ -1,6 +1,6 @@
 (ns lazybot.core
   (:use [lazybot registry info]
-	[clojure.stacktrace :only [root-cause]]
+        [clojure.stacktrace :only [root-cause]]
         [somnium.congomongo :only [mongo!]]
         [clojure.set :only [intersection]]
         [compojure.core :only [routes]]
@@ -61,7 +61,7 @@
     (load-plugin irc refzors plugin)
     true
     (catch Exception e false)))
- 
+
 (defn load-plugins
   "Load all plugins specified in the bot's configuration."
   [irc refzors]

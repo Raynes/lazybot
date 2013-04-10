@@ -8,7 +8,7 @@
             [somnium.congomongo :as mongo])
   (:import java.util.concurrent.TimeoutException))
 
-;; ## Hook handling 
+;; ## Hook handling
 (defn pull-hooks [bot hook-key]
   (map :fn
        (hook-key
