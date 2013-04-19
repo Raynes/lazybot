@@ -38,12 +38,12 @@
                                      [:recenttracks :track]))]
       (format "%s %s: %s - %s [%s]"
               user
-              (if (= "true" (get-in latest [(keyword "@attr") :nowplaying]))
+              (if (= "true" (get-in latest [:attr :nowplaying]))
                 "is listening to"
                 "last listened to")
-              (get-in latest [:artist :#text])
+              (get-in latest [:artist :text])
               (:name latest)
-              (get-in latest [:album :#text])))))
+              (get-in latest [:album :text])))))
 
 (defplugin
   (:cmd

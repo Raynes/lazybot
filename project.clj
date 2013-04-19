@@ -30,7 +30,7 @@
                  [findfn "0.1.3"]
                  [me.raynes/laser "0.1.16"]
                  [hiccup "1.0.2"]
-                 [me.raynes/least "0.1.2"]]
+                 [me.raynes/least "0.1.3"]]
   :uberjar-name "lazybot.jar"
   :main lazybot.run
   :copy-deps true
