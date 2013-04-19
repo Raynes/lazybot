@@ -29,8 +29,11 @@
 (defn get-api-key [bot]
   (get-in @bot [:config :lastfm :api-key]))
 
+(defn get-association [server nick & [not-found]]
+  (get-in @associations [server nick] not-found))
+
 (defn get-latest-song [bot server nick]
-  (let [user (get-in @associations [server nick] nick)]
+  (let [user (get-association server nick nick)]
     (when-let [latest (first (get-in (least/read "user.getRecentTracks"
                                                  (get-api-key bot)
                                                  {:user user 
@@ -64,4 +67,14 @@
         (if-let [user (first args)]
           (do (add-assoc (:server @com) nick user)
               "Associated your username.")
-          "Well, I can't guess your username. I need an argument, please.")))))
+          "Well, I can't guess your username. I need an argument, please."))))
+  
+  (:cmd
+    "Find out what username is associated with a given nickname."
+    #{"lfmuser"}
+    (fn [{:keys [com args] :as com-m}]
+      (send-message
+        com-m
+        (if-let [user (get-association (:server @com) (first args))]
+          (str "http://last.fm/user/" user)
+          "User not found.")))))
