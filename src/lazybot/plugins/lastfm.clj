@@ -17,7 +17,7 @@
 
 (defn write-associations [assocs]
   (binding [*out* (FileWriter. association-file)]
-    (pr-str assocs)))
+    (prn assocs)))
 
 (defn update-agent [state server nick user]
   (doto (assoc-in state [server nick] user)
