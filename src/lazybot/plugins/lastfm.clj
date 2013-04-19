@@ -1,7 +1,7 @@
 (ns lazybot.plugins.lastfm
   (:require [me.raynes.least :as least]
             [clojure.java.io :refer [file]]
-            [clojure.edn :as edn]
+            [clojure.tools.reader.edn :as edn]
             [lazybot.info :refer [*lazybot-dir*]]
             [lazybot.registry :refer [send-message defplugin]])
   (:import java.io.FileWriter))
