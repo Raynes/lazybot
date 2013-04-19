@@ -40,7 +40,7 @@
                                                   :limit 1})
                                      [:recenttracks :track]))]
       (format "%s %s: %s - %s [%s]"
-              user
+              nick
               (if (= "true" (get-in latest [:attr :nowplaying]))
                 "is listening to"
                 "last listened to")
