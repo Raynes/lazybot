@@ -49,13 +49,17 @@
               (:name latest)
               (get-in latest [:album :text])))))
 
-(defn get-favorites [kind bot server nick & [period]]
+(defn get-top [kind bot server nick cull & [period]]
   (when-let [user (get-association server nick nick)]
-    (least/read (str "user.getTop" kind)
-                (get-api-key bot)
-                {:user user 
-                 :limit 3
-                 :period (or period "overall")})))
+    (when-let [targets (seq
+                         (for [{:keys [name playcount]} (get-in (least/read (str "user.getTop" kind)
+                                                                            (get-api-key bot)
+                                                                            {:user user 
+                                                                             :limit 5
+                                                                             :period (or period "overall")})
+                                                                cull)]
+                           (str name " " playcount)))]
+      (join " | " targets))))
 
 (defplugin
   (:cmd
@@ -75,12 +79,8 @@
     (fn [{:keys [com bot args] :as com-m}]
       (send-message
         com-m
-        (if-let [artists (seq (let [[user period] args]
-                                (for [{:keys [name playcount]} (get-in (get-favorites "Artists" bot (:server @com) user period)
-                                                                       [:topartists :artist])]
-                                  (str name " " playcount))))]
-          (join " | " artists)
-          "Couldn't find that user."))))
+        (or (get-top "Artists" bot (:server @com) (first args) [:topartists :artist] (second args))
+            "Couldn't find that user."))))
   
   (:cmd
     "Associate your nickname with a lastfm username"
