@@ -1,6 +1,7 @@
 (ns lazybot.plugins.lastfm
   (:require [me.raynes.least :as least]
             [clojure.java.io :refer [file]]
+            [clojure.string :refer [join]]
             [clojure.tools.reader.edn :as edn]
             [lazybot.info :refer [*lazybot-dir*]]
             [lazybot.registry :refer [send-message defplugin]])
@@ -48,6 +49,14 @@
               (:name latest)
               (get-in latest [:album :text])))))
 
+(defn get-favorites [kind bot server nick & [period]]
+  (when-let [user (get-association server nick nick)]
+    (least/read (str "user.getTop" kind)
+                (get-api-key bot)
+                {:user user 
+                 :limit 3
+                 :period (or period "overall")})))
+
 (defplugin
   (:cmd
     "Get the latest song played by a user (yourself by default)."
@@ -57,6 +66,21 @@
         com-m
         (or (get-latest-song bot (:server @com) (or (first args) nick))
             "Couldn't find that user."))))
+
+  (:cmd
+    "Get the top artists a user has listened to. By default, the aggregation is overall,
+    but you can change the period. Pass a second arg that is any of 7day, 1month, 3month,
+    6month, or 12month."
+    #{"topartists"}
+    (fn [{:keys [com bot args] :as com-m}]
+      (send-message
+        com-m
+        (if-let [artists (seq (let [[user period] args]
+                                (for [{:keys [name playcount]} (get-in (get-favorites "Artists" bot (:server com) user period)
+                                                                       [:topartists :artist])]
+                                  (str name " " playcount))))]
+          (join " | " artists)
+          "Couldn't find that user."))))
   
   (:cmd
     "Associate your nickname with a lastfm username"
