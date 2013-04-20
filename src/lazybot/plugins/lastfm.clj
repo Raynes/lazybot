@@ -76,7 +76,7 @@
       (send-message
         com-m
         (if-let [artists (seq (let [[user period] args]
-                                (for [{:keys [name playcount]} (get-in (get-favorites "Artists" bot (:server com) user period)
+                                (for [{:keys [name playcount]} (get-in (get-favorites "Artists" bot (:server @com) user period)
                                                                        [:topartists :artist])]
                                   (str name " " playcount))))]
           (join " | " artists)
