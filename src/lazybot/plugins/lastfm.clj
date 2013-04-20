@@ -81,6 +81,28 @@
         com-m
         (or (get-top "Artists" bot (:server @com) (first args) [:topartists :artist] (second args))
             "Couldn't find that user."))))
+
+  (:cmd
+    "Get the top tracks a user has listened to. By default, the aggregation is overall,
+    but you can change the period. Pass a second arg that is any of 7day, 1month, 3month,
+    6month, or 12month."
+    #{"toptracks"}
+    (fn [{:keys [com bot args] :as com-m}]
+      (send-message
+        com-m
+        (or (get-top "Tracks" bot (:server @com) (first args) [:toptracks :track] (second args))
+            "Couldn't find that user."))))
+
+  (:cmd
+    "Get the top albums a user has listened to. By default, the aggregation is overall,
+    but you can change the period. Pass a second arg that is any of 7day, 1month, 3month,
+    6month, or 12month."
+    #{"topalbums"}
+    (fn [{:keys [com bot args] :as com-m}]
+      (send-message
+        com-m
+        (or (get-top "Albums" bot (:server @com) (first args) [:topalbums :album] (second args))
+            "Couldn't find that user."))))
   
   (:cmd
     "Associate your nickname with a lastfm username"
