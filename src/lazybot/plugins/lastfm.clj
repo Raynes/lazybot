@@ -33,13 +33,16 @@
 (defn get-association [server nick & [not-found]]
   (get-in @associations [server nick] not-found))
 
+(defn first-if-sequential [x]
+  (if (sequential? x) (first x) x))
+
 (defn get-latest-song [bot server nick]
   (let [user (get-association server nick nick)]
-    (when-let [latest (first (get-in (least/read "user.getRecentTracks"
-                                                 (get-api-key bot)
-                                                 {:user user 
-                                                  :limit 1})
-                                     [:recenttracks :track]))]
+    (when-let [latest (first-if-sequential (get-in (least/read "user.getRecentTracks"
+                                                               (get-api-key bot)
+                                                               {:user user 
+                                                                :limit 1})
+                                                   [:recenttracks :track]))]
       (format "%s %s: %s - %s [%s]"
               nick
               (if (= "true" (get-in latest [:attr :nowplaying]))
