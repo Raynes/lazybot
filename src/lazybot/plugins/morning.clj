@@ -14,5 +14,5 @@
   (:hook
    :on-message
    (fn [{:keys [com bot nick message channel] :as com-m}]
-     (if (re-find #"(?i)\b(morning|afternoon|evening|night|day)\b" message)
+     (if (re-find #"(?i)\bgood\b (morning|afternoon|evening|night|day)\b" message)
        (send-message com-m (prefix nick (rand-nth responses)))))))
