@@ -1,6 +1,6 @@
 (let [plugins #{"dictionary" "lmgtfy" "google" "eball" "utils" "leet"
                 "clojure" "login" "log" "brainfuck" "whatis" "shorturl" "haskell"
-                "mail" "timer" "rss" "title" "operator" "seen" "sed" "help"
+                "mail" "timer" "rss" "title" "operator" "seen" "sed" "help" "morning"
                 "load" "embedded" "karma" "fortune" "yesno" "autoreply" "weather" "unix-jokes"}]
   {:servers ["irc.freenode.net"]        ; A list of servers.
    :prepends #{"@"}   ; The character you want for a prepend. Currently set to @
