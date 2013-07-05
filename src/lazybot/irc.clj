@@ -3,7 +3,7 @@
         lazybot.info
         [useful.fn :only [decorate]]
         [useful.map :only [keyed]])
-  (:require [irclj.core :as ircb]
+  (:require [irclj.core :as irc]
             [lazybot.core :as core]
             [lazybot.info :as info]))
 
@@ -24,11 +24,6 @@
             [:on-any :on-message :on-quit :on-join]))
      refzors]))
 
-(defn make-bot-run
-  "Create an irclj param map to pass to connect."
-  [name password server fnmap]
-  (ircb/create-irc (keyed [name password server fnmap])))
-
 (defn make-bot
   "Creates a new bot and connects it."
   [server]
@@ -36,8 +31,8 @@
         [name pass channels] ((juxt :bot-name :bot-password :channels)
                               (bot-config server))
         [fnmap refzors] (base-maps bot-config)
-        irc (ircb/connect (make-bot-run name pass server fnmap)
-                          :channels channels, :identify-after-secs 3)]
+        irc (doto (irc/connect server 6667 name :pass pass :callbacks fnmap)
+              (irc/join channels))]
     [irc refzors]))
 
 (defn init-bot

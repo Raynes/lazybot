@@ -5,7 +5,7 @@
         [clj-time.core :only [plus minus now interval in-secs hours]]
         [clj-time.format :only [unparse formatters]]
         [clojure.java.shell :only [sh]])
-  (:require [irclj.core :as ircb]
+  (:require [irclj.core :as irc]
             [clojure.string :as s])
   (:import java.net.InetAddress))
 
@@ -33,7 +33,7 @@
    #{"join"}
    (fn [{:keys [com bot nick args] :as com-m}]
      (when-privs com-m :admin
-               (ircb/join-chan com (first args) (last args)))))
+               (irc/join com (first args) (last args)))))
 
   (:cmd
    "Parts a channel. Takes a channel and a part message. ADMIN ONLY."
@@ -42,7 +42,7 @@
      (when-privs com-m :admin
                (let [chan (or (first args) channel)]
                  (send-message com-m "Bai!")
-                 (ircb/part-chan com chan :reason "Quit")))))
+                 (irc/part com chan :reason "Quit")))))
 
   (:cmd
    "Flips a coin."
@@ -76,7 +76,7 @@
    "Sets the bot's nick. ADMIN ONLY."
    #{"setnick"}
    (fn [{:keys [com bot nick args] :as com-m}]
-     (when-privs com-m :admin (ircb/set-nick com (first args)))))
+     (when-privs com-m :admin (irc/set-nick com (first args)))))
 
   (:cmd
    "Love your bot? Give him a snack and thank him for his hard work!"
