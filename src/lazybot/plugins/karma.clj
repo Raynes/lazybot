@@ -31,12 +31,12 @@
 
 ;; TODO: mongo has atomic inc/dec commands - we should use those
 (defn- change-karma
-  [snick new-karma {:keys [nick com bot channel] :as com-m}]
+  [snick new-karma {:keys [^String nick com bot channel] :as com-m}]
   (let [[msg apply]
         (dosync
          (let [current (get-in @limit [nick snick])]
            (cond
-            (= nick snick) ["You can't adjust your own karma."]
+            (.equalsIgnoreCase nick snick) ["You can't adjust your own karma."]
             (= current 3) ["Do I smell abuse? Wait a while before modifying that person's karma again."]
             (= current new-karma) ["You want me to leave karma the same? Fine, I will."]
             :else [(str (get-in @bot [:config :prefix-arrow]) new-karma)
