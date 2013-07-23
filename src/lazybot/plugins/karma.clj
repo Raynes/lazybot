@@ -55,24 +55,27 @@
           new-karma (f karma)]
       (change-karma snick new-karma com-m))))
 
+(def print-karma
+  (fn [{:keys [com bot channel args] :as com-m}]
+    (let [nick (first args)]
+      (send-message com-m
+                    (if-let [karma (get-karma nick (:server @com) channel)]
+                      (str nick " has karma " karma ".")
+                      (str "I have no record for " nick "."))))))
+
 (defplugin
   (:hook :on-message
          (fn [{:keys [message] :as com-m}]
-           (let [[_ direction snick] (re-find #"^\((inc|dec) (.+)\)(\s*;.*)?$" message)]
+           (let [[_ direction snick] (re-find #"^\((inc|dec|identity) (.+)\)(\s*;.*)?$" message)]
              (when snick
-               ((karma-fn (case direction
-                                "inc" inc
-                                "dec" dec))
+               ((case direction
+                  "inc" (karma-fn inc)
+                  "dec" (karma-fn dec)
+                  "identity" print-karma)
                 (merge com-m {:args [snick]}))))))
   (:cmd
    "Checks the karma of the person you specify."
-   #{"karma"}
-   (fn [{:keys [com bot channel args] :as com-m}]
-     (let [nick (first args)]
-       (send-message com-m
-                     (if-let [karma (get-karma nick (:server @com) channel)]
-                       (str nick " has karma " karma ".")
-                       (str "I have no record for " nick "."))))))
+   #{"karma" "identity"} print-karma)
   (:cmd
    "Increases the karma of the person you specify."
    #{"inc"} (karma-fn inc))
