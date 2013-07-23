@@ -4,7 +4,8 @@
 (ns lazybot.plugins.karma
   (:use [lazybot registry info]
         [useful.map :only [keyed]]
-        [somnium.congomongo :only [fetch-one insert! update!]]))
+        [somnium.congomongo :only [fetch-one insert! update!]])
+  (:import (java.util.concurrent Executors ScheduledExecutorService TimeUnit)))
 
 (defn- key-attrs [nick server channel]
   (let [nick (.toLowerCase nick)]
@@ -23,6 +24,11 @@
 
 (def limit (ref {}))
 
+(let [scheduler (Executors/newScheduledThreadPool 1)]
+  (defn schedule [^Runnable task]
+    (.schedule scheduler task
+               5 TimeUnit/MINUTES)))
+
 ;; TODO: mongo has atomic inc/dec commands - we should use those
 (defn- change-karma
   [snick new-karma {:keys [nick com bot channel] :as com-m}]
@@ -37,8 +43,7 @@
                    (alter limit update-in [nick snick] (fnil inc 0))])))]
     (when apply
       (set-karma snick (:server @com) channel new-karma)
-      (future (Thread/sleep 300000)
-              (dosync (alter limit update-in [nick snick] dec))))
+      (schedule #(dosync (alter limit update-in [nick snick] dec))))
     (send-message com-m msg)))
 
 (defn karma-fn
