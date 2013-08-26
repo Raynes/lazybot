@@ -1,7 +1,7 @@
 (ns lazybot.plugins.seen
   (:use [lazybot registry info]
         [lazybot.utilities :only [format-time]]
-	[somnium.congomongo :only [fetch fetch-one insert! destroy!]]
+        [somnium.congomongo :only [fetch fetch-one insert! destroy!]]
         [clojure.string :only [join]]))
 
 (defn now []
@@ -22,10 +22,12 @@
 (defn get-seen
   "Gets the last-seen for a nick."
   [nick server]
-  (when-let [seen-map (fetch-one :seen :where {:nick nick :server server})]
+  (when-let [seen-map (fetch-one :seen :where {:nick (.toLowerCase nick)
+                                               :server server})]
     (update-in seen-map [:time] #(- (now) %))))
 
-(defn put-seen [{:keys [nick channel com]} doing] (tack-time nick (:server @com) channel doing))
+(defn put-seen [{:keys [nick channel com]} doing]
+  (tack-time nick (:server @com) channel doing))
 
 (defplugin
   (:hook :on-message
