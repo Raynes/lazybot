@@ -11,13 +11,13 @@
   "Takes a nick and updates the seen database with that nick and the current time."
   [nick server channel doing]
   (let [lower-nick (.toLowerCase nick)]
-    (destroy! :seen {:nick nick :server server})
+    (destroy! :seen {:nick lower-nick :server server})
     (insert! :seen
              {:server server
               :time (now)
               :chan channel 
               :doing doing
-              :nick nick})))
+              :nick lower-nick})))
 
 (defn get-seen
   "Gets the last-seen for a nick."
