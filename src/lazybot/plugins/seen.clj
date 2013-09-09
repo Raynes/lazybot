@@ -15,7 +15,7 @@
     (insert! :seen
              {:server server
               :time (now)
-              :chan channel 
+              :chan channel
               :doing doing
               :nick lower-nick})))
 
@@ -32,22 +32,22 @@
 (defplugin
   (:hook :on-message
          (fn [irc-map] (put-seen irc-map "talking")))
-  (:hook :on-join 
+  (:hook :on-join
          (fn [irc-map] (put-seen irc-map "joining")))
   (:hook :on-quit
          (fn [irc-map] (put-seen irc-map "quitting")))
-  
+
   (:cmd
    "Checks to see when the person you specify was last seen."
-   #{"seen"} 
+   #{"seen"}
    (fn [{:keys [com bot channel args] :as com-m}]
      (let [[who] args]
        (send-message com-m
                      (if-let [{:keys [time chan doing]}
                               (get-seen who (:server @com))]
-       
+
                        (str who " was last seen " doing
-                            (when-not (= doing "quitting") " on ") 
+                            (when-not (= doing "quitting") " on ")
                             chan " " (or (format-time time)
                                          "just moments") " ago.")
                        (str "I have never seen " who "."))))))
