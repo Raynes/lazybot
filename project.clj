@@ -6,7 +6,7 @@
                  [commons-io/commons-io "1.4"]
                  [backtype/clj-time "0.3.2"]
                  [clojail "1.0.6"]
-                 [clj-http "0.2.6"]
+                 [clj-http "0.7.7"]
                  [irclj "0.4.1"]
                  [congomongo "0.4.0"]
                  [clj-config "0.2.0"]
