@@ -26,19 +26,19 @@
              (assoc x count {:task (task count spec com-m)
                              :message (:message spec)})))))
 
-(defn parse-message [s]
+(defn parse-message [s nick]
   (let [[offset message] (s/split s #" " 2)]
     (-> (zipmap [:hour :minute :second]
                 (map #(Long. %) (s/split offset #":")))
-        (assoc :message message))))
+        (assoc :message (or message nick)))))
 
 (defplugin
   (:cmd
     "Creates a timer. Specify the time as the first argument in h:m:s format."
     #{"timer"}
-    (fn [{:keys [args] :as com-m}]
+    (fn [{:keys [args nick] :as com-m}]
       (-> (s/join " " args)
-          (parse-message)
+          (parse-message nick)
           (set-timer com-m))
       (send-message com-m "Timer added.")))
   (:cmd
