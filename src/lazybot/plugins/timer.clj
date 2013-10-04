@@ -15,12 +15,12 @@
 
 (defn task [count spec com-m]
   (m/schedule-at executor (time-to-ms spec)
-              (fn []
-                (send-message com-m (:message spec))
-                (swap! running-timers
-                       #(-> %
-                            (update-in [:count] dec)
-                            (dissoc count))))))
+                 (fn []
+                   (send-message com-m (:message spec))
+                   (swap! running-timers
+                          #(-> %
+                               (update-in [:count] dec)
+                               (dissoc count))))))
 
 (defn set-timer [spec com-m]
   (swap! running-timers
