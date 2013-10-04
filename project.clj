@@ -4,7 +4,7 @@
                  [org.clojure/tools.reader "0.7.3"]
                  [commons-lang/commons-lang "2.5"]
                  [commons-io/commons-io "1.4"]
-                 [backtype/clj-time "0.3.2"]
+                 [clj-time "0.6.0"]
                  [clojail "1.0.6"]
                  [clj-http "0.2.6"]
                  [irclj "0.4.1"]

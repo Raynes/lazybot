@@ -2,13 +2,14 @@
   (:refer-clojure :exclude [extend])
   (:use [lazybot registry info]
         [lazybot.plugins.login :only [when-privs]]
-        [clj-time core format]
-        [somnium.congomongo :only [fetch fetch-one insert! destroy!]]))
+        [somnium.congomongo :only [fetch fetch-one insert! destroy!]])
+  (:require [clj-time.core :as t]
+            [clj-time.format :as f]))
 
 (def alerted (atom {}))
 
 (defn new-message [from to text]
-  (let [time (unparse (formatters :date-time-no-ms) (now))]
+  (let [time (f/unparse (f/formatters :date-time-no-ms) (t/now))]
     (insert! :mail {:to to
                     :from from
                     :message text
@@ -32,7 +33,7 @@
 
 (defn alert-time? [user]
   (if-let [usertime (@alerted (.toLowerCase user))]
-    (< 300 (-> usertime (interval (now)) in-secs))
+    (< 300 (-> usertime (t/interval (t/now)) t/in-secs))
     true))
 
 (defn mail-alert
@@ -45,7 +46,7 @@
        (str "You have " nmess
             " new message(s). To retrieve your mail, send me a private message with the contents 'mail'.")
        :notice? true)
-      (swap! alerted assoc lower-nick (now)))))
+      (swap! alerted assoc lower-nick (t/now)))))
 
 (defn get-messages [{:keys [nick] :as com-m}]
   (let [lower-nick (.toLowerCase nick)]
