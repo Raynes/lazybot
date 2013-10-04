@@ -17,18 +17,14 @@
   (m/schedule-at executor (time-to-ms spec)
                  (fn []
                    (send-message com-m (:message spec))
-                   (swap! running-timers
-                          #(-> %
-                               (update-in [:count] dec)
-                               (dissoc count))))))
+                   (swap! running-timers dissoc count))))
 
 (defn set-timer [spec com-m]
   (swap! running-timers
          (fn [x]
-           (let [count (inc (:count x 0))]
-             (assoc x
-                    :count count
-                    count (task count spec com-m))))))
+           (let [count (inc (apply max (or (keys x) [0])))]
+             (assoc x count {:task (task count spec com-m)
+                             :message (:message spec)})))))
 
 (defn parse-message [s]
   (let [[offset message] (s/split s #" " 2)]
@@ -44,4 +40,12 @@
       (-> (s/join " " args)
           (parse-message)
           (set-timer com-m))
-      (send-message com-m "Timer added."))))
+      (send-message com-m "Timer added.")))
+  (:cmd
+    "List the running timers."
+    #{"timers"}
+    (fn [com-m]
+      (send-message com-m
+                    (s/join "; "
+                            (for [[k {m :message}] @running-timers]
+                              (format "%d: %s" k (s/join (take 20 m)))))))))
