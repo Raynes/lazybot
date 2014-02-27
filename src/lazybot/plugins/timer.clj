@@ -1,8 +1,10 @@
 (ns lazybot.plugins.timer
   (:require [clojure.string :as s]
+            [lazybot.utilities :refer [format-time]]
             [lazybot.registry :refer [defplugin send-message]]
             [clj-time.core :as t]
-            [me.raynes.moments :as m]))
+            [me.raynes.moments :as m])
+  (:import java.util.concurrent.TimeUnit))
 
 (def running-timers (atom {}))
 (def executor (m/executor 10))
@@ -33,6 +35,19 @@
                 (map #(Long. %) [hour minute second]))
         (assoc :message (or msg nick)))))
 
+(defn pretty-time
+  "Format the time left on a timer prettily and what not"
+  [timer]
+  (format-time (.getDelay timer (TimeUnit/MILLISECONDS))))
+
+(defn format-line
+  "Format $timers line."
+  [timers]
+  (s/join "; "
+          (for [[k {m :message, task :task}] timers
+                :let [pretty (pretty-time task)]]
+            (format "%d: %s (%s remaining)" k (s/join (take 20 m)) pretty))))
+
 (defplugin
   (:cmd
     "Creates a timer. Specify the time as the first argument in h:m:s format."
@@ -46,7 +61,4 @@
     "List the running timers."
     #{"timers"}
     (fn [com-m]
-      (send-message com-m
-                    (s/join "; "
-                            (for [[k {m :message}] @running-timers]
-                              (format "%d: %s" k (s/join (take 20 m)))))))))
+      (send-message com-m (format-line @running-timers)))))
