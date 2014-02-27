@@ -27,10 +27,11 @@
                              :message (:message spec)})))))
 
 (defn parse-message [s nick]
-  (let [[offset message] (s/split s #" " 2)]
+  (let [split-re #"(\d+)[: ](\d+)[: ](\d+)(?: (.+))?"
+        [_ hour minute second msg] (re-find split-re s)]
     (-> (zipmap [:hour :minute :second]
-                (map #(Long. %) (s/split offset #":")))
-        (assoc :message (or message nick)))))
+                (map #(Long. %) [hour minute second]))
+        (assoc :message (or msg nick)))))
 
 (defplugin
   (:cmd
