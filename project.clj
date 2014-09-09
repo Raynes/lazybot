@@ -18,7 +18,7 @@
                  [clj-wordnik "0.1.0-alpha1"]
                  [cheshire "5.0.1"]
                  [org.clojure/tools.logging "0.2.3"]
-                 [org.clojure/data.zip "0.1.0"]
+                 ;[org.clojure/data.zip "0.1.0"]
                  [org.clojure/tools.cli "0.1.0"]
                  [useful "0.8.4"]
                  [hobbit "0.1.0-alpha1"]
@@ -30,7 +30,11 @@
                  [me.raynes/laser "0.1.16"]
                  [hiccup "1.0.2"]
                  [me.raynes/least "0.1.3"]
-                 [me.raynes/moments "0.1.1"]]
+                 [me.raynes/moments "0.1.1"]
+                 [org.clojure/data.xml "0.0.7"]
+                 [org.clojure/data.zip "0.1.1"]
+                 [org.clojure/core.match "0.2.1"]
+                 [overtone/at-at "1.2.0"]]
   :uberjar-name "lazybot.jar"
   :main lazybot.run
   :copy-deps true

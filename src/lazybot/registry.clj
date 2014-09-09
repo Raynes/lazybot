@@ -5,6 +5,7 @@
         [clojail.core :only [thunk-timeout]]
         [clojure.string :only [join]])
   (:require [irclj.core :as ircb]
+            [clojure.pprint :refer [pprint]]
             [somnium.congomongo :as mongo])
   (:import java.util.concurrent.TimeoutException))
 
@@ -70,10 +71,17 @@
       :else ircb/send-message)
      com channel result)))
 
-(defn ignore-message? [{:keys [nick bot com]}]
-  (-> @bot
-      (get-in [:config (:server @com) :user-blacklist])
-      (contains? (.toLowerCase nick))))
+(defn ignore-message? [{:keys [nick bot com] :as msg}]
+  (when nick
+    (try
+      (-> @bot
+          (get-in [:config (:server @com) :user-blacklist])
+          (contains? (.toLowerCase nick)))
+      (catch Exception e
+        (do
+          (println "Exception swallowed: " e "params:")
+          (pprint msg)
+          true)))))
 
 (defn try-handle [{:keys [nick channel bot message] :as com-m}]
   (when-not (ignore-message? com-m)

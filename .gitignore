@@ -9,3 +9,5 @@ logs
 *log
 .cake
 target
+.idea
+*.iml
