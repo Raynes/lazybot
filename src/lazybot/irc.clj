@@ -5,7 +5,8 @@
         [useful.map :only [keyed]])
   (:require [irclj.core :as ircb]
             [lazybot.core :as core]
-            [lazybot.info :as info]))
+            [lazybot.info :as info]
+            [clojure.string :as string]))
 
 (defn base-maps
   "Create the base callback and bot maps."
@@ -26,8 +27,8 @@
 
 (defn make-bot-run
   "Create an irclj param map to pass to connect."
-  [name password server port fnmap]
-  (ircb/create-irc (keyed [name password server port fnmap])))
+  [name password server port fnmap delay-ms]
+  (ircb/create-irc (keyed [name password server port fnmap delay-ms])))
 
 (defn make-bot
   "Creates a new bot and connects it."
@@ -37,8 +38,14 @@
                               (bot-config server))
         port (or maybe-port 6667)
         [fnmap refzors] (base-maps bot-config)
-        irc (ircb/connect (make-bot-run name pass server port fnmap)
-                          :channels channels, :identify-after-secs 3)]
+        irc (ircb/connect (make-bot-run name pass server port fnmap 500) ; TODO - make 500 a config value
+                          :port port,
+                          :channels channels, :identify-after-secs 3
+                          :auto-reconnect-delay-mins 1 ; reconnect delay after disconnect
+                          :ping-interval-mins 1 ; interval between pings
+                          :timeout-mins 20 ; socket timeout - length of time to keep socket open when nothing happens
+
+                          )]
     [irc refzors]))
 
 (defn init-bot
