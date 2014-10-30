@@ -9,3 +9,4 @@ logs
 *log
 .cake
 target
+.lein-failures
