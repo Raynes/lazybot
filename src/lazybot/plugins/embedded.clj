@@ -1,10 +1,13 @@
 (ns lazybot.plugins.embedded
-  (:use [lazybot registry]))
+  (:require [lazybot.registry :as registry]))
 
-(defplugin
+(registry/defplugin
   (:hook
    :on-message
    (fn [{:keys [message bot] :as irc-map}]
      (doseq [x (reverse (re-seq #"\$#(.*?)#\$" message))]
-       (->> x second (-> @bot :config :prepends first str)
-            (assoc irc-map :message) try-handle)))))
+       (->> x
+            second
+            (-> @bot :config :prepends first str)
+            (assoc irc-map :message)
+            registry/try-handle)))))

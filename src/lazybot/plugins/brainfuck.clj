@@ -1,5 +1,5 @@
 (ns lazybot.plugins.brainfuck
-  (:use lazybot.registry))
+  (:require [lazybot.registry :as registry]))
 ;;; From Rosettacode ;;;
 (def ^:dynamic *input*)
  
@@ -80,7 +80,7 @@
     (println (apply str (map char *output*)))))
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(defplugin
+(registry/defplugin
   (:cmd
    "Executes brainfuck."
    #{"bf"} 
@@ -90,4 +90,4 @@
                      (compile-and-run input) 
                      with-out-str 
                      (#(.split % "\n")))]
-         (send-message com-m x))))))
+         (registry/send-message com-m x))))))

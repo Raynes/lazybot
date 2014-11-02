@@ -1,8 +1,8 @@
 (ns lazybot.plugins.autoreply
-  (:use (lazybot registry info))
-  (:require [clojure.string :as s]))
+  (:require [lazybot.registry :as registry]
+            [clojure.string :as s]))
 
-(defplugin
+(registry/defplugin
   (:hook
    :on-message
    (fn [{:keys [bot com message channel] :as com-m}]
@@ -11,4 +11,4 @@
                              (get-in @bot [:config (:server @com) :autoreply :autoreplies channel])
                              :when (re-find find message)]
                          (s/replace message find replace)))]
-       (send-message com-m reply)))))
+       (registry/send-message com-m reply)))))

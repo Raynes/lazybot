@@ -1,7 +1,8 @@
 (ns lazybot.plugins.log
-  (:use (lazybot registry utilities)
-        [lazybot.plugins.login :only [when-privs]]
-        clojure.tools.logging)
+  (:require [lazybot.registry :as registry]
+            [lazybot.utilities :as utilities]
+            [lazybot.plugins.login :refer [when-privs]]
+            [clojure.tools.logging :as log])
   (:import [org.apache.log4j Level LogManager]))
 
 (defn get-logger
@@ -16,7 +17,7 @@
 
 (defn all-loaded-plugins [bot]
   (let [module-list (-> bot :modules keys)]
-    (debug module-list)
+    (log/debug module-list)
     (map name module-list)))
 
 (defn plugin-list [bot args]
@@ -26,10 +27,10 @@
            (all-loaded-plugins bot))))
 
 (defn set-log-level [package level]
-  (info (str "Setting log level for " package " to " level))
+  (log/info (str "Setting log level for " package " to " level))
   (.setLevel (get-logger package) level))
 
-(defplugin
+(registry/defplugin
   (:cmd
    "Set log level for specified plugins. Example: log debug clojure ping -  specify \"all\" or an empty list to affect all plugins."
    #{"log"}

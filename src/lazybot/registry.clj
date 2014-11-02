@@ -1,10 +1,10 @@
 (ns lazybot.registry
-  (:use [useful.fn :only [fix to-fix]]
-        [lazybot.utilities :only [on-thread verify validator]]
-        [useful.fn :only [!]]
-        [clojail.core :only [thunk-timeout]]
-        [clojure.string :only [join]])
-  (:require [irclj.core :as ircb]
+  (:require [useful.fn :refer [fix to-fix]]
+            [lazybot.utilities :refer [on-thread verify validator]]
+            [useful.fn :refer [!]]
+            [clojail.core :refer[thunk-timeout]]
+            [clojure.string :refer [join]]
+            [irclj.core :as ircb]
             [somnium.congomongo :as mongo])
   (:import java.util.concurrent.TimeoutException))
 
@@ -65,9 +65,9 @@
 (defn send-message [{:keys [com bot channel]} s & {:keys [action? notice?]}]
   (if-let [result (call-message-hooks com bot channel s action?)]
     ((cond
-      action? ircb/send-action
-      notice? ircb/send-notice
-      :else ircb/send-message)
+      action? ircb/ctcp
+      notice? ircb/notice
+      :else ircb/message)
      com channel result)))
 
 (defn ignore-message? [{:keys [nick bot com]}]

@@ -1,8 +1,8 @@
 (ns lazybot.plugins.hello-world
-  (:use lazybot.registry))
+  (:require [lazybot.registry :as registry]))
 
-(defplugin
+(registry/defplugin
   (:cmd
    "Say hi!"
    #{"hiworld"}
-   (fn [com-m] (send-message com-m "Hello, World!"))))
+   (fn [com-m] (registry/send-message com-m "Hello, World!"))))

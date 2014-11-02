@@ -1,6 +1,6 @@
 (ns lazybot.plugins.javadoc
-  (:use lazybot.registry)
-  (:require [clojure.string :as s]))
+  (:require [clojure.string :as s]
+            [lazybot.registry :as registry]))
 
 (def ^{:dynamic true}
   *javadoc-base-url* "http://docs.oracle.com/javase/6/docs/api/")
@@ -36,13 +36,13 @@
                                 (arglist-anchor-components guessed-target))
                         ")"))))))
 
-(defplugin
+(registry/defplugin
   (:cmd
    "Lookup Oracle's javadocs for a class. Input can be a fully qualified class name,
    a class name and a method/field, or a non-qualified class name."
    #{"javadoc"}
    (fn [{channel :channel [class member] :args :as com-m}]
-     (send-message com-m
+     (registry/send-message com-m
                    (let [c (resolve (symbol class))]
                      (if (instance? Class c)
                        (javadoc-url c member)

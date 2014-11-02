@@ -1,14 +1,14 @@
 (ns lazybot.plugins.logger
-  (:use [lazybot registry]
-        [clj-time.core :only [now from-time-zone time-zone-for-offset]]
-        [clj-time.format :only [unparse formatters]]
-        [clojure.java.io :only [file]]
-        [clojure.string :only [join]]
-        [compojure.core :only [context]]
-        [compojure.route :only [not-found]]
-        [hiccup.util :only [url-encode]]
-        [hiccup.page :only [html5]])
-  (:require [compojure.core :refer [GET]]
+  (:require [lazybot.registry :as registry]
+            [clj-time.core :refer [now from-time-zone time-zone-for-offset]]
+            [clj-time.format :refer [unparse formatters]]
+            [clojure.java.io :refer [file]]
+            [clojure.string :refer [join]]
+            [compojure.core :refer [context]]
+            [compojure.route :refer [not-found]]
+            [hiccup.util :refer [url-encode]]
+            [hiccup.page :refer [html5]]
+            [compojure.core :refer [GET]]
             [clj-http.util])
   (:import [java.io File]))
 
@@ -133,7 +133,7 @@
 
 (def pathreg #"[^\/]+")
 
-(defplugin
+(registry/defplugin
   (:routes (context "/logger" []
               (GET "/" req (index req))
               (GET ["/:server" :server pathreg] [server]

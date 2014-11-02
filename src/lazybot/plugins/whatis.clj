@@ -1,15 +1,15 @@
 (ns lazybot.plugins.whatis
-  (:use [lazybot registry]
-        [somnium.congomongo :only [fetch fetch-one insert! destroy!]]))
+  (:require [lazybot.registry :as registry]
+            [somnium.congomongo :refer [fetch fetch-one insert! destroy!]]))
 
 (defn tell-about [what com-m]
-  (send-message com-m
+  (registry/send-message com-m
                 (str what
                      (if-let [result (fetch-one :whatis :where {:subject what})]
                        (str " is " (:is result))
                        " does not exist in my database."))))
 
-(defplugin 
+(registry/defplugin
   (:cmd
    "Teaches the bot a new thing. It takes a name and whatever you want to assign the name
    to. For example: $learn me a human being."
@@ -20,7 +20,7 @@
        (do
          (destroy! :whatis {:subject subject})
          (insert! :whatis {:subject subject :is is-s})
-         (send-message com-m "My memory is more powerful than M-x butterfly. I won't forget it.")))))
+         (registry/send-message com-m "My memory is more powerful than M-x butterfly. I won't forget it.")))))
    
    (:cmd 
     "Pass it a key, and it will tell you what is at the key in the database."
@@ -41,7 +41,7 @@ Example - $tell G0SUB about clojure"
     #{"forget"} 
     (fn [{[what] :args :as com-m}]
       (do (destroy! :whatis {:subject what})
-          (send-message com-m (str "If " what " was there before, it isn't anymore. R.I.P.")))))
+          (registry/send-message com-m (str "If " what " was there before, it isn't anymore. R.I.P.")))))
 
    (:cmd 
     "Gets a random value from the database."

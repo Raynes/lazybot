@@ -1,7 +1,7 @@
 (ns lazybot.utilities
-  (:use lazybot.info
-        [hobbit core isgd])
-  (:require [clojure.string :only [join] :as string])
+  (:require [clojure.string :only [join] :as string]
+            [hobbit.core :as hobbit]
+            [hobbit.isgd :as isgd])
   (:import [java.io File FileReader]))
 
 ;; ## Pretty time formatting
@@ -50,7 +50,7 @@
 
 (defn shorten-url
   "Shorten a URL using is.gd."
-  [url] (when url (shorten (shortener :isgd) url)))
+  [url] (when url (hobbit/shorten (hobbit/shortener :isgd) url)))
 
 (defmacro on-thread
   "Run the body in an anonymous, new thread. Very much like
