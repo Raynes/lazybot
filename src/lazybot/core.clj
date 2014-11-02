@@ -37,7 +37,7 @@
 ;; Note that even the actual handling of commands is done via a hook.
 (def initial-hooks
   "The hooks that every bot, even without plugins, needs to have."
-  {:privmsg [{:fn (fn [irc-map] (registry/try-handle irc-map))}]
+  {:on-message [{:fn (fn [irc-map] (registry/try-handle irc-map))}]
    :on-quit []
    :on-join []})
 
