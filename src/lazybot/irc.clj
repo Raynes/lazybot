@@ -2,7 +2,8 @@
   (:require [lazybot.core :as core]
             [lazybot.info :as info]
             [useful.fn :refer [decorate]]
-            [useful.map :refer [keyed]][irclj.core :as ircb]))
+            [useful.map :refer [keyed]]
+            [irclj.core :as ircb]))
 
 (defn base-maps
   "Create the base callback and bot maps."
@@ -29,7 +30,7 @@
 (defn make-bot
   "Creates a new bot and connects it."
   [server]
-  (let [bot-config (read-config)
+  (let [bot-config (info/read-config)
         [name pass channels] ((juxt :bot-name :bot-password :channels)
                               (bot-config server))
         [fnmap refzors] (base-maps bot-config)

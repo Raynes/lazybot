@@ -8,13 +8,13 @@
    "Sets the person you specify as operator. ADMIN ONLY."
    #{"op"}
    (fn [{:keys [com bot nick channel args] :as com-m}]
-     (when-privs com-m :admin (ircb/mode com channel "+o" (first args)))))
+     (when-privs com-m :admin (ircb/set-mode com channel "+o" (first args)))))
 
   (:cmd
    "Deops the person you specify. ADMIN ONLY."
    #{"deop"}
    (fn [{:keys [com bot nick channel args] :as com-m}]
-     (when-privs com-m :admin (ircb/mode com channel  "-o" (first args)))))
+     (when-privs com-m :admin (ircb/set-mode com channel  "-o" (first args)))))
 
   (:cmd
    "Kicks the person you specify. ADMIN ONLY."

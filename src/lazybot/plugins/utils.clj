@@ -35,7 +35,7 @@
    #{"join"}
    (fn [{:keys [com bot nick args] :as com-m}]
      (when-privs com-m :admin
-               (ircb/join com (first args) (last args)))))
+               (ircb/join-chan com (first args) (last args)))))
 
   (:cmd
    "Parts a channel. Takes a channel and a part message. ADMIN ONLY."
@@ -44,7 +44,7 @@
      (when-privs com-m :admin
                (let [chan (or (first args) channel)]
                  (registry/send-message com-m "Bai!")
-                 (ircb/part com chan :reason "Quit")))))
+                 (ircb/part-chan com chan :reason "Quit")))))
 
   (:cmd
    "Flips a coin."

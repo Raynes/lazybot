@@ -65,9 +65,9 @@
 (defn send-message [{:keys [com bot channel]} s & {:keys [action? notice?]}]
   (if-let [result (call-message-hooks com bot channel s action?)]
     ((cond
-      action? ircb/ctcp
-      notice? ircb/notice
-      :else ircb/message)
+      action? ircb/send-action
+      notice? ircb/send-notice
+      :else ircb/send-message)
      com channel result)))
 
 (defn ignore-message? [{:keys [nick bot com]}]

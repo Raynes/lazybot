@@ -1,5 +1,5 @@
 (ns lazybot.utilities
-  (:require [clojure.string :only [join] :as string]
+  (:require [clojure.string :refer [join] :as string]
             [hobbit.core :as hobbit]
             [hobbit.isgd :as isgd])
   (:import [java.io File FileReader]))
