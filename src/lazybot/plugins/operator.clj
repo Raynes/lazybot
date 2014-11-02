@@ -22,32 +22,33 @@
    (fn [{:keys [com bot nick channel args] :as com-m}]
      (when-privs com-m :admin (ircb/kick com channel (first args) :reason (apply str (rest args))))))
 
+  #_
   (:cmd
    "Set's the channel's topic. ADMIN ONLY."
    #{"settopic"}
    (fn [{:keys [com bot nick channel args] :as com-m}]
-     (when-privs com-m :admin (ircb/set-topic com channel (apply str (interpose " " args))))))
+     (when-privs com-m :admin (ircb/topic com channel (apply str (interpose " " args))))))
 
   (:cmd
    "Ban's whatever you specify. ADMIN ONLY."
    #{"ban"}
    (fn [{:keys [com bot nick channel args] :as com-m}]
-     (when-privs com-m :admin (ircb/set-mode com channel "+b" (first args)))))
+     (when-privs com-m :admin (ircb/mode com channel "+b" (first args)))))
 
   (:cmd
    "Unban whatever you specify. ADMIN ONLY."
    #{"unban"}
    (fn [{:keys [com bot nick channel args] :as com-m}]
-     (when-privs com-m :admin (ircb/set-mode com channel "-b" (first args)))))
+     (when-privs com-m :admin (ircb/mode com channel "-b" (first args)))))
 
   (:cmd
    "Voices the person you specify. ADMIN 0NLY."
    #{"voice"}
    (fn [{:keys [com bot channel nick args] :as com-m}]
-     (when-privs com-m :admin (ircb/set-mode com channel "+v" (first args)))))
+     (when-privs com-m :admin (ircb/mode com channel "+v" (first args)))))
 
   (:cmd
    "Devoices the person you specify. ADMIN ONLY."
    #{"devoice"}
    (fn [{:keys [com bot channel nick args] :as com-m}]
-     (when-privs com-m :admin (ircb/set-mode com channel "-v" (first args))))))
+     (when-privs com-m :admin (ircb/mode com channel "-v" (first args))))))

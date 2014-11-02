@@ -21,20 +21,19 @@
             [:on-any :on-message :on-quit :on-join]))
      refzors]))
 
-(defn make-bot-run
-  "Create an irclj param map to pass to connect."
-  [name password server fnmap]
-  (ircb/create-irc (keyed [name password server fnmap])))
-
 (defn make-bot
   "Creates a new bot and connects it."
   [server]
-  (let [bot-config (read-config)
+  (let [bot-config (info/read-config)
+        port 6667
         [name pass channels] ((juxt :bot-name :bot-password :channels)
-                              (bot-config server))
+                                   (bot-config server))
         [fnmap refzors] (base-maps bot-config)
-        irc (ircb/connect (make-bot-run name pass server fnmap)
-                          :channels channels, :identify-after-secs 3)]
+        _ (println "connecting to" (pr-str server) (pr-str port) (pr-str name))
+        irc (ircb/connect server port name
+                          :channels channels
+                          :callbacks fnmap
+                          :identify-after-secs 3)]
     [irc refzors]))
 
 (defn init-bot
