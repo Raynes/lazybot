@@ -1,16 +1,16 @@
 (ns lazybot.plugins.debug
-  (:use lazybot.registry
-        [lazybot.plugins.login :only [when-privs]])
-  (:require [clojure.string :as string]))
+  (:require [clojure.string :as string]
+            [lazybot.registry :as registry]
+            [lazybot.plugins.login :refer [when-privs]]))
 
 (defn get-mode [old-mode user-arg]
   (case user-arg
-        :on :on
-        :off nil
-        :-v :verbose
-        :? old-mode
-        (when-not old-mode              ; toggle
-          :on)))
+    :on :on
+    :off nil
+    :-v :verbose
+    :? old-mode
+    (when-not old-mode              ; toggle
+      :on)))
 
 (defn debug-mode-str [mode]
   (if mode
@@ -19,13 +19,13 @@
 
 (def debug-keypath [:configs :debug-mode])
 
-(defplugin
+(registry/defplugin
   (:cmd
    "Toggle debug mode, causing full stacktraces to be printed to the console/log when an exception goes uncaught, as well as permitting evaluation of arbitrary clojure code to inspect the running bot. Use the -v flag to print more debug information to the log."
    #{"debug"}
    (fn [{:keys [bot nick channel args] :as com-m}]
      (when-privs com-m :admin
-      (send-message com-m
+      (registry/send-message com-m
                     (dosync
                      (let [arg (keyword (first args))]
                        (alter bot update-in debug-keypath get-mode arg)

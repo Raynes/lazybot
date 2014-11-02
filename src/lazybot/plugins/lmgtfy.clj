@@ -1,10 +1,10 @@
 (ns lazybot.plugins.lmgtfy
-  (:use [lazybot registry]))
+  (:use [lazybot.registry :as registry]))
 
 (defn create-url [args]
   (str "http://www.lmgtfy.com/?q=" (apply str (interpose "+" args))))
 
-(defplugin
+(registry/defplugin
   (:cmd
    "Constructs a lmgtfy URL. If you attach @ nick at the end, it will direct it towards
    the person named by nick."

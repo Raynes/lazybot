@@ -1,6 +1,6 @@
 (ns lazybot.plugins.eball
-  (:use lazybot.registry
-        [lazybot.utilities :only [prefix]]))
+  (:require [lazybot.registry :as registry]
+            [lazybot.utilities :refer [prefix]]))
 
 (def responses
      ["As I see it, yes."
@@ -24,10 +24,10 @@
       "Outlook not so good."
       "Very doubtful."])
 
-(defplugin
+(registry/defplugin
   (:cmd
    "Ask the magic eight ball a question."
    #{"8ball" "will" "should"}
    (fn [{:keys [bot nick channel] :as com-m}]
      (let [answer (rand-int 20)]
-       (send-message com-m (prefix nick (nth responses answer)))))))
+       (registry/send-message com-m (prefix nick (nth responses answer)))))))

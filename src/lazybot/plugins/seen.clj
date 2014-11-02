@@ -1,8 +1,9 @@
 (ns lazybot.plugins.seen
-  (:use [lazybot registry info]
-        [lazybot.utilities :only [format-time]]
-        [somnium.congomongo :only [fetch fetch-one insert! destroy!]]
-        [clojure.string :only [join]]))
+  (:require [lazybot.registry :as registry]
+            [lazybot.info :as info]
+            [lazybot.utilities :refer [format-time]]
+            [somnium.congomongo :refer [fetch fetch-one insert! destroy!]]
+            [clojure.string :refer [join]]))
 
 (defn now []
   (System/currentTimeMillis))
@@ -29,7 +30,7 @@
 (defn put-seen [{:keys [nick channel com]} doing]
   (tack-time nick (:server @com) channel doing))
 
-(defplugin
+(registry/defplugin
   (:hook :on-message
          (fn [irc-map] (put-seen irc-map "talking")))
   (:hook :on-join
@@ -42,7 +43,7 @@
    #{"seen"}
    (fn [{:keys [com bot channel args] :as com-m}]
      (let [[who] args]
-       (send-message com-m
+       (registry/send-message com-m
                      (if-let [{:keys [time chan doing]}
                               (get-seen who (:server @com))]
 

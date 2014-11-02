@@ -1,7 +1,7 @@
 (ns lazybot.plugins.jruby
-  (:use lazybot.registry
-        [clojail.core :only [thunk-timeout]]
-        clojure.stacktrace)
+  (:use [lazybot.registry :as registry]
+        [clojail.core :refer [thunk-timeout]]
+        [clojure.stacktrace :as stacktrace])
   (:import (javax.script ScriptEngineManager ScriptException)
            java.io.StringWriter
            org.jruby.exceptions.RaiseException))

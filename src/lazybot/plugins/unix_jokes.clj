@@ -1,6 +1,6 @@
 (ns lazybot.plugins.unix-jokes
-  (:use (lazybot registry info))
-  (:require [clojure.string :as s]))
+  (:require [clojure.string :as s]
+            [lazybot.registry :as registry]))
 
 (defmulti response (fn [[command & args] com-m]
                      command))
@@ -28,9 +28,9 @@
   (when args
     (s/join " " args)))
 
-(defplugin
+(registry/defplugin
   (:hook
    :on-message
    (fn [{:keys [bot com message channel] :as com-m}]
      (when-let [reply (response (s/split message #"\s+") com-m)]
-       (send-message com-m reply)))))
+       (registry/send-message com-m reply)))))

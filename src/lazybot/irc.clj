@@ -1,11 +1,8 @@
 (ns lazybot.irc
-  (:use lazybot.core
-        lazybot.info
-        [useful.fn :only [decorate]]
-        [useful.map :only [keyed]])
-  (:require [irclj.core :as ircb]
-            [lazybot.core :as core]
-            [lazybot.info :as info]))
+  (:require [lazybot.core :as core]
+            [lazybot.info :as info]
+            [useful.fn :refer [decorate]]
+            [useful.map :refer [keyed]][irclj.core :as ircb]))
 
 (defn base-maps
   "Create the base callback and bot maps."
