@@ -1,5 +1,5 @@
 (ns lazybot.plugins.lmgtfy
-  (:use [lazybot.registry :as registry]))
+  (:require [lazybot.registry :as registry]))
 
 (defn create-url [args]
   (str "http://www.lmgtfy.com/?q=" (apply str (interpose "+" args))))
@@ -11,8 +11,8 @@
    #{"lmgtfy"}
    (fn [{:keys [bot args] :as com-m}]
      (if (not (seq args))
-       (send-message com-m "http://www.lmgtfy.com")
+       (registry/send-message com-m "http://www.lmgtfy.com")
        (if (some #(= "@" %) args)
          (let [[url-from user-to] (split-with #(not= "@" %) args)]
-           (send-message com-m (str (last user-to) ": " (create-url url-from))))
-         (send-message com-m (create-url args)))))))
+           (registry/send-message com-m (str (last user-to) ": " (create-url url-from))))
+         (registry/send-message com-m (create-url args)))))))

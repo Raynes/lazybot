@@ -1,6 +1,6 @@
 (ns lazybot.plugins.rotten-tomatoes
-  (:use lazybot.registry)
-  (:require [cheshire.core :as json]
+  (:require [lazybot.registry :as registry]
+            [cheshire.core :as json]
             [clj-http.client :as http]
             [clojure.string :as string]))
 
@@ -42,12 +42,12 @@
       reverse
       (map compose-message))))
 
-(defplugin
+(registry/defplugin
   (:cmd
     "Get the rotten tomatoes rating for a movie."
     #{"movie"}
     (fn [{:keys [bot args] :as com-m}]
-      (send-message com-m
+      (registry/send-message com-m
                     (or
                       (get-ratings
                         (get-in @bot [:config :rotten-tomatoes :key])
@@ -61,4 +61,4 @@
       (doseq [message (take (or (when (seq args) (Integer. (first args))) 5)
                             (in-theaters
                               (get-in @bot [:config :rotten-tomatoes :key])))]
-        (send-message (assoc com-m :channel nick) message :notice? true)))))
+        (registry/send-message (assoc com-m :channel nick) message :notice? true)))))
