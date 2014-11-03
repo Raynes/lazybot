@@ -1,24 +1,36 @@
 (ns lazybot.irc
-  (:require [lazybot.core :as core]
+  (:require [lazybot.core :as lazybot]
             [lazybot.info :as info]
             [useful.fn :refer [decorate]]
-            [useful.map :refer [keyed]][irclj.core :as ircb]))
+            [useful.map :refer [keyed]]
+            [irclj.core :as ircb]))
+
+(defn make-hook
+  [actions]
+  (fn [& args]
+    (when-not (empty? @actions)
+      (doseq [action @actions]
+        (apply action args)))))
 
 (defn base-maps
   "Create the base callback and bot maps."
   [config]
-  (let [refzors (ref {:modules {:internal {:hooks core/initial-hooks}}
+  (let [refzors (ref {:modules {:internal {:hooks lazybot/initial-hooks}}
                       :config config
                       :pending-ops 0})]
     [(into {}
            (map
             (decorate
-             #(fn [irc-map]
-                (core/call-all (-> irc-map
-                                   (assoc :bot refzors :com (:irc irc-map))
-                                   (dissoc :irc))
-                               %)))
-            [:on-any :on-message :on-quit :on-join]))
+             #(fn dispatch-hooks [irc-map event]
+                (lazybot/call-all (-> @irc-map
+                                      (assoc :bot refzors :com (:irc irc-map))
+                                      (dissoc :irc)
+                                      (assoc :event event)
+                                      (assoc :message (:text event))
+                                      (assoc :channel ((:params event) 0))
+                                      (assoc :com ((:params event) 1)))
+                                  %)))
+            [:001 :on-any :privmsg :on-quit :on-join]))
      refzors]))
 
 (defn make-bot
@@ -29,9 +41,7 @@
         [name pass channels] ((juxt :bot-name :bot-password :channels)
                                    (bot-config server))
         [fnmap refzors] (base-maps bot-config)
-        _ (println "connecting to" (pr-str server) (pr-str port) (pr-str name))
         irc (ircb/connect server port name
-                          :channels channels
                           :callbacks fnmap
                           :identify-after-secs 3)]
     [irc refzors]))
@@ -40,13 +50,13 @@
   "Initialize a new bot."
   [server]
   (let [[irc refzors] (make-bot server)]
-    (swap! core/bots assoc server {:com irc :bot refzors})
-    (dosync (core/reload-config refzors))
-    (core/load-plugins irc refzors)))
+    (swap! lazybot/bots assoc server {:com irc :bot refzors})
+    (dosync (lazybot/reload-config refzors))
+    (lazybot/load-plugins irc refzors)))
 
 (defn start-bots
   "Starts bots for servers."
   [servers]
   (doseq [serv servers]
     (init-bot serv))
-  (core/route (core/extract-routes (vals @core/bots))))
+  (lazybot/route (lazybot/extract-routes (vals @lazybot/bots))))

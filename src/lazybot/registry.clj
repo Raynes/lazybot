@@ -62,17 +62,18 @@
 
 ;; This is what you should use for sending messages.
 ;; TODO: Document
-(defn send-message [{:keys [com bot channel]} s & {:keys [action? notice?]}]
-  (if-let [result (call-message-hooks com bot channel s action?)]
-    ((cond
-      action? ircb/ctcp
-      notice? ircb/notice
-      :else ircb/message)
-     com channel result)))
+(defn send-message [{:keys [bot com channel] :as irc} s
+                    & {:keys [action? notice?]}]
+  (let [result (call-message-hooks com bot channel s action?)
+        writer (cond
+                action? ircb/ctcp
+                notice? ircb/notice
+                :else ircb/message)]
+    (writer (delay irc) channel result)))
 
 (defn ignore-message? [{:keys [nick bot com]}]
-  (-> @bot
-      (get-in [:config (:server @com) :user-blacklist])
+  (-> bot
+      (get-in [:config (:server com) :user-blacklist])
       (contains? (.toLowerCase nick))))
 
 (defn try-handle [{:keys [nick channel bot message] :as com-m}]
@@ -91,7 +92,8 @@
              (let [n-bmap (into com-m (split-args conf message query?))]
                (thunk-timeout #((respond n-bmap) n-bmap)
                               30 :sec))
-             (catch TimeoutException _ (send-message com-m "Execution timed out."))
+             (catch TimeoutException _
+               (send-message com-m "Execution timed out."))
              (catch Exception e (.printStackTrace e))
              (finally
                (dosync

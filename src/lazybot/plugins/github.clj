@@ -5,7 +5,6 @@
             [clojure.string :as s]
             [tentacles.issues :refer [specific-issue]]
             [useful.map :refer [update]]
-            [clojure.pprint :refer [pprint]]
             [cheshire.core :refer [parse-string]])
   (:import java.net.InetAddress))
 

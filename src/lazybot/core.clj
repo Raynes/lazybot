@@ -7,7 +7,8 @@
    [clojure.set :refer [intersection]]
    [compojure.core :refer [routes]]
    [ring.middleware.params :refer [wrap-params]]
-   [ring.adapter.jetty :refer [run-jetty]])
+   [ring.adapter.jetty :refer [run-jetty]]
+   [irclj.core :as ircb])
   (:import [java.io File FileReader]))
 
 ;; This is pretty much the only global mutable state in the entire bot, and it
@@ -34,10 +35,18 @@
     (doseq [hook (registry/pull-hooks bot hook-key)]
       (hook ircm))))
 
+(defn join-channels
+  [irc-map]
+  (let [network (:network irc-map)
+        channels (-> irc-map :bot deref :config (get network) :channels)]
+    ;; delay here because join expects it should deref
+    (apply ircb/join (delay irc-map) channels)))
+
 ;; Note that even the actual handling of commands is done via a hook.
 (def initial-hooks
   "The hooks that every bot, even without plugins, needs to have."
-  {:privmsg [{:fn (fn [irc-map] (registry/try-handle irc-map))}]
+  {:001 [{:fn join-channels}]
+   :privmsg [{:fn (fn [irc-map] (registry/try-handle irc-map))}]
    :on-quit []
    :on-join []})
 
@@ -67,8 +76,8 @@
 (defn load-plugins
   "Load all plugins specified in the bot's configuration."
   [irc refzors]
-  (let [info (:config @refzors)]
-    (doseq [plug (:plugins (info (:server @irc)))]
+  (let [plugins (-> @refzors :config (get (:network @irc)) :plugins)]
+    (doseq [plug plugins]
       (load-plugin irc refzors plug))))
 
 (defn reload-configs
