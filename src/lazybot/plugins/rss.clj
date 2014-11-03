@@ -1,7 +1,7 @@
 (ns lazybot.plugins.rss
-  (:use lazybot.registry
-	[lazybot.utilities :only [shorten-url]])
-  (:require [clojure.xml :as xml]
+  (:require [lazybot.registry :as registry]
+            [lazybot.utilities :refer [shorten-url]]
+            [clojure.xml :as xml]
 	    [clojure.zip :as zip]
 	    [clojure.data.zip.xml :as zf]))
 
@@ -21,12 +21,12 @@
 (defn pull-feed [url]
   (-> url xml/parse zip/xml-zip cull))
 
-(defplugin
+(registry/defplugin
   (:cmd
    "Get's the first three results from an RSS or Atom feed."
    #{"rss" "atom"} 
    (fn [{:keys [bot channel args] :as com-m}]
      (try
        (doseq [[title link] (pull-feed (first args))]
-         (send-message com-m (str title " -- " link)))
-       (catch Exception _ (send-message com-m "Feed is unreadable."))))))
+         (registry/send-message com-m (str title " -- " link)))
+       (catch Exception _ (registry/send-message com-m "Feed is unreadable."))))))

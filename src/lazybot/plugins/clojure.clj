@@ -1,20 +1,20 @@
 (ns lazybot.plugins.clojure
-  (:use clojure.stacktrace
-        (clojail testers core) ; What? What the fuck? Fix this. Fuck.
-        lazybot.registry
-        clojure.tools.logging
-        [lazybot.utilities :only [on-thread verify trim-string shorten-url]]
-        [lazybot.paste :only [trim-with-paste paste]]
-        [useful.fn :only [fix]]
-        [findfn.core :only [find-fn find-arg read-arg-string]])
   (:require [clojure.string :as string :only [replace]]
             [clojure.walk :as walk]
             [cd-client.core :as cd]
             [me.raynes.laser :as l]
-            ; these requires are for findfn
             [clojure.string :as s]
             clojure.set
-            clojure.repl)
+            clojure.repl
+            [clojure.stacktrace :as stacktrace]
+            [clojail.testers :as testers]
+            [clojail.core :as clojail]
+            [lazybot.registry :as registry]
+            [clojure.tools.logging :as logging]
+            [lazybot.utilities :refer [on-thread verify trim-string shorten-url]]
+            [lazybot.paste :refer [trim-with-paste paste]]
+            [useful.fn :refer [fix]]
+            [findfn.core :refer [find-fn find-arg read-arg-string]])
   (:import java.io.StringWriter
            java.util.concurrent.TimeoutException
            java.util.regex.Pattern
@@ -33,19 +33,19 @@
       (str (and macro "Macro ") arglists "; " docs))))
 
 (def tester
-  (conj secure-tester
-        (blanket "somnium"
-                 "lazybot"
-                 "irclj"
-                 "findfn")))
+  (conj testers/secure-tester
+        (testers/blanket "somnium"
+                         "lazybot"
+                         "irclj"
+                         "findfn")))
 
 (def sb
-  (sandbox tester
-           :transform pr-str
-           :init '(defmacro doc [s]
-                    (if (special-symbol? s)
-                      (lazybot.plugins.clojure/doc* s)
-                      `(doc* (var ~s))))))
+  (clojail/sandbox tester
+                   :transform pr-str
+                   :init '(defmacro doc [s]
+                            (if (special-symbol? s)
+                              (lazybot.plugins.clojure/doc* s)
+                              `(doc* (var ~s))))))
 
 (def cap 300)
 
@@ -79,27 +79,27 @@
                line)))))
 
 (defn no-box [code bindings]
-  (thunk-timeout #(with-bindings bindings (eval code)) 10000))
+  (clojail/thunk-timeout #(with-bindings bindings (eval code)) 10000))
 
 (defn execute-text [box? bot-name user txt pre]
   (try
     (with-open [writer (StringWriter.)]
       (let [bindings {#'*out* writer}
             res (if box?
-                  (sb (safe-read txt) bindings)
+                  (sb (clojail/safe-read txt) bindings)
                   (pr-str (no-box (read-string txt) bindings)))
             replaced (string/replace (str writer) "\n" " ")
             result (str replaced (when (= last \space) " ") res)]
         (str (or pre "\u21D2 ") (trim bot-name user txt result))))
    (catch TimeoutException _ "Execution Timed Out!")
-   (catch Exception e (str (root-cause e)))))
+   (catch Exception e (str (stacktrace/root-cause e)))))
 
 (def tasks (atom [0]))
 
 (defn first-object [s]
   (when (seq s)
     (try
-      (-> (safe-read s)
+      (-> (clojail/safe-read s)
           (fix coll? pr-str, nil))
       (catch Exception _))))
 
@@ -175,7 +175,7 @@
     (catch Throwable e
       (.getMessage e))))
 
-(defplugin
+(registry/defplugin
   (:hook
    :on-message
    (fn [{:keys [com bot nick channel message] :as com-m}]
@@ -189,14 +189,14 @@
                                           (if (< pending 3)
                                             [(inc pending) true]
                                             [pending false]))))
-             (send-message com-m "Too much is happening at once. Wait until other operations cease.")
+             (registry/send-message com-m "Too much is happening at once. Wait until other operations cease.")
              (on-thread
               (try
                 (doseq [msg (eval-forms (if (nil? box?) true box?)
                                         (:name @com) nick
                                         pre
                                         sexps)]
-                  (send-message com-m msg))
+                  (registry/send-message com-m msg))
                 (finally (swap! tasks (fn [[pending]]
                                         [(dec pending)])))))))
          (throw (Exception. "Dude, you didn't set :eval-prefixes. I can't configure myself!"))))))
@@ -205,7 +205,7 @@
    "Link to the source code of a Clojure function or macro."
    #{"source"}
    (fn [{:keys [args] :as com-m}]
-     (send-message com-m
+     (registry/send-message com-m
                    (if-let [line-url (get-line-url (first args))]
                      (str (first args)  " is " line-url)
                      "Source not found."))))
@@ -214,19 +214,19 @@
    "Finds the clojure fns which, given your input, produce your output."
    #{"findfn"}
    (fn [{:keys [args] :as com-m}]
-     (send-message com-m (findfn-pluginfn find-fn (string/join " " args)))))
+     (registry/send-message com-m (findfn-pluginfn find-fn (string/join " " args)))))
 
   (:cmd
    "(findarg map % [1 2 3] [2 3 4]) ;=> inc"
    #{"findarg"}
    (fn [{:keys [args] :as com-m}]
-     (send-message com-m (findfn-pluginfn find-arg (string/join " " args)))))
+     (registry/send-message com-m (findfn-pluginfn find-arg (string/join " " args)))))
 
   (:cmd
    "Look up the latest version of something on clojars."
    #{"latest"}
    (fn [{:keys [args] :as com-m}]
-     (send-message com-m
+     (registry/send-message com-m
                    (try
                      (let [project (first args)
                            link (str "https://clojars.org/" project)]

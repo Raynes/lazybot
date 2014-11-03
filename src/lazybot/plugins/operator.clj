@@ -1,9 +1,9 @@
 (ns lazybot.plugins.operator
-  (:use lazybot.registry
-        [lazybot.plugins.login :only [when-privs]])
-  (:require [irclj.core :as ircb]))
+  (:require [lazybot.registry :as registry]
+            [lazybot.plugins.login :refer [when-privs]]
+            [irclj.core :as ircb]))
 
-(defplugin
+(registry/defplugin
   (:cmd
    "Sets the person you specify as operator. ADMIN ONLY."
    #{"op"}

@@ -1,16 +1,16 @@
 (ns lazybot.plugins.dictionary
-  (:use lazybot.registry
-        [lazybot.utilities :only [prefix]])
-  (:require [wordnik.api.word :as wword]
+  (:require [lazybot.registry :as registry]
+            [lazybot.utilities :refer [prefix]]
+            [wordnik.api.word :as wword]
             [wordnik.api.words :as wwords]
             [clojure.string :as string]))
 
-(defplugin 
+(registry/defplugin 
   (:cmd
    "Takes a word and look's up it's definition via the Wordnik dictionary API." 
    #{"dict"} 
    (fn [{:keys [bot channel nick args] :as com-m}]
-     (send-message
+     (registry/send-message
       com-m 
       (prefix nick
               (if-let [the-word (first args)]
@@ -26,7 +26,7 @@
    "Wordnik's Word Of The Day"
    #{"wotd"}
    (fn [{:keys [bot channel nick args] :as com-m}]
-     (send-message
+     (registry/send-message
       com-m
       (prefix nick
               (let [key (get-in @bot [:config :dictionary :wordnik-key])
@@ -40,7 +40,7 @@
    "Common bi-gram phrases for the given word"
    #{"phrases"}
    (fn [{:keys [bot channel nick args] :as com-m}]
-     (send-message
+     (registry/send-message
       com-m
       (prefix nick
               (if-let [the-word (first args)]

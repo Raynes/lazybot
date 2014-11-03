@@ -1,9 +1,10 @@
 (ns lazybot.plugins.mail
   (:refer-clojure :exclude [extend])
-  (:use [lazybot registry info]
-        [lazybot.plugins.login :only [when-privs]]
-        [somnium.congomongo :only [fetch fetch-one insert! destroy!]])
-  (:require [clj-time.core :as t]
+  (:require [lazybot.registry :as registry]
+            [lazybot.info :as info]
+            [lazybot.plugins.login :refer [when-privs]]
+            [somnium.congomongo :refer [fetch fetch-one insert! destroy!]]
+            [clj-time.core :as t]
             [clj-time.format :as f]))
 
 (def alerted (atom {}))
@@ -19,7 +20,7 @@
   (str "From: " from ", Time: " timestamp ", Text: " message))
 
 (defn destroy-messages! [com-m from to]
-  (send-message com-m (str "Deleted unread messages from " from " to " to))
+  (registry/send-message com-m (str "Deleted unread messages from " from " to " to))
   (destroy! :mail {:to to :from from}))
 
 (defn fetch-messages [user]
@@ -41,7 +42,7 @@
   (let [lower-nick (.toLowerCase nick)
         nmess (count-messages lower-nick)]
     (when (and (> nmess 0) (alert-time? lower-nick))
-      (send-message
+      (registry/send-message
        (assoc com-m :channel nick)
        (str "You have " nmess
             " new message(s). To retrieve your mail, send me a private message with the contents 'mail'.")
@@ -51,10 +52,10 @@
 (defn get-messages [{:keys [nick] :as com-m}]
   (let [lower-nick (.toLowerCase nick)]
     (if-let [messages (seq (fetch-messages lower-nick))]
-      (doseq [message messages] (send-message (assoc com-m :channel lower-nick) message))
-      (send-message com-m "You have no messages."))))
+      (doseq [message messages] (registry/send-message (assoc com-m :channel lower-nick) message))
+      (registry/send-message com-m "You have no messages."))))
 
-(defplugin
+(registry/defplugin
   (:hook :on-message #'mail-alert)
   (:hook :on-join #'mail-alert)
 
@@ -73,8 +74,8 @@
                   (not= lower-user (.toLowerCase (:name @com))))
            (do
              (new-message nick lower-user (->> args rest (interpose " ") (apply str)))
-             (send-message com-m "Message saved."))
-           (send-message com-m "You can't message the unmessageable.")))
+             (registry/send-message com-m "Message saved."))
+           (registry/send-message com-m "You can't message the unmessageable.")))
        (get-messages com-m))))
   (:cmd
    "Cancel your pending messages to another user. Specify the user's nick. Admin users can use $unmail <from> <to> to delete anyone's mails."

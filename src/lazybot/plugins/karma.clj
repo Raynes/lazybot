@@ -2,9 +2,10 @@
 ; Licensed under the EPL
 
 (ns lazybot.plugins.karma
-  (:use [lazybot registry info]
-        [useful.map :only [keyed]]
-        [somnium.congomongo :only [fetch-one insert! update!]])
+  (:require [lazybot.registry :as registry]
+            [lazybot.info :as info]
+            [useful.map :refer [keyed]]
+            [somnium.congomongo :refer [fetch-one insert! update!]])
   (:import (java.util.concurrent Executors ScheduledExecutorService TimeUnit)))
 
 (defn- key-attrs [nick server channel]
@@ -44,7 +45,7 @@
     (when apply
       (set-karma snick (:server @com) channel new-karma)
       (schedule #(dosync (alter limit update-in [nick snick] dec))))
-    (send-message com-m msg)))
+    (registry/send-message com-m msg)))
 
 (defn karma-fn
   "Create a plugin command function that applies f to the karma of the user specified in args."
@@ -58,12 +59,12 @@
 (def print-karma
   (fn [{:keys [com bot channel args] :as com-m}]
     (let [nick (first args)]
-      (send-message com-m
+      (registry/send-message com-m
                     (if-let [karma (get-karma nick (:server @com) channel)]
                       (str nick " has karma " karma ".")
                       (str "I have no record for " nick "."))))))
 
-(defplugin
+(registry/defplugin
   (:hook :on-message
          (fn [{:keys [message] :as com-m}]
            (let [[_ direction snick] (re-find #"^\((inc|dec|identity) (.+)\)(\s*;.*)?$" message)]

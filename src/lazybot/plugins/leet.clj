@@ -1,5 +1,5 @@
 (ns lazybot.plugins.leet
-  (:use lazybot.registry))
+  (:require [lazybot.registry :as registry]))
 
 (defn char-to-leet [c]
   (condp = c
@@ -19,14 +19,14 @@
 (defn leetspeek [s]
   (->> s (#(.toLowerCase %)) (map char-to-leet) (apply str)))
 
-(defplugin
+(registry/defplugin
   (:cmd 
    "Takes words and replaces them with their leetspeak alternatives." 
    #{"elite"} 
    (fn [{:keys [args] :as com-m}]
-     (send-message com-m 
-                   (->> args 
-                        (interpose " ")
-                        (apply str)
-                        (#(.toLowerCase %))
-                        leetspeek)))))
+     (registry/send-message com-m 
+                            (->> args 
+                                 (interpose " ")
+                                 (apply str)
+                                 (#(.toLowerCase %))
+                                 leetspeek)))))

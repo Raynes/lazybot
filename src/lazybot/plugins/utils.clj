@@ -1,19 +1,21 @@
 (ns lazybot.plugins.utils
-  (:use [lazybot utilities info registry]
-        [lazybot.plugins.login :only [when-privs]]
-        [lazybot.paste :only [trim-with-paste]]
-        [clj-time.core :only [plus minus now interval in-secs hours]]
-        [clj-time.format :only [unparse formatters]]
-        [clojure.java.shell :only [sh]])
   (:require [irclj.core :as ircb]
-            [clojure.string :as s])
+            [clojure.string :as s]
+            [lazybot.utilities :as utilities]
+            [lazybot.info :as info]
+            [lazybot.registry :as registry]
+            [lazybot.plugins.login :refer [when-privs]]
+            [lazybot.paste :refer [trim-with-paste]]
+            [clj-time.core :refer [plus minus now interval in-secs hours]]
+            [clj-time.format :refer [unparse formatters]]
+            [clojure.java.shell :refer [sh]])
   (:import java.net.InetAddress))
 
 (defn pangram? [s]
   (let [letters (into #{} "abcdefghijklmnopqrstuvwxyz")]
     (= (->> s .toLowerCase (filter letters) (into #{})) letters)))
 
-(defplugin
+(registry/defplugin
   (:cmd
    "Gets the current time and date in UTC format."
    #{"time"}
@@ -26,7 +28,7 @@
                                  \- (minus (now) (hours n))
                                  (now)))
                            (now)))]
-       (send-message com-m (prefix nick "The time is now " time)))))
+       (registry/send-message com-m (utilities/prefix nick "The time is now " time)))))
 
   (:cmd
    "Joins a channel. Takes a channel and an optional password. ADMIN ONLY."
@@ -41,16 +43,16 @@
    (fn [{:keys [bot com nick args channel] :as com-m}]
      (when-privs com-m :admin
                (let [chan (or (first args) channel)]
-                 (send-message com-m "Bai!")
+                 (registry/send-message com-m "Bai!")
                  (ircb/part-chan com chan :reason "Quit")))))
 
   (:cmd
    "Flips a coin."
    #{"coin"}
    (fn [{:keys [bot nick] :as com-m}]
-     (send-message
+     (registry/send-message
       com-m
-      (prefix nick
+      (utilities/prefix nick
               (if (zero? (rand-int 2))
                 "Heads."
                 "Tails.")))))
@@ -58,19 +60,19 @@
   (:cmd 
    "Prints an amusing message."
    #{"what"}
-   (fn [com-m] (send-message com-m "It's AWWWW RIGHT!")))
+   (fn [com-m] (registry/send-message com-m "It's AWWWW RIGHT!")))
 
   (:cmd
    "Checks if its input string is a pangram."
    #{"pangram?"}
    (fn [{:keys [args] :as com-m}]
-     (send-message com-m (->> args s/join pangram? str))))
+     (registry/send-message com-m (->> args s/join pangram? str))))
 
   (:cmd
    "Just says the sender's name: no u."
    #{"fuck"}
    (fn [{:keys [bot nick] :as com-m}]
-     (send-message com-m (prefix nick "no u"))))
+     (registry/send-message com-m (utilities/prefix nick "no u"))))
 
   (:cmd
    "Sets the bot's nick. ADMIN ONLY."
@@ -82,19 +84,19 @@
    "Love your bot? Give him a snack and thank him for his hard work!"
    #{"botsnack"}
    (fn [{:keys [nick bot] :as com-m}]
-     (send-message com-m (prefix nick "Thanks! Om nom nom!!"))))
+     (registry/send-message com-m (utilities/prefix nick "Thanks! Om nom nom!!"))))
 
   (:cmd
    "Prints an amusing message."
    #{"kill"}
-   (fn [com-m] (send-message com-m "KILL IT WITH FIRE!")))
+   (fn [com-m] (registry/send-message com-m "KILL IT WITH FIRE!")))
 
   (:cmd
    "Says what you tell it to in the channel you specify. ADMIN ONLY."
    #{"say"}
    (fn [{:keys [bot nick args] :as com-m}]
      (when-privs com-m :admin
-               (send-message (assoc com-m :channel (first args))
+                 (registry/send-message (assoc com-m :channel (first args))
                              (->> args rest (interpose " ") (apply str))))))
 
   (:cmd
@@ -102,8 +104,8 @@
    #{"tc" "tempconv"}
    (fn [{:keys [nick args bot] :as com-m}]
      (let [num (->> args first rest (apply str) Integer/parseInt)]
-       (send-message com-m 
-                     (prefix nick
+       (registry/send-message com-m 
+                     (utilities/prefix nick
                              (condp = (ffirst args)
                                  \F (* (- num 32) (/ 5 9.0))
                                  \C (+ 32 (* (/ 9.0 5) num))
@@ -115,9 +117,9 @@
    (fn [{:keys [bot nick args] :as com-m}]
      (let [address (InetAddress/getByName (first args))
            stime (now)]
-       (send-message
+       (registry/send-message
         com-m
-        (prefix nick
+        (utilities/prefix nick
              (if (= false (.isReachable address 5000))
                "FAILURE!"
                (str "Ping completed in " (in-secs (interval stime (now))) " seconds.")))))))
@@ -127,7 +129,7 @@
    #{"shell"}
    (fn [{:keys [bot nick args] :as com-m}]
      (when-privs com-m :admin
-      (send-message
+      (registry/send-message
        com-m
        (let [cmd (s/join " " args)]
          (trim-with-paste
@@ -137,4 +139,4 @@
    "SEIZE HIM!"
    #{"guards"}
    (fn [com-m]
-     (send-message com-m "SEIZE HIM!"))))
+     (registry/send-message com-m "SEIZE HIM!"))))

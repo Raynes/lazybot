@@ -1,8 +1,8 @@
 (ns lazybot.plugins.mute
-  (:use lazybot.registry
-        [lazybot.plugins.login :only [when-privs]]))
+  (:require [lazybot.registry :as registry]
+            [lazybot.plugins.login :refer [when-privs]]))
 
-(defplugin
+(registry/defplugin
   (:hook
    :on-send-message
    (fn [_ bot channel s action?] (when-not (some #{channel} (-> @bot :configs :mute :channels)) s)))
@@ -13,7 +13,7 @@
    (fn [{:keys [bot nick channel] :as com-m}]
      (when-privs com-m :admin
       (do
-        (send-message com-m "Muting.")
+        (registry/send-message com-m "Muting.")
         (dosync (alter bot update-in [:configs :mute :channels] conj channel))))))
   
   (:cmd
@@ -25,4 +25,4 @@
         (dosync
          (alter bot update-in [:configs :mute :channels]
                 (fn [x] (remove #(= % channel) x))))
-        (send-message com-m "Unmuted."))))))
+        (registry/send-message com-m "Unmuted."))))))
