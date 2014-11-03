@@ -69,19 +69,23 @@
                 action? ircb/ctcp
                 notice? ircb/notice
                 :else ircb/message)]
-    (writer (delay irc) channel result)))
+    (writer com channel result)))
 
 (defn ignore-message? [{:keys [nick bot com]}]
   (-> bot
       (get-in [:config (:server com) :user-blacklist])
       (contains? (.toLowerCase nick))))
 
-(defn try-handle [{:keys [nick channel bot message] :as com-m}]
+(defn try-handle [{:keys [user-nick bot-nick channel bot message event] :as com-m}]
   (when-not (ignore-message? com-m)
     (on-thread
      (let [conf (:config @bot)
-           query? (= channel nick)
-           max-ops (:max-operations conf)]
+           query? (= channel bot-nick)
+           max-ops (:max-operations conf)
+           response-m (if query?
+                        ;; respond to the user sending request, not our own nick
+                        (assoc com-m :channel user-nick :query? true)
+                        (assoc com-m :query? false))]
        (when (or (is-command? message (:prepends conf)) query?)
          (if (dosync
               (let [pending (:pending-ops @bot)
@@ -89,7 +93,7 @@
                 (when permitted
                   (alter bot assoc :pending-ops (inc pending)))))
            (try
-             (let [n-bmap (into com-m (split-args conf message query?))]
+             (let [n-bmap (into response-m (split-args conf message query?))]
                (thunk-timeout #((respond n-bmap) n-bmap)
                               30 :sec))
              (catch TimeoutException _
