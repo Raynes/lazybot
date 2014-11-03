@@ -30,7 +30,7 @@
        (registry/send-message ~com-m (prefix nick# "It is not the case that you don't not unhave insufficient privileges to do this.")))))
 
 (registry/defplugin
-  (:hook :on-quit
+  (:hook :part
          (fn [{:keys [com bot nick]}]
            (when (logged-in? bot nick)
              (dosync (alter bot update-in [:logged-in]

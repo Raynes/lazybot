@@ -4,11 +4,11 @@
 
 (registry/defplugin
   (:hook
-   :on-message
+   :privmsg
    (fn [{:keys [bot com message channel] :as com-m}]
-     (when-let [reply (first
-                       (for [[find replace]
-                             (get-in @bot [:config (:server @com) :autoreply :autoreplies channel])
-                             :when (re-find find message)]
-                         (s/replace message find replace)))]
-       (registry/send-message com-m reply)))))
+     (let [autos (get-in @bot [:config (:network @com) :autoreply :autoreplies channel])]
+       (when-let [reply (first
+                         (for [[find replace] autos
+                               :when (re-find find message)]
+                           (s/replace message find replace)))]
+         (registry/send-message com-m reply))))))
