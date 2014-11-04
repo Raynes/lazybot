@@ -17,7 +17,7 @@
       (io! (registry/send-message (assoc com-m :channel who) what :notice? true)))))
 
 (defn scan-ping-request [message from]
-  (when-let [[_ to] (re-find #"^([^ ]+).{2}ping.?$" message)]
+  (when-let [[_ to] (re-find #"^([^: ]+):?\s+{2}ping.?$" message)]
     (dosync
      (alter pings update-in [to]
             assoc
@@ -25,7 +25,7 @@
 
 (registry/defplugin
   (:hook
-   :on-message
-   (fn [{:keys [nick message] :as com-m}]
-     (notify-pingers com-m nick)
-     (scan-ping-request message nick))))
+   :privmsg
+   (fn [{:keys [user-nick message] :as com-m}]
+     (notify-pingers com-m user-nick)
+     (scan-ping-request message user-nick))))
