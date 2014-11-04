@@ -35,5 +35,5 @@
 (registry/defplugin
   (:init
    (fn [irc bot]
-     (swap! bots assoc (:server @irc) {:irc irc :bot bot})))
+     (swap! bots assoc (:network @irc) {:irc irc :bot bot})))
   (:routes (POST "/notifo" req (handler req))))

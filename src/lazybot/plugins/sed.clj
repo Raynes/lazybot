@@ -8,15 +8,15 @@
 (def message-map (atom {}))
 (def sed-regex #"^s/([^/]+)/([^/]*)/?")
 
-(defn- format-msg [{:keys [bot nick] :as com-m}]
-  (registry/send-message com-m (prefix nick "Format is sed [-<user name>] s/<regexp>/<replacement>/ Try <prefix>help sed")))
+(defn- format-msg [{:keys [bot user-nick] :as com-m}]
+  (registry/send-message com-m (prefix user-nick "Format is sed [-<user name>] s/<regexp>/<replacement>/ Try <prefix>help sed")))
 
 (defn sed* [string regexp replacement]
   (try
     (.replaceAll string (str "(?i)" regexp) replacement)))
 
 (defn sed [com-m verbose?]
-  (let [{:keys [bot com nick args channel]} com-m
+  (let [{:keys [bot com user-nick args channel]} com-m
 
         arg-str (.trim (join " " args))
         try-to-match (fn [regex]
@@ -45,18 +45,18 @@
 
 (registry/defplugin
   (:hook
-   :on-message
-   (fn [{:keys [com bot nick message channel] :as com-m}]
+   :privmsg
+   (fn [{:keys [com bot user-nick message channel] :as com-m}]
      (when (and (get-in @bot [:config :sed :automatic?])
                 (not (when-let [blacklist (get-in @bot [:config (:server @com) :sed :blacklist])]
                        (blacklist channel))))
        (when (seq (re-find sed-regex message))
-         (sed (assoc com-m :args [nick message]) false))
-       (when (and (not= nick (:name @com))
+         (sed (assoc com-m :args [user-nick message]) false))
+       (when (and (not= user-nick (:name @com))
                   (not= (take 4 message)
                         (-> @bot :config :prepends first (str "sed"))))
          (swap! message-map update-in [com channel]
-                assoc nick message, :channel-last message)))))
+                assoc user-nick message, :channel-last message)))))
 
   (:cmd
    "Simple find and replace. Usage: sed [-<user name>] s/<regexp>/<replacement>/

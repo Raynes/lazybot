@@ -31,7 +31,7 @@
                                       (assoc :message (:text event))
                                       (assoc :channel ((:params event) 0)))
                                   %)))
-            [:001 :on-any :privmsg :on-quit :on-join]))
+            [:001 :privmsg :quit :join]))
      refzors]))
 
 (defn make-bot

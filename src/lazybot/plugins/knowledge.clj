@@ -9,10 +9,10 @@
   (:cmd
    "Ask me a question."
    #{"know"}
-   (fn [{:keys [bot channel nick args] :as com-m}]
+   (fn [{:keys [bot channel user-nick args] :as com-m}]
      (registry/send-message
       com-m
-      (prefix nick
+      (prefix user-nick
               (let [account (get-in @bot [:config :knowledge :account-id])
                     password (get-in @bot [:config :knowledge :password])
                     question (apply str (interpose " " args))]

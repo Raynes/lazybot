@@ -34,7 +34,7 @@
   (:cmd
    "Set log level for specified plugins. Example: log debug clojure ping -  specify \"all\" or an empty list to affect all plugins."
    #{"log"}
-   (fn [{:keys [bot nick com channel args] :as com-m}]
+   (fn [{:keys [bot user-nick com channel args] :as com-m}]
      (let [[level & pkgs] args
            level (Level/toLevel (.toUpperCase level))]
        (when-privs

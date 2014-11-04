@@ -68,10 +68,10 @@
   (:cmd
     "Get the latest song played by a user (yourself by default)."
     #{"last"}
-    (fn [{:keys [nick com bot args] :as com-m}]
+    (fn [{:keys [user-nick com bot args] :as com-m}]
       (send-message
         com-m
-        (or (get-latest-song bot (:server @com) (or (first args) nick))
+        (or (get-latest-song bot (:network @com) (or (first args) user-nick))
             "Couldn't find that user."))))
 
   (:cmd
@@ -82,7 +82,7 @@
     (fn [{:keys [com bot args] :as com-m}]
       (send-message
         com-m
-        (or (get-top "Artists" bot (:server @com) (first args) [:topartists :artist] (second args))
+        (or (get-top "Artists" bot (:network @com) (first args) [:topartists :artist] (second args))
             "Couldn't find that user."))))
 
   (:cmd
@@ -93,7 +93,7 @@
     (fn [{:keys [com bot args] :as com-m}]
       (send-message
         com-m
-        (or (get-top "Tracks" bot (:server @com) (first args) [:toptracks :track] (second args))
+        (or (get-top "Tracks" bot (:network @com) (first args) [:toptracks :track] (second args))
             "Couldn't find that user."))))
 
   (:cmd
@@ -104,17 +104,17 @@
     (fn [{:keys [com bot args] :as com-m}]
       (send-message
         com-m
-        (or (get-top "Albums" bot (:server @com) (first args) [:topalbums :album] (second args))
+        (or (get-top "Albums" bot (:network @com) (first args) [:topalbums :album] (second args))
             "Couldn't find that user."))))
   
   (:cmd
     "Associate your nickname with a lastfm username"
     #{"lfmassoc"}
-    (fn [{:keys [nick com args] :as com-m}]
+    (fn [{:keys [user-nick com args] :as com-m}]
       (send-message
         com-m
         (if-let [user (first args)]
-          (do (add-assoc (:server @com) nick user)
+          (do (add-assoc (:network @com) user-nick user)
               "Associated your username.")
           "Well, I can't guess your username. I need an argument, please."))))
   
@@ -124,6 +124,6 @@
     (fn [{:keys [com args] :as com-m}]
       (send-message
         com-m
-        (if-let [user (get-association (:server @com) (first args))]
+        (if-let [user (get-association (:network @com) (first args))]
           (str "http://last.fm/user/" user)
           "User not found.")))))

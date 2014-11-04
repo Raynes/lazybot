@@ -32,19 +32,19 @@
 
 ;; TODO: mongo has atomic inc/dec commands - we should use those
 (defn- change-karma
-  [snick new-karma {:keys [^String nick com bot channel] :as com-m}]
+  [snick new-karma {:keys [^String user-nick com bot channel] :as com-m}]
   (let [[msg apply]
         (dosync
-         (let [current (get-in @limit [nick snick])]
+         (let [current (get-in @limit [user-nick snick])]
            (cond
-            (.equalsIgnoreCase nick snick) ["You can't adjust your own karma."]
+            (.equalsIgnoreCase user-nick snick) ["You can't adjust your own karma."]
             (= current 3) ["Do I smell abuse? Wait a while before modifying that person's karma again."]
             (= current new-karma) ["You want me to leave karma the same? Fine, I will."]
             :else [(str (get-in @bot [:config :prefix-arrow]) new-karma)
-                   (alter limit update-in [nick snick] (fnil inc 0))])))]
+                   (alter limit update-in [user-nick snick] (fnil inc 0))])))]
     (when apply
       (set-karma snick (:server @com) channel new-karma)
-      (schedule #(dosync (alter limit update-in [nick snick] dec))))
+      (schedule #(dosync (alter limit update-in [user-nick snick] dec))))
     (registry/send-message com-m msg)))
 
 (defn karma-fn
@@ -65,15 +65,16 @@
                       (str "I have no record for " nick "."))))))
 
 (registry/defplugin
-  (:hook :on-message
-         (fn [{:keys [message] :as com-m}]
-           (let [[_ direction snick] (re-find #"^\((inc|dec|identity) (.+)\)(\s*;.*)?$" message)]
-             (when snick
-               ((case direction
-                  "inc" (karma-fn inc)
-                  "dec" (karma-fn dec)
-                  "identity" print-karma)
-                (merge com-m {:args [snick]}))))))
+  (:hook
+   :privmsg
+   (fn [{:keys [message] :as com-m}]
+     (let [[_ direction snick] (re-find #"^\((inc|dec|identity) (.+)\)(\s*;.*)?$" message)]
+       (when snick
+         ((case direction
+            "inc" (karma-fn inc)
+            "dec" (karma-fn dec)
+            "identity" print-karma)
+          (merge com-m {:args [snick]}))))))
   (:cmd
    "Checks the karma of the person you specify."
    #{"karma" "identity"} print-karma)

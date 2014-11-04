@@ -38,19 +38,19 @@
     true))
 
 (defn mail-alert
-  [{:keys [nick bot] :as com-m}]
-  (let [lower-nick (.toLowerCase nick)
+  [{:keys [user-nick bot] :as com-m}]
+  (let [lower-nick (.toLowerCase user-nick)
         nmess (count-messages lower-nick)]
     (when (and (> nmess 0) (alert-time? lower-nick))
       (registry/send-message
-       (assoc com-m :channel nick)
+       (assoc com-m :channel user-nick)
        (str "You have " nmess
             " new message(s). To retrieve your mail, send me a private message with the contents 'mail'.")
        :notice? true)
       (swap! alerted assoc lower-nick (t/now)))))
 
-(defn get-messages [{:keys [nick] :as com-m}]
-  (let [lower-nick (.toLowerCase nick)]
+(defn get-messages [{:keys [user-nick] :as com-m}]
+  (let [lower-nick (.toLowerCase user-nick)]
     (if-let [messages (seq (fetch-messages lower-nick))]
       (doseq [message messages] (registry/send-message (assoc com-m :channel lower-nick) message))
       (registry/send-message com-m "You have no messages."))))
@@ -67,23 +67,23 @@
   (:cmd
    "Send somebody a message. Takes a nickname and a message to send. Will alert the person with a notice."
    #{"mail"}
-   (fn [{:keys [com nick args irc] :as com-m}]
+   (fn [{:keys [com user-nick args irc] :as com-m}]
      (if (seq args)
        (let [lower-user (.toLowerCase (first args))]
          (if (and (not (.contains lower-user "serv"))
                   (not= lower-user (.toLowerCase (:name @com))))
            (do
-             (new-message nick lower-user (->> args rest (interpose " ") (apply str)))
+             (new-message user-nick lower-user (->> args rest (interpose " ") (apply str)))
              (registry/send-message com-m "Message saved."))
            (registry/send-message com-m "You can't message the unmessageable.")))
        (get-messages com-m))))
   (:cmd
    "Cancel your pending messages to another user. Specify the user's nick. Admin users can use $unmail <from> <to> to delete anyone's mails."
    #{"unmail"}
-   (fn [{:keys [com nick args irc] :as com-m}]
+   (fn [{:keys [com user-nick args irc] :as com-m}]
      (if (> (count args) 1)
        (when-privs com-m :admin
          (let [[from to] args]
            (destroy-messages! com-m from to)))
-       (destroy-messages! com-m nick (first args)))))
+       (destroy-messages! com-m user-nick (first args)))))
   (:indexes [[:to :from]]))

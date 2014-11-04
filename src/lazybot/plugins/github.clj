@@ -108,9 +108,9 @@ specified in config.clj."
   (:routes (POST "/commits" req (handler req)))
 
   (:hook
-   :on-message
-   (fn [{:keys [message nick bot com] :as com-m}]
-     (when-not ((get-in @bot [:config (:server @com) :user-blacklist]) nick)
+   :privmsg
+   (fn [{:keys [message user-nick bot com] :as com-m}]
+     (when-not ((get-in @bot [:config (:server @com) :user-blacklist]) user-nick)
        (doseq [issue (extract-issues message)]
          (when-let [message (issue-message (parse-issue issue))]
            (send-message com-m message)))))))

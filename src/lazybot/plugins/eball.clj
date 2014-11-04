@@ -28,6 +28,6 @@
   (:cmd
    "Ask the magic eight ball a question."
    #{"8ball" "will" "should"}
-   (fn [{:keys [bot nick channel] :as com-m}]
+   (fn [{:keys [bot user-nick channel] :as com-m}]
      (let [answer (rand-int 20)]
-       (registry/send-message com-m (prefix nick (nth responses answer)))))))
+       (registry/send-message com-m (prefix user-nick (nth responses answer)))))))

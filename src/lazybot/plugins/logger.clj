@@ -60,17 +60,17 @@
     [(unparse (formatters :date) time)
      (unparse (formatters :hour-minute-second) time)]))
 
-(defn log-message [{:keys [com bot nick channel message action?]}]
+(defn log-message [{:keys [com bot user-nick channel message action?]}]
   (let [config (:config @bot)
-        server (:server @com)]
+        server (:network @com)]
     (when-let [log-dir (log-dir config server channel)]
       (let [[date time] (date-time config)
             log-file (file log-dir (str date ".txt"))]
         (.mkdirs log-dir)
         (spit log-file
               (if action?
-                (format "[%s] *%s %s\n" time nick message)
-                (format "[%s] %s: %s\n" time nick message))
+                (format "[%s] *%s %s\n" time user-nick message)
+                (format "[%s] %s: %s\n" time user-nick message))
               :append true)))))
 
 (defn link
@@ -139,7 +139,7 @@
               (GET ["/:server" :server pathreg] [server]
                   (layout server (server-index server)))
               (GET ["/:server/:channel"
-                   :server pathreg
+                   :network pathreg
                    :channel pathreg]
                   [server channel]
                   (layout (str server channel)
