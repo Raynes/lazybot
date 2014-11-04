@@ -22,12 +22,13 @@
            (map
             (decorate
              #(fn dispatch-hooks [irc-map event]
+                (dosync (alter irc-map assoc :server (:network @irc-map)))
                 (lazybot/call-all (-> @irc-map
                                       (assoc :bot refzors :com irc-map)
                                       (dissoc :irc)
                                       (assoc :event event)
                                       (assoc :bot-nick (:nick @irc-map))
-                                      (assoc :user-nick (:nick event))
+                                      (assoc :nick (:nick event))
                                       (assoc :message (:text event))
                                       (assoc :channel ((:params event) 0)))
                                   %)))

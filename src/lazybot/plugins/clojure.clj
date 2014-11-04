@@ -178,7 +178,7 @@
 (registry/defplugin
   (:hook
    :privmsg
-   (fn [{:keys [com bot user-nick channel message] :as com-m}]
+   (fn [{:keys [com bot nick channel message] :as com-m}]
      (let [config (:config @bot)
            clj-config (:clojure config)
            pre (:prefix-arrow config)
@@ -193,7 +193,7 @@
              (on-thread
               (try
                 (doseq [msg (eval-forms (if (nil? box?) true box?)
-                                        (:name @com) user-nick
+                                        (:name @com) nick
                                         pre
                                         sexps)]
                   (registry/send-message com-m msg))

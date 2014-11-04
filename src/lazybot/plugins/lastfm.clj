@@ -68,10 +68,10 @@
   (:cmd
     "Get the latest song played by a user (yourself by default)."
     #{"last"}
-    (fn [{:keys [user-nick com bot args] :as com-m}]
+    (fn [{:keys [nick network bot args] :as com-m}]
       (send-message
         com-m
-        (or (get-latest-song bot (:network @com) (or (first args) user-nick))
+        (or (get-latest-song bot network (or (first args) nick))
             "Couldn't find that user."))))
 
   (:cmd
@@ -79,10 +79,10 @@
     but you can change the period. Pass a second arg that is any of 7day, 1month, 3month,
     6month, or 12month."
     #{"topartists"}
-    (fn [{:keys [com bot args] :as com-m}]
+    (fn [{:keys [network bot args] :as com-m}]
       (send-message
         com-m
-        (or (get-top "Artists" bot (:network @com) (first args) [:topartists :artist] (second args))
+        (or (get-top "Artists" bot network (first args) [:topartists :artist] (second args))
             "Couldn't find that user."))))
 
   (:cmd
@@ -90,10 +90,10 @@
     but you can change the period. Pass a second arg that is any of 7day, 1month, 3month,
     6month, or 12month."
     #{"toptracks"}
-    (fn [{:keys [com bot args] :as com-m}]
+    (fn [{:keys [network bot args] :as com-m}]
       (send-message
         com-m
-        (or (get-top "Tracks" bot (:network @com) (first args) [:toptracks :track] (second args))
+        (or (get-top "Tracks" bot network (first args) [:toptracks :track] (second args))
             "Couldn't find that user."))))
 
   (:cmd
@@ -101,29 +101,29 @@
     but you can change the period. Pass a second arg that is any of 7day, 1month, 3month,
     6month, or 12month."
     #{"topalbums"}
-    (fn [{:keys [com bot args] :as com-m}]
+    (fn [{:keys [network bot args] :as com-m}]
       (send-message
         com-m
-        (or (get-top "Albums" bot (:network @com) (first args) [:topalbums :album] (second args))
+        (or (get-top "Albums" bot network (first args) [:topalbums :album] (second args))
             "Couldn't find that user."))))
   
   (:cmd
     "Associate your nickname with a lastfm username"
     #{"lfmassoc"}
-    (fn [{:keys [user-nick com args] :as com-m}]
+    (fn [{:keys [nick network args] :as com-m}]
       (send-message
         com-m
         (if-let [user (first args)]
-          (do (add-assoc (:network @com) user-nick user)
+          (do (add-assoc network nick user)
               "Associated your username.")
           "Well, I can't guess your username. I need an argument, please."))))
   
   (:cmd
     "Find out what username is associated with a given nickname."
     #{"lfmuser"}
-    (fn [{:keys [com args] :as com-m}]
+    (fn [{:keys [network args] :as com-m}]
       (send-message
         com-m
-        (if-let [user (get-association (:network @com) (first args))]
+        (if-let [user (get-association network (first args))]
           (str "http://last.fm/user/" user)
           "User not found.")))))

@@ -5,9 +5,9 @@
 (registry/defplugin
   (:hook
    :join
-   (fn [{:keys [com user-nick channel]}]
+   (fn [{:keys [com nick channel]}]
      (future
-      (when (= user-nick (:name @com))
+      (when (= nick (:name @com))
         (Thread/sleep 3000))
       (let [user-count (count (keys (get-in @com [:channels channel :users])))
             max (:max (fetch-one :max :where {:channel channel}))]

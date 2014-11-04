@@ -5,12 +5,13 @@
 (registry/defplugin
   (:hook
    :on-send-message
-   (fn [_ bot channel s action?] (println "in mute hook") (when-not (some #{channel} (-> @bot :configs :mute :channels)) s)))
+   (fn [_ bot channel s action?]
+     (when-not (some #{channel} (-> @bot :configs :mute :channels)) s)))
 
   (:cmd
    "Mutes the bot for the channel that this function is executed in."
    #{"mute"} 
-   (fn [{:keys [bot user-nick channel] :as com-m}]
+   (fn [{:keys [bot nick channel] :as com-m}]
      (when-privs com-m :admin
       (do
         (registry/send-message com-m "Muting.")
@@ -19,7 +20,7 @@
   (:cmd
    "Unmutes a channel that has been previously muted by :mute."
    #{"unmute"}
-   (fn [{:keys [bot user-nick channel] :as com-m}]
+   (fn [{:keys [bot nick channel] :as com-m}]
      (when-privs com-m :admin
       (do
         (dosync

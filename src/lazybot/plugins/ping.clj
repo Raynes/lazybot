@@ -26,6 +26,6 @@
 (registry/defplugin
   (:hook
    :privmsg
-   (fn [{:keys [user-nick message] :as com-m}]
-     (notify-pingers com-m user-nick)
-     (scan-ping-request message user-nick))))
+   (fn [{:keys [nick message] :as com-m}]
+     (notify-pingers com-m nick)
+     (scan-ping-request message nick))))

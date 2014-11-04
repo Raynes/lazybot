@@ -45,7 +45,7 @@
   (:cmd
    "Get help with commands and stuff."
    #{"help"}
-   (fn [{:keys [bot user-nick args] :as com-m}]
+   (fn [{:keys [bot nick args] :as com-m}]
      (let [help-msg (join
                      " "
                      (filter
@@ -57,9 +57,9 @@
                content (fetch-one :help :where {:topic topic})]
            (cond
             (not topic) (registry/send-message com-m "You're going to need to tell me what you want help with.")
-            content (registry/send-message com-m (prefix user-nick (:content content)))
+            content (registry/send-message com-m (prefix nick (:content content)))
             :else (registry/send-message com-m (str "Topic: \"" topic "\" doesn't exist!"))))
-         (registry/send-message com-m (prefix user-nick help-msg))))))
+         (registry/send-message com-m (prefix nick help-msg))))))
   
   (:cmd
    "Lists the available help topics in the DB."

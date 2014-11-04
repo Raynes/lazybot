@@ -5,8 +5,8 @@
 (registry/defplugin
   (:hook
    :privmsg
-   (fn [{:keys [bot com message channel] :as com-m}]
-     (let [autos (get-in @bot [:config (:network @com) :autoreply :autoreplies channel])]
+   (fn [{:keys [bot com message channel network] :as com-m}]
+     (let [autos (get-in @bot [:config network :autoreply :autoreplies channel])]
        (when-let [reply (first
                          (for [[find replace] autos
                                :when (re-find find message)]

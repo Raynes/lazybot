@@ -8,7 +8,7 @@
   (:cmd
    "Load a plugin. ADMIN ONLY!"
    #{"load"}
-   (fn [{:keys [com bot user-nick channel args] :as com-m}]
+   (fn [{:keys [com bot nick channel args] :as com-m}]
      (when-privs com-m :admin
                (if (->> args first (lazybot/safe-load-plugin com bot))
                  (registry/send-message com-m "Loaded.")
@@ -17,7 +17,7 @@
   (:cmd
    "Unload a plugin. ADMIN ONLY!"
    #{"unload"}
-   (fn [{:keys [bot user-nick channel args] :as com-m}]
+   (fn [{:keys [bot nick channel args] :as com-m}]
      (when-privs com-m :admin
                (if ((:modules @bot) (keyword (first args)))
                  (do 
@@ -28,7 +28,7 @@
   (:cmd
    "Lists all the plugins that are currently loaded. ADMIN ONLY!"
    #{"loaded"}
-   (fn [{:keys [bot user-nick args] :as com-m}]
+   (fn [{:keys [bot nick args] :as com-m}]
      (when-privs com-m :admin
                  (registry/send-message com-m
                              (apply str (interpose " " (sort (keys (:modules @bot)))))))))
@@ -36,7 +36,7 @@
   (:cmd
    "Reloads all plugins. ADMIN ONLY!"
    #{"reload"}
-   (fn [{:keys [bot channel user-nick bot] :as com-m}]
+   (fn [{:keys [bot channel nick bot] :as com-m}]
      (when-privs com-m :admin
                (do
                  (apply lazybot/reload-all (vals @lazybot/bots))

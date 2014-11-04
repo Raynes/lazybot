@@ -76,7 +76,7 @@
       (get-in [:config (:server com) :user-blacklist])
       (contains? (.toLowerCase nick))))
 
-(defn try-handle [{:keys [user-nick bot-nick channel bot message event] :as com-m}]
+(defn try-handle [{:keys [nick bot-nick channel bot message event] :as com-m}]
   (when-not (ignore-message? com-m)
     (on-thread
      (let [conf (:config @bot)
@@ -84,7 +84,7 @@
            max-ops (:max-operations conf)
            response-m (if query?
                         ;; respond to the user sending request, not our own nick
-                        (assoc com-m :channel user-nick :query? true)
+                        (assoc com-m :channel nick :query? true)
                         (assoc com-m :query? false))]
        (when (or (is-command? message (:prepends conf)) query?)
          (if (dosync

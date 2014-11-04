@@ -24,7 +24,7 @@
   "Check to see if a user has the specified privs, if so, execute body. Otherwise,
    send the user a message pointing out that they don't have the required privs."
   [com-m priv & body]
-  `(let [{bot# :bot nick# :user-nick} ~com-m]
+  `(let [{bot# :bot nick# :nick} ~com-m]
      (if (has-privs? bot# nick# ~priv)
        (do ~@body)
        (registry/send-message ~com-m (prefix nick# "It is not the case that you don't not unhave insufficient privileges to do this.")))))
@@ -39,31 +39,31 @@
   (:cmd 
    "Best executed via PM. Give it your password, and it will log you in."
    #{"login"}
-   (fn [{:keys [com bot user-nick hmask channel args event query?] :as com-m}]
-     (if (check-login user-nick hmask (first args) (:network @com) bot)
+   (fn [{:keys [network bot nick event channel args event query?] :as com-m}]
+     (if (check-login nick (:host event) (first args) network bot)
        (registry/send-message com-m "You've been logged in.")
        (registry/send-message com-m "Username and password combination/hostmask do not match."))))
   
   (:cmd
    "Logs you out."
    #{"logout"}
-   (fn [{:keys [com bot user-nick] :as com-m}]
-     (dosync (alter bot update-in [:logged-in] dissoc user-nick)
+   (fn [{:keys [com bot nick] :as com-m}]
+     (dosync (alter bot update-in [:logged-in] dissoc nick)
              (registry/send-message com-m "You've been logged out."))))
 
    (:cmd
     "Finds your privs"
     #{"privs"}
-    (fn [{:keys [com bot channel user-nick] :as com-m}]
+    (fn [{:keys [com bot channel nick network] :as com-m}]
       (do
         (registry/send-message
          com-m
-         (prefix user-nick
+         (prefix nick
                  "You have privilege level "
-                 (if-let [user ((:users ((:config @bot) (:network @com))) user-nick)]
+                 (if-let [user ((:users ((:config @bot) network)) nick)]
                    (name (:privs user))
                    "nobody")
                  "; you are " 
-                 (if (logged-in? bot user-nick)
+                 (if (logged-in? bot nick)
                    "logged in."
                    "not logged in!")))))))

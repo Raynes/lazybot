@@ -9,10 +9,10 @@
   (:cmd
    "Takes a word and look's up it's definition via the Wordnik dictionary API." 
    #{"dict"} 
-   (fn [{:keys [bot channel user-nick args] :as com-m}]
+   (fn [{:keys [bot channel nick args] :as com-m}]
      (registry/send-message
       com-m 
-      (prefix user-nick
+      (prefix nick
               (if-let [the-word (first args)]
                 (let [key (get-in @bot [:config :dictionary :wordnik-key])
                       definition (first (wword/definitions the-word :api_key key))
