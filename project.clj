@@ -30,7 +30,8 @@
                  [me.raynes/laser "0.1.16"]
                  [hiccup "1.0.2"]
                  [me.raynes/least "0.1.3"]
-                 [me.raynes/moments "0.1.1"]]
+                 [me.raynes/moments "0.1.1"]
+                 [org.clojure-grimoire/lib-grimoire "0.1.1"]]
   :uberjar-name "lazybot.jar"
   :main lazybot.run
   :copy-deps true

@@ -1,20 +1,43 @@
 (ns lazybot.plugins.grimoire
-  (:require [lazybot.registry :as registry]))
+  (:require [grimoire.util :as util]
+            [lazybot.registry :refer [defplugin send-message]]))
 
-(def core-re #"clojure\.((core)|(data)|(edn)|(inspector)|(java)|(main)|(pprint)|(repl)|(set)|(stacktrace)|(template)|(test)|(uuid)|(walk)|(xml)|(zip)).*")
+(def nss #{"clojure.core"
+           "clojure.core.protocols"
+           "clojure.core.reducers"
+           "clojure.data"
+           "clojure.edn"
+           "clojure.inspector"
+           "clojure.instant"
+           "clojure.java.browse"
+           "clojure.java.io"
+           "clojure.java.javadoc"
+           "clojure.java.shell"
+           "clojure.main"
+           "clojure.pprint"
+           "clojure.reflect"
+           "clojure.repl"
+           "clojure.set"
+           "clojure.stacktrace"
+           "clojure.string"
+           "clojure.template"
+           "clojure.test"
+           "clojure.test.junit"
+           "clojure.test.tap"
+           "clojure.uuid"
+           "clojure.walk"
+           "clojure.xml"
+           "clojure.zip"})
 
-(registry/defplugin
+(defplugin
   (:cmd
    "Print the Grimoire URL for a symbol"
    #{"grim"}
    (fn [{:keys [args] :as com-m}]
-     (println "args" args)
-     (let [sym (first args)]
-       (when (re-matches core-re sym)
-         (let [s  (read-string sym)
-               ns (namespace s)
-               n  (name s)]
-           (when (and name namespace)
-             (registry/send-message
-              com-m
-              (format "http://grimoire.arrdem.com/1.6.0/%s/%s" ns n)))))))))
+     (let [sym      (first args)
+           [_ ns s] (re-matches #"(.*?)/(.*)" sym)]
+       (when (nss ns)
+         (send-message
+          com-m
+          (format "http://grimoire.arrdem.com/1.6.0/%s/%s"
+                  ns (util/munge s))))))))
