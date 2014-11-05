@@ -76,7 +76,7 @@
       (get-in [:config (:server com) :user-blacklist])
       (contains? (.toLowerCase nick))))
 
-(defn try-handle [{:keys [nick bot-nick channel bot message event] :as com-m}]
+(defn try-handle [{:keys [nick bot-nick channel bot message] :as com-m}]
   (when-not (ignore-message? com-m)
     (on-thread
      (let [conf (:config @bot)

@@ -1,7 +1,15 @@
-(let [plugins #{"dictionary" "lmgtfy" "google" "eball" "utils" "leet"
-                "clojure" "login" "log" "brainfuck" "whatis" "shorturl" "haskell"
-                "mail" "timer" "rss" "title" "operator" "seen" "sed" "help"
-                "load" "embedded" "karma" "fortune" "yesno" "autoreply" "weather" "unix-jokes"}]
+(let [plugins #{"autoreply" "brainfuck" "clojure" "clojuredocs" "debug" "dictionary" "eball"
+                "embedded" "fortune" "google" "haskell" "hello-world" "help" "javadoc"
+                "jruby" "karma" "leet" "lmgtfy" "load" "log" "logger" "login"
+                "macro" "mail" "max" "mute" "operator" "ping" "rss"
+                "sed" "seen" "shorturl" "timer" "title" "unix-jokes" "utils" "weather"
+                "whatis" "yesno"
+                ;; "github" how does this even work?
+                ;; "rotten-tomatoes", "lastfm" needs key to verify
+                ;; api broken -- "knowledge" "metacritic" (getting 403 error)
+                ;;               "notifo" this service went out of business
+                ;;               "shorturl" is.gd is good, bit.ly seems broken
+                }]
   {:servers ["irc.freenode.net"]        ; A list of servers.
    :prepends #{"@"}   ; The character you want for a prepend. Currently set to @
    :weather {:token ""} ; Wunderground token.

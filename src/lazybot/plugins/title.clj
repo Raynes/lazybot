@@ -34,8 +34,8 @@
 
 (defn url-blacklist-words [network bot] (:url-blacklist ((:config @bot) network)))
 
-(defn url-check [com bot url]
-  (some #(.contains url %) (url-blacklist-words com bot)))
+(defn url-check [network bot url]
+  (some #(.contains url %) (url-blacklist-words network bot)))
 
 (defn strip-tilde [s] (apply str (remove #{\~} s)))
 
@@ -49,7 +49,7 @@
        (thunk-timeout #(let [url (add-url-prefix link)
                              page (slurp-or-default url)
                              match (second page)]
-                         (if (and (seq page) (seq match) (not (url-check com bot url)))
+                         (if (and (seq page) (seq match) (not (url-check network bot url)))
                            (registry/send-message com-m
                                               (str "\""
                                                    (triml
