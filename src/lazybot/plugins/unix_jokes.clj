@@ -30,7 +30,7 @@
 
 (registry/defplugin
   (:hook
-   :on-message
+   :privmsg
    (fn [{:keys [bot com message channel] :as com-m}]
      (when-let [reply (response (s/split message #"\s+") com-m)]
        (registry/send-message com-m reply)))))

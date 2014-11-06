@@ -6,7 +6,7 @@
 
 (registry/defplugin
   (:hook
-   :on-message
+   :privmsg
    (fn [{:keys [message bot] :as com-m}]
      (let [macro-body (:macro (mongo/fetch-one :macro :where {:macro-name (.trim message)}))]
        (when (not-empty macro-body)
@@ -39,6 +39,3 @@
           (registry/send-message com-m (prefix nick macro-name " => " macro-body))
           (registry/send-message com-m (prefix nick "that macro doesn't exist!"))))))
    (:indexes [[:macro-name]]))
-      
-    
-       

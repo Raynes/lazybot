@@ -1,8 +1,8 @@
 (ns lazybot.plugins.shorturl
   (:require [lazybot.registry :as registry]
             [hobbit.core :as hobbit]
-            [hobbit.bitly :as bitly]
-            [hobbit.isgd :as isgd]))
+            hobbit.bitly
+            hobbit.isgd))
 
 (registry/defplugin
   (:cmd

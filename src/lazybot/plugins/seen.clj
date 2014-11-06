@@ -27,26 +27,24 @@
                                                :server server})]
     (update-in seen-map [:time] #(- (now) %))))
 
-(defn put-seen [{:keys [nick channel com]} doing]
-  (tack-time nick (:server @com) channel doing))
+(defn put-seen [{:keys [nick channel network]} doing]
+  (tack-time nick network channel doing))
 
 (registry/defplugin
-  (:hook :on-message
+  (:hook :privmsg
          (fn [irc-map] (put-seen irc-map "talking")))
-  (:hook :on-join
+  (:hook :join
          (fn [irc-map] (put-seen irc-map "joining")))
-  (:hook :on-quit
+  (:hook :quit
          (fn [irc-map] (put-seen irc-map "quitting")))
-
   (:cmd
    "Checks to see when the person you specify was last seen."
    #{"seen"}
-   (fn [{:keys [com bot channel args] :as com-m}]
+   (fn [{:keys [network bot channel args] :as com-m}]
      (let [[who] args]
        (registry/send-message com-m
                      (if-let [{:keys [time chan doing]}
-                              (get-seen who (:server @com))]
-
+                              (get-seen who network)]
                        (str who " was last seen " doing
                             (when-not (= doing "quitting") " on ")
                             chan " " (or (format-time time)
