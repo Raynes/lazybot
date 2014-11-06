@@ -6,7 +6,7 @@
             [lazybot.registry :as registry]
             [lazybot.plugins.login :refer [when-privs]]
             [lazybot.paste :refer [trim-with-paste]]
-            [clj-time.core :refer [plus minus now interval in-secs hours]]
+            [clj-time.core :refer [plus minus now interval in-seconds hours]]
             [clj-time.format :refer [unparse formatters]]
             [clojure.java.shell :refer [sh]])
   (:import java.net.InetAddress))
@@ -35,7 +35,7 @@
    #{"join"}
    (fn [{:keys [com bot nick args] :as com-m}]
      (when-privs com-m :admin
-               (ircb/join-chan com (first args) (last args)))))
+               (ircb/join com (first args) (last args)))))
 
   (:cmd
    "Parts a channel. Takes a channel and a part message. ADMIN ONLY."
@@ -44,7 +44,7 @@
      (when-privs com-m :admin
                (let [chan (or (first args) channel)]
                  (registry/send-message com-m "Bai!")
-                 (ircb/part-chan com chan :reason "Quit")))))
+                 (ircb/part com chan :reason "Quit")))))
 
   (:cmd
    "Flips a coin."
@@ -122,7 +122,7 @@
         (utilities/prefix nick
              (if (= false (.isReachable address 5000))
                "FAILURE!"
-               (str "Ping completed in " (in-secs (interval stime (now))) " seconds.")))))))
+               (str "Ping completed in " (in-seconds (interval stime (now))) " seconds.")))))))
 
   (:cmd
    "Executes a shell command and displays the STDOUT"

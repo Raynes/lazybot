@@ -2,6 +2,7 @@
   (:refer-clojure :exclude [extend])
   (:require [lazybot.registry :as registry]
             [lazybot.info :as info]
+            [clojure.string :as string]
             [lazybot.plugins.login :refer [when-privs]]
             [somnium.congomongo :refer [fetch fetch-one insert! destroy!]]
             [clj-time.core :as t]
@@ -56,8 +57,8 @@
       (registry/send-message com-m "You have no messages."))))
 
 (registry/defplugin
-  (:hook :on-message #'mail-alert)
-  (:hook :on-join #'mail-alert)
+  (:hook :privmsg #'mail-alert)
+  (:hook :join #'mail-alert)
 
   (:cmd
    "Request that your messages be sent you via PM. Executing this command will delete all your messages."
@@ -67,13 +68,13 @@
   (:cmd
    "Send somebody a message. Takes a nickname and a message to send. Will alert the person with a notice."
    #{"mail"}
-   (fn [{:keys [com nick args irc] :as com-m}]
+   (fn mail-plugin-mail [{:keys [com nick bot-nick args irc] :as com-m}]
      (if (seq args)
        (let [lower-user (.toLowerCase (first args))]
          (if (and (not (.contains lower-user "serv"))
-                  (not= lower-user (.toLowerCase (:name @com))))
+                  (not= lower-user (.toLowerCase bot-nick)))
            (do
-             (new-message nick lower-user (->> args rest (interpose " ") (apply str)))
+             (new-message nick lower-user (string/join \space (rest args)))
              (registry/send-message com-m "Message saved."))
            (registry/send-message com-m "You can't message the unmessageable.")))
        (get-messages com-m))))

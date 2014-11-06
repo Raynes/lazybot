@@ -59,8 +59,8 @@
             (not topic) (registry/send-message com-m "You're going to need to tell me what you want help with.")
             content (registry/send-message com-m (prefix nick (:content content)))
             :else (registry/send-message com-m (str "Topic: \"" topic "\" doesn't exist!"))))
-         (registry/send-message com-m (prefix  nick help-msg))))))
-  
+         (registry/send-message com-m (prefix nick help-msg))))))
+
   (:cmd
    "Lists the available help topics in the DB."
    #{"list"}

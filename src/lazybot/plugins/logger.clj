@@ -60,9 +60,9 @@
     [(unparse (formatters :date) time)
      (unparse (formatters :hour-minute-second) time)]))
 
-(defn log-message [{:keys [com bot nick channel message action?]}]
+(defn log-message [{:keys [network bot nick channel message action?]}]
   (let [config (:config @bot)
-        server (:server @com)]
+        server network]
     (when-let [log-dir (log-dir config server channel)]
       (let [[date time] (date-time config)
             log-file (file log-dir (str date ".txt"))]
@@ -151,10 +151,10 @@
                   [server channel file]
                   (file-index server channel file))
               (not-found "These are not the logs you're looking for.")))
-  (:hook :on-message #'log-message)
+  (:hook :privmsg #'log-message)
   (:hook
    :on-send-message
    (fn [com bot channel message action?]
      (log-message {:com com :bot bot :channel channel :message message
-                   :nick (:name @com) :action? action?})
+                   :nick (:nick @com) :action? action? :network (:network @com)})
      message)))

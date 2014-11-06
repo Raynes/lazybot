@@ -13,7 +13,7 @@
 	   [(first (zf/xml-> item :title zf/text)) 
 	    (shorten-url (first (if-let [atom-link (seq (zf/xml-> item :link (zf/attr :href)))]
 				  atom-link
-				  (zf/xml-> item :link zf/text))) "isgd")]) 
+				  (zf/xml-> item :link zf/text))))])
 	 (cond (seq items)  items 
 	       (seq items2) items2
 	       (seq items3) items3))))
@@ -25,8 +25,11 @@
   (:cmd
    "Get's the first three results from an RSS or Atom feed."
    #{"rss" "atom"} 
-   (fn [{:keys [bot channel args] :as com-m}]
+   (fn rss-plugin [{:keys [bot channel args] :as com-m}]
      (try
        (doseq [[title link] (pull-feed (first args))]
          (registry/send-message com-m (str title " -- " link)))
-       (catch Exception _ (registry/send-message com-m "Feed is unreadable."))))))
+       (catch Exception e
+         (println e)
+         (.printStackTrace e)
+         (registry/send-message com-m "Feed is unreadable."))))))

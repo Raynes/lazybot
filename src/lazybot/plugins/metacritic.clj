@@ -20,7 +20,7 @@
     (if-let [html (try (let [html (l/parse (slurp path))]
                          (when-not (seq (l/select html (l/class= "error_code")))
                            html))
-                       (catch Exception _))]
+                       (catch Exception e (println "metacritic got error" e "looking for" path)))]
       (let [[critic user] (map (comp l/text first)
                                [(l/select html 
                                           (l/descendant-of

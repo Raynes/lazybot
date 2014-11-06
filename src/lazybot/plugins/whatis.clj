@@ -47,6 +47,7 @@ Example - $tell G0SUB about clojure"
     "Gets a random value from the database."
     #{"rwhatis"} 
     (fn [com-m]
-      (let [what (-> :whatis fetch rand-nth :subject)]
+      (let [all (-> :whatis fetch)
+            what (and (seq all) (-> all rand-nth :subject))]
         (tell-about what com-m))))
    (:indexes [[:subject]]))

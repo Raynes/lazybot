@@ -1,5 +1,6 @@
 (ns lazybot.plugins.debug
   (:require [clojure.string :as string]
+            [clojure.pprint :as pprint]
             [lazybot.registry :as registry]
             [lazybot.plugins.login :refer [when-privs]]))
 
@@ -39,4 +40,6 @@
      (when (get-in @bot debug-keypath)
        (when-privs com-m :admin
         (let [code (string/join " " args)]
-          (println (str code " evaluates to:\n" (eval (read-string code))))))))))
+          (println (str code " evaluates to:\n"
+                        (with-out-str
+                          (pprint/pprint (eval (read-string code))))))))))))

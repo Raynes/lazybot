@@ -10,7 +10,7 @@ Several of this bot's plugins require that you have MongoDB installed and runnin
 
 As for what OSes this bot actually runs on: I have no clue. I've seen it run on several Ubuntu distros and OS X, but nobody (that I know of) has yet to venture into the world of lazybot-on-windows. If you do, please let me know how it goes.
 
-The easiest way to get the bot going is to pull the repository, install [leiningen](http://github.com/technomancy/leiningen), and run `lein deps`. Additionally, you will need MongoDB installed (in some future version, this will be an optional dependency). Edit .lazybot/info.clj to put the servers and other information the bot needs to have in there, get MongoDB running, and then run ./lazybot. After you run the bot the first time, you'll have to edit configuration in ~/.lazybot/info.clj (the .lazybot directory is copied to your home directory the first time).
+The easiest way to get the bot going is to pull the repository, install [leiningen](http://github.com/technomancy/leiningen), and run `lein deps`. Additionally, you will need MongoDB installed (in some future version, this will be an optional dependency). Edit .lazybot/config.clj to put the servers and other information the bot needs to have in there, get MongoDB running, and then run ./lazybot. After you run the bot the first time, you'll have to edit configuration in ~/.lazybot/config.clj (the .lazybot directory is copied to your home directory the first time).
 
 You can also run `lein uberjar` which will create a standalone jar file for you to use to run the bot. You can just do java -jar jarfile to run it.
 

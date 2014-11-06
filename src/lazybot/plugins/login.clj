@@ -30,7 +30,7 @@
        (registry/send-message ~com-m (prefix nick# "It is not the case that you don't not unhave insufficient privileges to do this.")))))
 
 (registry/defplugin
-  (:hook :on-quit
+  (:hook :part
          (fn [{:keys [com bot nick]}]
            (when (logged-in? bot nick)
              (dosync (alter bot update-in [:logged-in]
@@ -39,8 +39,8 @@
   (:cmd 
    "Best executed via PM. Give it your password, and it will log you in."
    #{"login"}
-   (fn [{:keys [com bot nick hmask channel args] :as com-m}]
-     (if (check-login nick hmask (first args) (:server @com) bot)
+   (fn [{:keys [network bot nick event channel args event query?] :as com-m}]
+     (if (check-login nick (:host event) (first args) network bot)
        (registry/send-message com-m "You've been logged in.")
        (registry/send-message com-m "Username and password combination/hostmask do not match."))))
   
@@ -54,13 +54,13 @@
    (:cmd
     "Finds your privs"
     #{"privs"}
-    (fn [{:keys [com bot channel nick] :as com-m}]
+    (fn [{:keys [com bot channel nick network] :as com-m}]
       (do
         (registry/send-message
          com-m
          (prefix nick
                  "You have privilege level "
-                 (if-let [user ((:users ((:config @bot) (:server @com))) nick)]
+                 (if-let [user ((:users ((:config @bot) network)) nick)]
                    (name (:privs user))
                    "nobody")
                  "; you are " 

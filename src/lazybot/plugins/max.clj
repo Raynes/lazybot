@@ -4,7 +4,7 @@
 
 (registry/defplugin
   (:hook
-   :on-join
+   :join
    (fn [{:keys [com nick channel]}]
      (future
       (when (= nick (:name @com))

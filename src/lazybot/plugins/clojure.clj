@@ -177,7 +177,7 @@
 
 (registry/defplugin
   (:hook
-   :on-message
+   :privmsg
    (fn [{:keys [com bot nick channel message] :as com-m}]
      (let [config (:config @bot)
            clj-config (:clojure config)
