@@ -54,16 +54,15 @@
 
 (defn get-top [kind bot server nick cull & [period]]
   (when-let [user (get-association server nick nick)]
-    (when-let [targets
-               (not-empty
-                (for [{:keys [name playcount]}
-                      (get-in (least/read (str "user.getTop" kind)
-                                          (get-api-key bot)
-                                          {:user user 
-                                           :limit 5
-                                           :period (or period "overall")})
-                              cull)]
-                  (str name " " playcount)))]
+    (when-let [targets (seq
+                        (for [{:keys [name playcount]}
+                              (get-in (least/read (str "user.getTop" kind)
+                                                  (get-api-key bot)
+                                                  {:user user 
+                                                   :limit 5
+                                                   :period (or period "overall")})
+                                      cull)]
+                          (str name " " playcount)))]
       (join " | " targets))))
 
 (defplugin
