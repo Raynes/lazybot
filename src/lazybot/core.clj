@@ -120,5 +120,3 @@
      (alter bot assoc-in [:modules :internal :hooks] initial-hooks)
      (reload-config bot))
     (load-plugins com bot)))
-
-(comment (apply lz/reload-all (vals @lz/bots)))

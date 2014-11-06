@@ -8,9 +8,8 @@
 (defn make-hook
   [actions]
   (fn [& args]
-    (when-not (empty? @actions)
-      (doseq [action @actions]
-        (apply action args)))))
+    (doseq [action @actions]
+      (apply action args))))
 
 (defn base-maps
   "Create the base callback and bot maps."

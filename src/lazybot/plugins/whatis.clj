@@ -48,6 +48,6 @@ Example - $tell G0SUB about clojure"
     #{"rwhatis"} 
     (fn [com-m]
       (let [all (-> :whatis fetch)
-            what (and (not-empty all) (-> all rand-nth :subject))]
+            what (and (seq all) (-> all rand-nth :subject))]
         (tell-about what com-m))))
    (:indexes [[:subject]]))

@@ -6,7 +6,7 @@
 
 (defn build-command
   [mode args]
-  (str mode \space (string/join \space args)))
+  (string/join \space (cons mode args)))
 
 (registry/defplugin
   (:cmd
@@ -27,6 +27,7 @@
    (fn [{:keys [com bot nick channel args] :as com-m}]
      (when-privs com-m :admin (ircb/kick com channel (first args) (string/join \space (rest args))))))
 
+  ;; settopic is not explicitly supported in our irclj version
   #_
   (:cmd
    "Set's the channel's topic. ADMIN ONLY."
