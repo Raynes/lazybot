@@ -3,11 +3,11 @@
 
 (registry/defplugin
   (:hook
-   :on-message
+   :privmsg
    (fn [{:keys [message bot] :as irc-map}]
-     (doseq [x (reverse (re-seq #"\$#(.*?)#\$" message))]
-       (->> x
-            second
-            (-> @bot :config :prepends first str)
-            (assoc irc-map :message)
-            registry/try-handle)))))
+     (doseq [command (reverse (re-seq #"\$#(.*?)#\$" message))]
+       (as-> command x
+             (second x)
+             (str (->  @bot :config :prepends first) x)
+             (assoc irc-map :message x)
+             (registry/try-handle x))))))

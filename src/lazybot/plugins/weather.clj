@@ -18,6 +18,14 @@
   (fn [data]
     (string/join ":" ((juxt :hour :minute) (k data)))))
 
+(def maybe-shorten
+  (let [shortener (resolve 'hobbit.core/shortener)
+        shorten (resolve 'hobbit.core/shorten)]
+    (fn maybe-shorten [bot url]
+      (if (and url shortener shorten)
+        (shorten (shortener "is.gd" (-> @bot :config :shorturl :auth)) url)
+        url))))
+
 (registry/defplugin
   (:cmd
    "Get the forecast for a location."
@@ -56,11 +64,12 @@
    "Get the link to the satellite image for your area."
    #{"satellite"}
    (fn [{:keys [bot nick args] :as com-m}]
-     (when-let [token (token @bot)]
-       (registry/send-message
-        com-m
-        (when-let [url (:image_url (w/satellite token (parse-location args)))]
-          (first (.split url "&api_key")))))))
+     (let [token (token @bot)
+           url (and token (:image_url (w/satellite token (parse-location args))))
+           url (and (string? url) (first (.split url "&api_key")))
+           url (and (string? url) (maybe-shorten bot url))]
+       (registry/send-message com-m
+                              (if url url "could not get satellite image")))))
 
   (:cmd
    "Get condition information for a location."

@@ -32,24 +32,24 @@
         :else (recur (conj acc (first lines)) (rest lines)))))
    (catch java.lang.Exception e nil)))
 
-(defn url-blacklist-words [com bot] (:url-blacklist ((:config @bot) (:server @com))))
+(defn url-blacklist-words [network bot] (:url-blacklist ((:config @bot) network)))
 
-(defn url-check [com bot url]
-  (some #(.contains url %) (url-blacklist-words com bot)))
+(defn url-check [network bot url]
+  (some #(.contains url %) (url-blacklist-words network bot)))
 
 (defn strip-tilde [s] (apply str (remove #{\~} s)))
 
-(defn title [{:keys [com nick bot user channel] :as com-m}
+(defn title [{:keys [network nick bot user channel] :as com-m}
              links & {verbose? :verbose?}]
   (if (or (and verbose? (seq links))
-          (not (contains? (get-in @bot [:config (:server @com) :title :blacklist])
+          (not (contains? (get-in @bot [:config network :title :blacklist])
                           channel)))
     (doseq [link (take 1 links)]
       (try
        (thunk-timeout #(let [url (add-url-prefix link)
                              page (slurp-or-default url)
                              match (second page)]
-                         (if (and (seq page) (seq match) (not (url-check com bot url)))
+                         (if (and (seq page) (seq match) (not (url-check network bot url)))
                            (registry/send-message com-m
                                               (str "\""
                                                    (triml
@@ -66,7 +66,7 @@
 (registry/defplugin
   (:hook
    :on-message
-   (fn [{:keys [com bot nick channel message] :as com-m}]
+   (fn [{:keys [network bot nick channel message] :as com-m}]
      (let [info (:config @bot)
            get-links (fn [s]
                        (->> s
@@ -75,7 +75,7 @@
        (let [prepend (:prepends info)
              links (get-links message)
              title-links? (and (not (registry/is-command? message prepend))
-                               (get-in info [(:server @com) :title :automatic?])
+                               (get-in info [network :title :automatic?])
                                (seq links))]
          (when title-links?
            (title com-m links))))))

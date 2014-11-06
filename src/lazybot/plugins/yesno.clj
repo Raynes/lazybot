@@ -18,7 +18,7 @@
 
 (registry/defplugin
   (:hook
-   :on-message
+   :privmsg
    (fn [{:keys [com bot nick message channel] :as com-m}]
      (when-let [[match questions] (re-find #"(\?+)\s*$" message)]
        (when-let [answer-type (choose-answer (count questions))]

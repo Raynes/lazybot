@@ -62,25 +62,30 @@
 
 ;; This is what you should use for sending messages.
 ;; TODO: Document
-(defn send-message [{:keys [com bot channel]} s & {:keys [action? notice?]}]
-  (if-let [result (call-message-hooks com bot channel s action?)]
-    ((cond
-      action? ircb/send-action
-      notice? ircb/send-notice
-      :else ircb/send-message)
-     com channel result)))
+(defn send-message [{:keys [bot com channel] :as irc} s
+                    & {:keys [action? notice?]}]
+  (let [result (call-message-hooks com bot channel s action?)
+        writer (cond
+                action? ircb/ctcp
+                notice? ircb/notice
+                :else ircb/message)]
+    (writer com channel result)))
 
 (defn ignore-message? [{:keys [nick bot com]}]
-  (-> @bot
-      (get-in [:config (:server @com) :user-blacklist])
+  (-> bot
+      (get-in [:config (:server com) :user-blacklist])
       (contains? (.toLowerCase nick))))
 
-(defn try-handle [{:keys [nick channel bot message] :as com-m}]
+(defn try-handle [{:keys [nick bot-nick channel bot message] :as com-m}]
   (when-not (ignore-message? com-m)
     (on-thread
      (let [conf (:config @bot)
-           query? (= channel nick)
-           max-ops (:max-operations conf)]
+           query? (= channel bot-nick)
+           max-ops (:max-operations conf)
+           response-m (if query?
+                        ;; respond to the user sending request, not our own nick
+                        (assoc com-m :channel nick :query? true)
+                        (assoc com-m :query? false))]
        (when (or (is-command? message (:prepends conf)) query?)
          (if (dosync
               (let [pending (:pending-ops @bot)
@@ -88,10 +93,11 @@
                 (when permitted
                   (alter bot assoc :pending-ops (inc pending)))))
            (try
-             (let [n-bmap (into com-m (split-args conf message query?))]
+             (let [n-bmap (into response-m (split-args conf message query?))]
                (thunk-timeout #((respond n-bmap) n-bmap)
                               30 :sec))
-             (catch TimeoutException _ (send-message com-m "Execution timed out."))
+             (catch TimeoutException _
+               (send-message com-m "Execution timed out."))
              (catch Exception e (.printStackTrace e))
              (finally
                (dosync
