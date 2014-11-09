@@ -3,7 +3,8 @@
             [lazybot.info :as info]
             [useful.fn :refer [decorate]]
             [useful.map :refer [keyed]]
-            [irclj.core :as ircb]))
+            [irclj.core :as ircb]
+            [irclj.events :as events]))
 
 (defn make-hook
   [actions]
@@ -17,7 +18,7 @@
   (let [refzors (ref {:modules {:internal {:hooks lazybot/initial-hooks}}
                       :config config
                       :pending-ops 0})]
-    [(into {}
+    [(into {:raw-log events/stdout-callback}
            (map
             (decorate
              #(fn dispatch-hooks [irc-map event]
