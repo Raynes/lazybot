@@ -87,7 +87,7 @@ specified in config.clj."
   (let [bot-name (get-in @bot [:config (:network @com) :bot-name])
         default-repo (get-in @bot [:config (:network @com) :github
                                    :channel-repos channel])]
-    (if (.startsWith message (str bot-name \:))
+    (if (and default-repo (.startsWith message (str bot-name \:)))
       (map str (cycle [default-repo]) (re-seq #"#\d+" message))
       (re-seq #"[\w-]+\/[.\w-]+#\d+" message))))
 
