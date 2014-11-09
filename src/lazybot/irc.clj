@@ -39,7 +39,7 @@
   "Creates a new bot and connects it."
   [server]
   (let [bot-config (info/read-config)
-        port 6667
+        port (get-in bot-config [server :port] 6667)
         [name pass channels] ((juxt :bot-name :bot-password :channels)
                                    (bot-config server))
         [fnmap refzors] (base-maps bot-config)
