@@ -5,7 +5,8 @@
   (:require [lazybot.registry :as registry]
             [lazybot.info :as info]
             [useful.map :refer [keyed]]
-            [somnium.congomongo :refer [fetch-one insert! update!]])
+            [somnium.congomongo :refer [fetch-one insert! update!]]
+            [clojure.string :as string])
   (:import (java.util.concurrent Executors ScheduledExecutorService TimeUnit)))
 
 (defn- key-attrs [nick server channel]
@@ -58,7 +59,7 @@
 
 (def print-karma
   (fn [{:keys [network bot channel args] :as com-m}]
-    (let [nick (first args)]
+    (let [nick (string/join \space args)]
       (registry/send-message
        com-m
        (if-let [karma (get-karma nick network  channel)]
