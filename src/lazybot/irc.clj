@@ -46,6 +46,7 @@
         irc (ircb/connect server port name
                           :callbacks fnmap
                           :identify-after-secs 3)]
+    (ircb/identify irc pass)
     [irc refzors]))
 
 (defn init-bot
