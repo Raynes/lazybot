@@ -90,7 +90,7 @@
         (if overtaxed?
           (send-message state "Too much is happening at once. Wait until other operations cease.")
           (try
-            (dosync (alter bot update-in [:pending-ops] dec))
+            (dosync (alter bot update-in [:pending-ops] inc))
             (let [state (into state (split-args config message query?))]
               (thunk-timeout #((respond state) state)
                              30 :sec))
