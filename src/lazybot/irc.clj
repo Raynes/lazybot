@@ -27,11 +27,6 @@
                       in-chan ((:params event) 0)
                       query? (= in-chan bot-nick)
                       channel (if query? (:nick event) in-chan)]
-                  (clojure.pprint/pprint
-                   {:bot-nick bot-nick
-                    :channel channel
-                    :query? query?
-                    :event event})
                   (lazybot/call-all (-> @irc-map
                                         (assoc :bot refzors :com irc-map)
                                         (dissoc :irc)
@@ -39,7 +34,8 @@
                                                :bot-nick bot-nick
                                                :nick (:nick event)
                                                :message (:text event)
-                                               :channel channel))
+                                               :channel channel
+                                               :query? query?))
                                     %))))
             [:001 :privmsg :quit :join]))
      refzors]))
