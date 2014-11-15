@@ -76,33 +76,29 @@
       (get-in [:config (:server com) :user-blacklist])
       (contains? (.toLowerCase nick))))
 
-(defn try-handle [{:keys [nick bot-nick channel bot message] :as com-m}]
-  (when-not (ignore-message? com-m)
-    (on-thread
-     (let [conf (:config @bot)
-           query? (= channel bot-nick)
-           max-ops (:max-operations conf)
-           response-m (if query?
-                        ;; respond to the user sending request, not our own nick
-                        (assoc com-m :channel nick :query? true)
-                        (assoc com-m :query? false))]
-       (when (or (is-command? message (:prepends conf)) query?)
-         (if (dosync
-              (let [pending (:pending-ops @bot)
-                    permitted (< pending max-ops)]
-                (when permitted
-                  (alter bot assoc :pending-ops (inc pending)))))
-           (try
-             (let [n-bmap (into response-m (split-args conf message query?))]
-               (thunk-timeout #((respond n-bmap) n-bmap)
-                              30 :sec))
-             (catch TimeoutException _
-               (send-message com-m "Execution timed out."))
-             (catch Exception e (.printStackTrace e))
-             (finally
-               (dosync
-                (alter bot assoc :pending-ops (dec (:pending-ops @bot))))))
-           (send-message com-m "Too much is happening at once. Wait until other operations cease.")))))))
+(defn try-handle
+  "attempt to handle input from an IRC channel"
+  [{:keys [nick bot-nick channel bot message event query?] :as state}]
+  {:pre [(= nick (:nick event))]}
+  (when-not (ignore-message? state)
+    (let [{:keys [config pending-ops]} @bot
+          {:keys [max-operations prepends]} config
+          respond? (or (is-command? message prepends)
+                       query?)
+          overtaxed? (>= pending-ops max-operations)]
+      (when respond?
+        (if overtaxed?
+          (send-message state "Too much is happening at once. Wait until other operations cease.")
+          (try
+            (dosync (alter bot update-in [:pending-ops] dec))
+            (let [state (into state (split-args config message query?))]
+              (thunk-timeout #((respond state) state)
+                             30 :sec))
+            (catch TimeoutException _
+              (send-message state "Execution timed out."))
+            (catch Exception e (.printStackTrace e))
+            (finally
+              (dosync (alter bot update-in [:pending-ops] dec)))))))))
 
 ;; ## Plugin DSL
 (defn merge-with-conj [& args]
