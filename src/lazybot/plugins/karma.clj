@@ -70,7 +70,7 @@
   (:hook
    :privmsg
    (fn [{:keys [message] :as com-m}]
-     (let [[_ direction snick] (re-find #"^\((inc|dec|identity)\s*([^)]+)\s*\)(\s*;.*)?$" message)]
+     (let [[_ direction snick] (re-find #"^\((inc|dec|identity)\s+([^)]+)\s*\)(\s*;.*)?$" message)]
        (when snick
          ((case direction
             "inc" (karma-fn inc)
