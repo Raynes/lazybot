@@ -65,7 +65,7 @@
 
 (registry/defplugin
   (:hook
-   :on-message
+   :privmsg
    (fn [{:keys [network bot nick channel message] :as com-m}]
      (let [info (:config @bot)
            get-links (fn [s]
