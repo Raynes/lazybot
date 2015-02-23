@@ -45,11 +45,15 @@
   [server]
   (let [bot-config (info/read-config)
         port (get-in bot-config [server :port] 6667)
-        [name pass channels] ((juxt :bot-name :bot-password :channels)
+        [name pass channels lpass luser ssl?] ((juxt :bot-name :bot-password :channels :login-password :login-username :ssl?)
                                    (bot-config server))
         [fnmap refzors] (base-maps bot-config)
         irc (ircb/connect server port name
                           :callbacks fnmap
+                          :username luser
+                          :nick luser
+                          :pass lpass
+                          :ssl? ssl?
                           :identify-after-secs 3)]
     (ircb/identify irc pass)
     [irc refzors]))
