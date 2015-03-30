@@ -31,7 +31,7 @@
                  [hiccup "1.0.2"]
                  [me.raynes/least "0.1.3"]
                  [me.raynes/moments "0.1.1"]
-                 [org.clojure-grimoire/lib-grimoire "0.1.1"]]
+                 [org.clojure-grimoire/lib-grimoire "0.9.0-alpha2"]]
   :uberjar-name "lazybot.jar"
   :main lazybot.run
   :copy-deps true
