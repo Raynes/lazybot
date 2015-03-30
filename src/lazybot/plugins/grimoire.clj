@@ -5,6 +5,7 @@
             [grimoire.api :as api]
             [grimoire.api.web :as web]
             [grimoire.api.web.read]
+            [lazybot.plugins.login :refer [when-privs]]
             [lazybot.registry :refer [defplugin send-message]]))
 
 (def -config
@@ -45,9 +46,10 @@
    "Reload the Grimoire ns index"
    #{"reload-grim"}
    (fn [com-m]
-     (->> (try (do (set-def-index!)
-                   (format "Reload succeeded!, %d defs indexed."
-                           (count @def-index)))
-               (catch Exception e
-                 (str "Reload failed!" (.getMessage e))))
-          (send-message com-m)))))
+     (when-privs com-m :admin
+       (->> (try (do (set-def-index!)
+                     (format "Reload succeeded!, %d defs indexed."
+                             (count @def-index)))
+                 (catch Exception e
+                   (str "Reload failed!" (.getMessage e))))
+            (send-message com-m))))))
