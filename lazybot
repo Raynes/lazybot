@@ -1,3 +1,3 @@
 #!/bin/sh
 
-java -cp `lein classpath` clojure.main -e "(use 'lazybot.run) (-main)"
+java -cp $(lein classpath) clojure.main -m lazybot.run --logpath LAZYBOT_LOG
