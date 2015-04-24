@@ -22,11 +22,14 @@
 (defn initiate-mongo
   "Initiate the mongodb connection and set it globally."
   []
-  (try
-    (mongo! :db (or (:db (info/read-config)) "lazybot"))
-    (catch Throwable e
-      (println "Error starting mongo (see below), carrying on without it")
-      (.printStackTrace e))))
+  (let [dbconf (:db (info/read-config))]
+    (try
+      (cond
+        (map? dbconf) (mongo! :db (or (:db dbconf) "lazybot") :host (or (:host dbconf) "localhost") :port (or (:port dbconf) 27017))
+        :else (mongo! :db (or dbconf "lazybot")))
+      (catch Throwable e
+        (println "Error starting mongo (see below), carrying on without it")
+        (.printStackTrace e)))))
 
 (defn call-all
   "Call all hooks of a specific type."
