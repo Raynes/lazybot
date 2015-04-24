@@ -1,0 +1,7 @@
+bot:
+  build: .
+  command: lein run
+  links:
+   - mongo
+mongo:
+  image: mongo:2
